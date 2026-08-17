@@ -1,0 +1,572 @@
+"use client";
+
+import * as React from "react";
+import { format, addDays } from "date-fns";
+import { Check, ChevronLeft, ChevronRight, Clock, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getAvailableSlots, type SlotResult } from "@/lib/server/appointments";
+import { listPractitionersForService } from "@/lib/server/directory";
+import { bookOwnAppointmentAction, rescheduleOwnAppointmentAction } from "@/lib/server/booking";
+import { clearPendingBooking, readPendingBooking } from "@/lib/pending-booking";
+import type { ServicePractitionerOption } from "@/types/services";
+import { cn } from "@/lib/utils";
+
+interface Service {
+  id: string;
+  name: string;
+  duration_minutes: number;
+  price: number;
+}
+
+type Step = "service" | "practitioner" | "slot" | "confirm";
+
+export function BookingWizard({
+  services,
+  reschedule,
+}: {
+  services: Service[];
+  reschedule?: { id: string; startsAt: string; serviceId: string; practitionerId: string } | null;
+}) {
+  const [step, setStep] = React.useState<Step>(reschedule ? "slot" : "service");
+  const [service, setService] = React.useState<Service | null>(() =>
+    reschedule ? services.find((item) => item.id === reschedule.serviceId) ?? null : null,
+  );
+  const [offeredPractitioners, setOfferedPractitioners] = React.useState<ServicePractitionerOption[]>([]);
+  const [loadingPractitioners, setLoadingPractitioners] = React.useState(false);
+  const [practitioner, setPractitioner] = React.useState<ServicePractitionerOption | null>(null);
+  const [date, setDate] = React.useState(() =>
+    format(reschedule ? new Date(reschedule.startsAt) : new Date(), "yyyy-MM-dd"),
+  );
+  const [slots, setSlots] = React.useState<SlotResult[]>([]);
+  const [loadingSlots, setLoadingSlots] = React.useState(false);
+  const [selectedSlot, setSelectedSlot] = React.useState<SlotResult | null>(null);
+  const [booking, setBooking] = React.useState<string | null>(null);
+  const [recommendedSlot, setRecommendedSlot] = React.useState<string | null>(null);
+
+  // Handle service selection: state reset + dynamic doctor loading
+  async function handleSelectService(s: Service) {
+    setService(s);
+    setPractitioner(null);
+    setSelectedSlot(null);
+    setSlots([]);
+    setRecommendedSlot(null);
+    setStep("practitioner");
+    setLoadingPractitioners(true);
+    try {
+      const docs = await listPractitionersForService(s.id);
+      setOfferedPractitioners(docs);
+    } catch {
+      toast.error("Failed to load available doctors for this service.");
+      setOfferedPractitioners([]);
+    } finally {
+      setLoadingPractitioners(false);
+    }
+  }
+
+  // Handle doctor selection: reset downstream slot state
+  function handleSelectPractitioner(p: ServicePractitionerOption) {
+    setPractitioner(p);
+    setSelectedSlot(null);
+    setStep("slot");
+  }
+
+  // Handle slot click: advance to Review & Confirm (no instant creation)
+  function handleSelectSlot(slot: SlotResult) {
+    setSelectedSlot(slot);
+    setStep("confirm");
+  }
+
+  // Initial consumption of pending booking or reschedule state
+  /* eslint-disable react-hooks/set-state-in-effect */
+  React.useEffect(() => {
+    if (reschedule && service) {
+      setLoadingPractitioners(true);
+      listPractitionersForService(service.id)
+        .then((docs) => {
+          setOfferedPractitioners(docs);
+          const matched = docs.find((d) => d.id === reschedule.practitionerId);
+          if (matched) {
+            setPractitioner(matched);
+          } else {
+            // Fallback object if practitioner is no longer in offered list
+            setPractitioner({
+              id: reschedule.practitionerId,
+              practitioner_id: reschedule.practitionerId,
+              doctor_name: "Assigned Practitioner",
+              title: null,
+              branch_id: "",
+              service_id: service.id,
+              effective_duration_minutes: service.duration_minutes,
+              base_duration_minutes: service.duration_minutes,
+              override_duration_minutes: null,
+              effective_price: service.price,
+              base_price: service.price,
+              override_price: null,
+              profiles: { full_name: "Assigned Practitioner" },
+            });
+          }
+        })
+        .catch(() => setOfferedPractitioners([]))
+        .finally(() => setLoadingPractitioners(false));
+      return;
+    }
+
+    const pending = readPendingBooking();
+    if (!pending) return;
+    clearPendingBooking();
+
+    const matchedService = services.find((s) => s.id === pending.serviceId);
+    if (!matchedService) return;
+
+    setService(matchedService);
+    setLoadingPractitioners(true);
+    listPractitionersForService(matchedService.id)
+      .then((docs) => {
+        setOfferedPractitioners(docs);
+        const matchedDoc = docs.find((p) => p.id === pending.practitionerId);
+        if (matchedDoc) {
+          setPractitioner(matchedDoc);
+          setDate(pending.date);
+          setRecommendedSlot(pending.slotStart);
+          setStep("slot");
+        } else {
+          // Practitioner no longer offers this service: land on Step 2 safely
+          setStep("practitioner");
+          toast.info("Please select an available doctor for this service.");
+        }
+      })
+      .catch(() => {
+        setOfferedPractitioners([]);
+        setStep("service");
+      })
+      .finally(() => setLoadingPractitioners(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Fetch available slots when on slot step with valid doctor and date
+  /* eslint-disable react-hooks/set-state-in-effect */
+  React.useEffect(() => {
+    if ((step !== "slot" && step !== "confirm") || !service || !practitioner) return;
+    let isCurrent = true;
+    setLoadingSlots(true);
+    getAvailableSlots(practitioner.id, service.id, date)
+      .then(({ slots: fetchedSlots, error }) => {
+        if (!isCurrent) return;
+        if (error) toast.error(error);
+        setSlots(fetchedSlots);
+      })
+      .finally(() => {
+        if (isCurrent) {
+          setLoadingSlots(false);
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [step, service, practitioner, date]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Final confirmation execution
+  async function handleFinalConfirm() {
+    if (!service || !practitioner || !selectedSlot) return;
+    setBooking(selectedSlot.slot_start);
+    try {
+      const result = reschedule
+        ? await rescheduleOwnAppointmentAction(reschedule.id, selectedSlot.slot_start)
+        : await bookOwnAppointmentAction({
+            practitionerId: practitioner.id,
+            serviceId: service.id,
+            branchId: practitioner.branch_id,
+            startsAt: selectedSlot.slot_start,
+          });
+
+      if (result?.error) {
+        toast.error(result.error);
+        setBooking(null);
+      }
+      // On success the server action redirects automatically
+    } catch (err: unknown) {
+      // If the error is a framework redirect signal (e.g. NEXT_REDIRECT), rethrow to let navigation proceed
+      const isRedirect =
+        typeof err === "object" &&
+        err !== null &&
+        "digest" in err &&
+        typeof (err as { digest?: unknown }).digest === "string" &&
+        (err as { digest: string }).digest.startsWith("NEXT_REDIRECT");
+
+      if (isRedirect) {
+        throw err;
+      }
+
+      toast.error("Failed to confirm appointment. Please check availability and try again.");
+      setBooking(null);
+    }
+  }
+
+  return (
+    <Card className="overflow-hidden rounded-3xl shadow-sm">
+      <div className="bg-secondary px-5 py-6 text-secondary-foreground sm:px-7">
+        <div className="flex items-center gap-3">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-white/10">
+            {reschedule ? <RefreshCw className="size-5 text-accent" /> : <ShieldCheck className="size-5 text-accent" />}
+          </span>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/50">Secure online scheduling</p>
+            <h2 className="font-heading text-xl font-bold">{reschedule ? "Reschedule appointment" : "Book an appointment"}</h2>
+          </div>
+        </div>
+      </div>
+
+      {/* Step Progress Indicator */}
+      {!reschedule && (
+        <div className="flex items-center justify-between border-b border-border/60 bg-surface/50 px-5 py-3 sm:px-7">
+          <div className="flex items-center gap-2 text-xs">
+            {[
+              { id: "service", label: "1. Service" },
+              { id: "practitioner", label: "2. Doctor" },
+              { id: "slot", label: "3. Time" },
+              { id: "confirm", label: "4. Confirm" },
+            ].map((s, idx) => {
+              const steps = ["service", "practitioner", "slot", "confirm"];
+              const currentIndex = steps.indexOf(step);
+              const isCurrent = s.id === step;
+              const isDone = idx < currentIndex;
+              return (
+                <React.Fragment key={s.id}>
+                  {idx > 0 && <span className="text-border">/</span>}
+                  <span
+                    className={cn(
+                      "transition-colors",
+                      isCurrent && "font-bold text-primary",
+                      isDone && "font-medium text-text",
+                      !isCurrent && !isDone && "text-muted-foreground/60",
+                    )}
+                  >
+                    {s.label}
+                  </span>
+                </React.Fragment>
+              );
+            })}
+          </div>
+          {step !== "service" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs text-muted-foreground hover:text-text"
+              onClick={() => {
+                if (step === "confirm") setStep("slot");
+                else if (step === "slot") setStep("practitioner");
+                else if (step === "practitioner") setStep("service");
+              }}
+            >
+              <ChevronLeft className="size-3.5 mr-0.5" /> Back
+            </Button>
+          )}
+        </div>
+      )}
+
+      <CardHeader>
+        <CardTitle className="text-base">
+          {reschedule
+            ? "Choose a new date and time"
+            : step === "service"
+              ? "Select a dental procedure"
+              : step === "practitioner"
+                ? "Select an available doctor"
+                : step === "slot"
+                  ? "Choose appointment date & time"
+                  : "Review appointment details"}
+        </CardTitle>
+        <CardDescription>
+          {reschedule && "Your service and practitioner will stay the same."}
+          {!reschedule && step === "service" && "Step 1 of 4 — choose the care service you need"}
+          {!reschedule && step === "practitioner" && "Step 2 of 4 — doctors who actively provide this procedure"}
+          {!reschedule && step === "slot" && "Step 3 of 4 — select a convenient time window"}
+          {!reschedule && step === "confirm" && "Step 4 of 4 — review and confirm your visit details"}
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        {step === "service" && (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {services.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => handleSelectService(s)}
+                className="rounded-2xl border border-border bg-surface p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary-soft/45"
+              >
+                <span className="mb-3 flex size-8 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                  <Check className="size-4" />
+                </span>
+                <p className="font-semibold">{s.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {s.duration_minutes} min &middot; &#2547;{s.price.toLocaleString()}
+                </p>
+              </button>
+            ))}
+            {services.length === 0 && (
+              <p className="text-sm text-muted-foreground">No services are available to book online yet.</p>
+            )}
+          </div>
+        )}
+
+        {step === "practitioner" && (
+          <div className="space-y-4">
+            {service && (
+              <div className="flex items-center justify-between rounded-2xl border border-border bg-background-subtle px-4 py-3 text-sm">
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-primary">Selected Service</span>
+                  <p className="font-medium text-text">{service.name}</p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setStep("service")}>
+                  Change
+                </Button>
+              </div>
+            )}
+
+            {loadingPractitioners ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
+                <Loader2 className="size-6 animate-spin text-primary" />
+                <p className="mt-2 text-sm">Loading doctors offering this service...</p>
+              </div>
+            ) : offeredPractitioners.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border bg-background-subtle p-6 text-center">
+                <p className="font-semibold text-text">No doctors currently offer this service.</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Please choose another service or contact the clinic reception for assistance.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setStep("service")}
+                  className="mt-4"
+                >
+                  <ChevronLeft className="size-4" /> Change Service
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                {offeredPractitioners.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => handleSelectPractitioner(p)}
+                    className="group rounded-2xl border border-border bg-surface p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary-soft/45 hover:shadow-sm"
+                  >
+                    <p className="font-semibold text-text group-hover:text-primary">{p.doctor_name}</p>
+                    {p.title && <p className="text-xs text-muted-foreground mt-0.5">{p.title}</p>}
+                    <div className="mt-3 flex items-center gap-3 border-t border-border/50 pt-2.5 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Clock className="size-3.5 text-muted-foreground" />
+                        <span>{p.effective_duration_minutes} min</span>
+                        {p.override_duration_minutes !== null && (
+                          <span className="text-[10px] text-primary font-medium">(custom)</span>
+                        )}
+                      </span>
+                      <span>&middot;</span>
+                      <span className="font-medium text-text">
+                        &#2547;{p.effective_price.toLocaleString()}
+                        {p.override_price !== null && (
+                          <span className="ml-1 text-[10px] text-primary font-medium">(custom)</span>
+                        )}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {!loadingPractitioners && offeredPractitioners.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={() => setStep("service")}>
+                <ChevronLeft className="size-4" /> Back to Services
+              </Button>
+            )}
+          </div>
+        )}
+
+        {step === "slot" && service && practitioner && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between rounded-2xl border border-border bg-background-subtle p-4 text-sm">
+              <div>
+                <p>
+                  <strong>{service.name}</strong> with {practitioner.doctor_name}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {practitioner.effective_duration_minutes} min &middot; &#2547;{practitioner.effective_price.toLocaleString()}
+                </p>
+              </div>
+              {!reschedule && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedSlot(null);
+                    setRecommendedSlot(null);
+                    setStep("practitioner");
+                  }}
+                >
+                  Change Doctor
+                </Button>
+              )}
+            </div>
+
+            {recommendedSlot && (
+              <p className="text-xs text-muted-foreground">
+                Picked from the homepage &mdash; select your time below to proceed to confirmation.
+              </p>
+            )}
+
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="icon-sm"
+                onClick={() => {
+                  setSelectedSlot(null);
+                  setRecommendedSlot(null);
+                  setDate(format(addDays(new Date(`${date}T00:00:00`), -1), "yyyy-MM-dd"));
+                }}
+                aria-label="Previous day"
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <span className="text-sm font-medium">
+                {format(new Date(`${date}T00:00:00`), "EEEE, d MMMM yyyy")}
+              </span>
+              <Button
+                variant="outline"
+                size="icon-sm"
+                onClick={() => {
+                  setSelectedSlot(null);
+                  setRecommendedSlot(null);
+                  setDate(format(addDays(new Date(`${date}T00:00:00`), 1), "yyyy-MM-dd"));
+                }}
+                aria-label="Next day"
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
+
+            {loadingSlots ? (
+              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" /> Loading available times...
+              </p>
+            ) : slots.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No open slots on this date &mdash; try another day.</p>
+            ) : (
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+                {slots.map((slot) => (
+                  <Button
+                    key={slot.slot_start}
+                    variant="outline"
+                    onClick={() => handleSelectSlot(slot)}
+                    className={cn(
+                      slot.slot_start === recommendedSlot &&
+                        "border-primary bg-primary/10 ring-1 ring-primary",
+                      selectedSlot?.slot_start === slot.slot_start &&
+                        "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
+                    )}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <span
+                        className={cn(
+                          "size-1.5 rounded-full",
+                          selectedSlot?.slot_start === slot.slot_start ? "bg-white" : "bg-success",
+                        )}
+                      />
+                      {format(new Date(slot.slot_start), "HH:mm")}
+                    </span>
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {!reschedule && (
+              <Button variant="ghost" size="sm" onClick={() => setStep("practitioner")}>
+                <ChevronLeft className="size-4" /> Back
+              </Button>
+            )}
+          </div>
+        )}
+
+        {step === "confirm" && service && practitioner && selectedSlot && (
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-border bg-background-subtle p-5 space-y-4">
+              <h3 className="font-heading text-base font-semibold text-text">Appointment Summary</h3>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="rounded-xl border border-border/70 bg-surface p-3.5 space-y-1">
+                  <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Procedure / Service</span>
+                  <p className="font-semibold text-text">{service.name}</p>
+                  <p className="text-xs text-muted-foreground">{practitioner.effective_duration_minutes} min duration</p>
+                </div>
+
+                <div className="rounded-xl border border-border/70 bg-surface p-3.5 space-y-1">
+                  <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Doctor</span>
+                  <p className="font-semibold text-text">{practitioner.doctor_name}</p>
+                  {practitioner.title && <p className="text-xs text-muted-foreground">{practitioner.title}</p>}
+                </div>
+
+                <div className="rounded-xl border border-border/70 bg-surface p-3.5 space-y-1">
+                  <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Appointment Date</span>
+                  <p className="font-semibold text-text">
+                    {format(new Date(selectedSlot.slot_start), "EEEE, d MMMM yyyy")}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-border/70 bg-surface p-3.5 space-y-1">
+                  <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Time Window</span>
+                  <p className="font-semibold text-primary">
+                    {format(new Date(selectedSlot.slot_start), "HH:mm")} &ndash; {format(new Date(selectedSlot.slot_end), "HH:mm")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between border-t border-border pt-4 text-sm">
+                <span className="font-medium text-muted-foreground">Estimated Consultation / Service Fee:</span>
+                <span className="text-lg font-bold text-text">&#2547;{practitioner.effective_price.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-primary/20 bg-primary-soft/30 p-3.5 text-xs text-muted-foreground">
+              <p>
+                Live slot availability will be confirmed at the moment of booking. You will receive an instant confirmation in your portal dashboard.
+              </p>
+            </div>
+
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between pt-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={booking !== null}
+                onClick={() => setStep("slot")}
+              >
+                <ChevronLeft className="size-4" /> Change Time
+              </Button>
+
+              <Button
+                size="lg"
+                disabled={booking !== null}
+                onClick={handleFinalConfirm}
+                className="w-full sm:w-auto"
+              >
+                {booking !== null ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin mr-2" /> Confirming appointment...
+                  </>
+                ) : (
+                  <>
+                    <Check className="size-4 mr-2" /> {reschedule ? "Confirm Reschedule" : "Confirm Appointment"}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

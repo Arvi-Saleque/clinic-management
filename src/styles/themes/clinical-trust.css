@@ -1,0 +1,50 @@
+/**
+ * Brand theme: "Clinical Trust" (deep teal/blue + white) — the original
+ * default, kept available as an alternate brand. "Clinical Luxury"
+ * (clinical-luxury.css) is the current default and owns the bare `:root`
+ * selector; this file only applies once `data-brand="clinical-trust"` is
+ * explicitly set (see BrandThemeProvider), so there's no ramp conflict
+ * between the two brand files.
+ *
+ * To create a new brand theme: copy this file to e.g. `premium-navy-gold.css`,
+ * change the --brand-* / --accent-* / --neutral-* ramps, scope it to
+ * `[data-brand="premium-navy-gold"]`, then register it in
+ * BrandThemeProvider's BRAND_THEMES list.
+ */
+
+[data-brand="clinical-trust"] {
+  /* Primary ramp: deep teal */
+  --brand-50: oklch(0.97 0.02 195);
+  --brand-100: oklch(0.93 0.045 195);
+  --brand-200: oklch(0.87 0.07 195);
+  --brand-300: oklch(0.78 0.09 194);
+  --brand-400: oklch(0.68 0.11 193);
+  --brand-500: oklch(0.58 0.12 192);
+  --brand-600: oklch(0.49 0.11 192);
+  --brand-700: oklch(0.41 0.1 193);
+  --brand-800: oklch(0.33 0.08 194);
+  --brand-900: oklch(0.24 0.06 196);
+  --brand-950: oklch(0.17 0.045 197);
+
+  /* Accent ramp: soft blue */
+  --accent-400: oklch(0.72 0.13 250);
+  --accent-500: oklch(0.62 0.16 253);
+  --accent-600: oklch(0.53 0.18 256);
+
+  /* Neutral ramp: slate-tinted, used for backgrounds/borders/text */
+  --neutral-0: oklch(1 0 0);
+  --neutral-50: oklch(0.985 0.004 230);
+  --neutral-100: oklch(0.96 0.006 230);
+  --neutral-200: oklch(0.9 0.008 230);
+  --neutral-300: oklch(0.82 0.01 230);
+  --neutral-400: oklch(0.65 0.012 230);
+  --neutral-600: oklch(0.45 0.014 230);
+  --neutral-800: oklch(0.25 0.014 230);
+  --neutral-900: oklch(0.16 0.012 230);
+  --neutral-950: oklch(0.11 0.01 230);
+
+  /* Status colors kept brand-agnostic, shared across all themes */
+  --success-500: oklch(0.6 0.14 155);
+  --warning-500: oklch(0.75 0.15 85);
+  --destructive-500: oklch(0.577 0.245 27.325);
+}

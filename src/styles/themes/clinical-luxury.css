@@ -1,0 +1,48 @@
+/**
+ * Brand theme: "Clinical Luxury" (deep teal + warm ivory).
+ *
+ * Raw brand ramp only — see clinical-trust.css for the pattern this
+ * follows. The precise light/dark semantic values for this brand (which
+ * intentionally do NOT follow the shared ramp formula — the dark theme is
+ * a bespoke palette, not a mechanical inversion) are set directly in
+ * globals.css under the `[data-brand="clinical-luxury"]` selectors. This
+ * file exists so raw-scale utilities (bg-brand-500, decorative blobs,
+ * gradients) still have brand-correct values to draw from.
+ */
+
+:root,
+[data-brand="clinical-luxury"] {
+  /* Primary ramp: deep teal, centred on #075e5a */
+  --brand-50: oklch(0.97 0.015 195);
+  --brand-100: oklch(0.93 0.03 194);
+  --brand-200: oklch(0.87 0.05 193);
+  --brand-300: oklch(0.78 0.07 192);
+  --brand-400: oklch(0.65 0.09 190);
+  --brand-500: oklch(0.5 0.09 188);
+  --brand-600: oklch(0.4 0.078 189);
+  --brand-700: oklch(0.33 0.065 191);
+  --brand-800: oklch(0.26 0.05 192);
+  --brand-900: oklch(0.18 0.035 193);
+  --brand-950: oklch(0.12 0.022 194);
+
+  /* Accent ramp: brighter teal, centred on #22b8a7 */
+  --accent-400: oklch(0.78 0.11 175);
+  --accent-500: oklch(0.68 0.13 173);
+  --accent-600: oklch(0.58 0.13 172);
+
+  /* Neutral ramp: warm ivory tint (light) */
+  --neutral-0: oklch(1 0 0);
+  --neutral-50: oklch(0.985 0.006 95);
+  --neutral-100: oklch(0.96 0.008 95);
+  --neutral-200: oklch(0.91 0.01 120);
+  --neutral-300: oklch(0.83 0.012 130);
+  --neutral-400: oklch(0.65 0.014 150);
+  --neutral-600: oklch(0.45 0.016 165);
+  --neutral-800: oklch(0.25 0.016 180);
+  --neutral-900: oklch(0.16 0.014 185);
+  --neutral-950: oklch(0.09 0.01 190);
+
+  --success-500: oklch(0.56 0.12 155);
+  --warning-500: oklch(0.72 0.13 75);
+  --destructive-500: oklch(0.58 0.16 25);
+}

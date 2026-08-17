@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "supabase-clinic-write": {
+      "serverUrl": "https://mcp.supabase.com/mcp?project_ref=YOUR_SUPABASE_PROJECT_REF&features=database,debugging,development,docs,functions,storage"
+    },
+    "context7": {
+      "serverUrl": "https://mcp.context7.com/mcp"
+    },
+    "playwright-optional": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"],
+      "disabled": true
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "supabase-clinic-readonly": {
+      "serverUrl": "https://mcp.supabase.com/mcp?project_ref=mxywvlekwgrzlewxgfcl&read_only=true&features=database,debugging,development,docs"
+    },
+    "context7": {
+      "serverUrl": "https://mcp.context7.com/mcp"
+    }
+  }
+}
