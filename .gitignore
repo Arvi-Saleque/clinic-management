@@ -35,8 +35,16 @@ yarn-error.log*
 
 # typescript
 next-env.d.ts
+*.tsbuildinfo
 /dist/
 /.wrangler/
+# local credentials
+*.local.md
+DEMO_CREDENTIALS.local.md
+*.local.json
 /.sites-runtime/
 /outputs/
 /work/
+
+.vercel
+.env*
