@@ -1575,6 +1575,30 @@ export type Database = {
         }
         Returns: Json
       }
+      chart_patient_tooth: {
+        Args: {
+          p_patient_id: string
+          p_encounter_id?: string | null
+          p_tooth_number: string
+          p_status: string
+          p_condition_code?: string | null
+          p_condition_note?: string | null
+          p_recommended_treatment?: string | null
+          p_treatment_priority?: string | null
+          p_planned_date?: string | null
+          p_estimated_fee?: number | null
+        }
+        Returns: Json
+      }
+      create_clinical_prescription: {
+        Args: {
+          p_patient_id: string
+          p_encounter_id?: string | null
+          p_notes?: string | null
+          p_items?: Json
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

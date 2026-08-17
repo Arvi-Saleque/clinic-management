@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useState } from "react";
 import { ChevronDown, ChevronUp, Loader2, ShieldCheck, Stethoscope, UserCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
