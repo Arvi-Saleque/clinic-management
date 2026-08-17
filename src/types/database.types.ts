@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.15"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       appointments: {
@@ -128,10 +103,20 @@ export type Database = {
           },
           {
             foreignKeyName: "appointments_originating_encounter_fk"
-            columns: ["originating_encounter_id", "patient_id", "practitioner_id", "organization_id"]
+            columns: [
+              "originating_encounter_id",
+              "patient_id",
+              "practitioner_id",
+              "organization_id",
+            ]
             isOneToOne: false
             referencedRelation: "clinical_encounters"
-            referencedColumns: ["id", "patient_id", "practitioner_id", "organization_id"]
+            referencedColumns: [
+              "id",
+              "patient_id",
+              "practitioner_id",
+              "organization_id",
+            ]
           },
           {
             foreignKeyName: "appointments_patient_id_fkey"
@@ -293,197 +278,6 @@ export type Database = {
           },
         ]
       }
-      clinical_attachments: {
-        Row: {
-          category: string
-          created_at: string
-          encounter_id: string | null
-          file_name: string
-          file_size_bytes: number | null
-          file_type: string
-          id: string
-          is_patient_visible: boolean
-          notes: string | null
-          organization_id: string
-          patient_id: string
-          storage_path: string
-          uploaded_by_profile_id: string | null
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          encounter_id?: string | null
-          file_name: string
-          file_size_bytes?: number | null
-          file_type: string
-          id?: string
-          is_patient_visible?: boolean
-          notes?: string | null
-          organization_id: string
-          patient_id: string
-          storage_path: string
-          uploaded_by_profile_id?: string | null
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          encounter_id?: string | null
-          file_name?: string
-          file_size_bytes?: number | null
-          file_type?: string
-          id?: string
-          is_patient_visible?: boolean
-          notes?: string | null
-          organization_id?: string
-          patient_id?: string
-          storage_path?: string
-          uploaded_by_profile_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "clinical_attachments_encounter_id_fkey"
-            columns: ["encounter_id"]
-            isOneToOne: false
-            referencedRelation: "clinical_encounters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clinical_attachments_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clinical_attachments_patient_id_fkey"
-            columns: ["patient_id"]
-            isOneToOne: false
-            referencedRelation: "patients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      clinical_encounter_private_notes: {
-        Row: {
-          clinical_notes: string
-          created_at: string
-          encounter_id: string
-          organization_id: string
-          updated_at: string
-        }
-        Insert: {
-          clinical_notes: string
-          created_at?: string
-          encounter_id: string
-          organization_id: string
-          updated_at?: string
-        }
-        Update: {
-          clinical_notes?: string
-          created_at?: string
-          encounter_id?: string
-          organization_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "clinical_private_notes_encounter_fk"
-            columns: ["encounter_id", "organization_id"]
-            isOneToOne: true
-            referencedRelation: "clinical_encounters"
-            referencedColumns: ["id", "organization_id"]
-          },
-        ]
-      }
-      clinical_encounters: {
-        Row: {
-          appointment_id: string | null
-          chief_complaint: string | null
-          completed_at: string | null
-          created_at: string
-          diagnosis: string | null
-          follow_up_date: string | null
-          follow_up_reason: string | null
-          follow_up_recommended: boolean
-          id: string
-          organization_id: string
-          patient_id: string
-          patient_notes: string | null
-          performed_treatment: string | null
-          practitioner_id: string
-          started_at: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          appointment_id?: string | null
-          chief_complaint?: string | null
-          completed_at?: string | null
-          created_at?: string
-          diagnosis?: string | null
-          follow_up_date?: string | null
-          follow_up_reason?: string | null
-          follow_up_recommended?: boolean
-          id?: string
-          organization_id: string
-          patient_id: string
-          patient_notes?: string | null
-          performed_treatment?: string | null
-          practitioner_id: string
-          started_at?: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          appointment_id?: string | null
-          chief_complaint?: string | null
-          completed_at?: string | null
-          created_at?: string
-          diagnosis?: string | null
-          follow_up_date?: string | null
-          follow_up_reason?: string | null
-          follow_up_recommended?: boolean
-          id?: string
-          organization_id?: string
-          patient_id?: string
-          patient_notes?: string | null
-          performed_treatment?: string | null
-          practitioner_id?: string
-          started_at?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "clinical_encounters_appointment_fk"
-            columns: ["appointment_id", "patient_id", "practitioner_id", "organization_id"]
-            isOneToOne: true
-            referencedRelation: "appointments"
-            referencedColumns: ["id", "patient_id", "practitioner_id", "organization_id"]
-          },
-          {
-            foreignKeyName: "clinical_encounters_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clinical_encounters_patient_id_fkey"
-            columns: ["patient_id"]
-            isOneToOne: false
-            referencedRelation: "patients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clinical_encounters_practitioner_id_fkey"
-            columns: ["practitioner_id"]
-            isOneToOne: false
-            referencedRelation: "practitioners"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       booking_deposits: {
         Row: {
           amount: number
@@ -562,6 +356,214 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinical_attachments: {
+        Row: {
+          category: string
+          created_at: string
+          encounter_id: string | null
+          file_name: string
+          file_size_bytes: number | null
+          file_type: string
+          id: string
+          is_patient_visible: boolean
+          notes: string | null
+          organization_id: string
+          patient_id: string
+          storage_path: string
+          uploaded_by_profile_id: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          encounter_id?: string | null
+          file_name: string
+          file_size_bytes?: number | null
+          file_type: string
+          id?: string
+          is_patient_visible?: boolean
+          notes?: string | null
+          organization_id: string
+          patient_id: string
+          storage_path: string
+          uploaded_by_profile_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          encounter_id?: string | null
+          file_name?: string
+          file_size_bytes?: number | null
+          file_type?: string
+          id?: string
+          is_patient_visible?: boolean
+          notes?: string | null
+          organization_id?: string
+          patient_id?: string
+          storage_path?: string
+          uploaded_by_profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_attachments_encounter_fk"
+            columns: ["encounter_id", "patient_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_encounters"
+            referencedColumns: ["id", "patient_id", "organization_id"]
+          },
+          {
+            foreignKeyName: "clinical_attachments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinical_attachments_patient_org_fk"
+            columns: ["patient_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "clinical_attachments_uploaded_by_profile_id_fkey"
+            columns: ["uploaded_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinical_encounter_private_notes: {
+        Row: {
+          clinical_notes: string
+          created_at: string
+          encounter_id: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          clinical_notes: string
+          created_at?: string
+          encounter_id: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          clinical_notes?: string
+          created_at?: string
+          encounter_id?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_private_notes_encounter_fk"
+            columns: ["encounter_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_encounters"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
+      clinical_encounters: {
+        Row: {
+          appointment_id: string | null
+          chief_complaint: string | null
+          completed_at: string | null
+          created_at: string
+          diagnosis: string | null
+          follow_up_date: string | null
+          follow_up_reason: string | null
+          follow_up_recommended: boolean
+          id: string
+          organization_id: string
+          patient_id: string
+          patient_notes: string | null
+          performed_treatment: string | null
+          practitioner_id: string
+          started_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          chief_complaint?: string | null
+          completed_at?: string | null
+          created_at?: string
+          diagnosis?: string | null
+          follow_up_date?: string | null
+          follow_up_reason?: string | null
+          follow_up_recommended?: boolean
+          id?: string
+          organization_id: string
+          patient_id: string
+          patient_notes?: string | null
+          performed_treatment?: string | null
+          practitioner_id: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string | null
+          chief_complaint?: string | null
+          completed_at?: string | null
+          created_at?: string
+          diagnosis?: string | null
+          follow_up_date?: string | null
+          follow_up_reason?: string | null
+          follow_up_recommended?: boolean
+          id?: string
+          organization_id?: string
+          patient_id?: string
+          patient_notes?: string | null
+          performed_treatment?: string | null
+          practitioner_id?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_encounters_appointment_fk"
+            columns: [
+              "appointment_id",
+              "patient_id",
+              "practitioner_id",
+              "organization_id",
+            ]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: [
+              "id",
+              "patient_id",
+              "practitioner_id",
+              "organization_id",
+            ]
+          },
+          {
+            foreignKeyName: "clinical_encounters_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinical_encounters_patient_org_fk"
+            columns: ["patient_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "clinical_encounters_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
             referencedColumns: ["id"]
           },
         ]
@@ -882,15 +884,15 @@ export type Database = {
           estimated_fee: number | null
           id: string
           is_current: boolean
-          planned_date: string | null
           patient_id: string
+          planned_date: string | null
+          recommended_treatment: string | null
           recorded_at: string
           recorded_by_practitioner_id: string
           status: string
           surface: string | null
-          recommended_treatment: string | null
-          treatment_priority: string | null
           tooth_number: string
+          treatment_priority: string | null
         }
         Insert: {
           appointment_id?: string | null
@@ -901,15 +903,15 @@ export type Database = {
           estimated_fee?: number | null
           id?: string
           is_current?: boolean
-          planned_date?: string | null
           patient_id: string
+          planned_date?: string | null
+          recommended_treatment?: string | null
           recorded_at?: string
           recorded_by_practitioner_id: string
           status: string
           surface?: string | null
-          recommended_treatment?: string | null
-          treatment_priority?: string | null
           tooth_number: string
+          treatment_priority?: string | null
         }
         Update: {
           appointment_id?: string | null
@@ -920,15 +922,15 @@ export type Database = {
           estimated_fee?: number | null
           id?: string
           is_current?: boolean
-          planned_date?: string | null
           patient_id?: string
+          planned_date?: string | null
+          recommended_treatment?: string | null
           recorded_at?: string
           recorded_by_practitioner_id?: string
           status?: string
           surface?: string | null
-          recommended_treatment?: string | null
-          treatment_priority?: string | null
           tooth_number?: string
+          treatment_priority?: string | null
         }
         Relationships: [
           {
@@ -944,6 +946,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "clinical_encounters"
             referencedColumns: ["id", "patient_id"]
+          },
+          {
+            foreignKeyName: "odontogram_entries_encounter_visit_fk"
+            columns: ["encounter_id", "appointment_id", "patient_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_encounters"
+            referencedColumns: ["id", "appointment_id", "patient_id"]
           },
           {
             foreignKeyName: "odontogram_entries_patient_id_fkey"
@@ -1315,11 +1324,18 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "prescriptions_encounter_id_fkey"
-            columns: ["encounter_id"]
+            foreignKeyName: "prescriptions_encounter_patient_fk"
+            columns: ["encounter_id", "patient_id"]
             isOneToOne: false
             referencedRelation: "clinical_encounters"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "patient_id"]
+          },
+          {
+            foreignKeyName: "prescriptions_encounter_visit_fk"
+            columns: ["encounter_id", "appointment_id", "patient_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_encounters"
+            referencedColumns: ["id", "appointment_id", "patient_id"]
           },
           {
             foreignKeyName: "prescriptions_patient_id_fkey"
@@ -1514,6 +1530,44 @@ export type Database = {
         Args: { p_appointment_id: string; p_reason?: string }
         Returns: undefined
       }
+      chart_patient_tooth: {
+        Args: {
+          p_condition_code?: string | null
+          p_condition_note?: string | null
+          p_encounter_id?: string | null
+          p_estimated_fee?: number | null
+          p_patient_id: string
+          p_planned_date?: string | null
+          p_recommended_treatment?: string | null
+          p_status: string
+          p_tooth_number: string
+          p_treatment_priority?: string | null
+        }
+        Returns: Json
+      }
+      complete_clinical_encounter: {
+        Args: {
+          p_chief_complaint?: string | null
+          p_diagnosis?: string | null
+          p_encounter_id: string
+          p_follow_up_date?: string | null
+          p_follow_up_reason?: string | null
+          p_follow_up_recommended: boolean
+          p_patient_notes?: string | null
+          p_performed_treatment?: string | null
+          p_private_notes?: string | null
+        }
+        Returns: Json
+      }
+      create_clinical_prescription: {
+        Args: {
+          p_encounter_id?: string | null
+          p_items?: Json
+          p_notes?: string | null
+          p_patient_id: string
+        }
+        Returns: Json
+      }
       get_available_slots: {
         Args: {
           p_date: string
@@ -1525,78 +1579,31 @@ export type Database = {
           slot_start: string
         }[]
       }
+      queue_appointment_reminders: { Args: never; Returns: undefined }
       reschedule_appointment: {
         Args: { p_appointment_id: string; p_new_starts_at: string }
         Returns: undefined
       }
-      save_weekly_availability: {
+      save_clinical_encounter_draft: {
         Args: {
-          p_practitioner_id: string
-          p_branch_id: string
-          p_rules: {
-            day_of_week: number
-            start_time: string
-            end_time: string
-          }[]
+          p_chief_complaint?: string | null
+          p_diagnosis?: string | null
+          p_encounter_id: string
+          p_follow_up_date?: string | null
+          p_follow_up_reason?: string | null
+          p_follow_up_recommended: boolean
+          p_patient_notes?: string | null
+          p_performed_treatment?: string | null
+          p_private_notes?: string | null
         }
+        Returns: Json
+      }
+      save_weekly_availability: {
+        Args: { p_branch_id: string; p_practitioner_id: string; p_rules: Json }
         Returns: undefined
       }
       start_or_resume_clinical_encounter: {
-        Args: {
-          p_appointment_id: string
-        }
-        Returns: Json
-      }
-      complete_clinical_encounter: {
-        Args: {
-          p_encounter_id: string
-          p_chief_complaint: string | null
-          p_diagnosis: string | null
-          p_performed_treatment: string | null
-          p_patient_notes: string | null
-          p_private_notes: string | null
-          p_follow_up_recommended: boolean
-          p_follow_up_date: string | null
-          p_follow_up_reason: string | null
-        }
-        Returns: Json
-      }
-      save_clinical_encounter_draft: {
-        Args: {
-          p_encounter_id: string
-          p_chief_complaint: string | null
-          p_diagnosis: string | null
-          p_performed_treatment: string | null
-          p_patient_notes: string | null
-          p_private_notes: string | null
-          p_follow_up_recommended: boolean
-          p_follow_up_date: string | null
-          p_follow_up_reason: string | null
-        }
-        Returns: Json
-      }
-      chart_patient_tooth: {
-        Args: {
-          p_patient_id: string
-          p_encounter_id?: string | null
-          p_tooth_number: string
-          p_status: string
-          p_condition_code?: string | null
-          p_condition_note?: string | null
-          p_recommended_treatment?: string | null
-          p_treatment_priority?: string | null
-          p_planned_date?: string | null
-          p_estimated_fee?: number | null
-        }
-        Returns: Json
-      }
-      create_clinical_prescription: {
-        Args: {
-          p_patient_id: string
-          p_encounter_id?: string | null
-          p_notes?: string | null
-          p_items?: Json
-        }
+        Args: { p_appointment_id: string }
         Returns: Json
       }
     }
@@ -1727,9 +1734,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },
