@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
+  CalendarCheck2,
   CalendarDays,
   ChevronRight,
   Command,
@@ -33,6 +34,7 @@ const NAV: { href: string; label: string; shortLabel: string; icon: LucideIcon; 
   { href: "/dashboard", label: "Dashboard", shortLabel: "Dashboard", icon: LayoutDashboard },
   { href: "/patients", label: "Patients", shortLabel: "Patients", icon: Users },
   { href: "/scheduler", label: "Clinical Diary", shortLabel: "Clinical Diary", icon: CalendarDays },
+  { href: "/appointments", label: "Appointments", shortLabel: "Appointments", icon: CalendarCheck2 },
   { href: "/billing/invoices", label: "Billing & Payments", shortLabel: "Billing", icon: Receipt },
   { href: "/clinical/prescriptions", label: "Prescriptions", shortLabel: "Prescriptions", icon: FileText, clinical: true },
   { href: "/clinical/odontogram", label: "Dental Chart", shortLabel: "Dental Chart", icon: Smile, clinical: true },
