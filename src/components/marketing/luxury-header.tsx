@@ -48,7 +48,7 @@ export function LuxuryHeader({
   return (
     <>
       <header className={`luxury-site-header ${pathname === "/" ? "homepage-header" : ""} ${headerClass}`}>
-        <div className="container">
+        <div className="header-full-width-container">
           <div className="header-row">
             {/* Brand Logo */}
             <Link href="/" className="logo">

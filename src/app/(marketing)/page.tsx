@@ -2,7 +2,6 @@ import * as React from "react";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Sparkles } from "lucide-react";
 import { LuxuryHero } from "@/components/marketing/luxury-hero";
-import { LuxuryStats } from "@/components/marketing/luxury-stats";
 import { Card3D } from "@/components/marketing/luxury-card3d";
 import { LuxuryRoadmap } from "@/components/marketing/luxury-roadmap";
 import { LuxuryWhyChoose } from "@/components/marketing/luxury-why-choose";
@@ -20,8 +19,6 @@ export default function HomePage() {
 
       {/* 2. Dark Content Wrapper */}
       <div className="content-dark-wrapper">
-        <LuxuryStats />
-
         {/* White Rounded Container 1 — Founder story / value proposition */}
         <div className="page-section-white first-card">
           <section className="text-image-groups" id="story">
@@ -100,7 +97,10 @@ export default function HomePage() {
                         <p className="card-desc">
                           Implant-based options for replacing missing teeth, planned around your clinical needs and restorative goals.
                         </p>
-                        <span className="card-readmore">Read more →</span>
+                        <span className="card-readmore">
+                          <span>Read more</span>
+                          <span className="readmore-arrow">→</span>
+                        </span>
                       </div>
                     </Link>
 
@@ -120,7 +120,10 @@ export default function HomePage() {
                         <p className="card-desc">
                           Porcelain restorations designed to refine tooth shape, proportion, colour, and overall smile balance where clinically suitable.
                         </p>
-                        <span className="card-readmore">Read more →</span>
+                        <span className="card-readmore">
+                          <span>Read more</span>
+                          <span className="readmore-arrow">→</span>
+                        </span>
                       </div>
                     </Link>
 
@@ -140,7 +143,10 @@ export default function HomePage() {
                         <p className="card-desc">
                           Clear-aligner and discreet orthodontic options designed to improve alignment with a plan tailored to your bite and smile goals.
                         </p>
-                        <span className="card-readmore">Read more →</span>
+                        <span className="card-readmore">
+                          <span>Read more</span>
+                          <span className="readmore-arrow">→</span>
+                        </span>
                       </div>
                     </Link>
 
@@ -160,14 +166,17 @@ export default function HomePage() {
                         <p className="card-desc">
                           Professional whitening options planned around your oral health, goals, and preferred shade direction.
                         </p>
-                        <span className="card-readmore">Read more →</span>
+                        <span className="card-readmore">
+                          <span>Read more</span>
+                          <span className="readmore-arrow">→</span>
+                        </span>
                       </div>
                     </Link>
                   </div>
 
                   <div className="btn-row text-center mt-10">
-                    <Link href="/services" className="btn">
-                      View all treatments
+                    <Link href="/services" className="btn treatment-view-all-cta">
+                      <span>View all treatments</span>
                       <ArrowRight className="w-4 h-4 ml-2 inline" />
                     </Link>
                   </div>

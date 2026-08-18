@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Card3D } from "./luxury-card3d";
 import { Layers, Scan, ShieldCheck, Sparkles, Wand2, CalendarDays } from "lucide-react";
@@ -59,6 +60,13 @@ export function LuxuryRoadmap() {
 
   return (
     <section className="smile-journey-section" id="journey">
+      <div className="journey-ambient-backdrop" aria-hidden="true">
+        <div className="journey-bg-fixed" />
+        <div className="journey-ambient-glow-primary" />
+        <div className="journey-ambient-glow-secondary" />
+        <div className="journey-ambient-mesh" />
+      </div>
+
       <div className="container">
         <div className="journey-header">
           <div className="header-badge-dark">

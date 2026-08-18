@@ -75,12 +75,13 @@ export function HomepageMotion() {
       const delayedCalls: Array<{ kill: () => void }> = [];
 
       const ctx = gsap.context(() => {
-        const hero = root.querySelector<HTMLElement>(".home-banner-v2");
-        const heroHeadline = hero?.querySelector<HTMLElement>("p.h1");
-        const heroTrust = hero?.querySelector<HTMLElement>(".rating-row");
-        const heroDesc = hero?.querySelector<HTMLElement>("h1.heading-desc");
-        const heroButtons = hero?.querySelector<HTMLElement>(".btn-row");
-        const heroDots = hero?.querySelector<HTMLElement>(".hero-dots");
+        const hero = root.querySelector<HTMLElement>(".luxury-hero-section, .home-banner-v2");
+        const heroHeadline = hero?.querySelector<HTMLElement>(".hero-display-title, p.h1");
+        const heroTrust = hero?.querySelector<HTMLElement>(".hero-kicker-pill, .rating-row");
+        const heroDesc = hero?.querySelector<HTMLElement>(".hero-editorial-desc, h1.heading-desc");
+        const heroButtons = hero?.querySelector<HTMLElement>(".hero-cta-group, .btn-row");
+        const heroChips = hero?.querySelector<HTMLElement>(".hero-trust-chips");
+        const heroController = hero?.querySelector<HTMLElement>(".hero-bottom-controller, .hero-dots");
 
         // Cinematic first-load reveal. SplitText is reverted after the reveal so
         // the existing rotating React hero copy remains completely safe.
@@ -103,40 +104,25 @@ export function HomepageMotion() {
           if (heroButtons) {
             heroTl.from(heroButtons.children, { y: 18, opacity: 0, duration: 0.62, stagger: 0.09 }, 0.72);
           }
-          if (heroDots) {
-            heroTl.from(heroDots, { y: 10, opacity: 0, duration: 0.5 }, 0.92);
+          if (heroChips) {
+            heroTl.from(heroChips, { y: 14, opacity: 0, duration: 0.55 }, 0.86);
+          }
+          if (heroController) {
+            heroTl.from(heroController, { y: 16, opacity: 0, duration: 0.5 }, 0.95);
           }
           heroTl.call(() => split.revert(), [], 1.55);
 
-          const heroMedia = hero.querySelector<HTMLElement>(".media-box");
-          const heroContent = hero.querySelector<HTMLElement>(".content");
-          if (heroMedia) {
-            gsap.fromTo(
-              heroMedia,
-              { scale: 1.035 },
-              {
-                scale: 1.075,
-                yPercent: 7,
-                ease: "none",
-                scrollTrigger: {
-                  trigger: hero,
-                  start: "top top",
-                  end: "bottom top",
-                  scrub: 0.8,
-                },
-              }
-            );
-          }
+          const heroContent = hero.querySelector<HTMLElement>(".hero-content-wrapper, .content");
           if (heroContent) {
             gsap.to(heroContent, {
-              y: 54,
-              opacity: 0.4,
+              y: -60,
+              opacity: 0.2,
               ease: "none",
               scrollTrigger: {
                 trigger: hero,
-                start: "42% top",
+                start: "top top",
                 end: "bottom top",
-                scrub: 0.7,
+                scrub: 0.8,
               },
             });
           }
@@ -224,9 +210,37 @@ export function HomepageMotion() {
           });
         });
 
-        // Treatment journey cards.
+        // Treatment journey cards & ambient backdrop.
         const journey = root.querySelector<HTMLElement>(".smile-journey-section");
         const journeyCards = journey?.querySelectorAll<HTMLElement>(".journey-step-card");
+        const journeyGlowPrimary = journey?.querySelector<HTMLElement>(".journey-ambient-glow-primary");
+        const journeyGlowSecondary = journey?.querySelector<HTMLElement>(".journey-ambient-glow-secondary");
+
+        if (journey && desktop) {
+          if (journeyGlowPrimary && journeyGlowSecondary) {
+            gsap.to(journeyGlowPrimary, {
+              y: 25,
+              ease: "none",
+              scrollTrigger: {
+                trigger: journey,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1.2,
+              },
+            });
+            gsap.to(journeyGlowSecondary, {
+              y: -25,
+              ease: "none",
+              scrollTrigger: {
+                trigger: journey,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1.2,
+              },
+            });
+          }
+        }
+
         if (journey && journeyCards?.length) {
           gsap.from(journeyCards, {
             opacity: 0,
@@ -285,92 +299,327 @@ export function HomepageMotion() {
             );
         }
 
-        // Treatment cards: stagger into view, then use restrained image depth on hover.
-        const treatmentCards = root.querySelectorAll<HTMLElement>(".treatment-card-item");
-        if (treatmentCards.length) {
-          gsap.from(treatmentCards, {
-            y: 48,
-            opacity: 0,
-            scale: 0.975,
-            duration: 0.75,
-            stagger: 0.09,
-            ease: "power3.out",
-            clearProps: "transform,opacity",
-            scrollTrigger: { trigger: ".treatment-grid-list", start: "top 82%", once: true },
-          });
+        // Treatment section entrance sequence, image parallax, and CTA microinteraction
+        const treatmentSection = root.querySelector<HTMLElement>("#treatments, .four-columns-card");
+        if (treatmentSection) {
+          const titleBox = treatmentSection.querySelector<HTMLElement>(".title-box");
+          const subtitle = titleBox?.querySelector<HTMLElement>(".subtitle-italic");
+          const divider = titleBox?.querySelector<HTMLElement>(".divider-line");
+          const treatmentCards = treatmentSection.querySelectorAll<HTMLElement>(".treatment-card-item");
+          const treatmentCta = treatmentSection.querySelector<HTMLElement>(".treatment-view-all-cta");
 
-          if (finePointer) {
-            treatmentCards.forEach((card) => {
-              const img = card.querySelector<HTMLElement>(".card-bg-box img");
-              if (!img) return;
-              const enter = () => gsap.to(img, { scale: 1.045, duration: 0.55, ease: "power3.out", overwrite: true });
-              const leave = () => gsap.to(img, { scale: 1, duration: 0.7, ease: "power3.out", overwrite: true });
-              card.addEventListener("mouseenter", enter);
-              card.addEventListener("mouseleave", leave);
-              eventCleanups.push(() => {
-                card.removeEventListener("mouseenter", enter);
-                card.removeEventListener("mouseleave", leave);
+          if (subtitle) {
+            gsap.from(subtitle, {
+              y: 16,
+              opacity: 0,
+              duration: 0.6,
+              ease: "power2.out",
+              scrollTrigger: { trigger: treatmentSection, start: "top 82%", once: true },
+            });
+          }
+
+          if (divider) {
+            gsap.from(divider, {
+              scaleX: 0,
+              opacity: 0,
+              duration: 0.65,
+              ease: "power2.out",
+              scrollTrigger: { trigger: treatmentSection, start: "top 80%", once: true },
+            });
+          }
+
+          if (treatmentCards.length) {
+            gsap.from(treatmentCards, {
+              y: 30,
+              opacity: 0,
+              scale: 0.985,
+              duration: 0.72,
+              stagger: 0.1,
+              ease: "power2.out",
+              clearProps: "transform,opacity",
+              scrollTrigger: { trigger: ".treatment-grid-list", start: "top 82%", once: true },
+            });
+
+            // Internal image scroll parallax (desktop only)
+            if (desktop) {
+              treatmentCards.forEach((card) => {
+                const img = card.querySelector<HTMLElement>(".card-bg-box img");
+                if (img) {
+                  gsap.fromTo(
+                    img,
+                    { yPercent: -4 },
+                    {
+                      yPercent: 4,
+                      ease: "none",
+                      scrollTrigger: {
+                        trigger: card,
+                        start: "top bottom",
+                        end: "bottom top",
+                        scrub: 1.2,
+                      },
+                    }
+                  );
+                }
               });
+            }
+          }
+
+          // Treatment CTA Magnetic microinteraction on desktop
+          if (treatmentCta && finePointer) {
+            const handleMouseMove = (e: MouseEvent) => {
+              const rect = treatmentCta.getBoundingClientRect();
+              const x = e.clientX - rect.left - rect.width / 2;
+              const y = e.clientY - rect.top - rect.height / 2;
+              const moveX = (x / (rect.width / 2)) * 3.5;
+              const moveY = (y / (rect.height / 2)) * 3.5;
+
+              gsap.to(treatmentCta, {
+                x: moveX,
+                y: moveY,
+                duration: 0.25,
+                ease: "power2.out",
+              });
+
+              const icon = treatmentCta.querySelector<HTMLElement>("svg");
+              if (icon) {
+                gsap.to(icon, {
+                  x: moveX * 1.5,
+                  y: moveY * 1.5,
+                  duration: 0.25,
+                  ease: "power2.out",
+                });
+              }
+            };
+
+            const handleMouseLeave = () => {
+              gsap.to(treatmentCta, {
+                x: 0,
+                y: 0,
+                duration: 0.35,
+                ease: "power3.out",
+              });
+              const icon = treatmentCta.querySelector<HTMLElement>("svg");
+              if (icon) {
+                gsap.to(icon, {
+                  x: 0,
+                  y: 0,
+                  duration: 0.35,
+                  ease: "power3.out",
+                });
+              }
+            };
+
+            treatmentCta.addEventListener("mousemove", handleMouseMove);
+            treatmentCta.addEventListener("mouseleave", handleMouseLeave);
+            eventCleanups.push(() => {
+              treatmentCta.removeEventListener("mousemove", handleMouseMove);
+              treatmentCta.removeEventListener("mouseleave", handleMouseLeave);
             });
           }
         }
 
-        // Why Choose signature stack: CSS handles sticky geometry; ScrollTrigger
-        // supplies focus/depth without fighting sticky transforms.
+        // Why Choose — Pinned Stacked Card Storytelling
         const whySection = root.querySelector<HTMLElement>(".steps-scroll");
         const stackCards = whySection?.querySelectorAll<HTMLElement>(".stack-card");
-        if (whySection && stackCards?.length) {
-          stackCards.forEach((card, index) => {
-            const inner = card.querySelector<HTMLElement>(".stack-card-inner");
-            if (!inner) return;
 
-            gsap.from(inner, {
-              y: 38,
-              opacity: 0,
-              scale: 0.975,
-              duration: 0.68,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: card,
-                start: "top 90%",
-                once: true,
+        if (whySection && stackCards && stackCards.length === 4 && desktop) {
+          const [c1, c2, c3, c4] = Array.from(stackCards);
+
+          // Initial card states on desktop
+          gsap.set(c1, { y: 0, opacity: 1, scale: 1, transformOrigin: "center top" });
+          gsap.set([c2, c3, c4], {
+            yPercent: 125,
+            opacity: 0,
+            scale: 0.96,
+            transformOrigin: "center top",
+          });
+
+          const stackTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: whySection,
+              start: "top top+=90",
+              end: "+=2600",
+              pin: true,
+              scrub: 0.8,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+            },
+          });
+
+          // Stage 1: Card 02 arrives & layers on top of Card 01
+          stackTl
+            .to(
+              c2,
+              {
+                yPercent: 0,
+                opacity: 1,
+                scale: 1,
+                duration: 1.2,
+                ease: "power2.out",
               },
-            });
+              "card2"
+            )
+            .to(
+              c1,
+              {
+                scale: 0.965,
+                y: -10,
+                opacity: 0.82,
+                duration: 1.2,
+                ease: "power2.out",
+              },
+              "card2"
+            );
 
-            if (desktop) {
-              ScrollTrigger.create({
-                trigger: card,
-                start: `top ${170 + index * 34}px`,
-                end: "bottom 22%",
-                onToggle: (self) => card.classList.toggle("motion-current", self.isActive),
-              });
-            }
+          // Settle pause for Card 02
+          stackTl.to({}, { duration: 0.4 });
+
+          // Stage 2: Card 03 arrives & layers on top of Card 02 & 01
+          stackTl
+            .to(
+              c3,
+              {
+                yPercent: 0,
+                opacity: 1,
+                scale: 1,
+                duration: 1.2,
+                ease: "power2.out",
+              },
+              "card3"
+            )
+            .to(
+              c2,
+              {
+                scale: 0.965,
+                y: -10,
+                opacity: 0.82,
+                duration: 1.2,
+                ease: "power2.out",
+              },
+              "card3"
+            )
+            .to(
+              c1,
+              {
+                scale: 0.93,
+                y: -20,
+                opacity: 0.65,
+                duration: 1.2,
+                ease: "power2.out",
+              },
+              "card3"
+            );
+
+          // Settle pause for Card 03
+          stackTl.to({}, { duration: 0.4 });
+
+          // Stage 3: Card 04 arrives & layers on top of Card 03, 02 & 01
+          stackTl
+            .to(
+              c4,
+              {
+                yPercent: 0,
+                opacity: 1,
+                scale: 1,
+                duration: 1.2,
+                ease: "power2.out",
+              },
+              "card4"
+            )
+            .to(
+              c3,
+              {
+                scale: 0.965,
+                y: -10,
+                opacity: 0.82,
+                duration: 1.2,
+                ease: "power2.out",
+              },
+              "card4"
+            )
+            .to(
+              c2,
+              {
+                scale: 0.93,
+                y: -20,
+                opacity: 0.65,
+                duration: 1.2,
+                ease: "power2.out",
+              },
+              "card4"
+            )
+            .to(
+              c1,
+              {
+                scale: 0.895,
+                y: -30,
+                opacity: 0.48,
+                duration: 1.2,
+                ease: "power2.out",
+              },
+              "card4"
+            );
+
+          // Settle pause for completed 4-card deck before section unpins
+          stackTl.to({}, { duration: 0.8 });
+        } else if (whySection && stackCards?.length && !desktop) {
+          // Mobile/Tablet: clean natural entrance without pinning
+          gsap.from(stackCards, {
+            y: 30,
+            opacity: 0,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: "power2.out",
+            clearProps: "all",
+            scrollTrigger: {
+              trigger: whySection,
+              start: "top 85%",
+              once: true,
+            },
           });
         }
 
-        // Smile simulator and before/after cards reveal as product-like UI, not generic fade-ins.
+        // Smile simulator section: refined entrance and scroll-linked preview panel motion
         const simulator = root.querySelector<HTMLElement>(".smile-simulator-section");
         if (simulator) {
           const display = simulator.querySelector<HTMLElement>(".simulator-display-col");
+          const simCard = simulator.querySelector<HTMLElement>(".simulator-3d-card");
           const controls = simulator.querySelector<HTMLElement>(".simulator-controls-col");
+
           if (display) {
             gsap.from(display, {
-              x: -42,
+              y: 36,
               opacity: 0,
-              scale: 0.975,
-              duration: 0.9,
+              scale: 0.96,
+              duration: 0.92,
               ease: "power3.out",
-              scrollTrigger: { trigger: simulator, start: "top 72%", once: true },
+              scrollTrigger: { trigger: simulator, start: "top 78%", once: true },
             });
           }
+
           if (controls) {
             gsap.from(controls.children, {
-              x: 32,
+              y: 22,
               opacity: 0,
-              duration: 0.72,
-              stagger: 0.07,
+              duration: 0.75,
+              stagger: 0.08,
               ease: "power3.out",
-              scrollTrigger: { trigger: simulator, start: "top 70%", once: true },
+              scrollTrigger: { trigger: simulator, start: "top 76%", once: true },
+            });
+          }
+
+          // Subtle scroll-linked parallax on left preview card (desktop only)
+          if (simCard && desktop) {
+            gsap.to(simCard, {
+              y: -24,
+              scale: 1.012,
+              ease: "none",
+              scrollTrigger: {
+                trigger: simulator,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1.2,
+              },
             });
           }
         }
