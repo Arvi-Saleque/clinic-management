@@ -233,7 +233,7 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
             variant="outline"
             className="gap-2 rounded-2xl border-border bg-surface px-4 py-5 text-sm font-medium hover:bg-surface-elevated"
           >
-            <Calendar className="size-4" /> All Visits
+            <Calendar className="size-4" /> My visits
           </ButtonLink>
         </div>
       </section>

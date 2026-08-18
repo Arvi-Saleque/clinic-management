@@ -26,10 +26,9 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/portal/dashboard", label: "Care overview", icon: LayoutDashboard },
-  { href: "/portal/appointments", label: "Appointments", icon: CalendarDays },
+  { href: "/portal/appointments", label: "My visits", icon: CalendarDays },
   { href: "/portal/appointments/book", label: "Book a visit", icon: Plus },
   { href: "/portal/odontogram", label: "My dental care", icon: Smile },
-  { href: "/portal/prescriptions", label: "Prescriptions", icon: FileText },
   { href: "/portal/invoices", label: "Billing & invoices", icon: Receipt },
   { href: "/portal/profile", label: "Health profile", icon: UserRound },
 ] as const;
