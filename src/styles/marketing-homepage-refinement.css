@@ -1,0 +1,1731 @@
+/* ============================================================
+   PUBLIC HOMEPAGE — VISUAL CONSISTENCY & READABILITY PASS
+   Keeps the existing editorial layout while normalising colour,
+   contrast, CTA states, and previously unstyled homepage controls.
+   ============================================================ */
+
+:root {
+  --dark-charcoal: #223034;
+  --dark-charcoal-deep: #192427;
+  --dark-surface: #2d3c3f;
+  --dark-surface-raised: #354649;
+  --accent-beige: #b5c89b;
+  --accent-beige-soft: #dce7d5;
+  --accent-sage-dark: #5e785c;
+  --brand-violet: #365d4f;
+  --brand-violet-hover: #294b40;
+  --body-grey: #536063;
+  --light-bg: #f8f8f4;
+  --light-surface: #eef2eb;
+  --light-sage-card: #dce7d8;
+  --text-on-dark: #f5f7f5;
+  --text-on-dark-muted: #cdd5d1;
+  --text-on-dark-subtle: #abb7b2;
+  --border-color: rgba(54, 93, 79, 0.16);
+  --border-on-dark: rgba(255, 255, 255, 0.14);
+}
+
+.marketing-luxury-theme {
+  background: var(--dark-charcoal);
+  color: var(--body-grey);
+}
+
+.marketing-luxury-theme .subtitle-italic {
+  display: inline-block;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.35;
+  color: var(--accent-sage-dark);
+  margin-bottom: 10px;
+}
+
+/* ---------- Public header ---------- */
+.luxury-site-header.homepage-header {
+  background: linear-gradient(180deg, rgba(25, 36, 39, 0.92) 0%, rgba(25, 36, 39, 0.82) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.luxury-site-header .header-row {
+  height: 88px;
+}
+
+.luxury-site-header .logo-text {
+  color: var(--text-on-dark);
+  font-size: clamp(19px, 1.55vw, 24px);
+  font-weight: 400;
+  letter-spacing: 0.075em;
+  white-space: nowrap;
+}
+
+.luxury-site-header .logo-text i {
+  color: var(--accent-beige);
+}
+
+.luxury-site-header .nav-menu {
+  gap: clamp(18px, 1.65vw, 28px);
+}
+
+.luxury-site-header .nav-menu li a {
+  color: rgba(245, 247, 245, 0.93);
+  font-size: 14px;
+  font-weight: 550;
+  letter-spacing: 0;
+  text-shadow: none;
+}
+
+.luxury-site-header .nav-menu li a:hover,
+.luxury-site-header .nav-menu li.active-link a {
+  color: #ffffff;
+}
+
+.luxury-site-header .nav-menu li a::after,
+.luxury-site-header .nav-menu li.active-link a::after {
+  background: var(--accent-beige);
+}
+
+.luxury-site-header .others {
+  gap: 12px;
+}
+
+.luxury-site-header .others .btn-call,
+.luxury-site-header .btn-account-pill,
+.luxury-site-header .btn-blue {
+  min-height: 44px;
+  border-radius: 999px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  text-transform: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.luxury-site-header .others .btn-call {
+  color: var(--text-on-dark);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.luxury-site-header .others .btn-call:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.luxury-site-header .btn-account-pill {
+  color: var(--text-on-dark);
+  border: 1px solid rgba(181, 200, 155, 0.45);
+  background: rgba(181, 200, 155, 0.09);
+}
+
+.luxury-site-header .btn-account-pill svg {
+  color: var(--accent-beige);
+}
+
+.luxury-site-header .btn-account-pill:hover {
+  color: #ffffff;
+  background: rgba(181, 200, 155, 0.16);
+  border-color: rgba(181, 200, 155, 0.75);
+}
+
+.luxury-site-header .btn-blue {
+  color: #ffffff;
+  background: var(--brand-violet);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 22px rgba(12, 26, 21, 0.2);
+}
+
+.luxury-site-header .btn-blue:hover {
+  color: #ffffff;
+  background: var(--brand-violet-hover);
+  box-shadow: 0 10px 26px rgba(12, 26, 21, 0.26);
+  transform: translateY(-1px);
+}
+
+.luxury-site-header.header-sticky {
+  background: rgba(248, 248, 244, 0.94);
+  border-bottom: 1px solid rgba(34, 48, 52, 0.09);
+  box-shadow: 0 8px 30px rgba(20, 31, 33, 0.08);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.luxury-site-header.header-sticky .header-row {
+  height: 76px;
+}
+
+.luxury-site-header.header-sticky .logo-text,
+.luxury-site-header.header-sticky .nav-menu li a {
+  color: var(--dark-charcoal);
+  text-shadow: none;
+}
+
+.luxury-site-header.header-sticky .logo-text i,
+.luxury-site-header.header-sticky .btn-account-pill svg {
+  color: var(--accent-sage-dark);
+}
+
+.luxury-site-header.header-sticky .nav-menu li a:hover,
+.luxury-site-header.header-sticky .nav-menu li.active-link a {
+  color: var(--brand-violet);
+}
+
+.luxury-site-header.header-sticky .others .btn-call {
+  color: var(--dark-charcoal);
+  border-color: rgba(34, 48, 52, 0.24);
+  background: transparent;
+}
+
+.luxury-site-header.header-sticky .btn-account-pill {
+  color: var(--dark-charcoal);
+  border-color: rgba(54, 93, 79, 0.18);
+  background: rgba(54, 93, 79, 0.05);
+}
+
+.luxury-site-header.header-sticky .btn-blue {
+  color: #ffffff;
+  background: var(--brand-violet);
+}
+
+.luxury-site-header .hamburger span {
+  background: var(--text-on-dark);
+}
+
+.luxury-mobile-menu {
+  position: fixed;
+  top: 76px;
+  left: 0;
+  right: 0;
+  z-index: 990;
+  background: rgba(25, 36, 39, 0.98);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
+}
+
+/* ---------- Hero ---------- */
+.luxury-homepage-root .home-banner-v2 {
+  min-height: 680px;
+  height: min(900px, 92vh);
+}
+
+.luxury-homepage-root .home-banner-v2 .media-box::after {
+  background:
+    linear-gradient(90deg, rgba(20, 31, 34, 0.24) 0%, rgba(20, 31, 34, 0.08) 45%, rgba(20, 31, 34, 0.18) 100%),
+    linear-gradient(180deg, rgba(20, 31, 34, 0.28) 0%, rgba(20, 31, 34, 0.22) 40%, rgba(20, 31, 34, 0.58) 72%, var(--dark-charcoal) 100%);
+}
+
+.luxury-homepage-root .home-banner-v2 .content {
+  max-width: 980px;
+  margin-top: 72px;
+}
+
+.luxury-homepage-root .rating-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-bottom: 26px;
+  padding: 9px 14px;
+  color: var(--text-on-dark);
+  background: rgba(25, 36, 39, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.hero-trust-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--accent-beige);
+}
+
+.hero-trust-label,
+.hero-trust-value {
+  font-size: 12.5px;
+  line-height: 1;
+}
+
+.hero-trust-label {
+  color: #ffffff;
+  font-weight: 650;
+}
+
+.hero-trust-value {
+  color: var(--accent-beige);
+  font-weight: 700;
+}
+
+.hero-trust-divider {
+  width: 1px;
+  height: 13px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.luxury-homepage-root .home-banner-v2 p.h1 {
+  color: #ffffff;
+  font-size: clamp(58px, 5.7vw, 88px);
+  line-height: 1.01;
+  letter-spacing: -0.035em;
+  margin-bottom: 22px;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.28);
+}
+
+.luxury-homepage-root .home-banner-v2 p.h1 i {
+  color: var(--accent-beige);
+}
+
+.luxury-homepage-root .home-banner-v2 h1.heading-desc {
+  max-width: 720px;
+  margin: 0 auto 34px;
+  color: rgba(245, 247, 245, 0.94);
+  font-family: var(--font-body);
+  font-size: clamp(16px, 1.2vw, 20px);
+  font-weight: 400;
+  line-height: 1.58;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.luxury-homepage-root .home-banner-v2 .btn-row {
+  gap: 14px;
+}
+
+.hero-primary-cta,
+.hero-secondary-cta {
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 26px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+  transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hero-primary-cta {
+  color: #ffffff !important;
+  background: var(--brand-violet);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 28px rgba(17, 36, 30, 0.28);
+}
+
+.hero-primary-cta:hover {
+  color: #ffffff !important;
+  background: var(--brand-violet-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(17, 36, 30, 0.34);
+}
+
+.hero-secondary-cta {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(12px);
+}
+
+.hero-secondary-cta:hover {
+  color: var(--dark-charcoal) !important;
+  background: rgba(248, 248, 244, 0.95);
+  border-color: rgba(248, 248, 244, 0.95);
+  transform: translateY(-2px);
+}
+
+.luxury-homepage-root .hero-dots {
+  display: inline-flex;
+  gap: 7px;
+  margin-top: 24px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(25, 36, 39, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.hero-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255, 255, 255, 0.38);
+  cursor: pointer;
+  transition: width 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.hero-dot:hover {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.hero-dot.active {
+  width: 23px;
+  border-radius: 999px;
+  background: var(--accent-beige);
+}
+
+/* ---------- Hero/stat transition ---------- */
+.luxury-homepage-root .content-dark-wrapper {
+  background: var(--dark-charcoal);
+  padding-bottom: 82px;
+}
+
+.luxury-homepage-root .number-panels {
+  margin-top: -70px;
+}
+
+.luxury-homepage-root .number-panels .list {
+  gap: 20px;
+}
+
+.luxury-homepage-root .number-panels .item {
+  min-height: 150px;
+  justify-content: center;
+  padding: 28px 34px;
+  background-color: var(--light-sage-card);
+  background-image: linear-gradient(rgba(220, 231, 216, 0.9), rgba(220, 231, 216, 0.9)), url('/rustic_card_bg.jpg');
+  border: 1px solid rgba(54, 93, 79, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 18px 42px rgba(18, 31, 31, 0.13);
+}
+
+.luxury-homepage-root .number-panels .item:hover {
+  background-color: var(--light-sage-card);
+  background-image: linear-gradient(rgba(220, 231, 216, 0.94), rgba(220, 231, 216, 0.94)), url('/rustic_card_bg.jpg');
+  border-color: rgba(54, 93, 79, 0.2);
+  box-shadow: 0 22px 46px rgba(18, 31, 31, 0.17);
+  transform: translateY(-5px);
+}
+
+.luxury-homepage-root .number-panels .item p,
+.luxury-homepage-root .number-panels .item:hover p {
+  color: var(--brand-violet);
+  font-size: 12.5px;
+  line-height: 1.35;
+  font-weight: 750;
+  letter-spacing: 0.075em;
+}
+
+.luxury-homepage-root .number-panels .item .number,
+.luxury-homepage-root .number-panels .item:hover .number {
+  color: var(--dark-charcoal);
+  font-size: clamp(42px, 4vw, 58px);
+  line-height: 1;
+}
+
+/* ---------- White editorial cards ---------- */
+.luxury-homepage-root .page-section-white {
+  background: var(--light-bg);
+  border-radius: 34px;
+  margin-left: 28px;
+  margin-right: 28px;
+  box-shadow: 0 20px 60px rgba(10, 22, 24, 0.12);
+}
+
+.luxury-homepage-root .page-section-white.first-card {
+  background-color: var(--light-bg);
+  background-image: none;
+}
+
+.luxury-homepage-root .text-image-groups {
+  padding: 74px 0 86px;
+}
+
+.luxury-homepage-root .text-image .content {
+  gap: clamp(48px, 6vw, 88px);
+}
+
+.luxury-homepage-root .text-image .text-box h2 {
+  color: var(--dark-charcoal);
+  font-size: clamp(35px, 3.1vw, 46px);
+  line-height: 1.14;
+  letter-spacing: -0.025em;
+  margin-bottom: 22px;
+}
+
+.luxury-homepage-root .text-image .text-box p {
+  color: var(--body-grey);
+  font-size: 16px;
+  line-height: 1.72;
+  margin-bottom: 15px;
+}
+
+.luxury-homepage-root .text-image .text-box .btn-group,
+.luxury-homepage-root .steps-scroll-left .btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.luxury-homepage-root .text-image .img-box {
+  border-radius: 22px;
+  box-shadow: 0 24px 55px rgba(26, 43, 43, 0.12);
+}
+
+/* ---------- Shared homepage buttons ---------- */
+.luxury-homepage-root .btn,
+.luxury-homepage-root .btn-blue,
+.luxury-homepage-root .btn-stroke,
+.luxury-homepage-root .btn-download,
+.luxury-site-footer .btn-blue,
+.luxury-site-footer .btn-stroke {
+  min-height: 46px;
+  padding: 0 22px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  text-transform: none;
+}
+
+.luxury-homepage-root .btn {
+  background: var(--dark-charcoal);
+  color: #ffffff;
+  border: 1px solid var(--dark-charcoal);
+  box-shadow: 0 8px 22px rgba(19, 32, 34, 0.12);
+}
+
+.luxury-homepage-root .btn:hover {
+  background: var(--brand-violet);
+  color: #ffffff;
+  border-color: var(--brand-violet);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(37, 66, 57, 0.2);
+}
+
+.luxury-homepage-root .btn-stroke {
+  background: transparent;
+  color: var(--dark-charcoal);
+  border: 1px solid rgba(34, 48, 52, 0.25);
+}
+
+.luxury-homepage-root .btn-stroke:hover {
+  color: #ffffff;
+  background: var(--dark-charcoal);
+  border-color: var(--dark-charcoal);
+}
+
+.luxury-homepage-root .btn-blue,
+.luxury-site-footer .btn-blue {
+  background: var(--brand-violet);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 9px 24px rgba(19, 41, 34, 0.2);
+}
+
+.luxury-homepage-root .btn-blue:hover,
+.luxury-site-footer .btn-blue:hover {
+  background: var(--brand-violet-hover);
+  color: #ffffff !important;
+  transform: translateY(-2px);
+}
+
+/* ---------- Treatment journey ---------- */
+.luxury-homepage-root .smile-journey-section {
+  padding: 106px 0 102px;
+  background: var(--dark-charcoal);
+}
+
+.luxury-homepage-root .header-badge-dark {
+  color: var(--accent-beige);
+  background: rgba(181, 200, 155, 0.08);
+  border-color: rgba(181, 200, 155, 0.25);
+}
+
+.luxury-homepage-root .journey-title {
+  color: var(--text-on-dark);
+  font-size: clamp(40px, 3.7vw, 52px);
+}
+
+.luxury-homepage-root .journey-title i {
+  color: var(--accent-beige);
+}
+
+.luxury-homepage-root .journey-subtitle {
+  color: var(--text-on-dark-muted);
+  font-size: 16.5px;
+  line-height: 1.72;
+}
+
+.luxury-homepage-root .journey-step-card {
+  min-height: 390px;
+  background: var(--dark-surface);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 30px rgba(9, 18, 20, 0.12);
+}
+
+.luxury-homepage-root .journey-step-card:hover,
+.luxury-homepage-root .journey-step-card.active-step {
+  background: var(--dark-surface-raised);
+  border-color: rgba(181, 200, 155, 0.6);
+  box-shadow: 0 20px 44px rgba(9, 18, 20, 0.24);
+}
+
+.luxury-homepage-root .step-number-pill {
+  color: var(--accent-beige);
+  background: rgba(181, 200, 155, 0.09);
+  border-color: rgba(181, 200, 155, 0.22);
+}
+
+.luxury-homepage-root .step-metric-tag {
+  color: var(--text-on-dark-muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.luxury-homepage-root .step-icon-wrapper,
+.luxury-homepage-root .step-icon-wrapper svg {
+  color: var(--accent-beige);
+}
+
+.luxury-homepage-root .step-tagline {
+  color: var(--text-on-dark-subtle);
+  font-size: 11.5px;
+}
+
+.luxury-homepage-root .step-title {
+  color: var(--text-on-dark);
+  font-size: 21px;
+}
+
+.luxury-homepage-root .step-description {
+  color: var(--text-on-dark-muted);
+  font-size: 14.5px;
+  line-height: 1.68;
+}
+
+.luxury-homepage-root .journey-trust-bar {
+  background: rgba(255, 255, 255, 0.045);
+  border-color: rgba(255, 255, 255, 0.11);
+}
+
+.luxury-homepage-root .trust-item {
+  gap: 9px;
+}
+
+.luxury-homepage-root .trust-icon {
+  width: 25px;
+  height: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--dark-charcoal);
+  background: var(--accent-beige);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.luxury-homepage-root .trust-label {
+  color: var(--text-on-dark-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.luxury-homepage-root .journey-book-cta {
+  white-space: nowrap;
+}
+
+/* ---------- Treatments ---------- */
+.luxury-homepage-root .four-columns-card {
+  background: var(--light-bg);
+  padding: 92px 0 88px;
+}
+
+.luxury-homepage-root .four-columns-card .subtitle-italic,
+.luxury-homepage-root .four-columns-card .title-box .subtitle-italic {
+  color: var(--accent-sage-dark);
+  font-size: 18px;
+}
+
+.luxury-homepage-root .four-columns-card .title-box h2 {
+  color: var(--dark-charcoal);
+  font-size: clamp(36px, 3vw, 44px);
+}
+
+.luxury-homepage-root .four-columns-card .title-box .divider-line {
+  background: var(--accent-sage-dark);
+  opacity: 0.7;
+}
+
+.luxury-homepage-root .treatment-card-item {
+  border-radius: 18px;
+  border-color: rgba(34, 48, 52, 0.08);
+  box-shadow: 0 14px 32px rgba(17, 31, 32, 0.1);
+}
+
+.luxury-homepage-root .treatment-card-item .card-overlay-content {
+  background: linear-gradient(180deg, rgba(16, 25, 27, 0.02) 20%, rgba(16, 25, 27, 0.24) 48%, rgba(16, 25, 27, 0.92) 100%);
+}
+
+.luxury-homepage-root .treatment-card-item:hover .card-overlay-content {
+  background: linear-gradient(180deg, rgba(22, 42, 35, 0.04) 18%, rgba(22, 42, 35, 0.3) 48%, rgba(24, 53, 43, 0.94) 100%);
+}
+
+.luxury-homepage-root .treatment-card-item .card-title {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 400;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.luxury-homepage-root .treatment-card-item .card-desc {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13.5px;
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+.luxury-homepage-root .treatment-card-item .card-readmore,
+.luxury-homepage-root .treatment-card-item .treatment-icon {
+  color: var(--accent-beige);
+}
+
+/* ---------- Why choose ---------- */
+.luxury-homepage-root .steps-scroll {
+  margin: 38px 26px 24px;
+  background: var(--light-surface);
+  border: 1px solid rgba(54, 93, 79, 0.08);
+  border-radius: 26px;
+}
+
+.luxury-homepage-root .steps-scroll-layout {
+  gap: clamp(52px, 6vw, 88px);
+  padding: 96px 58px;
+}
+
+.section-kicker-light {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--accent-sage-dark);
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: 750;
+  letter-spacing: 0.085em;
+  text-transform: uppercase;
+}
+
+.luxury-homepage-root .steps-scroll-left h2 {
+  color: var(--dark-charcoal);
+  font-size: clamp(36px, 3vw, 44px);
+  line-height: 1.15;
+  margin-bottom: 22px;
+}
+
+.luxury-homepage-root .steps-scroll-left p {
+  color: var(--body-grey);
+  font-size: 15.5px;
+  line-height: 1.72;
+  margin-bottom: 14px;
+}
+
+.luxury-homepage-root .stack-card-inner {
+  border-color: rgba(54, 93, 79, 0.11);
+  box-shadow: 0 18px 42px rgba(21, 37, 38, 0.07);
+}
+
+.luxury-homepage-root .stack-card:nth-child(1) .stack-card-inner,
+.luxury-homepage-root .stack-card:nth-child(2) .stack-card-inner {
+  background: #ffffff;
+}
+
+.luxury-homepage-root .stack-card:nth-child(3) .stack-card-inner {
+  background: #dfe8dc;
+  color: var(--dark-charcoal);
+  border-color: rgba(54, 93, 79, 0.14);
+}
+
+.luxury-homepage-root .stack-card:nth-child(4) .stack-card-inner {
+  background: var(--dark-surface);
+  color: var(--text-on-dark);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+.luxury-homepage-root .stack-card .card-accent-bar,
+.luxury-homepage-root .stack-card:nth-child(1) .card-accent-bar,
+.luxury-homepage-root .stack-card:nth-child(2) .card-accent-bar,
+.luxury-homepage-root .stack-card:nth-child(3) .card-accent-bar {
+  background: var(--brand-violet);
+}
+
+.luxury-homepage-root .stack-card:nth-child(4) .card-accent-bar {
+  background: var(--accent-beige);
+}
+
+.luxury-homepage-root .stack-card .card-num {
+  -webkit-text-stroke: 1.25px rgba(94, 120, 92, 0.28);
+  opacity: 0.62;
+}
+
+.luxury-homepage-root .stack-card:nth-child(1) .glow-1,
+.luxury-homepage-root .stack-card:nth-child(2) .glow-2,
+.luxury-homepage-root .stack-card:nth-child(3) .glow-3 {
+  background: rgba(110, 139, 104, 0.16);
+}
+
+.luxury-homepage-root .stack-card:nth-child(4) .glow-4 {
+  background: rgba(181, 200, 155, 0.12);
+}
+
+.luxury-homepage-root .stack-card .card-top h3,
+.luxury-homepage-root .stack-card:nth-child(3) .card-top h3 {
+  color: var(--dark-charcoal) !important;
+  font-size: clamp(26px, 2vw, 31px);
+}
+
+.luxury-homepage-root .stack-card .card-body p,
+.luxury-homepage-root .stack-card .card-body .lead-text,
+.luxury-homepage-root .stack-card:nth-child(3) .card-body p,
+.luxury-homepage-root .stack-card:nth-child(3) .card-body .lead-text {
+  color: var(--body-grey) !important;
+  opacity: 1;
+}
+
+.luxury-homepage-root .stack-card .card-body .lead-text,
+.luxury-homepage-root .stack-card:nth-child(3) .card-body .lead-text {
+  color: var(--dark-charcoal) !important;
+}
+
+.luxury-homepage-root .stack-card:nth-child(4) .card-top h3,
+.luxury-homepage-root .stack-card:nth-child(4) .card-body .lead-text {
+  color: var(--text-on-dark) !important;
+}
+
+.luxury-homepage-root .stack-card:nth-child(4) .card-body p,
+.luxury-homepage-root .stack-card:nth-child(4) .details-list li {
+  color: var(--text-on-dark-muted) !important;
+  opacity: 1;
+}
+
+.luxury-homepage-root .details-list li {
+  color: var(--body-grey);
+  font-size: 14px;
+  line-height: 1.62;
+}
+
+.luxury-homepage-root .why-check-icon {
+  color: var(--brand-violet);
+}
+
+.luxury-homepage-root .card-action-link {
+  color: var(--brand-violet);
+  font-weight: 650;
+}
+
+.luxury-homepage-root .stack-card:nth-child(4) .card-action-link,
+.luxury-homepage-root .stack-card:nth-child(4) strong {
+  color: var(--accent-beige);
+}
+
+/* ---------- Smile simulator ---------- */
+.luxury-homepage-root .smile-simulator-section {
+  padding: 108px 0;
+  background: linear-gradient(135deg, #253438 0%, #1d2a2d 100%);
+}
+
+.luxury-homepage-root .simulator-grid {
+  gap: clamp(44px, 5vw, 72px);
+}
+
+.luxury-homepage-root .simulator-3d-card {
+  background: var(--dark-surface);
+  border-color: rgba(255, 255, 255, 0.11);
+  box-shadow: 0 28px 65px rgba(5, 13, 15, 0.32);
+}
+
+.luxury-homepage-root .simulator-screen {
+  background: #111a1c;
+}
+
+.luxury-homepage-root .badge-3d-tag {
+  color: var(--accent-beige);
+  background: rgba(21, 31, 34, 0.84);
+  border-color: rgba(181, 200, 155, 0.24);
+}
+
+.luxury-homepage-root .hud-overlay {
+  background: rgba(19, 29, 32, 0.92);
+  border-color: rgba(255, 255, 255, 0.13);
+  gap: 16px;
+}
+
+.luxury-homepage-root .hud-label {
+  color: var(--text-on-dark-subtle);
+  font-size: 10.5px;
+}
+
+.luxury-homepage-root .hud-item strong {
+  color: var(--text-on-dark);
+  font-size: 13px;
+}
+
+.luxury-homepage-root .simulator-controls-col .subtitle-italic {
+  color: var(--accent-beige);
+}
+
+.luxury-homepage-root .simulator-controls-col h2 {
+  color: var(--text-on-dark);
+  font-size: clamp(38px, 3.4vw, 50px);
+  line-height: 1.12;
+  margin-bottom: 18px;
+}
+
+.luxury-homepage-root .controls-intro {
+  color: var(--text-on-dark-muted);
+  font-size: 15.5px;
+  line-height: 1.72;
+  margin-bottom: 28px;
+}
+
+.luxury-homepage-root .control-title {
+  color: var(--accent-beige);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.luxury-homepage-root .pill-btn,
+.luxury-homepage-root .shape-btn {
+  min-height: 82px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--text-on-dark);
+  border-radius: 14px;
+  padding: 13px 14px;
+  text-align: left;
+  transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.luxury-homepage-root .pill-btn:hover,
+.luxury-homepage-root .shape-btn:hover {
+  background: rgba(255, 255, 255, 0.085);
+  border-color: rgba(181, 200, 155, 0.42);
+}
+
+.luxury-homepage-root .pill-btn.active,
+.luxury-homepage-root .shape-btn.active {
+  background: rgba(181, 200, 155, 0.13);
+  border-color: var(--accent-beige);
+  box-shadow: inset 0 0 0 1px rgba(181, 200, 155, 0.16), 0 10px 26px rgba(7, 16, 17, 0.14);
+}
+
+.luxury-homepage-root .pill-name,
+.luxury-homepage-root .shape-btn strong {
+  display: block;
+  color: var(--text-on-dark);
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.luxury-homepage-root .pill-desc,
+.luxury-homepage-root .shape-btn span {
+  display: block;
+  margin-top: 5px;
+  color: var(--text-on-dark-subtle);
+  font-size: 11.5px;
+  line-height: 1.42;
+  font-weight: 400;
+}
+
+.luxury-homepage-root .shades-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.luxury-homepage-root .shade-circle-btn {
+  min-height: 64px;
+  padding: 9px 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-on-dark);
+  cursor: pointer;
+  transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.luxury-homepage-root .shade-circle-btn:hover {
+  border-color: rgba(181, 200, 155, 0.5);
+}
+
+.luxury-homepage-root .shade-circle-btn.active {
+  background: rgba(181, 200, 155, 0.13);
+  border-color: var(--accent-beige);
+  transform: translateY(-1px);
+}
+
+.luxury-homepage-root .color-swatch {
+  width: 24px;
+  height: 24px;
+  display: block;
+  border-radius: 50%;
+  border: 1px solid rgba(34, 48, 52, 0.25);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
+}
+
+.luxury-homepage-root .shade-circle-btn .shade-code {
+  color: var(--text-on-dark);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.luxury-homepage-root .shapes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.luxury-homepage-root .simulator-action-box {
+  margin-top: 24px;
+}
+
+.luxury-homepage-root .simulator-book-cta {
+  width: 100%;
+}
+
+.luxury-homepage-root .simulator-disclaimer {
+  margin: 10px 0 0;
+  color: var(--text-on-dark-subtle);
+  font-size: 11.5px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ---------- Before/after showcase ---------- */
+.luxury-homepage-root .home-before-after-section {
+  padding: 98px 0;
+  background: var(--light-bg);
+  color: var(--dark-charcoal);
+}
+
+.luxury-homepage-root .home-before-after-section .title-box {
+  max-width: 760px;
+  margin-bottom: 44px;
+}
+
+.luxury-homepage-root .home-before-after-section .subtitle-italic {
+  color: var(--accent-sage-dark);
+}
+
+.luxury-homepage-root .home-before-after-section .h3 {
+  color: var(--dark-charcoal);
+  font-size: clamp(36px, 3vw, 44px);
+  margin: 3px 0 14px;
+}
+
+.home-section-copy {
+  color: var(--body-grey);
+  font-size: 15.5px;
+  line-height: 1.68;
+}
+
+.luxury-homepage-root .before-after-card {
+  border-color: rgba(54, 93, 79, 0.1);
+  box-shadow: 0 18px 40px rgba(20, 35, 36, 0.09);
+}
+
+.luxury-homepage-root .case-tag {
+  color: var(--brand-violet);
+  background: rgba(54, 93, 79, 0.08);
+}
+
+.luxury-homepage-root .badge-after {
+  background: rgba(54, 93, 79, 0.88);
+}
+
+.luxury-homepage-root .slider-instruction {
+  color: #637072;
+  font-size: 12.5px;
+}
+
+/* ---------- Marquee ---------- */
+.luxury-homepage-root .marquee-text {
+  background: var(--dark-charcoal);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.luxury-homepage-root .marquee-text h2 {
+  color: rgba(245, 247, 245, 0.76);
+}
+
+.luxury-homepage-root .marquee-text h2 i {
+  color: var(--accent-beige);
+}
+
+/* ---------- Payment / pricing card ---------- */
+.luxury-homepage-root .price-guide {
+  padding: 78px 0 86px;
+  background: var(--dark-charcoal);
+}
+
+.luxury-homepage-root .price-guide .content {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 0;
+  align-items: stretch;
+  overflow: hidden;
+  padding: 0;
+  background: var(--light-sage-card);
+  border: 1px solid rgba(181, 200, 155, 0.24);
+  border-radius: 24px;
+  box-shadow: 0 24px 56px rgba(9, 20, 22, 0.24);
+}
+
+.luxury-homepage-root .price-guide .text-box {
+  padding: clamp(42px, 5vw, 66px);
+  color: var(--dark-charcoal);
+}
+
+.price-guide-kicker {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--accent-sage-dark);
+  font-size: 11.5px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.luxury-homepage-root .price-guide .text-box h2 {
+  color: var(--dark-charcoal);
+  font-size: clamp(34px, 3vw, 44px);
+  line-height: 1.13;
+  margin-bottom: 17px;
+}
+
+.luxury-homepage-root .price-guide .text-box p {
+  max-width: 650px;
+  color: #465456;
+  font-size: 15.5px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.luxury-homepage-root .price-guide .text-box .btn-group {
+  margin-top: 4px;
+}
+
+.luxury-homepage-root .price-guide .btn-download {
+  color: #ffffff;
+  background: var(--dark-charcoal);
+  border: 1px solid var(--dark-charcoal);
+}
+
+.luxury-homepage-root .price-guide .btn-download:hover {
+  color: #ffffff;
+  background: var(--brand-violet);
+  border-color: var(--brand-violet);
+}
+
+.luxury-homepage-root .price-guide .img-box,
+.luxury-homepage-root .price-guide .img-box > div,
+.luxury-homepage-root .price-guide .img-box img {
+  min-height: 100%;
+  height: 100%;
+}
+
+.luxury-homepage-root .price-guide .img-box img {
+  min-height: 330px;
+  object-fit: cover;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* ---------- FAQ ---------- */
+.luxury-homepage-root .faq-section-luxury {
+  padding: 104px 0 112px;
+  background: linear-gradient(180deg, var(--dark-charcoal) 0%, var(--dark-charcoal-deep) 100%);
+  color: var(--text-on-dark);
+}
+
+.faq-heading-wrap {
+  max-width: 760px;
+  margin: 0 auto 42px;
+  text-align: center;
+}
+
+.faq-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 14px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  color: var(--accent-beige);
+  background: rgba(181, 200, 155, 0.08);
+  border: 1px solid rgba(181, 200, 155, 0.24);
+  font-size: 11.5px;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.luxury-homepage-root .faq-heading-wrap h2 {
+  color: var(--text-on-dark);
+  font-size: clamp(36px, 3vw, 44px);
+  margin-bottom: 12px;
+}
+
+.faq-intro {
+  color: var(--text-on-dark-muted);
+  font-size: 15.5px;
+  line-height: 1.68;
+  margin-bottom: 0;
+}
+
+.faq-list {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.faq-item {
+  overflow: hidden;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.faq-item:hover {
+  border-color: rgba(181, 200, 155, 0.28);
+}
+
+.faq-item.is-open {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(181, 200, 155, 0.38);
+  box-shadow: 0 16px 34px rgba(5, 13, 15, 0.14);
+}
+
+.faq-question {
+  width: 100%;
+  min-height: 64px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  background: transparent;
+  border: 0;
+  color: var(--text-on-dark);
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.faq-question:focus-visible {
+  outline: 2px solid var(--accent-beige);
+  outline-offset: -4px;
+}
+
+.faq-chevron {
+  flex: 0 0 auto;
+  color: var(--accent-beige);
+  transition: transform 0.25s ease;
+}
+
+.faq-item.is-open .faq-chevron {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  padding: 0 20px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 15px;
+  color: var(--text-on-dark-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.faq-cta-row {
+  margin-top: 34px;
+  text-align: center;
+}
+
+/* ---------- Footer ---------- */
+.luxury-site-footer {
+  padding: 72px 0 34px;
+  background: #182326;
+  color: var(--text-on-dark);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.luxury-site-footer .footer-top-banner {
+  gap: 60px;
+  padding-bottom: 38px;
+  margin-bottom: 40px;
+  border-bottom-color: rgba(255, 255, 255, 0.11);
+}
+
+.luxury-site-footer .footer-logo .logo-text {
+  color: var(--text-on-dark);
+}
+
+.luxury-site-footer .footer-logo .logo-text i {
+  color: var(--accent-beige);
+}
+
+.luxury-site-footer .footer-tagline,
+.luxury-site-footer .footer-newsletter p {
+  color: var(--text-on-dark-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.luxury-site-footer .footer-newsletter h4 {
+  color: var(--text-on-dark);
+  font-size: 18px;
+}
+
+.luxury-site-footer .btn-stroke {
+  color: var(--text-on-dark) !important;
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.26) !important;
+}
+
+.luxury-site-footer .btn-stroke:hover {
+  color: var(--dark-charcoal) !important;
+  background: var(--light-bg);
+  border-color: var(--light-bg) !important;
+}
+
+.luxury-site-footer .grid {
+  gap: 44px;
+  margin-bottom: 48px;
+}
+
+.luxury-site-footer .col h4 {
+  color: var(--accent-beige);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  margin-bottom: 19px;
+}
+
+.luxury-site-footer .col ul li {
+  margin-bottom: 10px;
+}
+
+.luxury-site-footer .col ul li a,
+.luxury-site-footer .col ul li,
+.luxury-site-footer .col ul li span {
+  color: var(--text-on-dark-muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.luxury-site-footer .col ul li a:hover {
+  color: #ffffff;
+}
+
+.luxury-site-footer .emergency-badge {
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-beige);
+  background: rgba(181, 200, 155, 0.08);
+  border: 1px solid rgba(181, 200, 155, 0.2);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 650;
+}
+
+.luxury-site-footer .bottom {
+  border-top-color: rgba(255, 255, 255, 0.09);
+}
+
+.luxury-site-footer .bottom p,
+.luxury-site-footer .bottom .links a {
+  color: var(--text-on-dark-subtle);
+  font-size: 11.5px;
+}
+
+.luxury-site-footer .bottom .links a:hover {
+  color: var(--text-on-dark);
+}
+
+/* ---------- Keyboard/accessibility ---------- */
+.marketing-luxury-theme a:focus-visible,
+.marketing-luxury-theme button:focus-visible {
+  outline: 2px solid var(--accent-beige);
+  outline-offset: 3px;
+}
+
+/* ---------- Responsive refinements ---------- */
+@media (max-width: 1280px) {
+  .luxury-site-header .nav-menu {
+    gap: 18px;
+  }
+
+  .luxury-site-header .others {
+    gap: 9px;
+  }
+
+  .luxury-site-header .others .btn-call,
+  .luxury-site-header .btn-account-pill,
+  .luxury-site-header .btn-blue {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .luxury-homepage-root .journey-grid-4 {
+    gap: 18px;
+  }
+
+  .luxury-homepage-root .journey-step-card {
+    padding: 28px 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .luxury-homepage-root .home-banner-v2 {
+    min-height: 650px;
+    height: 84vh;
+  }
+
+  .luxury-homepage-root .page-section-white {
+    margin-left: 18px;
+    margin-right: 18px;
+  }
+
+  .luxury-homepage-root .steps-scroll {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
+  .luxury-homepage-root .steps-scroll-layout {
+    padding: 72px 38px;
+  }
+
+  .luxury-homepage-root .simulator-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .luxury-homepage-root .simulator-screen {
+    height: 440px;
+  }
+
+  .luxury-homepage-root .price-guide .content {
+    grid-template-columns: 1fr;
+  }
+
+  .luxury-homepage-root .price-guide .img-box img {
+    min-height: 300px;
+    max-height: 380px;
+  }
+}
+
+@media (max-width: 768px) {
+  .luxury-site-header .header-row,
+  .luxury-site-header.header-sticky .header-row {
+    height: 72px;
+  }
+
+  .luxury-site-header .logo-text {
+    font-size: 17px;
+    letter-spacing: 0.055em;
+  }
+
+  .luxury-site-header .btn-blue {
+    min-height: 40px;
+    padding: 0 14px;
+    font-size: 12px;
+  }
+
+  .luxury-mobile-menu {
+    top: 72px;
+  }
+
+  .luxury-homepage-root .home-banner-v2 {
+    height: auto;
+    min-height: 680px;
+    padding: 120px 0 118px;
+  }
+
+  .luxury-homepage-root .home-banner-v2 .content {
+    margin-top: 18px;
+  }
+
+  .luxury-homepage-root .rating-row {
+    max-width: 100%;
+    padding: 8px 11px;
+    gap: 7px;
+  }
+
+  .hero-trust-label,
+  .hero-trust-value {
+    font-size: 10.5px;
+  }
+
+  .luxury-homepage-root .home-banner-v2 p.h1 {
+    font-size: clamp(47px, 13vw, 64px) !important;
+  }
+
+  .luxury-homepage-root .home-banner-v2 h1.heading-desc {
+    font-size: 16px !important;
+    max-width: 560px;
+  }
+
+  .luxury-homepage-root .home-banner-v2 .btn-row {
+    width: min(100%, 420px);
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hero-primary-cta,
+  .hero-secondary-cta {
+    width: 100%;
+  }
+
+  .luxury-homepage-root .number-panels {
+    margin-top: -58px;
+  }
+
+  .luxury-homepage-root .number-panels .list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .luxury-homepage-root .number-panels .item {
+    min-height: 105px;
+    padding: 20px 24px;
+  }
+
+  .luxury-homepage-root .number-panels .item .number,
+  .luxury-homepage-root .number-panels .item:hover .number {
+    font-size: 40px;
+  }
+
+  .luxury-homepage-root .page-section-white {
+    margin-left: 10px;
+    margin-right: 10px;
+    border-radius: 24px;
+  }
+
+  .luxury-homepage-root .text-image-groups {
+    padding: 50px 0 64px;
+  }
+
+  .luxury-homepage-root .text-image .content {
+    grid-template-columns: 1fr;
+    gap: 38px;
+  }
+
+  .luxury-homepage-root .text-image .text-box h2 {
+    font-size: 34px;
+  }
+
+  .luxury-homepage-root .text-image .text-box p {
+    font-size: 15px;
+  }
+
+  .luxury-homepage-root .journey-grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .luxury-homepage-root .journey-step-card {
+    min-height: 0;
+  }
+
+  .luxury-homepage-root .journey-trust-bar {
+    padding: 20px;
+  }
+
+  .luxury-homepage-root .journey-book-cta {
+    width: 100%;
+  }
+
+  .luxury-homepage-root .four-columns-card .treatment-grid-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .luxury-homepage-root .treatment-card-item .card-overlay-content {
+    padding: 22px 18px;
+  }
+
+  .luxury-homepage-root .treatment-card-item .card-title {
+    font-size: 19px;
+  }
+
+  .luxury-homepage-root .treatment-card-item .card-desc {
+    font-size: 12.5px;
+  }
+
+  .luxury-homepage-root .steps-scroll {
+    margin: 24px 10px 12px;
+  }
+
+  .luxury-homepage-root .steps-scroll-layout {
+    grid-template-columns: 1fr;
+    padding: 54px 22px;
+    gap: 34px;
+  }
+
+  .luxury-homepage-root .steps-scroll-left {
+    position: static;
+  }
+
+  .luxury-homepage-root .stack-card {
+    opacity: 1;
+    transform: none !important;
+  }
+
+  .luxury-homepage-root .stack-card-inner {
+    padding: 30px 24px;
+  }
+
+  .luxury-homepage-root .stack-card .card-num {
+    font-size: 82px;
+  }
+
+  .luxury-homepage-root .simulator-screen {
+    height: 360px;
+  }
+
+  .luxury-homepage-root .hud-overlay {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 12px;
+  }
+
+  .luxury-homepage-root .hud-item:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .luxury-homepage-root .pills-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .luxury-homepage-root .shapes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .luxury-homepage-root .home-before-after-section {
+    padding: 74px 0;
+  }
+
+  .luxury-homepage-root .price-guide {
+    padding: 56px 0 70px;
+  }
+
+  .luxury-homepage-root .price-guide .text-box {
+    padding: 34px 26px;
+  }
+
+  .luxury-homepage-root .faq-section-luxury {
+    padding: 78px 0 84px;
+  }
+
+  .luxury-site-footer .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 34px 24px;
+  }
+
+  .luxury-site-footer .bottom,
+  .luxury-site-footer .bottom .links {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 520px) {
+  .luxury-site-header .logo-text {
+    font-size: 15px;
+  }
+
+  .luxury-site-header .btn-blue {
+    padding: 0 11px;
+    font-size: 11.5px;
+  }
+
+  .luxury-homepage-root .rating-row {
+    flex-wrap: wrap;
+    row-gap: 5px;
+    max-width: 290px;
+  }
+
+  .hero-trust-divider {
+    display: none;
+  }
+
+  .luxury-homepage-root .four-columns-card .treatment-grid-list {
+    grid-template-columns: 1fr;
+  }
+
+  .luxury-homepage-root .treatment-card-item {
+    aspect-ratio: 4 / 4.6;
+  }
+
+  .luxury-homepage-root .simulator-3d-card {
+    padding: 10px;
+    border-radius: 20px;
+  }
+
+  .luxury-homepage-root .simulator-screen {
+    height: 310px;
+    border-radius: 14px;
+  }
+
+  .luxury-homepage-root .hud-overlay {
+    grid-template-columns: 1fr;
+  }
+
+  .luxury-homepage-root .hud-item:last-child {
+    grid-column: auto;
+  }
+
+  .luxury-homepage-root .shades-row {
+    grid-template-columns: repeat(4, minmax(56px, 1fr));
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .luxury-site-footer .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.luxury-homepage-root .before-after-footer {
+  padding-top: 12px;
+  text-align: center;
+}
+
+.luxury-homepage-root .before-after-footer .instructions {
+  color: #637072;
+  font-size: 12px;
+  line-height: 1.45;
+}
