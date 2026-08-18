@@ -195,7 +195,7 @@ export default function HomePage() {
 
       {/* 5. Interactive Before & After Transformation Slider Section */}
       <section className="home-before-after-section" id="results">
-        <div className="container max-w-6xl mx-auto px-4">
+        <div className="container">
           <div className="title-box text-center max-w-2xl mx-auto mb-12">
             <span className="subtitle-italic">Smile Transformation Showcase</span>
             <h2 className="h3" data-motion-split="true">Interactive Before &amp; After Preview</h2>

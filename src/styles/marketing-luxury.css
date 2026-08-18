@@ -121,15 +121,15 @@
 
 /* Utility Layouts */
 .container {
-  max-width: 1720px;
+  max-width: 1800px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 clamp(20px, 4.5vw, 100px);
+  padding: 0 clamp(20px, 2.5vw, 44px);
 }
 
 @media (max-width: 768px) {
   .container {
-    padding: 0 20px;
+    padding: 0 16px;
   }
 }
 
@@ -1154,12 +1154,11 @@ header.header-sticky .hamburger span {
   padding-bottom: 80px;
 }
 
-/* White Rounded Card — floats on dark bg with full border-radius and side margins */
+/* White Rounded Card — floats on dark bg with full border-radius and side margins (94-97vw) */
 .page-section-white {
   background: #ffffff;
-  border-radius: 50px;
-  margin: 0 40px;
-  /* Default layout with side margin */
+  border-radius: clamp(32px, 3.5vw, 48px);
+  margin: 0 clamp(16px, 2vw, 32px);
   position: relative;
   z-index: 5;
   padding: 80px 0;
@@ -1171,7 +1170,6 @@ header.header-sticky .hamburger span {
   margin-top: 0;
   padding-top: 80px;
   box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.12);
-  /* Casts soft shadow upwards over dark boundary */
   background-color: #ffffff;
   background-image: url('/white_card_bg.jpg');
   background-size: cover;
@@ -1181,7 +1179,7 @@ header.header-sticky .hamburger span {
 
 /* Second card margin flowing naturally on dark background */
 .page-section-white.second-card {
-  margin: 0 40px;
+  margin: 0 clamp(16px, 2vw, 32px);
   box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.06), 0 15px 40px rgba(0, 0, 0, 0.06);
 }
 

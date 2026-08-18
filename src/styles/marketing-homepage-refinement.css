@@ -427,21 +427,29 @@
   line-height: 1;
 }
 
-/* ---------- Full-width homepage layout (Dhaka Heights & Effytech style) ---------- */
+/* ---------- Full-width Macro Layout System (94–97vw on Desktop) ---------- */
 .luxury-homepage-root .container {
-  max-width: 1720px;
+  max-width: 1800px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 clamp(20px, 4.5vw, 100px);
+  padding: 0 clamp(20px, 2.5vw, 44px);
 }
 
-/* ---------- White editorial cards ---------- */
+/* ---------- White Rounded Luxury Canvases (94–97vw) ---------- */
 .luxury-homepage-root .page-section-white {
   background: var(--light-bg);
-  border-radius: 34px;
-  margin-left: clamp(14px, 2vw, 32px);
-  margin-right: clamp(14px, 2vw, 32px);
+  border-radius: clamp(32px, 3.5vw, 48px);
+  margin-left: clamp(16px, 2vw, 32px);
+  margin-right: clamp(16px, 2vw, 32px);
   box-shadow: 0 20px 60px rgba(10, 22, 24, 0.12);
+  position: relative;
+  z-index: 5;
+  width: auto;
+}
+
+.luxury-homepage-root .page-section-white .container {
+  max-width: 100%;
+  padding: 0 clamp(20px, 2.5vw, 44px);
 }
 
 .luxury-homepage-root .page-section-white.first-card {
@@ -450,11 +458,20 @@
 }
 
 .luxury-homepage-root .text-image-groups {
-  padding: 74px 0 86px;
+  padding: clamp(60px, 6vw, 90px) 0;
+  width: 100%;
 }
 
 .luxury-homepage-root .text-image .content {
-  gap: clamp(48px, 6vw, 88px);
+  display: grid;
+  grid-template-columns: minmax(360px, 48%) 1fr;
+  gap: clamp(40px, 5vw, 84px);
+  align-items: center;
+  width: 100%;
+}
+
+.luxury-homepage-root .text-image .text-box {
+  max-width: 680px;
 }
 
 .luxury-homepage-root .text-image .text-box h2 {
@@ -470,6 +487,7 @@
   font-size: 16px;
   line-height: 1.72;
   margin-bottom: 15px;
+  max-width: 640px;
 }
 
 .luxury-homepage-root .text-image .text-box .btn-group,
@@ -549,8 +567,17 @@
 
 /* ---------- Treatment journey ---------- */
 .luxury-homepage-root .smile-journey-section {
-  padding: 106px 0 102px;
+  padding: clamp(70px, 7vw, 108px) 0;
   background: var(--dark-charcoal);
+  width: 100%;
+}
+
+.luxury-homepage-root .journey-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(16px, 1.8vw, 28px);
+  width: 100%;
+  margin-bottom: 45px;
 }
 
 .luxury-homepage-root .header-badge-dark {
@@ -572,6 +599,8 @@
   color: var(--text-on-dark-muted);
   font-size: 16.5px;
   line-height: 1.72;
+  max-width: 720px;
+  margin: 0 auto;
 }
 
 .luxury-homepage-root .journey-step-card {
@@ -656,7 +685,13 @@
 /* ---------- Treatments ---------- */
 .luxury-homepage-root .four-columns-card {
   background: var(--light-bg);
-  padding: 92px 0 88px;
+  padding: clamp(60px, 6vw, 92px) 0 clamp(40px, 4vw, 60px);
+  width: 100%;
+}
+
+.luxury-homepage-root .four-columns-card .title-box {
+  max-width: 760px;
+  margin: 0 auto;
 }
 
 .luxury-homepage-root .four-columns-card .subtitle-italic,
@@ -673,6 +708,13 @@
 .luxury-homepage-root .four-columns-card .title-box .divider-line {
   background: var(--accent-sage-dark);
   opacity: 0.7;
+}
+
+.luxury-homepage-root .four-columns-card .treatment-grid-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(16px, 1.8vw, 28px);
+  width: 100%;
 }
 
 .luxury-homepage-root .treatment-card-item {
@@ -714,14 +756,15 @@
   background: transparent;
   border: none;
   border-radius: 0;
+  width: 100%;
 }
 
 .luxury-homepage-root .steps-scroll-layout {
   display: grid;
-  grid-template-columns: minmax(360px, 35%) 1fr;
-  gap: clamp(48px, 6vw, 100px);
-  padding: 90px clamp(24px, 5vw, 100px);
-  max-width: 1720px;
+  grid-template-columns: minmax(360px, 34%) 1fr;
+  gap: clamp(40px, 5vw, 84px);
+  padding: clamp(60px, 6vw, 90px) clamp(20px, 2.5vw, 44px);
+  max-width: 1800px;
   margin: 0 auto;
   width: 100%;
 }
@@ -859,12 +902,17 @@
 
 /* ---------- Smile simulator ---------- */
 .luxury-homepage-root .smile-simulator-section {
-  padding: 108px 0;
+  padding: clamp(70px, 7vw, 108px) 0;
   background: linear-gradient(135deg, #253438 0%, #1d2a2d 100%);
+  width: 100%;
 }
 
 .luxury-homepage-root .simulator-grid {
-  gap: clamp(44px, 5vw, 72px);
+  display: grid;
+  grid-template-columns: minmax(380px, 46%) 1fr;
+  gap: clamp(36px, 4.5vw, 72px);
+  align-items: center;
+  width: 100%;
 }
 
 .luxury-homepage-root .simulator-3d-card {
@@ -915,6 +963,7 @@
   font-size: 15.5px;
   line-height: 1.72;
   margin-bottom: 28px;
+  max-width: 580px;
 }
 
 .luxury-homepage-root .control-title {
@@ -1040,14 +1089,26 @@
 
 /* ---------- Before/after showcase ---------- */
 .luxury-homepage-root .home-before-after-section {
-  padding: 98px 0;
+  padding: clamp(70px, 7vw, 108px) 0;
   background: var(--light-bg);
   color: var(--dark-charcoal);
+  width: 100%;
+}
+
+.luxury-homepage-root .home-before-after-section .container {
+  width: 100%;
+}
+
+.luxury-homepage-root .home-before-after-section .grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(24px, 3vw, 44px);
+  width: 100%;
 }
 
 .luxury-homepage-root .home-before-after-section .title-box {
   max-width: 760px;
-  margin-bottom: 44px;
+  margin: 0 auto clamp(32px, 3.5vw, 48px);
 }
 
 .luxury-homepage-root .home-before-after-section .subtitle-italic {
@@ -1090,6 +1151,7 @@
   background: var(--dark-charcoal);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
 }
 
 .luxury-homepage-root .marquee-text h2 {
@@ -1102,14 +1164,15 @@
 
 /* ---------- Payment / pricing card ---------- */
 .luxury-homepage-root .price-guide {
-  padding: 88px 0;
+  padding: clamp(60px, 6vw, 92px) 0;
   background: var(--dark-charcoal);
   position: relative;
   z-index: 2;
+  width: 100%;
 }
 
 .luxury-homepage-root .price-guide .content {
-  max-width: 1720px;
+  max-width: 1800px;
   width: 100%;
   margin: 0 auto;
   display: grid;
@@ -1204,11 +1267,12 @@
 
 /* ---------- FAQ ---------- */
 .luxury-homepage-root .faq-section-luxury {
-  padding: 110px 0 120px;
+  padding: clamp(70px, 7vw, 112px) 0;
   background: #0E1A1B;
   color: #ffffff;
   position: relative;
   z-index: 2;
+  width: 100%;
 }
 
 .faq-heading-wrap {
@@ -1253,11 +1317,12 @@
 }
 
 .faq-list {
-  max-width: 960px;
+  max-width: 1080px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  width: 100%;
 }
 
 .faq-item {
