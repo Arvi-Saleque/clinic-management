@@ -3,9 +3,9 @@
 import * as React from "react";
 import {
   AlertCircle,
+  CalendarDays,
   Clock,
   Copy,
-  Info,
   Loader2,
   Plus,
   Save,
@@ -19,28 +19,33 @@ import { Input } from "@/components/ui/input";
 import { saveMultiIntervalWeeklyAvailability } from "@/lib/server/appointments";
 import type { DayAvailability, TimeInterval } from "@/types/availability";
 import { saveMultiIntervalAvailabilitySchema } from "@/lib/validation/availability";
+import { cn } from "@/lib/utils";
 
 const DAYS = [
-  { dow: 1, label: "Monday" },
-  { dow: 2, label: "Tuesday" },
-  { dow: 3, label: "Wednesday" },
-  { dow: 4, label: "Thursday" },
-  { dow: 5, label: "Friday" },
-  { dow: 6, label: "Saturday" },
-  { dow: 0, label: "Sunday" },
+  { dow: 1, label: "Monday", short: "Mon" },
+  { dow: 2, label: "Tuesday", short: "Tue" },
+  { dow: 3, label: "Wednesday", short: "Wed" },
+  { dow: 4, label: "Thursday", short: "Thu" },
+  { dow: 5, label: "Friday", short: "Fri" },
+  { dow: 6, label: "Saturday", short: "Sat" },
+  { dow: 0, label: "Sunday", short: "Sun" },
 ];
 
 interface WeeklyTemplateViewProps {
   branchId?: string;
   practitionerId: string;
   initialRules: Record<number, DayAvailability>;
+  focusedWeekday?: number | null;
   onSuccess: () => void;
+  onViewScheduleOverview?: () => void;
 }
 
 export function WeeklyTemplateView({
   practitionerId,
   initialRules,
+  focusedWeekday = null,
   onSuccess,
+  onViewScheduleOverview,
 }: WeeklyTemplateViewProps) {
   const [schedule, setSchedule] = React.useState<Record<number, DayAvailability>>(() => {
     const next: Record<number, DayAvailability> = {};
@@ -64,6 +69,16 @@ export function WeeklyTemplateView({
 
   const [validationError, setValidationError] = React.useState<string | null>(null);
   const [isSaving, setIsSaving] = React.useState(false);
+
+  // Scroll to focused weekday if supplied from day editor shortcut
+  React.useEffect(() => {
+    if (focusedWeekday !== null && focusedWeekday !== undefined) {
+      const el = document.getElementById(`weekday-card-${focusedWeekday}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [focusedWeekday]);
 
   const handleToggle = (dow: number, checked: boolean) => {
     setValidationError(null);
@@ -155,7 +170,7 @@ export function WeeklyTemplateView({
       4: { dayOfWeek: 4, enabled: mon.enabled, intervals: [...mon.intervals] },
       5: { dayOfWeek: 5, enabled: mon.enabled, intervals: [...mon.intervals] },
     }));
-    toast.info("Copied Monday template to Tuesday–Friday");
+    toast.info("Copied Monday hours to Tuesday–Friday");
   };
 
   const handleSave = async () => {
@@ -172,7 +187,9 @@ export function WeeklyTemplateView({
 
     const parsed = saveMultiIntervalAvailabilitySchema.safeParse(payload);
     if (!parsed.success) {
-      setValidationError(parsed.error.issues[0]?.message ?? "Invalid weekly schedule configuration.");
+      setValidationError(
+        parsed.error.issues[0]?.message ?? "Invalid weekly working hours configuration.",
+      );
       return;
     }
 
@@ -183,10 +200,12 @@ export function WeeklyTemplateView({
         setValidationError(result.error);
         return;
       }
-      toast.success("Recurring weekly template saved successfully");
+      toast.success("Weekly working hours saved successfully");
       onSuccess();
     } catch (err: unknown) {
-      setValidationError(err instanceof Error ? err.message : "Unexpected error saving template.");
+      setValidationError(
+        err instanceof Error ? err.message : "Unexpected error saving weekly working hours.",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -194,28 +213,24 @@ export function WeeklyTemplateView({
 
   return (
     <div className="space-y-4">
-      {/* Information Banner */}
-      <div className="p-3.5 rounded-xl bg-muted/60 border border-border/70 flex items-start gap-3 text-xs text-muted-foreground">
-        <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-        <div className="leading-relaxed">
-          <strong className="text-foreground font-semibold">Recurring Base Template:</strong> This
-          weekly schedule provides your automatic working baseline for all weeks. Any date-specific
-          adjustments or planned leave in the <strong>Next 30 Days</strong> view will
-          authoritatively override this template without modifying future weeks.
-        </div>
-      </div>
-
       {/* Weekday Cards */}
       <div className="space-y-2.5">
         {DAYS.map(({ dow, label }) => {
           const day = schedule[dow];
           const isAvail = day?.enabled ?? false;
           const intervals = day?.intervals ?? [];
+          const isTargeted = focusedWeekday === dow;
 
           return (
             <div
+              id={`weekday-card-${dow}`}
               key={dow}
-              className="p-3.5 rounded-xl bg-card border border-border/70 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              className={cn(
+                "p-3.5 rounded-xl bg-card border transition-all duration-300 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3",
+                isTargeted
+                  ? "border-primary ring-2 ring-primary/30 bg-primary/[0.03]"
+                  : "border-border/70",
+              )}
             >
               {/* Day Name & Toggle */}
               <div className="flex items-center justify-between sm:justify-start gap-4 sm:w-48 shrink-0">
@@ -226,9 +241,14 @@ export function WeeklyTemplateView({
                 />
                 <label
                   htmlFor={`switch-${dow}`}
-                  className="text-sm font-bold text-foreground cursor-pointer"
+                  className="text-sm font-bold text-foreground cursor-pointer flex items-center gap-2"
                 >
                   {label}
+                  {isTargeted && (
+                    <span className="text-[10px] font-semibold text-primary px-1.5 py-0.5 rounded-full bg-primary/10">
+                      Selected
+                    </span>
+                  )}
                 </label>
               </div>
 
@@ -270,7 +290,9 @@ export function WeeklyTemplateView({
                     </div>
                   ))
                 ) : (
-                  <span className="text-xs text-muted-foreground italic">Off (No recurring hours)</span>
+                  <span className="text-xs text-muted-foreground italic">
+                    Off (No recurring hours)
+                  </span>
                 )}
               </div>
 
@@ -304,16 +326,31 @@ export function WeeklyTemplateView({
 
       {/* Action Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-border/60">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handleCopyMonday}
-          className="text-xs font-semibold gap-1.5 w-full sm:w-auto"
-        >
-          <Copy className="w-3.5 h-3.5" />
-          Copy Monday to Weekdays (Tue–Fri)
-        </Button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleCopyMonday}
+            className="text-xs font-semibold gap-1.5 w-full sm:w-auto"
+          >
+            <Copy className="w-3.5 h-3.5" />
+            Copy Monday to Tue–Fri
+          </Button>
+
+          {onViewScheduleOverview && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onViewScheduleOverview}
+              className="text-xs font-semibold gap-1.5 text-muted-foreground hover:text-foreground hidden md:inline-flex"
+            >
+              <CalendarDays className="w-3.5 h-3.5 text-primary" />
+              View Schedule Overview
+            </Button>
+          )}
+        </div>
 
         <Button
           type="button"
@@ -327,7 +364,7 @@ export function WeeklyTemplateView({
           ) : (
             <Save className="w-3.5 h-3.5" />
           )}
-          Save Weekly Template
+          Save Weekly Working Hours
         </Button>
       </div>
     </div>

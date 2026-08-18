@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   CalendarCheck2,
   CalendarOff,
+  CalendarRange,
   Check,
   Clock,
   Loader2,
@@ -46,6 +47,7 @@ interface AvailabilityDayEditorDialogProps {
   day: CalendarDayAvailability | null;
   practitionerId: string;
   onSuccess: () => void;
+  onEditRecurringWeekday?: (dayOfWeek: number) => void;
 }
 
 interface AppointmentTiming {
@@ -62,6 +64,7 @@ export function AvailabilityDayEditorDialog({
   day,
   practitionerId,
   onSuccess,
+  onEditRecurringWeekday,
 }: AvailabilityDayEditorDialogProps) {
   if (!day) return null;
 
@@ -73,6 +76,7 @@ export function AvailabilityDayEditorDialog({
       day={day}
       practitionerId={practitionerId}
       onSuccess={onSuccess}
+      onEditRecurringWeekday={onEditRecurringWeekday}
     />
   );
 }
@@ -83,12 +87,14 @@ function AvailabilityDayEditorDialogContent({
   day,
   practitionerId,
   onSuccess,
+  onEditRecurringWeekday,
 }: {
   isOpen: boolean;
   onClose: () => void;
   day: CalendarDayAvailability;
   practitionerId: string;
   onSuccess: () => void;
+  onEditRecurringWeekday?: (dayOfWeek: number) => void;
 }) {
   const isFullDayLeave = day.source === "full_day_leave";
   const isCustomOverride = day.source === "date_override";
@@ -126,13 +132,13 @@ function AvailabilityDayEditorDialogContent({
 
   const dateObj = parseISO(day.date);
   const formattedDate = format(dateObj, "EEEE, d MMMM yyyy");
+  const weekdayName = format(dateObj, "EEEE");
   const appointmentCount = day.activeAppointmentCount ?? dayAppointments.length;
 
   // Conflict Detection: Calculate if any booked appointments fall outside proposed intervals
   const conflictingAppointments = React.useMemo(() => {
     if (dayAppointments.length > 0) {
       if (isUnavailable) {
-        // In leave mode, all existing appointments are outside working hours
         return dayAppointments;
       }
 
@@ -141,7 +147,6 @@ function AvailabilityDayEditorDialogContent({
       }
 
       return dayAppointments.filter((appt) => {
-        // Check if this appointment falls entirely within ANY of the proposed working intervals
         const isContained = intervals.some((inv) => {
           return appt.startTime >= inv.startTime && appt.endTime <= inv.endTime;
         });
@@ -149,7 +154,6 @@ function AvailabilityDayEditorDialogContent({
       });
     }
 
-    // If dayAppointments is still loading or count > 0 and user toggles Leave
     if (appointmentCount > 0 && (isUnavailable || intervals.length === 0)) {
       return [
         {
@@ -163,13 +167,12 @@ function AvailabilityDayEditorDialogContent({
     }
 
     return [];
-  }, [dayAppointments, isUnavailable, intervals, appointmentCount]);
+  }, [dayAppointments, intervals, isUnavailable, appointmentCount]);
 
-  // Interval Editing Handlers
   const handleAddInterval = () => {
     setValidationError(null);
     let newStart = "09:00";
-    let newEnd = "17:00";
+    let newEnd = "13:00";
 
     if (intervals.length > 0) {
       const last = intervals[intervals.length - 1];
@@ -180,58 +183,82 @@ function AvailabilityDayEditorDialogContent({
       newEnd = `${String(endH).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
     }
 
-    setIntervals([...intervals, { startTime: newStart, endTime: newEnd }]);
+    setIntervals((prev) => [...prev, { startTime: newStart, endTime: newEnd }]);
   };
 
-  const handleUpdateInterval = (index: number, field: "startTime" | "endTime", value: string) => {
+  const handleUpdateInterval = (index: number, field: keyof TimeInterval, val: string) => {
     setValidationError(null);
-    const updated = [...intervals];
-    updated[index] = { ...updated[index], [field]: value };
-    setIntervals(updated);
+    setIntervals((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: val };
+      return updated;
+    });
   };
 
   const handleDeleteInterval = (index: number) => {
     setValidationError(null);
-    setIntervals(intervals.filter((_, i) => i !== index));
+    setIntervals((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Submit Save Action
   const handleSave = async () => {
     setValidationError(null);
 
-    if (!isUnavailable && intervals.length === 0) {
-      setValidationError("Please add at least one working interval or choose 'On Leave / Unavailable'.");
+    if (isUnavailable) {
+      setIsSaving(true);
+      try {
+        const result = await saveDayAvailabilityOverrideAction({
+          practitionerId,
+          date: day.date,
+          isUnavailable: true,
+          reason: leaveReason.trim() || undefined,
+          intervals: [],
+        });
+
+        if (result.error) {
+          setValidationError(result.error);
+          return;
+        }
+
+        toast.success(`Leave scheduled for ${formattedDate}`);
+        onSuccess();
+        onClose();
+      } catch (err: unknown) {
+        setValidationError(err instanceof Error ? err.message : "Unexpected error saving leave.");
+      } finally {
+        setIsSaving(false);
+      }
+      return;
+    }
+
+    // Working intervals validation
+    if (intervals.length === 0) {
+      setValidationError("Please add at least one working shift or choose 'On Leave / Unavailable'.");
       return;
     }
 
     const payload = {
       practitionerId,
       date: day.date,
-      isUnavailable,
-      reason: isUnavailable ? leaveReason.trim() || undefined : undefined,
-      intervals: isUnavailable ? [] : intervals,
+      isUnavailable: false,
+      leaveReason: undefined,
+      intervals,
     };
 
-    // Client-side Zod validation
     const parsed = saveDateOverrideSchema.safeParse(payload);
     if (!parsed.success) {
-      setValidationError(parsed.error.issues[0]?.message ?? "Please verify the working hours.");
+      setValidationError(parsed.error.issues[0]?.message ?? "Invalid working hours configuration.");
       return;
     }
 
     setIsSaving(true);
     try {
       const result = await saveDayAvailabilityOverrideAction(payload);
-      if (!result.success) {
-        setValidationError(result.error ?? "Failed to save date availability override.");
+      if (result.error) {
+        setValidationError(result.error);
         return;
       }
 
-      toast.success(
-        isUnavailable
-          ? `Marked on leave for ${format(dateObj, "d MMM")}`
-          : `Custom schedule saved for ${format(dateObj, "d MMM")}`,
-      );
+      toast.success(`Custom hours saved for ${formattedDate}`);
       onSuccess();
       onClose();
     } catch (err: unknown) {
@@ -241,7 +268,6 @@ function AvailabilityDayEditorDialogContent({
     }
   };
 
-  // Reset to Weekly Template Action
   const handleReset = async () => {
     setValidationError(null);
     setIsResetting(true);
@@ -251,18 +277,25 @@ function AvailabilityDayEditorDialogContent({
         date: day.date,
       });
 
-      if (!result.success) {
-        setValidationError(result.error ?? "Failed to reset to weekly template.");
+      if (result.error) {
+        setValidationError(result.error);
         return;
       }
 
-      toast.success(`Reset ${format(dateObj, "d MMM")} back to weekly recurring template`);
+      toast.success(`Reset ${formattedDate} to normal ${weekdayName} hours`);
       onSuccess();
       onClose();
     } catch (err: unknown) {
       setValidationError(err instanceof Error ? err.message : "Unexpected error resetting date.");
     } finally {
       setIsResetting(false);
+    }
+  };
+
+  const handleEditRecurringShortcut = () => {
+    onClose();
+    if (onEditRecurringWeekday) {
+      onEditRecurringWeekday(day.dayOfWeek);
     }
   };
 
@@ -276,29 +309,29 @@ function AvailabilityDayEditorDialogContent({
             </DialogTitle>
           </div>
           <DialogDescription className="text-xs text-muted-foreground">
-            Configure custom working hours or planned leave for this specific date.
+            Adjust working hours or schedule planned leave for this specific date only.
           </DialogDescription>
         </DialogHeader>
 
-        {/* Status Bar */}
+        {/* Schedule Source Status Bar */}
         <div className="p-3 rounded-xl bg-muted/50 border border-border/60 flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-muted-foreground">Schedule Source:</span>
-            {isCustomOverride ? (
-              <Badge
-                variant="outline"
-                className="bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30 text-xs font-medium"
-              >
-                <Sparkles className="w-3 h-3 mr-1" />
-                Custom Schedule (Date Override)
-              </Badge>
-            ) : isFullDayLeave ? (
+            <span className="text-xs font-semibold text-muted-foreground">Current Schedule:</span>
+            {isUnavailable || isFullDayLeave ? (
               <Badge
                 variant="outline"
                 className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 text-xs font-medium"
               >
                 <CalendarOff className="w-3 h-3 mr-1" />
-                Planned Leave / Unavailable
+                On Leave — This Date Only
+              </Badge>
+            ) : isCustomOverride ? (
+              <Badge
+                variant="outline"
+                className="bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30 text-xs font-medium"
+              >
+                <Sparkles className="w-3 h-3 mr-1" />
+                Custom Hours — This Date Only
               </Badge>
             ) : isNotScheduled ? (
               <Badge
@@ -306,7 +339,7 @@ function AvailabilityDayEditorDialogContent({
                 className="bg-muted text-muted-foreground border-border/80 text-xs font-medium"
               >
                 <Clock className="w-3 h-3 mr-1" />
-                Weekly Template — Not Scheduled (Off Day)
+                Normal {weekdayName} Routine: Off
               </Badge>
             ) : (
               <Badge
@@ -314,7 +347,7 @@ function AvailabilityDayEditorDialogContent({
                 className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-xs font-medium"
               >
                 <CalendarCheck2 className="w-3 h-3 mr-1" />
-                Weekly Recurring Template
+                Normal {weekdayName} Hours
               </Badge>
             )}
           </div>
@@ -330,10 +363,57 @@ function AvailabilityDayEditorDialogContent({
           )}
         </div>
 
+        {/* Doctor Scope & Decision Cue Banner */}
+        <div className="p-3 rounded-xl bg-primary/[0.04] border border-primary/15 text-xs text-muted-foreground space-y-2.5">
+          <div className="flex items-start gap-2">
+            <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+            <div className="leading-relaxed">
+              {isUnavailable ? (
+                <span>
+                  Your normal {weekdayName} routine remains unchanged for future weeks.
+                </span>
+              ) : isCustomOverride ? (
+                <span>
+                  This date differs from your normal {weekdayName} routine. Changes saved here affect only this date.
+                </span>
+              ) : isNotScheduled ? (
+                <span>
+                  This day is normally off in your weekly routine.
+                </span>
+              ) : (
+                <span>
+                  These are your regular {weekdayName} working hours.
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Choice / Decision Cue for Changing Recurring Weekday */}
+          {onEditRecurringWeekday && (
+            <div className="pt-2 border-t border-primary/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <span className="text-[11px] font-medium text-foreground/80">
+                Changing your schedule?
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleEditRecurringShortcut}
+                  className="h-7 text-xs font-semibold gap-1 text-primary border-primary/30 hover:bg-primary/10"
+                >
+                  <CalendarRange className="w-3 h-3" />
+                  {isNotScheduled ? `Make ${weekdayName}s a Working Day` : `Change every ${weekdayName}`}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Working Status Toggle */}
-        <div className="space-y-3 pt-2">
+        <div className="space-y-3 pt-1">
           <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Working Availability
+            Schedule for this date
           </Label>
           <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-muted/60 border border-border/60">
             <button
@@ -375,16 +455,21 @@ function AvailabilityDayEditorDialogContent({
         {!isUnavailable ? (
           <div className="space-y-3 pt-1">
             <div className="flex items-center justify-between">
-              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-primary" />
-                Working Hours
-              </Label>
+              <div className="space-y-0.5">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-primary" />
+                  Working Hours
+                </Label>
+                <p className="text-[11px] text-muted-foreground">
+                  Changes saved here apply only to {formattedDate}.
+                </p>
+              </div>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleAddInterval}
-                className="h-7 text-xs font-semibold gap-1"
+                className="h-7 text-xs font-semibold gap-1 shrink-0"
               >
                 <Plus className="w-3 h-3" />
                 Add Shift
@@ -395,8 +480,8 @@ function AvailabilityDayEditorDialogContent({
               <div className="p-4 rounded-xl border border-dashed border-border/80 text-center space-y-2 bg-muted/20">
                 <p className="text-xs text-muted-foreground">
                   {isNotScheduled
-                    ? "This day is normally off in your weekly template. Add working hours below to open bookings for this specific date."
-                    : "No working intervals configured. Click 'Add Shift' to define working hours."}
+                    ? `This day is normally off in your weekly routine. Add working hours below to open bookings for this specific date.`
+                    : "No working intervals configured. Click 'Add Working Hours' to define hours for this date."}
                 </p>
                 <Button
                   type="button"
@@ -406,7 +491,7 @@ function AvailabilityDayEditorDialogContent({
                   className="h-7 text-xs font-semibold gap-1"
                 >
                   <Plus className="w-3 h-3" />
-                  Add Working Hours
+                  Add Hours for This {weekdayName}
                 </Button>
               </div>
             ) : (
@@ -470,7 +555,7 @@ function AvailabilityDayEditorDialogContent({
               className="h-9 text-xs"
             />
             <p className="text-[11px] text-muted-foreground">
-              This note helps practice staff understand the reason for unavailability.
+              This note helps practice staff and scheduling administrators understand the reason for unavailability.
             </p>
           </div>
         )}
@@ -538,7 +623,7 @@ function AvailabilityDayEditorDialogContent({
                 ) : (
                   <RotateCcw className="w-3.5 h-3.5" />
                 )}
-                Reset to Weekly Template
+                Reset to Normal {weekdayName} Hours
               </Button>
             )}
           </div>

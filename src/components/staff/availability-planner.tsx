@@ -3,14 +3,15 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
-  CalendarDays,
+  ArrowLeft,
   CalendarRange,
   Clock,
   RotateCw,
 } from "lucide-react";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { AvailabilitySummaryStrip } from "./availability/availability-summary-strip";
+import { WeeklyHoursCompactSummary } from "./availability/weekly-hours-compact-summary";
 import { AvailabilityCalendarView } from "./availability/availability-calendar-view";
 import { WeeklyTemplateView } from "./availability/weekly-template-view";
 import { computeUpcoming30DaysAvailability } from "@/lib/availability";
@@ -36,9 +37,10 @@ export function AvailabilityPlanner({
   appointmentCounts = {},
 }: AvailabilityPlannerProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = React.useState<string>("calendar");
+  const [viewMode, setViewMode] = React.useState<"overview" | "weekly-editor">("overview");
+  const [focusedWeekday, setFocusedWeekday] = React.useState<number | null>(null);
 
-  // Transform database rules into weekly map for template editor
+  // Transform database rules into weekly map for template editor and summary
   const weeklyMap = React.useMemo(() => {
     const map: Record<number, DayAvailability> = {};
     for (let dow = 0; dow <= 6; dow++) {
@@ -73,6 +75,18 @@ export function AvailabilityPlanner({
     router.refresh();
   }, [router]);
 
+  const handleOpenWeeklyEditor = React.useCallback((dayOfWeek?: number) => {
+    setViewMode("weekly-editor");
+    if (typeof dayOfWeek === "number") {
+      setFocusedWeekday(dayOfWeek);
+    }
+  }, []);
+
+  const handleBackToOverview = React.useCallback(() => {
+    setViewMode("overview");
+    setFocusedWeekday(null);
+  }, []);
+
   return (
     <section className="space-y-4">
       {/* Top Header Card */}
@@ -86,8 +100,7 @@ export function AvailabilityPlanner({
             Practitioner Availability
           </h2>
           <p className="mt-1 text-xs text-muted-foreground max-w-2xl leading-relaxed">
-            Manage upcoming working hours, date-specific overrides, and your recurring weekly
-            template. Changes immediately update patient online booking and staff scheduling grids.
+            Manage your normal weekly routine and make one-off changes when needed.
           </p>
         </div>
 
@@ -106,48 +119,79 @@ export function AvailabilityPlanner({
         </div>
       </div>
 
-      {/* Primary Availability Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <div className="flex items-center justify-between gap-2 border-b border-border/70 pb-2">
-          <TabsList className="bg-muted/70 p-1 rounded-xl h-auto">
-            <TabsTrigger
-              value="calendar"
-              className="text-xs font-bold px-3.5 py-1.5 rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs gap-1.5"
-            >
-              <CalendarDays className="w-3.5 h-3.5 text-primary" />
-              Next 30 Days
-            </TabsTrigger>
-            <TabsTrigger
-              value="weekly"
-              className="text-xs font-bold px-3.5 py-1.5 rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs gap-1.5"
-            >
-              <CalendarRange className="w-3.5 h-3.5 text-muted-foreground" />
-              Weekly Template
-            </TabsTrigger>
-          </TabsList>
-        </div>
+      {/* ------------------------------------------------------------- */}
+      {/* 1. DEFAULT OVERVIEW MODE (No Permanent Tabs)                   */}
+      {/* ------------------------------------------------------------- */}
+      {viewMode === "overview" && (
+        <div className="space-y-4">
+          {/* Step 1: Top Compact Operational KPI Strip */}
+          <AvailabilitySummaryStrip days={thirtyDays} />
 
-        {/* Tab 1: Next 30 Days Operational Calendar (Default View) */}
-        <TabsContent value="calendar" className="mt-0 focus-visible:outline-none">
+          {/* Step 2: Normal Weekly Routine (Directly above 30-Day Calendar) */}
+          <WeeklyHoursCompactSummary
+            weeklyMap={weeklyMap}
+            onEditWeeklyHours={handleOpenWeeklyEditor}
+          />
+
+          {/* Step 3: Next 30 Days Operational Calendar */}
           <AvailabilityCalendarView
             days={thirtyDays}
             practitionerId={practitionerId}
             onRefresh={handleRefresh}
+            onEditWeeklyHours={handleOpenWeeklyEditor}
           />
-        </TabsContent>
+        </div>
+      )}
 
-        {/* Tab 2: Recurring Weekly Template (Secondary Base View) */}
-        <TabsContent value="weekly" className="mt-0 focus-visible:outline-none">
-          <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs">
+      {/* ------------------------------------------------------------- */}
+      {/* 2. DEDICATED WEEKLY EDITING MODE (Temporary Flow)              */}
+      {/* ------------------------------------------------------------- */}
+      {viewMode === "weekly-editor" && (
+        <div className="space-y-3">
+          {/* Back Navigation Bar */}
+          <div className="flex items-center justify-between">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToOverview}
+              className="text-xs font-semibold gap-1.5 h-8 text-muted-foreground hover:text-foreground -ml-2"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back to Schedule Overview
+            </Button>
+          </div>
+
+          {/* Weekly Editor Container */}
+          <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs space-y-4">
+            <div className="flex items-center gap-2.5 border-b border-border/50 pb-3">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
+                <CalendarRange className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-foreground">
+                  Weekly Working Hours
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Set your normal working routine. These hours automatically repeat every week unless a specific date has a one-off change.
+                </p>
+              </div>
+            </div>
+
             <WeeklyTemplateView
               branchId={branchId}
               practitionerId={practitionerId}
               initialRules={weeklyMap}
-              onSuccess={handleRefresh}
+              focusedWeekday={focusedWeekday}
+              onSuccess={() => {
+                handleRefresh();
+                handleBackToOverview();
+              }}
+              onViewScheduleOverview={handleBackToOverview}
             />
           </div>
-        </TabsContent>
-      </Tabs>
+        </div>
+      )}
     </section>
   );
 }

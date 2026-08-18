@@ -3,7 +3,6 @@
 import * as React from "react";
 import { format, parseISO } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { AvailabilitySummaryStrip } from "./availability-summary-strip";
 import { AvailabilityDayCard } from "./availability-day-card";
 import { AvailabilityDayEditorDialog } from "./availability-day-editor-dialog";
 import type { CalendarDayAvailability } from "@/types/availability";
@@ -14,12 +13,14 @@ interface AvailabilityCalendarViewProps {
   days: CalendarDayAvailability[];
   practitionerId: string;
   onRefresh: () => void;
+  onEditWeeklyHours: (dayOfWeek?: number) => void;
 }
 
 export function AvailabilityCalendarView({
   days,
   practitionerId,
   onRefresh,
+  onEditWeeklyHours,
 }: AvailabilityCalendarViewProps) {
   const [selectedDay, setSelectedDay] = React.useState<CalendarDayAvailability | null>(null);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
@@ -57,39 +58,40 @@ export function AvailabilityCalendarView({
 
   return (
     <div className="space-y-4">
-      {/* Top 30-Day Operational Summary */}
-      <AvailabilitySummaryStrip days={days} />
-
-      {/* Main Calendar Card */}
+      {/* 30-Day Operational Schedule Card */}
       <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs space-y-4">
         {/* Calendar Card Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/50 pb-3">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-primary/10 text-primary">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
               <CalendarIcon className="w-4 h-4" />
             </div>
             <div>
               <h3 className="text-sm font-bold text-foreground">
-                30-Day Effective Schedule
+                Next 30 Days
               </h3>
               <p className="text-xs text-muted-foreground">
-                Click any calendar date to customize working hours or schedule planned leave.
+                Your weekly routine is applied automatically. Click a date only for a one-off change, temporary hours or leave.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium flex-wrap">
-            <span className="inline-flex items-center gap-1">
+          <div className="flex items-center gap-2.5 text-xs text-muted-foreground font-medium flex-wrap">
+            <span className="inline-flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              Weekly Template
+              Normal Hours
             </span>
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-indigo-500" />
-              Custom Hours
+              Custom Day
             </span>
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-amber-500" />
-              Planned Leave
+              Leave
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full border border-dashed border-muted-foreground/60 bg-muted/40" />
+              Off Day
             </span>
           </div>
         </div>
@@ -158,13 +160,14 @@ export function AvailabilityCalendarView({
         </div>
       </div>
 
-      {/* Interactive Day Editor Dialog */}
+      {/* Interactive Day Editor Dialog with shortcut bridge to Weekly Working Hours */}
       <AvailabilityDayEditorDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         day={selectedDay}
         practitionerId={practitionerId}
         onSuccess={onRefresh}
+        onEditRecurringWeekday={onEditWeeklyHours}
       />
     </div>
   );

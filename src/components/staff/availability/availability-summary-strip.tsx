@@ -35,7 +35,7 @@ export function AvailabilitySummaryStrip({ days }: AvailabilitySummaryStripProps
           <CalendarClock className="w-4 h-4" />
         </div>
         <div>
-          <div className="text-xs font-medium text-muted-foreground">Custom Overrides</div>
+          <div className="text-xs font-medium text-muted-foreground">Custom Days</div>
           <div className="text-lg font-bold text-foreground tracking-tight">
             {customDaysCount} <span className="text-xs font-normal text-muted-foreground">days</span>
           </div>
