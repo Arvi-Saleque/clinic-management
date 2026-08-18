@@ -45,6 +45,9 @@ DEMO_CREDENTIALS.local.md
 /.sites-runtime/
 /outputs/
 /work/
+*.zip
+.*-backup/
 
 .vercel
 .env*
+
