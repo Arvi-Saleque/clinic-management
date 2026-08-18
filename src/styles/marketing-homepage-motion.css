@@ -1,0 +1,255 @@
+/* ==========================================================================
+   CLINIC CARE DENTAL — HOMEPAGE MOTION SYSTEM
+   Homepage-only progressive enhancement layer.
+   Requires .luxury-homepage-root and is activated by HomepageMotion.
+   ========================================================================== */
+
+/* Lenis recommended integration rules. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* GSAP owns the marquee only after motion setup succeeds; CSS remains fallback. */
+.homepage-motion-enabled .luxury-homepage-root .marquee-row h2 {
+  animation: none !important;
+}
+
+.homepage-motion-enabled .luxury-homepage-root .marquee-row {
+  width: max-content;
+  gap: 0;
+  will-change: transform;
+}
+
+.homepage-motion-enabled .luxury-homepage-root .marquee-row h2 {
+  padding-right: 50px;
+}
+
+/* SplitText masks should never alter type metrics. */
+.luxury-homepage-root .homepage-hero-word,
+.luxury-homepage-root .homepage-section-word {
+  display: inline-block;
+}
+
+/* Hero / parallax performance hints. */
+.homepage-motion-enabled .luxury-homepage-root .home-banner-v2 .media-box,
+.homepage-motion-enabled .luxury-homepage-root .home-banner-v2 .content {
+  will-change: transform, opacity;
+}
+
+/* Editorial image reveal needs a clipping context without changing layout. */
+.homepage-motion-enabled .luxury-homepage-root #story .img-box,
+.homepage-motion-enabled .luxury-homepage-root .price-guide .img-box {
+  transform-origin: 50% 50%;
+  will-change: transform, opacity, clip-path;
+}
+
+/* Treatment image depth is intentionally restrained. */
+.homepage-motion-enabled .luxury-homepage-root .treatment-card-item .card-bg-box {
+  overflow: hidden;
+}
+
+.homepage-motion-enabled .luxury-homepage-root .treatment-card-item .card-bg-box img {
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* --------------------------------------------------------------------------
+   Why Choose — native sticky stack + GSAP emphasis
+   -------------------------------------------------------------------------- */
+.luxury-homepage-root .stack-card {
+  opacity: 1;
+}
+
+@media (min-width: 1025px) {
+  .homepage-motion-enabled .luxury-homepage-root .steps-scroll-right {
+    overflow: visible;
+    padding-bottom: 1px;
+  }
+
+  .homepage-motion-enabled .luxury-homepage-root .card-timeline {
+    display: block;
+  }
+
+  .homepage-motion-enabled .luxury-homepage-root .stack-card {
+    position: sticky;
+    top: calc(132px + (var(--stack-index, 0) * 34px));
+    margin-bottom: 42px;
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .homepage-motion-enabled .luxury-homepage-root .stack-card-inner {
+    transform-origin: center top;
+    transition:
+      box-shadow 380ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 380ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .homepage-motion-enabled .luxury-homepage-root .stack-card.motion-current .stack-card-inner {
+    box-shadow: 0 26px 58px rgba(21, 37, 38, 0.14);
+    border-color: rgba(87, 116, 83, 0.25);
+    filter: saturate(1.03);
+  }
+
+  .homepage-motion-enabled .luxury-homepage-root .stack-card:not(.motion-current) .stack-card-inner {
+    filter: saturate(0.96);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   DrawSVG / MorphSVG signature mark
+   -------------------------------------------------------------------------- */
+.luxury-homepage-root .journey-motion-mark {
+  width: 58px;
+  margin: 16px auto 18px;
+  color: var(--accent-beige);
+  opacity: 0.92;
+}
+
+.luxury-homepage-root .journey-motion-mark svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.luxury-homepage-root .journey-motion-mark path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.luxury-homepage-root .journey-motion-mark-target {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Smile simulator FLIP selection indicator
+   -------------------------------------------------------------------------- */
+.luxury-homepage-root .pill-btn,
+.luxury-homepage-root .shape-btn {
+  position: relative;
+  isolation: isolate;
+}
+
+.luxury-homepage-root .simulator-selection-outline {
+  position: absolute;
+  inset: -1px;
+  z-index: 3;
+  pointer-events: none;
+  border: 1.5px solid rgba(181, 200, 155, 0.95);
+  border-radius: inherit;
+  box-shadow:
+    0 0 0 3px rgba(181, 200, 155, 0.08),
+    0 10px 26px rgba(10, 26, 24, 0.18);
+}
+
+.luxury-homepage-root .pill-btn.active,
+.luxury-homepage-root .shape-btn.active {
+  border-color: transparent !important;
+}
+
+/* --------------------------------------------------------------------------
+   FAQ animated disclosure (keeps answer mounted for a real closing animation)
+   -------------------------------------------------------------------------- */
+.luxury-homepage-root .faq-answer-shell {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 300ms ease;
+}
+
+.luxury-homepage-root .faq-item.is-open .faq-answer-shell {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.luxury-homepage-root .faq-answer-clip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.luxury-homepage-root .faq-answer {
+  transform: translateY(-8px);
+  transition: transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.luxury-homepage-root .faq-item.is-open .faq-answer {
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   Small interaction polish
+   -------------------------------------------------------------------------- */
+.homepage-motion-enabled .luxury-homepage-root .hero-primary-cta,
+.homepage-motion-enabled .luxury-homepage-root .hero-secondary-cta,
+.homepage-motion-enabled .luxury-homepage-root .price-guide .btn-download,
+.homepage-motion-enabled .homepage-header .btn-call,
+.homepage-motion-enabled .homepage-header .btn-blue {
+  will-change: transform;
+}
+
+/* Prevent transform competition on 3D cards we intentionally tone down. */
+.luxury-homepage-root .motion-low-tilt-card .card-3d-glare {
+  opacity: 0 !important;
+}
+
+/* Reduced motion: preserve layout, remove all transition-heavy enhancements. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  .luxury-homepage-root *,
+  .luxury-homepage-root *::before,
+  .luxury-homepage-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .luxury-homepage-root .marquee-row {
+    transform: none !important;
+  }
+
+  .luxury-homepage-root .marquee-row h2:nth-child(2) {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .luxury-homepage-root .journey-motion-mark {
+    width: 50px;
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .luxury-homepage-root .journey-motion-mark {
+    width: 44px;
+  }
+}
