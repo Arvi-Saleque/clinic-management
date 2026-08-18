@@ -427,21 +427,29 @@
   line-height: 1;
 }
 
-/* ---------- Full-width homepage layout (Dhaka Heights & Effytech style) ---------- */
+/* ---------- Full-width Macro Layout System (94–97vw on Desktop) ---------- */
 .luxury-homepage-root .container {
-  max-width: 1720px;
+  max-width: 1800px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 clamp(20px, 4.5vw, 100px);
+  padding: 0 clamp(20px, 2.5vw, 44px);
 }
 
-/* ---------- White editorial cards ---------- */
+/* ---------- White Rounded Luxury Canvases (94–97vw) ---------- */
 .luxury-homepage-root .page-section-white {
   background: var(--light-bg);
-  border-radius: 34px;
-  margin-left: clamp(14px, 2vw, 32px);
-  margin-right: clamp(14px, 2vw, 32px);
+  border-radius: clamp(32px, 3.5vw, 48px);
+  margin-left: clamp(16px, 2vw, 32px);
+  margin-right: clamp(16px, 2vw, 32px);
   box-shadow: 0 20px 60px rgba(10, 22, 24, 0.12);
+  position: relative;
+  z-index: 5;
+  width: auto;
+}
+
+.luxury-homepage-root .page-section-white .container {
+  max-width: 100%;
+  padding: 0 clamp(20px, 2.5vw, 44px);
 }
 
 .luxury-homepage-root .page-section-white.first-card {
@@ -449,27 +457,49 @@
   background-image: none;
 }
 
+/* ---------- Story / Intro Section (Large Editorial Split) ---------- */
 .luxury-homepage-root .text-image-groups {
-  padding: 74px 0 86px;
+  padding: clamp(80px, 7.5vw, 120px) 0;
+  width: 100%;
+}
+
+.luxury-homepage-root .text-image {
+  width: 100%;
 }
 
 .luxury-homepage-root .text-image .content {
-  gap: clamp(48px, 6vw, 88px);
+  display: grid;
+  grid-template-columns: minmax(380px, 40%) minmax(0, 60%);
+  gap: clamp(48px, 5.5vw, 96px);
+  align-items: center;
+  width: 100%;
+}
+
+.luxury-homepage-root .text-image .text-box {
+  width: 100%;
+  max-width: clamp(520px, 38vw, 650px);
+}
+
+.luxury-homepage-root .text-image .text-box .subtitle-italic {
+  display: inline-block;
+  font-size: 17px;
+  margin-bottom: 12px;
 }
 
 .luxury-homepage-root .text-image .text-box h2 {
   color: var(--dark-charcoal);
-  font-size: clamp(35px, 3.1vw, 46px);
+  font-size: clamp(38px, 3.2vw, 50px);
   line-height: 1.14;
   letter-spacing: -0.025em;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 .luxury-homepage-root .text-image .text-box p {
   color: var(--body-grey);
   font-size: 16px;
   line-height: 1.72;
-  margin-bottom: 15px;
+  margin-bottom: 18px;
+  max-width: 620px;
 }
 
 .luxury-homepage-root .text-image .text-box .btn-group,
@@ -477,12 +507,41 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  margin-top: 28px;
 }
 
 .luxury-homepage-root .text-image .img-box {
-  border-radius: 22px;
-  box-shadow: 0 24px 55px rgba(26, 43, 43, 0.12);
+  width: 100%;
+  height: 100%;
+  border-radius: clamp(24px, 2.5vw, 34px);
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(26, 43, 43, 0.12);
+}
+
+.luxury-homepage-root .text-image .img-box .img-item {
+  width: 100%;
+  height: 100%;
+  min-height: clamp(620px, 46vw, 760px);
+  border-radius: clamp(24px, 2.5vw, 34px);
+  overflow: hidden;
+  display: block;
+}
+
+.luxury-homepage-root .text-image .img-box img {
+  width: 100%;
+  height: 100%;
+  min-height: clamp(620px, 46vw, 760px);
+  max-height: 820px;
+  object-fit: cover;
+  object-position: center 25%;
+  border-radius: clamp(24px, 2.5vw, 34px);
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.luxury-homepage-root .text-image .img-box:hover img {
+  transform: scale(1.02);
 }
 
 /* ---------- Shared homepage buttons ---------- */
@@ -549,8 +608,17 @@
 
 /* ---------- Treatment journey ---------- */
 .luxury-homepage-root .smile-journey-section {
-  padding: 106px 0 102px;
+  padding: clamp(70px, 7vw, 108px) 0;
   background: var(--dark-charcoal);
+  width: 100%;
+}
+
+.luxury-homepage-root .journey-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(16px, 1.8vw, 28px);
+  width: 100%;
+  margin-bottom: 45px;
 }
 
 .luxury-homepage-root .header-badge-dark {
@@ -572,6 +640,8 @@
   color: var(--text-on-dark-muted);
   font-size: 16.5px;
   line-height: 1.72;
+  max-width: 720px;
+  margin: 0 auto;
 }
 
 .luxury-homepage-root .journey-step-card {
@@ -653,59 +723,171 @@
   white-space: nowrap;
 }
 
-/* ---------- Treatments ---------- */
+/* ---------- Treatments Section (Large Immersive Panels) ---------- */
 .luxury-homepage-root .four-columns-card {
   background: var(--light-bg);
-  padding: 92px 0 88px;
+  padding: clamp(80px, 7.5vw, 120px) 0 clamp(60px, 6vw, 90px);
+  width: 100%;
+}
+
+.luxury-homepage-root .four-columns-card .title-box {
+  max-width: 780px;
+  margin: 0 auto clamp(40px, 4.5vw, 60px);
+  text-align: center;
 }
 
 .luxury-homepage-root .four-columns-card .subtitle-italic,
 .luxury-homepage-root .four-columns-card .title-box .subtitle-italic {
   color: var(--accent-sage-dark);
   font-size: 18px;
+  display: inline-block;
+  margin-bottom: 10px;
 }
 
 .luxury-homepage-root .four-columns-card .title-box h2 {
   color: var(--dark-charcoal);
-  font-size: clamp(36px, 3vw, 44px);
+  font-size: clamp(38px, 3.2vw, 48px);
+  line-height: 1.15;
 }
 
 .luxury-homepage-root .four-columns-card .title-box .divider-line {
+  width: 64px;
+  height: 2px;
   background: var(--accent-sage-dark);
-  opacity: 0.7;
+  opacity: 0.6;
+  margin: 20px auto 0;
+}
+
+.luxury-homepage-root .four-columns-card .treatment-grid-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(20px, 1.8vw, 28px);
+  width: 100%;
 }
 
 .luxury-homepage-root .treatment-card-item {
-  border-radius: 18px;
-  border-color: rgba(34, 48, 52, 0.08);
-  box-shadow: 0 14px 32px rgba(17, 31, 32, 0.1);
+  position: relative;
+  display: block;
+  border-radius: clamp(20px, 2vw, 28px);
+  overflow: hidden;
+  height: clamp(540px, 34vw, 640px);
+  min-height: 540px;
+  aspect-ratio: auto;
+  border: 1px solid rgba(34, 48, 52, 0.08);
+  box-shadow: 0 16px 36px rgba(17, 31, 32, 0.1);
+  text-decoration: none;
+  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.luxury-homepage-root .treatment-card-item .card-bg-box {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.luxury-homepage-root .treatment-card-item .card-bg-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.75s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Tailored Image Crops for all 4 treatments */
+.luxury-homepage-root .treatment-card-item:nth-child(1) .card-bg-box img {
+  object-position: center 30%;
+}
+
+.luxury-homepage-root .treatment-card-item:nth-child(2) .card-bg-box img {
+  object-position: center 25%;
+}
+
+.luxury-homepage-root .treatment-card-item:nth-child(3) .card-bg-box img {
+  object-position: center 35%;
+}
+
+.luxury-homepage-root .treatment-card-item:nth-child(4) .card-bg-box img {
+  object-position: center 25%;
 }
 
 .luxury-homepage-root .treatment-card-item .card-overlay-content {
-  background: linear-gradient(180deg, rgba(16, 25, 27, 0.02) 20%, rgba(16, 25, 27, 0.24) 48%, rgba(16, 25, 27, 0.92) 100%);
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(28px, 2.6vw, 40px) clamp(24px, 2.2vw, 32px);
+  background: linear-gradient(
+    180deg,
+    rgba(16, 25, 27, 0) 0%,
+    rgba(16, 25, 27, 0.12) 32%,
+    rgba(16, 25, 27, 0.55) 58%,
+    rgba(16, 25, 27, 0.88) 80%,
+    rgba(16, 25, 27, 0.98) 100%
+  );
+  transition: background 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .luxury-homepage-root .treatment-card-item:hover .card-overlay-content {
-  background: linear-gradient(180deg, rgba(22, 42, 35, 0.04) 18%, rgba(22, 42, 35, 0.3) 48%, rgba(24, 53, 43, 0.94) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(22, 42, 35, 0.05) 0%,
+    rgba(22, 42, 35, 0.25) 28%,
+    rgba(22, 42, 35, 0.65) 55%,
+    rgba(24, 53, 43, 0.94) 78%,
+    rgba(24, 53, 43, 0.99) 100%
+  );
+}
+
+.luxury-homepage-root .treatment-card-item .treatment-icon {
+  margin-bottom: 12px;
+  color: var(--accent-beige);
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .luxury-homepage-root .treatment-card-item .card-title {
   color: #ffffff;
-  font-size: 22px;
-  font-weight: 400;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  font-size: clamp(22px, 1.7vw, 26px);
+  font-weight: 500;
+  font-family: var(--font-heading);
+  line-height: 1.2;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+  letter-spacing: -0.01em;
 }
 
 .luxury-homepage-root .treatment-card-item .card-desc {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 13.5px;
-  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(13.5px, 1.05vw, 15px);
+  line-height: 1.58;
+  margin-bottom: clamp(16px, 1.5vw, 22px);
+  max-width: 480px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
   font-weight: 400;
 }
 
-.luxury-homepage-root .treatment-card-item .card-readmore,
-.luxury-homepage-root .treatment-card-item .treatment-icon {
+.luxury-homepage-root .treatment-card-item .card-readmore {
   color: var(--accent-beige);
+  font-size: 12.5px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.luxury-homepage-root .four-columns-card .btn-row {
+  margin-top: clamp(40px, 4.5vw, 60px);
+  text-align: center;
 }
 
 /* ---------- Why choose ---------- */
@@ -714,14 +896,15 @@
   background: transparent;
   border: none;
   border-radius: 0;
+  width: 100%;
 }
 
 .luxury-homepage-root .steps-scroll-layout {
   display: grid;
-  grid-template-columns: minmax(360px, 35%) 1fr;
-  gap: clamp(48px, 6vw, 100px);
-  padding: 90px clamp(24px, 5vw, 100px);
-  max-width: 1720px;
+  grid-template-columns: minmax(360px, 34%) 1fr;
+  gap: clamp(40px, 5vw, 84px);
+  padding: clamp(60px, 6vw, 90px) clamp(20px, 2.5vw, 44px);
+  max-width: 1800px;
   margin: 0 auto;
   width: 100%;
 }
@@ -859,12 +1042,17 @@
 
 /* ---------- Smile simulator ---------- */
 .luxury-homepage-root .smile-simulator-section {
-  padding: 108px 0;
+  padding: clamp(70px, 7vw, 108px) 0;
   background: linear-gradient(135deg, #253438 0%, #1d2a2d 100%);
+  width: 100%;
 }
 
 .luxury-homepage-root .simulator-grid {
-  gap: clamp(44px, 5vw, 72px);
+  display: grid;
+  grid-template-columns: minmax(380px, 46%) 1fr;
+  gap: clamp(36px, 4.5vw, 72px);
+  align-items: center;
+  width: 100%;
 }
 
 .luxury-homepage-root .simulator-3d-card {
@@ -915,6 +1103,7 @@
   font-size: 15.5px;
   line-height: 1.72;
   margin-bottom: 28px;
+  max-width: 580px;
 }
 
 .luxury-homepage-root .control-title {
@@ -1040,14 +1229,26 @@
 
 /* ---------- Before/after showcase ---------- */
 .luxury-homepage-root .home-before-after-section {
-  padding: 98px 0;
+  padding: clamp(70px, 7vw, 108px) 0;
   background: var(--light-bg);
   color: var(--dark-charcoal);
+  width: 100%;
+}
+
+.luxury-homepage-root .home-before-after-section .container {
+  width: 100%;
+}
+
+.luxury-homepage-root .home-before-after-section .grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(24px, 3vw, 44px);
+  width: 100%;
 }
 
 .luxury-homepage-root .home-before-after-section .title-box {
   max-width: 760px;
-  margin-bottom: 44px;
+  margin: 0 auto clamp(32px, 3.5vw, 48px);
 }
 
 .luxury-homepage-root .home-before-after-section .subtitle-italic {
@@ -1090,6 +1291,7 @@
   background: var(--dark-charcoal);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
 }
 
 .luxury-homepage-root .marquee-text h2 {
@@ -1102,14 +1304,15 @@
 
 /* ---------- Payment / pricing card ---------- */
 .luxury-homepage-root .price-guide {
-  padding: 88px 0;
+  padding: clamp(60px, 6vw, 92px) 0;
   background: var(--dark-charcoal);
   position: relative;
   z-index: 2;
+  width: 100%;
 }
 
 .luxury-homepage-root .price-guide .content {
-  max-width: 1720px;
+  max-width: 1800px;
   width: 100%;
   margin: 0 auto;
   display: grid;
@@ -1204,11 +1407,12 @@
 
 /* ---------- FAQ ---------- */
 .luxury-homepage-root .faq-section-luxury {
-  padding: 110px 0 120px;
+  padding: clamp(70px, 7vw, 112px) 0;
   background: #0E1A1B;
   color: #ffffff;
   position: relative;
   z-index: 2;
+  width: 100%;
 }
 
 .faq-heading-wrap {
@@ -1253,11 +1457,12 @@
 }
 
 .faq-list {
-  max-width: 960px;
+  max-width: 1080px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  width: 100%;
 }
 
 .faq-item {
@@ -1486,6 +1691,18 @@
 }
 
 /* ---------- Responsive refinements ---------- */
+@media (max-width: 1599px) {
+  .luxury-homepage-root .four-columns-card .treatment-grid-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(24px, 2.5vw, 32px);
+  }
+
+  .luxury-homepage-root .treatment-card-item {
+    height: clamp(500px, 38vw, 580px);
+    min-height: 500px;
+  }
+}
+
 @media (max-width: 1280px) {
   .luxury-site-header .nav-menu {
     gap: 18px;
@@ -1509,6 +1726,17 @@
   .luxury-homepage-root .journey-step-card {
     padding: 28px 20px;
   }
+
+  .luxury-homepage-root .text-image .content {
+    grid-template-columns: minmax(340px, 42%) minmax(0, 58%);
+    gap: clamp(36px, 4vw, 60px);
+  }
+
+  .luxury-homepage-root .text-image .img-box .img-item,
+  .luxury-homepage-root .text-image .img-box img {
+    min-height: 520px;
+    max-height: 600px;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -1520,6 +1748,31 @@
   .luxury-homepage-root .page-section-white {
     margin-left: 18px;
     margin-right: 18px;
+  }
+
+  .luxury-homepage-root .text-image .content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .luxury-homepage-root .text-image .text-box {
+    max-width: 100%;
+  }
+
+  .luxury-homepage-root .text-image .img-box .img-item,
+  .luxury-homepage-root .text-image .img-box img {
+    min-height: 420px;
+    max-height: 500px;
+  }
+
+  .luxury-homepage-root .four-columns-card .treatment-grid-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .luxury-homepage-root .treatment-card-item {
+    height: clamp(460px, 48vw, 520px);
+    min-height: 460px;
   }
 
   .luxury-homepage-root .steps-scroll {
@@ -1641,7 +1894,13 @@
 
   .luxury-homepage-root .text-image .content {
     grid-template-columns: 1fr;
-    gap: 38px;
+    gap: 32px;
+  }
+
+  .luxury-homepage-root .text-image .img-box .img-item,
+  .luxury-homepage-root .text-image .img-box img {
+    min-height: 320px;
+    max-height: 380px;
   }
 
   .luxury-homepage-root .text-image .text-box h2 {
@@ -1668,21 +1927,31 @@
     width: 100%;
   }
 
+  .luxury-homepage-root .four-columns-card {
+    padding: 56px 0 48px;
+  }
+
   .luxury-homepage-root .four-columns-card .treatment-grid-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .luxury-homepage-root .treatment-card-item {
+    height: clamp(420px, 110vw, 500px);
+    min-height: 420px;
   }
 
   .luxury-homepage-root .treatment-card-item .card-overlay-content {
-    padding: 22px 18px;
+    padding: 28px 22px;
   }
 
   .luxury-homepage-root .treatment-card-item .card-title {
-    font-size: 19px;
+    font-size: 21px;
   }
 
   .luxury-homepage-root .treatment-card-item .card-desc {
-    font-size: 12.5px;
+    font-size: 13.5px;
+    margin-bottom: 16px;
   }
 
   .luxury-homepage-root .steps-scroll {
