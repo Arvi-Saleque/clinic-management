@@ -457,37 +457,49 @@
   background-image: none;
 }
 
+/* ---------- Story / Intro Section (Large Editorial Split) ---------- */
 .luxury-homepage-root .text-image-groups {
-  padding: clamp(60px, 6vw, 90px) 0;
+  padding: clamp(80px, 7.5vw, 120px) 0;
+  width: 100%;
+}
+
+.luxury-homepage-root .text-image {
   width: 100%;
 }
 
 .luxury-homepage-root .text-image .content {
   display: grid;
-  grid-template-columns: minmax(360px, 48%) 1fr;
-  gap: clamp(40px, 5vw, 84px);
+  grid-template-columns: minmax(380px, 40%) minmax(0, 60%);
+  gap: clamp(48px, 5.5vw, 96px);
   align-items: center;
   width: 100%;
 }
 
 .luxury-homepage-root .text-image .text-box {
-  max-width: 680px;
+  width: 100%;
+  max-width: clamp(520px, 38vw, 650px);
+}
+
+.luxury-homepage-root .text-image .text-box .subtitle-italic {
+  display: inline-block;
+  font-size: 17px;
+  margin-bottom: 12px;
 }
 
 .luxury-homepage-root .text-image .text-box h2 {
   color: var(--dark-charcoal);
-  font-size: clamp(35px, 3.1vw, 46px);
+  font-size: clamp(38px, 3.2vw, 50px);
   line-height: 1.14;
   letter-spacing: -0.025em;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 .luxury-homepage-root .text-image .text-box p {
   color: var(--body-grey);
   font-size: 16px;
   line-height: 1.72;
-  margin-bottom: 15px;
-  max-width: 640px;
+  margin-bottom: 18px;
+  max-width: 620px;
 }
 
 .luxury-homepage-root .text-image .text-box .btn-group,
@@ -495,12 +507,41 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  margin-top: 28px;
 }
 
 .luxury-homepage-root .text-image .img-box {
-  border-radius: 22px;
-  box-shadow: 0 24px 55px rgba(26, 43, 43, 0.12);
+  width: 100%;
+  height: 100%;
+  border-radius: clamp(24px, 2.5vw, 34px);
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(26, 43, 43, 0.12);
+}
+
+.luxury-homepage-root .text-image .img-box .img-item {
+  width: 100%;
+  height: 100%;
+  min-height: clamp(620px, 46vw, 760px);
+  border-radius: clamp(24px, 2.5vw, 34px);
+  overflow: hidden;
+  display: block;
+}
+
+.luxury-homepage-root .text-image .img-box img {
+  width: 100%;
+  height: 100%;
+  min-height: clamp(620px, 46vw, 760px);
+  max-height: 820px;
+  object-fit: cover;
+  object-position: center 25%;
+  border-radius: clamp(24px, 2.5vw, 34px);
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.luxury-homepage-root .text-image .img-box:hover img {
+  transform: scale(1.02);
 }
 
 /* ---------- Shared homepage buttons ---------- */
@@ -1574,6 +1615,17 @@
   .luxury-homepage-root .journey-step-card {
     padding: 28px 20px;
   }
+
+  .luxury-homepage-root .text-image .content {
+    grid-template-columns: minmax(340px, 42%) minmax(0, 58%);
+    gap: clamp(36px, 4vw, 60px);
+  }
+
+  .luxury-homepage-root .text-image .img-box .img-item,
+  .luxury-homepage-root .text-image .img-box img {
+    min-height: 520px;
+    max-height: 600px;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -1585,6 +1637,21 @@
   .luxury-homepage-root .page-section-white {
     margin-left: 18px;
     margin-right: 18px;
+  }
+
+  .luxury-homepage-root .text-image .content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .luxury-homepage-root .text-image .text-box {
+    max-width: 100%;
+  }
+
+  .luxury-homepage-root .text-image .img-box .img-item,
+  .luxury-homepage-root .text-image .img-box img {
+    min-height: 420px;
+    max-height: 500px;
   }
 
   .luxury-homepage-root .steps-scroll {
@@ -1706,7 +1773,13 @@
 
   .luxury-homepage-root .text-image .content {
     grid-template-columns: 1fr;
-    gap: 38px;
+    gap: 32px;
+  }
+
+  .luxury-homepage-root .text-image .img-box .img-item,
+  .luxury-homepage-root .text-image .img-box img {
+    min-height: 320px;
+    max-height: 380px;
   }
 
   .luxury-homepage-root .text-image .text-box h2 {
