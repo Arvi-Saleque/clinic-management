@@ -19,11 +19,24 @@ const STATUS_STYLE: Record<string, string> = {
   completed: "bg-success/10 text-success border-success/20",
 };
 
+function getGreetingDisplayName(fullName?: string | null): string {
+  if (!fullName) return "";
+  const trimmed = fullName.trim();
+  if (!trimmed) return "";
+  const parts = trimmed.split(/\s+/);
+  if (parts.length > 1 && /^(dr\.?|mr\.?|ms\.?|mrs\.?|prof\.?)/i.test(parts[0])) {
+    const title = parts[0].endsWith(".") ? parts[0] : `${parts[0]}.`;
+    return `${title} ${parts[1]}`;
+  }
+  return parts[0];
+}
+
 export default async function StaffDashboardPage() {
   const [profile, stats] = await Promise.all([getProfile(), getDashboardStats()]);
   const maxActivity = Math.max(...stats.activity.map((day) => day.count), 1);
   const nextAppointment = stats.todaysSchedule.find((appointment) => new Date(appointment.starts_at) >= new Date());
   const greeting = new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening";
+  const displayName = getGreetingDisplayName(profile?.full_name);
 
   const metrics = [
     { label: stats.practitionerScoped ? "My appointments" : "Today’s appointments", value: stats.todaysAppointments, note: `${stats.completedAppointments} completed · ${stats.checkedInPatients} checked in`, icon: CalendarCheck2, tone: "bg-primary-soft text-primary", href: "/scheduler" },
@@ -35,14 +48,16 @@ export default async function StaffDashboardPage() {
   return (
     <div className="space-y-7">
       <section className="relative overflow-hidden rounded-[28px] border border-primary/10 bg-secondary p-6 text-secondary-foreground shadow-[0_28px_70px_-48px_rgba(5,40,38,0.85)] sm:p-8">
-        <div className="absolute -right-10 -top-20 size-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 size-36 rounded-full bg-accent/15 blur-3xl" />
+        <div className="pointer-events-none absolute -right-10 -top-20 size-72 rounded-full bg-primary/20 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 right-1/4 size-36 rounded-full bg-accent/15 blur-3xl" />
         <div className="relative flex flex-col justify-between gap-6 xl:flex-row xl:items-end">
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/75">
               <Sparkles className="size-3.5 text-accent" />{format(new Date(), "EEEE, d MMMM")}
             </div>
-            <h1 className="max-w-2xl font-heading text-3xl font-extrabold tracking-[-0.035em] text-white sm:text-[38px] sm:leading-[1.12]">Good {greeting}{profile ? `, ${profile.full_name.split(" ")[0]}` : ""}.</h1>
+            <h1 className="max-w-2xl font-heading text-3xl font-extrabold tracking-[-0.035em] text-white sm:text-[38px] sm:leading-[1.12]">
+              Good {greeting}{displayName ? `, ${displayName}` : ""}.
+            </h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-white/65">Your clinic is organised for today. Review the diary, open a patient record or complete clinical documentation from one workspace.</p>
           </div>
           <div className="flex flex-wrap gap-2.5">

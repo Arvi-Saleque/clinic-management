@@ -138,22 +138,22 @@ export function StaffShell({ profile, children }: { profile: Profile; children: 
         </div>
       )}
 
-      <div className="min-h-screen md:pl-[272px]">
-        <header className="sticky top-0 z-30 flex h-[76px] items-center gap-3 border-b border-border/80 bg-background/88 px-4 backdrop-blur-xl sm:px-6 xl:px-8">
-          <Button variant="outline" size="icon" className="md:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu className="size-4" /></Button>
+      <div className="min-h-screen min-w-0 max-w-full overflow-x-hidden md:pl-[272px]">
+        <header className="sticky top-0 z-30 flex h-[76px] items-center gap-2.5 border-b border-border/80 bg-background/88 px-3.5 backdrop-blur-xl sm:gap-3 sm:px-6 xl:px-8">
+          <Button variant="outline" size="icon" className="shrink-0 md:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu className="size-4" /></Button>
 
           <div className="hidden min-w-36 lg:block">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Clinical workspace</p>
             <p className="mt-1 text-sm font-extrabold tracking-tight">{getPageLabel(pathname)}</p>
           </div>
 
-          <form onSubmit={submitSearch} className="mx-auto flex w-full max-w-[560px] items-center rounded-2xl border border-border bg-surface px-3 shadow-[0_8px_30px_-24px_rgba(4,34,31,0.4)] transition focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/8">
+          <form onSubmit={submitSearch} className="mx-auto flex min-w-0 flex-1 max-w-[560px] items-center rounded-2xl border border-border bg-surface px-2.5 shadow-[0_8px_30px_-24px_rgba(4,34,31,0.4)] transition focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/8 sm:px-3">
             <Search className="size-4 shrink-0 text-muted-foreground" />
-            <input value={search} onChange={(event) => setSearch(event.target.value)} className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground" placeholder="Search patient name, phone or patient ID…" aria-label="Search patients" />
+            <input value={search} onChange={(event) => setSearch(event.target.value)} className="h-11 min-w-0 flex-1 bg-transparent px-2 text-sm outline-none placeholder:text-muted-foreground sm:px-3" placeholder="Search patient name, phone or patient ID…" aria-label="Search patients" />
             <span className="hidden items-center gap-1 rounded-md border border-border bg-muted px-1.5 py-1 text-[10px] font-semibold text-muted-foreground sm:flex"><Command className="size-3" /> K</span>
           </form>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
             <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
               <Bell className="size-[17px]" />
               <span className="absolute right-1.5 top-1.5 size-2 rounded-full border-2 border-background bg-destructive" />
