@@ -2,9 +2,20 @@
 
 import * as React from "react";
 import { format, addDays } from "date-fns";
-import { Check, ChevronLeft, ChevronRight, Clock, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Loader2,
+  RefreshCw,
+  ShieldCheck,
+  Stethoscope,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAvailableSlots, type SlotResult } from "@/lib/server/appointments";
@@ -22,6 +33,11 @@ interface Service {
 }
 
 type Step = "service" | "practitioner" | "slot" | "confirm";
+
+interface OtherDoctorAvailability {
+  practitioner: ServicePractitionerOption;
+  slots: SlotResult[];
+}
 
 export function BookingWizard({
   services,
@@ -42,6 +58,8 @@ export function BookingWizard({
   );
   const [slots, setSlots] = React.useState<SlotResult[]>([]);
   const [loadingSlots, setLoadingSlots] = React.useState(false);
+  const [otherDoctorSlots, setOtherDoctorSlots] = React.useState<OtherDoctorAvailability[]>([]);
+  const [loadingOtherSlots, setLoadingOtherSlots] = React.useState(false);
   const [selectedSlot, setSelectedSlot] = React.useState<SlotResult | null>(null);
   const [booking, setBooking] = React.useState<string | null>(null);
   const [recommendedSlot, setRecommendedSlot] = React.useState<string | null>(null);
@@ -52,6 +70,7 @@ export function BookingWizard({
     setPractitioner(null);
     setSelectedSlot(null);
     setSlots([]);
+    setOtherDoctorSlots([]);
     setRecommendedSlot(null);
     setStep("practitioner");
     setLoadingPractitioners(true);
@@ -73,8 +92,15 @@ export function BookingWizard({
     setStep("slot");
   }
 
-  // Handle slot click: advance to Review & Confirm (no instant creation)
+  // Handle slot click on selected doctor
   function handleSelectSlot(slot: SlotResult) {
+    setSelectedSlot(slot);
+    setStep("confirm");
+  }
+
+  // Handle slot click from alternative doctor
+  function handleSelectOtherDoctorSlot(doc: ServicePractitionerOption, slot: SlotResult) {
+    setPractitioner(doc);
     setSelectedSlot(slot);
     setStep("confirm");
   }
@@ -147,11 +173,13 @@ export function BookingWizard({
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  // Fetch available slots when on slot step with valid doctor and date
+  // Fetch available slots for selected doctor AND all other doctors offering this service
   /* eslint-disable react-hooks/set-state-in-effect */
   React.useEffect(() => {
     if ((step !== "slot" && step !== "confirm") || !service || !practitioner) return;
     let isCurrent = true;
+
+    // 1. Fetch slots for selected doctor
     setLoadingSlots(true);
     getAvailableSlots(practitioner.id, service.id, date)
       .then(({ slots: fetchedSlots, error }) => {
@@ -165,10 +193,40 @@ export function BookingWizard({
         }
       });
 
+    // 2. Fetch slots for all other doctors who offer this service
+    const otherDoctors = offeredPractitioners.filter((p) => p.id !== practitioner.id);
+    if (otherDoctors.length > 0) {
+      setLoadingOtherSlots(true);
+      Promise.all(
+        otherDoctors.map(async (doc) => {
+          const res = await getAvailableSlots(doc.id, service.id, date);
+          return {
+            practitioner: doc,
+            slots: res.slots ?? [],
+          };
+        }),
+      )
+        .then((results) => {
+          if (isCurrent) {
+            setOtherDoctorSlots(results);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load alternative doctor slots:", err);
+        })
+        .finally(() => {
+          if (isCurrent) {
+            setLoadingOtherSlots(false);
+          }
+        });
+    } else {
+      setOtherDoctorSlots([]);
+    }
+
     return () => {
       isCurrent = false;
     };
-  }, [step, service, practitioner, date]);
+  }, [step, service, practitioner, date, offeredPractitioners]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   // Final confirmation execution
@@ -191,7 +249,6 @@ export function BookingWizard({
       }
       // On success the server action redirects automatically
     } catch (err: unknown) {
-      // If the error is a framework redirect signal (e.g. NEXT_REDIRECT), rethrow to let navigation proceed
       const isRedirect =
         typeof err === "object" &&
         err !== null &&
@@ -217,7 +274,7 @@ export function BookingWizard({
           </span>
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/50">Secure online scheduling</p>
-            <h2 className="font-heading text-xl font-bold">{reschedule ? "Reschedule appointment" : "Book an appointment"}</h2>
+            <h2 className="font-heading text-xl font-bold">{reschedule ? "Reschedule visit" : "Book a visit"}</h2>
           </div>
         </div>
       </div>
@@ -243,7 +300,7 @@ export function BookingWizard({
                     className={cn(
                       "transition-colors",
                       isCurrent && "font-bold text-primary",
-                      isDone && "font-medium text-text",
+                      isDone && "font-medium text-foreground",
                       !isCurrent && !isDone && "text-muted-foreground/60",
                     )}
                   >
@@ -257,7 +314,7 @@ export function BookingWizard({
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 px-2 text-xs text-muted-foreground hover:text-text"
+              className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
               onClick={() => {
                 if (step === "confirm") setStep("slot");
                 else if (step === "slot") setStep("practitioner");
@@ -277,7 +334,7 @@ export function BookingWizard({
             : step === "service"
               ? "Select a dental procedure"
               : step === "practitioner"
-                ? "Select an available doctor"
+                ? "Select a doctor"
                 : step === "slot"
                   ? "Choose appointment date & time"
                   : "Review appointment details"}
@@ -286,26 +343,26 @@ export function BookingWizard({
           {reschedule && "Your service and practitioner will stay the same."}
           {!reschedule && step === "service" && "Step 1 of 4 — choose the care service you need"}
           {!reschedule && step === "practitioner" && "Step 2 of 4 — doctors who actively provide this procedure"}
-          {!reschedule && step === "slot" && "Step 3 of 4 — select a convenient time window"}
+          {!reschedule && step === "slot" && "Step 3 of 4 — select from your doctor or view other available doctors"}
           {!reschedule && step === "confirm" && "Step 4 of 4 — review and confirm your visit details"}
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         {step === "service" && (
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {services.map((s) => (
               <button
                 key={s.id}
                 onClick={() => handleSelectService(s)}
-                className="rounded-2xl border border-border bg-surface p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary-soft/45"
+                className="rounded-2xl border border-border bg-surface p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary-soft/45 hover:shadow-sm"
               >
                 <span className="mb-3 flex size-8 items-center justify-center rounded-lg bg-primary-soft text-primary">
                   <Check className="size-4" />
                 </span>
                 <p className="font-semibold">{s.name}</p>
                 <p className="text-sm text-muted-foreground">
-                  {s.duration_minutes} min &middot; &#2547;{s.price.toLocaleString()}
+                  {s.duration_minutes} min &middot; ৳{s.price.toLocaleString()}
                 </p>
               </button>
             ))}
@@ -321,7 +378,7 @@ export function BookingWizard({
               <div className="flex items-center justify-between rounded-2xl border border-border bg-background-subtle px-4 py-3 text-sm">
                 <div>
                   <span className="text-xs font-semibold uppercase tracking-wider text-primary">Selected Service</span>
-                  <p className="font-medium text-text">{service.name}</p>
+                  <p className="font-medium text-foreground">{service.name}</p>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => setStep("service")}>
                   Change
@@ -336,7 +393,7 @@ export function BookingWizard({
               </div>
             ) : offeredPractitioners.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border bg-background-subtle p-6 text-center">
-                <p className="font-semibold text-text">No doctors currently offer this service.</p>
+                <p className="font-semibold text-foreground">No doctors currently offer this service.</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Please choose another service or contact the clinic reception for assistance.
                 </p>
@@ -350,14 +407,14 @@ export function BookingWizard({
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {offeredPractitioners.map((p) => (
                   <button
                     key={p.id}
                     onClick={() => handleSelectPractitioner(p)}
                     className="group rounded-2xl border border-border bg-surface p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary-soft/45 hover:shadow-sm"
                   >
-                    <p className="font-semibold text-text group-hover:text-primary">{p.doctor_name}</p>
+                    <p className="font-semibold text-foreground group-hover:text-primary">{p.doctor_name}</p>
                     {p.title && <p className="text-xs text-muted-foreground mt-0.5">{p.title}</p>}
                     <div className="mt-3 flex items-center gap-3 border-t border-border/50 pt-2.5 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
@@ -368,8 +425,8 @@ export function BookingWizard({
                         )}
                       </span>
                       <span>&middot;</span>
-                      <span className="font-medium text-text">
-                        &#2547;{p.effective_price.toLocaleString()}
+                      <span className="font-medium text-foreground">
+                        ৳{p.effective_price.toLocaleString()}
                         {p.override_price !== null && (
                           <span className="ml-1 text-[10px] text-primary font-medium">(custom)</span>
                         )}
@@ -389,14 +446,15 @@ export function BookingWizard({
         )}
 
         {step === "slot" && service && practitioner && (
-          <div className="space-y-4">
+          <div className="space-y-6">
+            {/* Service & Primary Doctor Info Bar */}
             <div className="flex items-center justify-between rounded-2xl border border-border bg-background-subtle p-4 text-sm">
               <div>
-                <p>
-                  <strong>{service.name}</strong> with {practitioner.doctor_name}
+                <p className="font-semibold text-foreground">
+                  {service.name}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {practitioner.effective_duration_minutes} min &middot; &#2547;{practitioner.effective_price.toLocaleString()}
+                  Selected Doctor: <strong className="text-foreground">{practitioner.doctor_name}</strong> &middot; {practitioner.effective_duration_minutes} min &middot; ৳{practitioner.effective_price.toLocaleString()}
                 </p>
               </div>
               {!reschedule && (
@@ -409,7 +467,7 @@ export function BookingWizard({
                     setStep("practitioner");
                   }}
                 >
-                  Change Doctor
+                  Change
                 </Button>
               )}
             </div>
@@ -420,7 +478,8 @@ export function BookingWizard({
               </p>
             )}
 
-            <div className="flex items-center justify-between">
+            {/* Date Navigator */}
+            <div className="flex items-center justify-between rounded-2xl border border-border bg-surface p-3">
               <Button
                 variant="outline"
                 size="icon-sm"
@@ -433,9 +492,12 @@ export function BookingWizard({
               >
                 <ChevronLeft className="size-4" />
               </Button>
-              <span className="text-sm font-medium">
-                {format(new Date(`${date}T00:00:00`), "EEEE, d MMMM yyyy")}
-              </span>
+              <div className="text-center">
+                <p className="text-sm font-semibold text-foreground">
+                  {format(new Date(`${date}T00:00:00`), "EEEE, d MMMM yyyy")}
+                </p>
+                <p className="text-[11px] text-muted-foreground">Viewing available slots</p>
+              </div>
               <Button
                 variant="outline"
                 size="icon-sm"
@@ -450,43 +512,149 @@ export function BookingWizard({
               </Button>
             </div>
 
-            {loadingSlots ? (
-              <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="size-4 animate-spin" /> Loading available times...
-              </p>
-            ) : slots.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No open slots on this date &mdash; try another day.</p>
-            ) : (
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-                {slots.map((slot) => (
-                  <Button
-                    key={slot.slot_start}
-                    variant="outline"
-                    onClick={() => handleSelectSlot(slot)}
-                    className={cn(
-                      slot.slot_start === recommendedSlot &&
-                        "border-primary bg-primary/10 ring-1 ring-primary",
-                      selectedSlot?.slot_start === slot.slot_start &&
-                        "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
-                    )}
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <span
-                        className={cn(
-                          "size-1.5 rounded-full",
-                          selectedSlot?.slot_start === slot.slot_start ? "bg-white" : "bg-success",
-                        )}
-                      />
-                      {format(new Date(slot.slot_start), "HH:mm")}
-                    </span>
-                  </Button>
-                ))}
+            {/* 1. SELECTED DOCTOR AVAILABLE SLOTS */}
+            <div className="rounded-3xl border border-primary/30 bg-surface p-5 shadow-xs sm:p-6 space-y-4">
+              <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                <div className="flex items-center gap-3">
+                  <span className="flex size-10 items-center justify-center rounded-xl bg-primary-soft text-primary font-bold">
+                    <Stethoscope className="size-5" />
+                  </span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-heading text-base font-bold text-foreground">
+                        {practitioner.doctor_name}
+                      </h3>
+                      <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
+                        Selected Doctor
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {practitioner.title || "Dental Specialist"} &middot; {practitioner.effective_duration_minutes} min
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {loadingSlots ? (
+                <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
+                  <Loader2 className="size-4 animate-spin text-primary" /> Loading open times for {practitioner.doctor_name}...
+                </div>
+              ) : slots.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-border p-4 text-center">
+                  <p className="text-sm font-medium text-foreground">No open slots for {practitioner.doctor_name} on this date.</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Try changing the date above or check the available times of other doctors below.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+                  {slots.map((slot) => (
+                    <Button
+                      key={slot.slot_start}
+                      variant="outline"
+                      onClick={() => handleSelectSlot(slot)}
+                      className={cn(
+                        "rounded-xl py-5 transition-all",
+                        slot.slot_start === recommendedSlot &&
+                          "border-primary bg-primary/10 ring-1 ring-primary",
+                        selectedSlot?.slot_start === slot.slot_start &&
+                          "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
+                      )}
+                    >
+                      <span className="flex items-center gap-1.5 font-semibold">
+                        <span
+                          className={cn(
+                            "size-1.5 rounded-full",
+                            selectedSlot?.slot_start === slot.slot_start ? "bg-white" : "bg-success",
+                          )}
+                        />
+                        {format(new Date(slot.slot_start), "HH:mm")}
+                      </span>
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 2. ALL OTHER DOCTORS AVAILABLE TIMES */}
+            {offeredPractitioners.length > 1 && (
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center gap-2 px-1">
+                  <Users className="size-4 text-primary" />
+                  <div>
+                    <h3 className="font-heading text-sm font-bold text-foreground">
+                      Other Doctors Available on {format(new Date(`${date}T00:00:00`), "MMM d")}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Need a different time? Click any open slot below to book with that doctor instead.
+                    </p>
+                  </div>
+                </div>
+
+                {loadingOtherSlots ? (
+                  <div className="flex items-center gap-2 py-3 text-xs text-muted-foreground">
+                    <Loader2 className="size-4 animate-spin text-primary" /> Checking schedules of other doctors...
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {otherDoctorSlots.map((docData) => {
+                      const doc = docData.practitioner;
+                      const docSlots = docData.slots;
+
+                      return (
+                        <div
+                          key={doc.id}
+                          className="rounded-3xl border border-border/80 bg-background-subtle/60 p-4 sm:p-5 space-y-3 transition-all hover:border-primary/30"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/50 pb-3">
+                            <div className="flex items-center gap-3">
+                              <span className="flex size-9 items-center justify-center rounded-xl bg-surface text-primary border border-border/70 font-bold shadow-xs">
+                                <Stethoscope className="size-4" />
+                              </span>
+                              <div>
+                                <p className="font-semibold text-sm text-foreground">{doc.doctor_name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {doc.title || "Dental Specialist"} &middot; {doc.effective_duration_minutes} min &middot; ৳{doc.effective_price.toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                            <span className="text-xs font-medium text-text-muted">
+                              {docSlots.length} available {docSlots.length === 1 ? "time" : "times"}
+                            </span>
+                          </div>
+
+                          {docSlots.length === 0 ? (
+                            <p className="text-xs text-muted-foreground italic py-1">
+                              No open slots on this date for {doc.doctor_name}.
+                            </p>
+                          ) : (
+                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6 pt-1">
+                              {docSlots.map((slot) => (
+                                <Button
+                                  key={slot.slot_start}
+                                  variant="outline"
+                                  onClick={() => handleSelectOtherDoctorSlot(doc, slot)}
+                                  className="rounded-xl py-5 border-border/80 bg-surface hover:border-primary hover:bg-primary-soft/40"
+                                >
+                                  <span className="flex items-center gap-1.5 text-xs font-semibold">
+                                    <span className="size-1.5 rounded-full bg-success" />
+                                    {format(new Date(slot.slot_start), "HH:mm")}
+                                  </span>
+                                </Button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
             {!reschedule && (
               <Button variant="ghost" size="sm" onClick={() => setStep("practitioner")}>
-                <ChevronLeft className="size-4" /> Back
+                <ChevronLeft className="size-4" /> Back to Doctor Selection
               </Button>
             )}
           </div>
@@ -495,24 +663,24 @@ export function BookingWizard({
         {step === "confirm" && service && practitioner && selectedSlot && (
           <div className="space-y-5">
             <div className="rounded-2xl border border-border bg-background-subtle p-5 space-y-4">
-              <h3 className="font-heading text-base font-semibold text-text">Appointment Summary</h3>
+              <h3 className="font-heading text-base font-semibold text-foreground">Appointment Summary</h3>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border border-border/70 bg-surface p-3.5 space-y-1">
                   <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Procedure / Service</span>
-                  <p className="font-semibold text-text">{service.name}</p>
+                  <p className="font-semibold text-foreground">{service.name}</p>
                   <p className="text-xs text-muted-foreground">{practitioner.effective_duration_minutes} min duration</p>
                 </div>
 
                 <div className="rounded-xl border border-border/70 bg-surface p-3.5 space-y-1">
                   <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Doctor</span>
-                  <p className="font-semibold text-text">{practitioner.doctor_name}</p>
+                  <p className="font-semibold text-foreground">{practitioner.doctor_name}</p>
                   {practitioner.title && <p className="text-xs text-muted-foreground">{practitioner.title}</p>}
                 </div>
 
                 <div className="rounded-xl border border-border/70 bg-surface p-3.5 space-y-1">
                   <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Appointment Date</span>
-                  <p className="font-semibold text-text">
+                  <p className="font-semibold text-foreground">
                     {format(new Date(selectedSlot.slot_start), "EEEE, d MMMM yyyy")}
                   </p>
                 </div>
@@ -527,7 +695,7 @@ export function BookingWizard({
 
               <div className="flex items-center justify-between border-t border-border pt-4 text-sm">
                 <span className="font-medium text-muted-foreground">Estimated Consultation / Service Fee:</span>
-                <span className="text-lg font-bold text-text">&#2547;{practitioner.effective_price.toLocaleString()}</span>
+                <span className="text-lg font-bold text-foreground">৳{practitioner.effective_price.toLocaleString()}</span>
               </div>
             </div>
 
