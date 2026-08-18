@@ -290,7 +290,7 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
             Practitioner service roster
           </div>
           <h1 className="font-heading text-3xl font-extrabold tracking-[-0.035em]">
-            {context.canSelectPractitioner ? "Doctor services" : "My offered services"}
+            Services & Treatments
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
             Configure which clinical treatments you personally offer and tailor your consultation durations and custom fees.

@@ -97,10 +97,10 @@ export function AvailabilityPlanner({
             Operational Schedule Control
           </div>
           <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
-            Practitioner Availability
+            Working Hours & Availability
           </h2>
           <p className="mt-1 text-xs text-muted-foreground max-w-2xl leading-relaxed">
-            Manage your normal weekly routine and make one-off changes when needed.
+            Set your regular working hours and make one-off changes when needed.
           </p>
         </div>
 
@@ -127,13 +127,13 @@ export function AvailabilityPlanner({
           {/* Step 1: Top Compact Operational KPI Strip */}
           <AvailabilitySummaryStrip days={thirtyDays} />
 
-          {/* Step 2: Normal Weekly Routine (Directly above 30-Day Calendar) */}
+          {/* Step 2: Regular Weekly Hours (Directly above 30-Day Calendar) */}
           <WeeklyHoursCompactSummary
             weeklyMap={weeklyMap}
             onEditWeeklyHours={handleOpenWeeklyEditor}
           />
 
-          {/* Step 3: Next 30 Days Operational Calendar */}
+          {/* Step 3: Upcoming 30 Days Operational Calendar */}
           <AvailabilityCalendarView
             days={thirtyDays}
             practitionerId={practitionerId}

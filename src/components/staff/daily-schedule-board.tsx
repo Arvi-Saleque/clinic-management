@@ -3,19 +3,12 @@ import { format } from "date-fns";
 import { Clock3, Phone } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import type { listAppointmentsForDay } from "@/lib/server/directory";
 
-interface Appointment {
-  id: string;
-  starts_at: string;
-  ends_at: string;
-  status: string;
-  notes: string | null;
-  originating_encounter_id?: string | null;
-  patients: { id: string; first_name: string; last_name: string; phone: string | null } | null;
-  services: { name: string; duration_minutes: number } | null;
-}
+type DailyAppointment = Awaited<ReturnType<typeof listAppointmentsForDay>>[number];
 
-const HOURS = Array.from({ length: 13 }, (_, index) => index + 8);
+const HOURS = Array.from({ length: 13 }, (_, i) => i + 8); // 8am to 8pm
+
 const STATUS_STYLE: Record<string, string> = {
   pending: "border-l-warning bg-warning/9",
   confirmed: "border-l-blue-500 bg-blue-500/8",
@@ -25,12 +18,19 @@ const STATUS_STYLE: Record<string, string> = {
   no_show: "border-l-destructive bg-destructive/8 opacity-60",
 };
 
-export function DailyScheduleBoard({ appointments }: { appointments: Appointment[] }) {
+export function DailyScheduleBoard({ appointments }: { appointments: DailyAppointment[] }) {
   return (
     <div className="overflow-hidden rounded-3xl border border-border bg-surface shadow-[0_20px_52px_-44px_rgba(9,47,44,0.6)]">
       <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
-        <div><h2 className="font-heading text-lg font-extrabold">Day timeline</h2><p className="mt-1 text-xs text-muted-foreground">Available time, appointments and visit status at a glance.</p></div>
-        <div className="hidden items-center gap-3 text-[10px] text-muted-foreground sm:flex"><span className="flex items-center gap-1.5"><i className="size-2 rounded-full bg-blue-500" />Confirmed</span><span className="flex items-center gap-1.5"><i className="size-2 rounded-full bg-violet-500" />Checked in</span><span className="flex items-center gap-1.5"><i className="size-2 rounded-full bg-success" />Completed</span></div>
+        <div>
+          <h2 className="font-heading text-lg font-extrabold">Today’s Schedule</h2>
+          <p className="mt-1 text-xs text-muted-foreground">See today’s working hours, appointments and patient status at a glance.</p>
+        </div>
+        <div className="hidden items-center gap-3 text-[10px] text-muted-foreground sm:flex">
+          <span className="flex items-center gap-1.5"><i className="size-2 rounded-full bg-blue-500" />Confirmed</span>
+          <span className="flex items-center gap-1.5"><i className="size-2 rounded-full bg-violet-500" />Checked In</span>
+          <span className="flex items-center gap-1.5"><i className="size-2 rounded-full bg-success" />Completed</span>
+        </div>
       </div>
       <div className="overflow-x-auto">
         <div className="relative min-w-[760px] px-5 py-5 sm:px-6">

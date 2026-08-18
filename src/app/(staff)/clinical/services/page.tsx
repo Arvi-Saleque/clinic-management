@@ -5,7 +5,7 @@ import { getDoctorServicesContext } from "@/lib/server/doctor-services";
 import { DoctorServicesManager } from "@/components/staff/doctor-services-manager";
 
 export const metadata: Metadata = {
-  title: "Doctor Services & Durations",
+  title: "Services & Treatments",
   description: "Configure offered clinical services and customized appointment durations.",
 };
 

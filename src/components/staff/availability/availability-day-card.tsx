@@ -76,7 +76,7 @@ export function AvailabilityDayCard({
                   className="text-[10px] px-1.5 py-0 h-4 border-indigo-500/40 text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 font-medium"
                 >
                   <Sparkles className="w-2.5 h-2.5 mr-1" />
-                  Custom
+                  Adjusted
                 </Badge>
               )}
               {isLeave && (
@@ -103,7 +103,7 @@ export function AvailabilityDayCard({
                   </span>
                 </div>
               ) : (
-                <span className="text-muted-foreground">Not scheduled (Off)</span>
+                <span className="text-muted-foreground">Day Off</span>
               )}
             </div>
           </div>
@@ -117,7 +117,7 @@ export function AvailabilityDayCard({
               className="text-xs font-semibold px-2 py-0.5 bg-primary/10 text-primary border-primary/20"
             >
               <Users className="w-3 h-3 mr-1" />
-              {appointmentCount} {appointmentCount === 1 ? "visit" : "visits"}
+              {appointmentCount} {appointmentCount === 1 ? "appointment" : "appointments"}
             </Badge>
           )}
           <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-transform group-hover:translate-x-0.5" />
@@ -171,7 +171,7 @@ export function AvailabilityDayCard({
           {isCustom && (
             <span className="inline-flex items-center text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 leading-none">
               <Sparkles className="w-2.5 h-2.5 mr-0.5" />
-              Custom
+              Adjusted
             </span>
           )}
           {isLeave && (
@@ -210,7 +210,7 @@ export function AvailabilityDayCard({
           </div>
         ) : (
           <div className="text-[11px] text-muted-foreground font-medium italic pl-0.5">
-            Not scheduled
+            Day Off
           </div>
         )}
       </div>
@@ -220,10 +220,10 @@ export function AvailabilityDayCard({
         {appointmentCount > 0 ? (
           <span className="inline-flex items-center font-semibold text-primary gap-1">
             <Users className="w-3 h-3 shrink-0" />
-            {appointmentCount} {appointmentCount === 1 ? "appt" : "appts"}
+            {appointmentCount} {appointmentCount === 1 ? "appointment" : "appointments"}
           </span>
         ) : (
-          <span className="text-muted-foreground/60 text-[10px]">No appts</span>
+          <span className="text-muted-foreground/60 text-[10px]">No appointments</span>
         )}
         <span className="text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity font-medium">
           Edit

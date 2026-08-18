@@ -30,13 +30,13 @@ import type { Profile } from "@/lib/auth/session";
 import type { LucideIcon } from "lucide-react";
 
 const NAV: { href: string; label: string; shortLabel: string; icon: LucideIcon; clinical?: boolean }[] = [
-  { href: "/dashboard", label: "Command centre", shortLabel: "Dashboard", icon: LayoutDashboard },
-  { href: "/patients", label: "Patient records", shortLabel: "Patients", icon: Users },
-  { href: "/scheduler", label: "Clinical diary", shortLabel: "Scheduler", icon: CalendarDays },
-  { href: "/billing/invoices", label: "Billing & accounts", shortLabel: "Billing", icon: Receipt },
+  { href: "/dashboard", label: "Dashboard", shortLabel: "Dashboard", icon: LayoutDashboard },
+  { href: "/patients", label: "Patients", shortLabel: "Patients", icon: Users },
+  { href: "/scheduler", label: "Clinical Diary", shortLabel: "Clinical Diary", icon: CalendarDays },
+  { href: "/billing/invoices", label: "Billing & Payments", shortLabel: "Billing", icon: Receipt },
   { href: "/clinical/prescriptions", label: "Prescriptions", shortLabel: "Prescriptions", icon: FileText, clinical: true },
-  { href: "/clinical/odontogram", label: "Dental chart", shortLabel: "Dental chart", icon: Smile, clinical: true },
-  { href: "/clinical/services", label: "Doctor services", shortLabel: "My services", icon: Stethoscope, clinical: true },
+  { href: "/clinical/odontogram", label: "Dental Chart", shortLabel: "Dental Chart", icon: Smile, clinical: true },
+  { href: "/clinical/services", label: "Services & Treatments", shortLabel: "Services", icon: Stethoscope, clinical: true },
 ];
 
 function getPageLabel(pathname: string) {

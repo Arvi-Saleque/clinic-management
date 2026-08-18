@@ -68,10 +68,10 @@ export function AvailabilityCalendarView({
             </div>
             <div>
               <h3 className="text-sm font-bold text-foreground">
-                Next 30 Days
+                Upcoming 30 Days
               </h3>
               <p className="text-xs text-muted-foreground">
-                Your weekly routine is applied automatically. Click a date only for a one-off change, temporary hours or leave.
+                Your regular weekly hours apply automatically. Select a date to change hours or add leave for that date only.
               </p>
             </div>
           </div>
@@ -79,11 +79,11 @@ export function AvailabilityCalendarView({
           <div className="flex items-center gap-2.5 text-xs text-muted-foreground font-medium flex-wrap">
             <span className="inline-flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              Normal Hours
+              Regular Hours
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-indigo-500" />
-              Custom Day
+              Adjusted Hours
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-amber-500" />
@@ -91,7 +91,7 @@ export function AvailabilityCalendarView({
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full border border-dashed border-muted-foreground/60 bg-muted/40" />
-              Off Day
+              Day Off
             </span>
           </div>
         </div>

@@ -33,14 +33,14 @@ export function WeeklyHoursCompactSummary({
           </div>
           <div>
             <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-              Your Normal Weekly Routine
+              Regular Weekly Hours
               <span className="text-[10px] font-semibold text-primary px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 inline-flex items-center gap-1">
                 <Sparkles className="w-2.5 h-2.5" />
-                Auto-repeats weekly
+                Repeats weekly
               </span>
             </h3>
             <p className="text-xs text-muted-foreground">
-              These hours automatically repeat every week and populate your upcoming calendar.
+              These hours repeat every week and automatically apply to your upcoming schedule.
             </p>
           </div>
         </div>
@@ -53,7 +53,7 @@ export function WeeklyHoursCompactSummary({
           className="h-8 text-xs font-semibold gap-1.5 self-start sm:self-auto border-primary/30 hover:border-primary text-foreground hover:bg-primary/5 shrink-0"
         >
           <CalendarRange className="w-3.5 h-3.5 text-primary" />
-          Change Weekly Routine
+          Edit Weekly Hours
         </Button>
       </div>
 
@@ -70,7 +70,7 @@ export function WeeklyHoursCompactSummary({
               type="button"
               onClick={() => onEditWeeklyHours(dow)}
               className="p-2.5 rounded-xl border border-border/60 bg-surface hover:bg-muted/40 transition-colors text-left group flex flex-col justify-between gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              title={`Click to edit recurring ${fullLabel} routine`}
+              title={`Click to edit regular ${fullLabel} hours`}
             >
               <div className="flex items-center justify-between w-full">
                 <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">

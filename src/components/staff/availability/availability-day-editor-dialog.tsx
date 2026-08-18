@@ -331,7 +331,7 @@ function AvailabilityDayEditorDialogContent({
                 className="bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30 text-xs font-medium"
               >
                 <Sparkles className="w-3 h-3 mr-1" />
-                Custom Hours — This Date Only
+                Adjusted Hours — This Date Only
               </Badge>
             ) : isNotScheduled ? (
               <Badge
@@ -347,7 +347,7 @@ function AvailabilityDayEditorDialogContent({
                 className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-xs font-medium"
               >
                 <CalendarCheck2 className="w-3 h-3 mr-1" />
-                Normal {weekdayName} Hours
+                Regular {weekdayName} Hours
               </Badge>
             )}
           </div>
@@ -358,7 +358,7 @@ function AvailabilityDayEditorDialogContent({
               className="bg-primary/10 text-primary border-primary/20 text-xs font-semibold"
             >
               <Users className="w-3 h-3 mr-1" />
-              {appointmentCount} {appointmentCount === 1 ? "booked visit" : "booked visits"}
+              {appointmentCount} {appointmentCount === 1 ? "appointment" : "appointments"}
             </Badge>
           )}
         </div>
@@ -370,11 +370,11 @@ function AvailabilityDayEditorDialogContent({
             <div className="leading-relaxed">
               {isUnavailable ? (
                 <span>
-                  Your normal {weekdayName} routine remains unchanged for future weeks.
+                  Your regular {weekdayName} routine remains unchanged for future weeks.
                 </span>
               ) : isCustomOverride ? (
                 <span>
-                  This date differs from your normal {weekdayName} routine. Changes saved here affect only this date.
+                  This date differs from your regular {weekdayName} routine. Changes saved here affect only this date.
                 </span>
               ) : isNotScheduled ? (
                 <span>
@@ -623,7 +623,7 @@ function AvailabilityDayEditorDialogContent({
                 ) : (
                   <RotateCcw className="w-3.5 h-3.5" />
                 )}
-                Reset to Normal {weekdayName} Hours
+                Reset to Regular {weekdayName} Hours
               </Button>
             )}
           </div>
