@@ -21,9 +21,9 @@ const STATUS_STYLE: Record<string, string> = {
 
 function getGreetingDisplayName(fullName?: string | null): string {
   if (!fullName) return "";
-  const trimmed = fullName.trim();
-  if (!trimmed) return "";
-  const parts = trimmed.split(/\s+/);
+  const cleaned = fullName.replace(/\s*\([^)]*\)/g, "").trim();
+  if (!cleaned) return "";
+  const parts = cleaned.split(/\s+/);
   if (parts.length > 1 && /^(dr\.?|mr\.?|ms\.?|mrs\.?|prof\.?)/i.test(parts[0])) {
     const title = parts[0].endsWith(".") ? parts[0] : `${parts[0]}.`;
     return `${title} ${parts[1]}`;
