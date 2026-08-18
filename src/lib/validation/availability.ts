@@ -69,8 +69,52 @@ export const deleteAvailabilityExceptionSchema = z.object({
   exceptionId: z.string().uuid("Invalid exception ID"),
 });
 
+export const saveDateOverrideSchema = z
+  .object({
+    practitionerId: z.string().uuid("Invalid practitioner ID").optional(),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+    isUnavailable: z.boolean().default(false),
+    reason: z.string().trim().max(255).nullable().optional(),
+    intervals: z.array(timeIntervalSchema).default([]),
+  })
+  .refine(
+    (data) => {
+      if (!data.isUnavailable && data.intervals.length === 0) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Custom working schedule requires at least one time interval or mark as leave",
+      path: ["intervals"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.isUnavailable || data.intervals.length <= 1) return true;
+      const sorted = [...data.intervals].sort((a, b) => a.startTime.localeCompare(b.startTime));
+      for (let i = 0; i < sorted.length - 1; i++) {
+        if (sorted[i].endTime > sorted[i + 1].startTime) {
+          return false;
+        }
+      }
+      return true;
+    },
+    {
+      message: "Custom schedule intervals cannot overlap on the same date",
+      path: ["intervals"],
+    },
+  );
+
+export const resetDateOverrideSchema = z.object({
+  practitionerId: z.string().uuid("Invalid practitioner ID").optional(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+});
+
 export type TimeIntervalInput = z.infer<typeof timeIntervalSchema>;
 export type DayAvailabilityInput = z.infer<typeof dayAvailabilitySchema>;
 export type SaveMultiIntervalAvailabilityInput = z.infer<typeof saveMultiIntervalAvailabilitySchema>;
 export type CreateAvailabilityExceptionInput = z.infer<typeof createAvailabilityExceptionSchema>;
 export type DeleteAvailabilityExceptionInput = z.infer<typeof deleteAvailabilityExceptionSchema>;
+export type SaveDateOverrideInput = z.infer<typeof saveDateOverrideSchema>;
+export type ResetDateOverrideInput = z.infer<typeof resetDateOverrideSchema>;

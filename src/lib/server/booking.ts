@@ -32,7 +32,7 @@ export async function bookOwnAppointmentAction(input: {
     p_patient_id: patient.id,
     p_starts_at: input.startsAt,
     p_booking_source: "online",
-    p_originating_encounter_id: null,
+    p_originating_encounter_id: undefined,
   });
 
   if (error) return { error: error.message };

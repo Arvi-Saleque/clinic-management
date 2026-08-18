@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.15"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       appointments: {
@@ -1517,8 +1542,8 @@ export type Database = {
         Args: {
           p_booking_source: string
           p_branch_id: string
-          p_notes?: string | null
-          p_originating_encounter_id?: string | null
+          p_notes?: string
+          p_originating_encounter_id?: string
           p_patient_id: string
           p_practitioner_id: string
           p_service_id: string
@@ -1532,38 +1557,38 @@ export type Database = {
       }
       chart_patient_tooth: {
         Args: {
-          p_condition_code?: string | null
-          p_condition_note?: string | null
-          p_encounter_id?: string | null
-          p_estimated_fee?: number | null
+          p_condition_code: string
+          p_condition_note: string
+          p_encounter_id: string
+          p_estimated_fee: number
           p_patient_id: string
-          p_planned_date?: string | null
-          p_recommended_treatment?: string | null
+          p_planned_date: string
+          p_recommended_treatment: string
           p_status: string
           p_tooth_number: string
-          p_treatment_priority?: string | null
+          p_treatment_priority: string
         }
         Returns: Json
       }
       complete_clinical_encounter: {
         Args: {
-          p_chief_complaint?: string | null
-          p_diagnosis?: string | null
+          p_chief_complaint: string
+          p_diagnosis: string
           p_encounter_id: string
-          p_follow_up_date?: string | null
-          p_follow_up_reason?: string | null
+          p_follow_up_date: string
+          p_follow_up_reason: string
           p_follow_up_recommended: boolean
-          p_patient_notes?: string | null
-          p_performed_treatment?: string | null
-          p_private_notes?: string | null
+          p_patient_notes: string
+          p_performed_treatment: string
+          p_private_notes: string
         }
         Returns: Json
       }
       create_clinical_prescription: {
         Args: {
-          p_encounter_id?: string | null
-          p_items?: Json
-          p_notes?: string | null
+          p_encounter_id: string
+          p_items: Json
+          p_notes: string
           p_patient_id: string
         }
         Returns: Json
@@ -1584,19 +1609,33 @@ export type Database = {
         Args: { p_appointment_id: string; p_new_starts_at: string }
         Returns: undefined
       }
+      reset_date_availability_override: {
+        Args: { p_date: string; p_practitioner_id: string }
+        Returns: undefined
+      }
       save_clinical_encounter_draft: {
         Args: {
-          p_chief_complaint?: string | null
-          p_diagnosis?: string | null
+          p_chief_complaint: string
+          p_diagnosis: string
           p_encounter_id: string
-          p_follow_up_date?: string | null
-          p_follow_up_reason?: string | null
+          p_follow_up_date: string
+          p_follow_up_reason: string
           p_follow_up_recommended: boolean
-          p_patient_notes?: string | null
-          p_performed_treatment?: string | null
-          p_private_notes?: string | null
+          p_patient_notes: string
+          p_performed_treatment: string
+          p_private_notes: string
         }
         Returns: Json
+      }
+      save_date_availability_override: {
+        Args: {
+          p_date: string
+          p_intervals?: Json
+          p_is_unavailable: boolean
+          p_practitioner_id: string
+          p_reason?: string
+        }
+        Returns: undefined
       }
       save_weekly_availability: {
         Args: { p_branch_id: string; p_practitioner_id: string; p_rules: Json }
@@ -1734,6 +1773,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

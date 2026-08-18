@@ -43,6 +43,42 @@ export interface UpcomingDayAvailability {
   statusLabel: string;
 }
 
+export type DayScheduleSource =
+  | "recurring_default"
+  | "date_override"
+  | "full_day_leave"
+  | "not_scheduled";
+
+export interface CalendarDayAvailability {
+  date: string; // "YYYY-MM-DD"
+  dayOfWeek: number; // 0..6
+  dayName: string;
+  dayShort: string;
+  dayNumber: number;
+  isToday: boolean;
+  isPast: boolean;
+  isAvailable: boolean;
+  source: DayScheduleSource;
+  intervals: TimeInterval[];
+  leaveReason?: string | null;
+  exceptions: AvailabilityExceptionRow[];
+  activeAppointmentCount: number;
+  statusLabel: string;
+}
+
+export interface SaveDateOverrideInput {
+  practitionerId: string;
+  date: string; // "YYYY-MM-DD"
+  isUnavailable: boolean;
+  reason?: string | null;
+  intervals?: { startTime: string; endTime: string }[];
+}
+
+export interface ResetDateOverrideInput {
+  practitionerId: string;
+  date: string; // "YYYY-MM-DD"
+}
+
 export interface SlotResult {
   slot_start: string;
   slot_end: string;

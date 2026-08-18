@@ -250,14 +250,14 @@ export async function saveEncounterDraftAction(
 
     const { data, error } = await supabase.rpc("save_clinical_encounter_draft", {
       p_encounter_id: parsed.data.encounterId,
-      p_chief_complaint: parsed.data.chiefComplaint,
-      p_diagnosis: parsed.data.diagnosis,
-      p_performed_treatment: parsed.data.performedTreatment,
-      p_patient_notes: parsed.data.patientNotes,
-      p_private_notes: parsed.data.privateNotes,
+      p_chief_complaint: parsed.data.chiefComplaint ?? "",
+      p_diagnosis: parsed.data.diagnosis ?? "",
+      p_performed_treatment: parsed.data.performedTreatment ?? "",
+      p_patient_notes: parsed.data.patientNotes ?? "",
+      p_private_notes: parsed.data.privateNotes ?? "",
       p_follow_up_recommended: parsed.data.followUpRecommended,
-      p_follow_up_date: followUpDate,
-      p_follow_up_reason: followUpReason,
+      p_follow_up_date: followUpDate ?? "",
+      p_follow_up_reason: followUpReason ?? "",
     });
 
     if (error) {
@@ -322,14 +322,14 @@ export async function completeEncounterAction(
 
     const { data, error } = await supabase.rpc("complete_clinical_encounter", {
       p_encounter_id: parsed.data.encounterId,
-      p_chief_complaint: parsed.data.chiefComplaint,
-      p_diagnosis: parsed.data.diagnosis,
-      p_performed_treatment: parsed.data.performedTreatment,
-      p_patient_notes: parsed.data.patientNotes,
-      p_private_notes: parsed.data.privateNotes,
+      p_chief_complaint: parsed.data.chiefComplaint ?? "",
+      p_diagnosis: parsed.data.diagnosis ?? "",
+      p_performed_treatment: parsed.data.performedTreatment ?? "",
+      p_patient_notes: parsed.data.patientNotes ?? "",
+      p_private_notes: parsed.data.privateNotes ?? "",
       p_follow_up_recommended: parsed.data.followUpRecommended,
-      p_follow_up_date: followUpDate,
-      p_follow_up_reason: followUpReason,
+      p_follow_up_date: followUpDate ?? "",
+      p_follow_up_reason: followUpReason ?? "",
     });
 
     if (error) {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import { CalendarClock, CalendarDays, CheckCircle2, Clock3, ShieldCheck, UserCheck } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -9,7 +9,12 @@ import { AppointmentList } from "@/components/staff/appointment-list";
 import { NewAppointmentDialog } from "@/components/staff/new-appointment-dialog";
 import { AvailabilityPlanner } from "@/components/staff/availability-planner";
 import { DailyScheduleBoard } from "@/components/staff/daily-schedule-board";
-import { getSchedulerContext, listAvailabilityRules, listAvailabilityExceptions } from "@/lib/server/appointments";
+import {
+  getSchedulerContext,
+  listAvailabilityRules,
+  listAvailabilityExceptions,
+  getPractitionerAppointmentCountsForRange,
+} from "@/lib/server/appointments";
 import { getPatientById, listAppointmentsForDay, listServices } from "@/lib/server/directory";
 
 export const metadata: Metadata = { title: "Scheduler" };
@@ -24,13 +29,18 @@ export default async function StaffSchedulerPage({ searchParams }: { searchParam
   }
 
   const date = params.date ?? format(new Date(), "yyyy-MM-dd");
-  const [services, appointments, rules, exceptions, initialPatient] = await Promise.all([
-    listServices(),
-    listAppointmentsForDay(activePractitioner.id, date),
-    listAvailabilityRules(activePractitioner.id),
-    listAvailabilityExceptions(activePractitioner.id, date, 10),
-    params.patientId ? getPatientById(params.patientId) : Promise.resolve(null),
-  ]);
+  const todayStr = format(new Date(), "yyyy-MM-dd");
+  const todayPlus30Str = format(addDays(new Date(), 30), "yyyy-MM-dd");
+
+  const [services, appointments, rules, exceptions, appointmentCounts, initialPatient] =
+    await Promise.all([
+      listServices(),
+      listAppointmentsForDay(activePractitioner.id, date),
+      listAvailabilityRules(activePractitioner.id),
+      listAvailabilityExceptions(activePractitioner.id, todayStr, 30),
+      getPractitionerAppointmentCountsForRange(activePractitioner.id, todayStr, todayPlus30Str),
+      params.patientId ? getPatientById(params.patientId) : Promise.resolve(null),
+    ]);
   const confirmed = appointments.filter((appointment) => appointment.status === "confirmed").length;
   const checkedIn = appointments.filter((appointment) => appointment.status === "checked_in").length;
   const completed = appointments.filter((appointment) => appointment.status === "completed").length;
@@ -63,8 +73,10 @@ export default async function StaffSchedulerPage({ searchParams }: { searchParam
         <AvailabilityPlanner
           key={activePractitioner.id}
           practitionerId={activePractitioner.id}
+          branchId={activePractitioner.branch_id}
           rules={rules}
           exceptions={exceptions}
+          appointmentCounts={appointmentCounts}
         />
         <article className="rounded-3xl border border-primary/12 bg-secondary p-6 text-secondary-foreground">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

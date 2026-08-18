@@ -15,9 +15,13 @@ import {
   saveMultiIntervalAvailabilitySchema,
   createAvailabilityExceptionSchema,
   deleteAvailabilityExceptionSchema,
+  saveDateOverrideSchema,
+  resetDateOverrideSchema,
   type SaveMultiIntervalAvailabilityInput,
   type CreateAvailabilityExceptionInput,
   type DeleteAvailabilityExceptionInput,
+  type SaveDateOverrideInput,
+  type ResetDateOverrideInput,
 } from "@/lib/validation/availability";
 
 export type SlotResult = { slot_start: string; slot_end: string };
@@ -275,6 +279,227 @@ export async function deleteAvailabilityExceptionAction(
   }
 }
 
+export async function saveDayAvailabilityOverrideAction(
+  input: SaveDateOverrideInput,
+): Promise<{ success: boolean; error: string | null }> {
+  try {
+    await requireStaff();
+    const parsed = saveDateOverrideSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid date override details" };
+    }
+
+    const practitioner = await resolveSchedulerPractitioner(input.practitionerId);
+    if (!practitioner) {
+      return { success: false, error: "Unauthorized practitioner schedule access" };
+    }
+
+    const { date, isUnavailable, reason, intervals } = parsed.data;
+    const supabase = await createClient();
+
+    const { error: rpcError } = await supabase.rpc("save_date_availability_override", {
+      p_practitioner_id: practitioner.id,
+      p_date: date,
+      p_is_unavailable: isUnavailable,
+      p_reason: reason ?? undefined,
+      p_intervals: intervals.map((inv) => ({
+        startTime: inv.startTime,
+        endTime: inv.endTime,
+      })),
+    });
+
+    if (rpcError) {
+      return { success: false, error: rpcError.message };
+    }
+
+    revalidatePath("/scheduler");
+    revalidatePath("/clinical/services");
+    return { success: true, error: null };
+  } catch (err: unknown) {
+    console.error("Failed to save day availability override:", err);
+    return { success: false, error: err instanceof Error ? err.message : "Internal error saving day override" };
+  }
+}
+
+export async function resetDayAvailabilityOverrideAction(
+  input: ResetDateOverrideInput,
+): Promise<{ success: boolean; error: string | null }> {
+  try {
+    await requireStaff();
+    const parsed = resetDateOverrideSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid reset input" };
+    }
+
+    const practitioner = await resolveSchedulerPractitioner(input.practitionerId);
+    if (!practitioner) {
+      return { success: false, error: "Unauthorized practitioner access" };
+    }
+
+    const supabase = await createClient();
+    const { error: rpcError } = await supabase.rpc("reset_date_availability_override", {
+      p_practitioner_id: practitioner.id,
+      p_date: parsed.data.date,
+    });
+
+    if (rpcError) {
+      return { success: false, error: rpcError.message };
+    }
+
+    revalidatePath("/scheduler");
+    revalidatePath("/clinical/services");
+    return { success: true, error: null };
+  } catch (err: unknown) {
+    console.error("Failed to reset day availability override:", err);
+    return { success: false, error: err instanceof Error ? err.message : "Internal error resetting day override" };
+  }
+}
+
+export async function getPractitionerAppointmentCountsForRange(
+  practitionerId: string,
+  startDate: string,
+  endDate: string,
+): Promise<Record<string, number>> {
+  try {
+    const supabase = await createClient();
+    const profile = await getProfile();
+    let allowedPractitionerId = practitionerId;
+
+    if (profile?.role === "dentist") {
+      const { data: ownPractitioner } = await supabase
+        .from("practitioners")
+        .select("id")
+        .eq("profile_id", profile.id)
+        .maybeSingle();
+      if (!ownPractitioner) return {};
+      allowedPractitionerId = ownPractitioner.id;
+    }
+
+    // Retrieve branch timezone for accurate local calendar day grouping
+    const { data: practData } = await supabase
+      .from("practitioners")
+      .select("id, branches:branch_id(timezone)")
+      .eq("id", allowedPractitionerId)
+      .maybeSingle();
+
+    const branchTz =
+      (practData?.branches as { timezone?: string } | null)?.timezone ?? "Asia/Dhaka";
+
+    const dateFormatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: branchTz,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+
+    // Query with boundary buffer to ensure edge timestamps are caught
+    const rangeStart = `${startDate}T00:00:00Z`;
+    const rangeEnd = `${endDate}T23:59:59Z`;
+
+    const { data } = await supabase
+      .from("appointments")
+      .select("starts_at")
+      .eq("practitioner_id", allowedPractitionerId)
+      .gte("starts_at", rangeStart)
+      .lte("starts_at", rangeEnd)
+      .not("status", "in", "(cancelled,no_show)");
+
+    const counts: Record<string, number> = {};
+    if (data) {
+      for (const appt of data) {
+        const localDate = dateFormatter.format(new Date(appt.starts_at));
+        if (localDate >= startDate && localDate <= endDate) {
+          counts[localDate] = (counts[localDate] ?? 0) + 1;
+        }
+      }
+    }
+
+    return counts;
+  } catch (err) {
+    console.error("Failed to fetch appointment counts for range:", err);
+    return {};
+  }
+}
+
+export async function getAppointmentsForDate(
+  practitionerId: string,
+  date: string,
+): Promise<{ id: string; startsAt: string; endsAt: string; startTime: string; endTime: string; status: string; patientName: string }[]> {
+  try {
+    const supabase = await createClient();
+    const profile = await getProfile();
+    let allowedPractitionerId = practitionerId;
+
+    if (profile?.role === "dentist") {
+      const { data: ownPractitioner } = await supabase
+        .from("practitioners")
+        .select("id")
+        .eq("profile_id", profile.id)
+        .maybeSingle();
+      if (!ownPractitioner) return [];
+      allowedPractitionerId = ownPractitioner.id;
+    }
+
+    const { data: practData } = await supabase
+      .from("practitioners")
+      .select("id, branches:branch_id(timezone)")
+      .eq("id", allowedPractitionerId)
+      .maybeSingle();
+
+    const branchTz =
+      (practData?.branches as { timezone?: string } | null)?.timezone ?? "Asia/Dhaka";
+
+    const timeFormatter = new Intl.DateTimeFormat("en-GB", {
+      timeZone: branchTz,
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    const dateFormatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: branchTz,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+
+    const { data } = await supabase
+      .from("appointments")
+      .select("id, starts_at, ends_at, status, patients:patient_id(first_name, last_name)")
+      .eq("practitioner_id", allowedPractitionerId)
+      .not("status", "in", "(cancelled,no_show)")
+      .order("starts_at");
+
+    if (!data) return [];
+
+    const result: { id: string; startsAt: string; endsAt: string; startTime: string; endTime: string; status: string; patientName: string }[] = [];
+
+    for (const appt of data) {
+      const localDate = dateFormatter.format(new Date(appt.starts_at));
+      if (localDate === date) {
+        const p = appt.patients as { first_name?: string; last_name?: string } | null;
+        const patientName = p ? `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim() || "Patient" : "Patient";
+        const startT = timeFormatter.format(new Date(appt.starts_at));
+        const endT = timeFormatter.format(new Date(appt.ends_at));
+        result.push({
+          id: appt.id,
+          startsAt: appt.starts_at,
+          endsAt: appt.ends_at,
+          startTime: startT,
+          endTime: endT,
+          status: appt.status,
+          patientName,
+        });
+      }
+    }
+
+    return result;
+  } catch (err) {
+    console.error("Failed to get appointments for date:", err);
+    return [];
+  }
+}
+
 /** Shared availability engine — both the staff scheduler and patient online booking call this same RPC, never a parallel query. */
 export async function getAvailableSlots(
   practitionerId: string,
@@ -402,8 +627,8 @@ export async function createStaffAppointment(input: {
     p_patient_id: input.patientId,
     p_starts_at: input.startsAt,
     p_booking_source: input.bookingSource,
-    p_notes: input.notes ?? null,
-    p_originating_encounter_id: trimmedOriginatingEncounterId,
+    p_notes: input.notes ?? undefined,
+    p_originating_encounter_id: trimmedOriginatingEncounterId ?? undefined,
   });
 
   if (error) return { id: null, error: sanitizeBookingError(error.message) };
