@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { format } from "date-fns";
 import {
   CalendarClock,
@@ -12,7 +13,6 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type {
   ClinicalEncounter,
   EncounterFollowUpSchedulingContext,
@@ -33,45 +33,52 @@ interface ClinicalDocumentationSummaryProps {
 function renderStatusBadge(status: string) {
   switch (status) {
     case "confirmed":
-      return (
-        <Badge className="border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300 text-[10px] font-normal">
-          Confirmed
-        </Badge>
-      );
+      return <Badge className="border-blue-500/20 bg-blue-500/8 text-[10px] font-normal text-blue-700">Confirmed</Badge>;
     case "checked_in":
-      return (
-        <Badge className="border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300 text-[10px] font-normal">
-          Checked in
-        </Badge>
-      );
+      return <Badge className="border-violet-500/20 bg-violet-500/8 text-[10px] font-normal text-violet-700">Checked in</Badge>;
     case "completed":
-      return (
-        <Badge className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[10px] font-normal">
-          Completed
-        </Badge>
-      );
+      return <Badge className="border-emerald-500/20 bg-emerald-500/8 text-[10px] font-normal text-emerald-700">Completed</Badge>;
     case "cancelled":
-      return (
-        <Badge variant="outline" className="text-muted-foreground text-[10px] line-through font-normal">
-          Cancelled
-        </Badge>
-      );
+      return <Badge variant="outline" className="text-[10px] font-normal text-muted-foreground">Cancelled</Badge>;
     case "no_show":
-      return (
-        <Badge variant="destructive" className="text-[10px] font-normal">
-          No show
-        </Badge>
-      );
+      return <Badge variant="destructive" className="text-[10px] font-normal">No show</Badge>;
     default:
-      return (
-        <Badge variant="outline" className="text-[10px] font-normal capitalize">
-          {status.replace(/_/g, " ")}
-        </Badge>
-      );
+      return <Badge variant="outline" className="text-[10px] font-normal capitalize">{status.replace(/_/g, " ")}</Badge>;
   }
 }
 
 const RETRYABLE_FOLLOW_UP_STATUSES = new Set(["cancelled", "no_show"]);
+
+function SummaryRow({
+  icon: Icon,
+  title,
+  value,
+  badge,
+}: {
+  icon: typeof ClipboardList;
+  title: string;
+  value: string | null | undefined;
+  badge?: ReactNode;
+}) {
+  return (
+    <div className="border-b border-border/60 px-4 py-4 last:border-b-0 sm:px-5">
+      <div className="flex items-start gap-3">
+        <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft/70 text-primary">
+          <Icon className="size-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+            {badge}
+          </div>
+          <p className={value?.trim() ? "mt-1.5 whitespace-pre-wrap text-sm leading-6 text-foreground/90" : "mt-1.5 text-xs italic text-muted-foreground"}>
+            {value?.trim() || "Not documented."}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function ClinicalDocumentationSummary({
   encounter,
@@ -87,260 +94,106 @@ export function ClinicalDocumentationSummary({
 
   const canScheduleFollowUp =
     followUpAppointments.length === 0 ||
-    followUpAppointments.every((appointment) =>
-      RETRYABLE_FOLLOW_UP_STATUSES.has(appointment.status),
-    );
+    followUpAppointments.every((appointment) => RETRYABLE_FOLLOW_UP_STATUSES.has(appointment.status));
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2 font-heading text-lg font-bold text-foreground">
-          <ClipboardList className="size-5 text-primary" />
-          <span>Clinical Documentation</span>
-        </h2>
-        {isEditable ? (
-          <Badge variant="outline" className="border-primary/30 bg-primary/5 text-xs text-primary font-normal">
-            Ready for drafting
-          </Badge>
-        ) : (
-          <Badge variant="secondary" className="text-xs text-muted-foreground font-normal">
-            Final record
-          </Badge>
-        )}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        {/* Chief Complaint */}
-        <Card className="border-border/80 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <FileHeart className="size-4 text-primary" />
-              <span>Chief Complaint</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {encounter.chief_complaint?.trim() ? (
-              <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                {encounter.chief_complaint}
-              </p>
-            ) : (
-              <p className="text-xs italic text-muted-foreground">
-                No chief complaint documented.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Diagnosis */}
-        <Card className="border-border/80 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <FileText className="size-4 text-primary" />
-              <span>Clinical Diagnosis</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {encounter.diagnosis?.trim() ? (
-              <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                {encounter.diagnosis}
-              </p>
-            ) : (
-              <p className="text-xs italic text-muted-foreground">
-                No diagnosis documented.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Performed Treatment */}
-      <Card className="border-border/80 shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <ClipboardList className="size-4 text-primary" />
-            <span>Performed Treatment & Procedures</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {encounter.performed_treatment?.trim() ? (
-            <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-              {encounter.performed_treatment}
-            </p>
-          ) : (
-            <p className="text-xs italic text-muted-foreground">
-              No treatment details documented yet.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        {/* Patient-Facing Advice / Notes */}
-        <Card className="border-border/80 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <MessageSquare className="size-4 text-primary" />
-              <span>Patient Advice & Instructions</span>
-            </CardTitle>
-            <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-[10px] text-emerald-700 dark:text-emerald-300">
-              <Eye className="mr-1 size-3" />
-              Patient Visible
+      <div className="overflow-hidden rounded-2xl border border-border/70 bg-surface shadow-[0_12px_34px_-30px_rgba(4,34,31,0.45)]">
+        <SummaryRow icon={FileHeart} title="Chief Complaint" value={encounter.chief_complaint} />
+        <SummaryRow icon={FileText} title="Clinical Diagnosis" value={encounter.diagnosis} />
+        <SummaryRow icon={ClipboardList} title="Performed Treatment & Procedures" value={encounter.performed_treatment} />
+        <SummaryRow
+          icon={MessageSquare}
+          title="Patient Advice & Instructions"
+          value={encounter.patient_notes}
+          badge={
+            <Badge variant="outline" className="border-emerald-500/20 bg-emerald-500/8 text-[10px] font-medium text-emerald-700">
+              <Eye className="mr-1 size-3" /> Patient visible
             </Badge>
-          </CardHeader>
-          <CardContent>
-            {encounter.patient_notes?.trim() ? (
-              <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                {encounter.patient_notes}
-              </p>
-            ) : (
-              <p className="text-xs italic text-muted-foreground">
-                No patient instructions recorded.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Private Clinician Notes */}
-        <Card className="border-slate-300/80 bg-slate-50/50 shadow-sm dark:border-slate-700/60 dark:bg-slate-900/40">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Lock className="size-4 text-slate-700 dark:text-slate-300" />
-              <span>Private Clinician Notes</span>
-            </CardTitle>
-            <Badge variant="secondary" className="bg-slate-200/80 text-[10px] font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-200">
-              Internal / Confidential
-            </Badge>
-          </CardHeader>
-          <CardContent>
-            {privateNotes?.trim() ? (
-              <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                {privateNotes}
-              </p>
-            ) : (
-              <p className="text-xs italic text-muted-foreground">
-                No private clinician notes on record.
-              </p>
-            )}
-          </CardContent>
-        </Card>
+          }
+        />
+        <SummaryRow
+          icon={Lock}
+          title="Private Clinician Notes"
+          value={privateNotes}
+          badge={<Badge variant="secondary" className="text-[10px] font-medium">Internal only</Badge>}
+        />
       </div>
 
-      {/* Follow-up Section */}
-      <Card className="border-border/80 shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <CalendarClock className="size-4 text-primary" />
-            <span>Follow-up & Recall Plan</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {encounter.follow_up_recommended ? (
-            <div className="flex flex-col gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3.5">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-xs font-semibold text-primary">
-                    Follow-up Recommended
+      <div className="rounded-2xl border border-border/70 bg-surface p-4 shadow-[0_12px_34px_-30px_rgba(4,34,31,0.45)] sm:p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft/70 text-primary">
+              <CalendarClock className="size-4" />
+            </span>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Follow-up & Recall Plan</h3>
+              {encounter.follow_up_recommended ? (
+                <>
+                  <p className="mt-1 text-sm leading-6 text-foreground/90">
+                    {encounter.follow_up_reason || "Follow-up recommended."}
                   </p>
-                  {encounter.follow_up_reason && (
-                    <p className="mt-0.5 text-xs text-foreground">
-                      <strong>Reason:</strong> {encounter.follow_up_reason}
-                    </p>
+                  {followUpDateFormatted && (
+                    <p className="mt-1 text-xs text-muted-foreground">Target date: <span className="font-semibold text-foreground">{followUpDateFormatted}</span></p>
                   )}
-                </div>
-                {followUpDateFormatted && (
-                  <div className="sm:text-right">
-                    <span className="text-xs text-muted-foreground">Target Date:</span>
-                    <p className="font-semibold text-sm text-foreground">{followUpDateFormatted}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Action area: shown only for completed encounters when scheduling is eligible */}
-              {!isEditable && canScheduleFollowUp && (
-                <div className="pt-2 border-t border-primary/15 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <span className="text-xs text-muted-foreground">
-                    {followUpAppointments.length > 0
-                      ? "Previous follow-up was cancelled or missed. You may schedule a new visit."
-                      : "Schedule the recommended follow-up visit with the treating doctor."}
-                  </span>
-                  {followUpScheduling ? (
-                    <FollowUpAppointmentDialog
-                      encounterId={encounter.id}
-                      patient={patient}
-                      scheduling={followUpScheduling}
-                      initialDate={encounter.follow_up_date ?? ""}
-                    />
-                  ) : (
-                    <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                      Follow-up scheduling is currently unavailable for this practitioner.
-                    </p>
-                  )}
-                </div>
+                </>
+              ) : (
+                <p className="mt-1 text-xs text-muted-foreground">No follow-up currently recommended.</p>
               )}
             </div>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              No follow-up appointment currently recommended for this encounter.
-            </p>
+          </div>
+
+          {!isEditable && encounter.follow_up_recommended && canScheduleFollowUp && followUpScheduling && (
+            <FollowUpAppointmentDialog
+              encounterId={encounter.id}
+              patient={patient}
+              scheduling={followUpScheduling}
+              initialDate={encounter.follow_up_date ?? ""}
+            />
           )}
+        </div>
 
-          {/* Linked Follow-up Appointments History */}
-          {followUpAppointments.length > 0 && (
-            <div className="space-y-2 pt-2 border-t border-border/70">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                  <CalendarDays className="size-3.5 text-primary" />
-                  <span>Linked Follow-up Appointments ({followUpAppointments.length})</span>
-                </p>
-              </div>
+        {!isEditable && encounter.follow_up_recommended && canScheduleFollowUp && !followUpScheduling && (
+          <p className="mt-3 text-xs font-medium text-amber-600 dark:text-amber-400">
+            Follow-up scheduling is currently unavailable for this practitioner.
+          </p>
+        )}
 
-              <div className="space-y-2">
-                {followUpAppointments.map((appt) => {
-                  const startsAtFormatted = format(
-                    new Date(appt.starts_at),
-                    "MMM d, yyyy · h:mm a",
-                  );
-                  const schedulerDate = format(new Date(appt.starts_at), "yyyy-MM-dd");
+        {followUpAppointments.length > 0 && (
+          <details className="group mt-4 border-t border-border/60 pt-3">
+            <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-semibold text-foreground marker:hidden">
+              <span className="flex items-center gap-1.5">
+                <CalendarDays className="size-3.5 text-primary" />
+                Linked follow-up appointments ({followUpAppointments.length})
+              </span>
+              <span className="text-[11px] font-medium text-primary">View</span>
+            </summary>
+            <div className="mt-3 space-y-2">
+              {followUpAppointments.map((appt) => {
+                const startsAtFormatted = format(new Date(appt.starts_at), "MMM d, yyyy · h:mm a");
+                const schedulerDate = format(new Date(appt.starts_at), "yyyy-MM-dd");
 
-                  return (
-                    <div
-                      key={appt.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-lg border border-border/80 bg-muted/20 p-3 text-xs"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-foreground">
-                            {startsAtFormatted}
-                          </span>
-                          {renderStatusBadge(appt.status)}
-                        </div>
-                        <p className="text-muted-foreground">
-                          {appt.service_name ?? "Dental Procedure"} · {appt.practitioner_name ? `Dr. ${appt.practitioner_name}` : "Doctor"} · {appt.branch_name ?? "Clinic"}
-                        </p>
-                        {appt.notes && (
-                          <p className="text-muted-foreground italic text-[11px]">
-                            Memo: {appt.notes}
-                          </p>
-                        )}
+                return (
+                  <div key={appt.id} className="flex flex-col gap-2 rounded-xl border border-border/70 bg-muted/20 p-3 text-xs sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-foreground">{startsAtFormatted}</span>
+                        {renderStatusBadge(appt.status)}
                       </div>
-
-                      <ButtonLink
-                        href={`/scheduler?date=${schedulerDate}`}
-                        variant="outline"
-                        size="sm"
-                        className="self-start sm:self-center gap-1 text-xs h-7"
-                      >
-                        <span>View in Scheduler</span>
-                        <ExternalLink className="size-3" />
-                      </ButtonLink>
+                      <p className="mt-1 text-muted-foreground">
+                        {appt.service_name ?? "Dental Procedure"} · {appt.practitioner_name ?? "Clinician"}
+                      </p>
                     </div>
-                  );
-                })}
-              </div>
+                    <ButtonLink href={`/scheduler?date=${schedulerDate}`} variant="outline" size="sm" className="h-7 gap-1 self-start text-xs sm:self-center">
+                      View in Scheduler <ExternalLink className="size-3" />
+                    </ButtonLink>
+                  </div>
+                );
+              })}
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </details>
+        )}
+      </div>
     </div>
   );
 }
