@@ -958,6 +958,9 @@ header.header-sticky .hamburger span {
   gap: 16px;
   flex-wrap: wrap;
   margin-bottom: 28px;
+  position: relative;
+  z-index: 25;
+  pointer-events: auto;
 }
 
 .hero-btn-primary {
@@ -975,6 +978,10 @@ header.header-sticky .hamburger span {
   box-shadow: 0 8px 30px rgba(23, 53, 42, 0.4);
   transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
   text-decoration: none;
+  position: relative;
+  z-index: 25;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .hero-btn-primary:hover {
@@ -1002,6 +1009,10 @@ header.header-sticky .hamburger span {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
   text-decoration: none;
+  position: relative;
+  z-index: 25;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .hero-btn-secondary:hover {
