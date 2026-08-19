@@ -1,21 +1,28 @@
 import { differenceInYears, format } from "date-fns";
 import {
-  ExternalLink,
+  Activity,
+  CalendarDays,
   Mail,
   MapPin,
   Phone,
-  Shield,
-  User,
+  Pill,
+  ShieldCheck,
+  UserRound,
 } from "lucide-react";
-import { ButtonLink } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { EncounterWorkspacePatient } from "@/types/clinical";
+import type {
+  EncounterMedicalHistory,
+  EncounterWorkspacePatient,
+} from "@/types/clinical";
 
 interface PatientContextCardProps {
   patient: EncounterWorkspacePatient;
+  medicalHistory?: EncounterMedicalHistory | null;
 }
 
-export function PatientContextCard({ patient }: PatientContextCardProps) {
+export function PatientContextCard({
+  patient,
+  medicalHistory,
+}: PatientContextCardProps) {
   const age = patient.dob
     ? differenceInYears(new Date(), new Date(`${patient.dob}T00:00:00`))
     : null;
@@ -24,97 +31,168 @@ export function PatientContextCard({ patient }: PatientContextCardProps) {
     ? format(new Date(`${patient.dob}T00:00:00`), "MMM d, yyyy")
     : null;
 
-  return (
-    <Card className="border-border/80 shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <CardTitle className="flex items-center gap-2 text-base font-semibold">
-          <User className="size-4 text-primary" />
-          <span>Patient Demographics</span>
-        </CardTitle>
-        <ButtonLink
-          href={`/patients/${patient.id}`}
-          variant="ghost"
-          size="sm"
-          className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span>Full Profile</span>
-          <ExternalLink className="size-3" />
-        </ButtonLink>
-      </CardHeader>
+  const allergiesCount = medicalHistory?.allergies?.length ?? 0;
+  const medsCount = medicalHistory?.current_medications?.length ?? 0;
+  const conditionsCount = medicalHistory?.chronic_conditions?.length ?? 0;
 
-      <CardContent className="space-y-3 text-xs sm:text-sm">
-        <div className="grid grid-cols-2 gap-2 rounded-lg bg-muted/40 p-2.5">
-          <div>
-            <p className="text-[11px] font-medium text-muted-foreground">DOB / Age</p>
-            <p className="font-medium text-foreground">
+  return (
+    <div className="rounded-3xl border border-border/80 bg-card p-6 space-y-4 shadow-2xs">
+      {/* Card Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="size-9 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 flex items-center justify-center border border-emerald-200/60 shrink-0">
+            <UserRound className="size-4" />
+          </div>
+          <h2 className="font-heading text-base font-bold text-foreground">
+            Patient Demographics
+          </h2>
+        </div>
+      </div>
+
+      {/* 2x2 Demographic Tiles */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* 1. DOB / Age */}
+        <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-3.5 shadow-2xs">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-muted/40 text-muted-foreground shrink-0">
+            <CalendarDays className="size-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold text-muted-foreground">
+              DOB / Age
+            </p>
+            <p className="font-heading text-sm font-bold text-foreground truncate">
               {dobFormatted ? `${dobFormatted} (${age}y)` : "Not provided"}
             </p>
           </div>
-          <div>
-            <p className="text-[11px] font-medium text-muted-foreground">Gender</p>
-            <p className="font-medium capitalize text-foreground">
+        </div>
+
+        {/* 2. Gender */}
+        <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-3.5 shadow-2xs">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-muted/40 text-muted-foreground shrink-0">
+            <UserRound className="size-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold text-muted-foreground">
+              Gender
+            </p>
+            <p className="font-heading text-sm font-bold text-foreground capitalize truncate">
               {patient.gender || "Not specified"}
             </p>
           </div>
         </div>
 
-        <div className="space-y-2 pt-1">
-          {patient.phone && (
-            <div className="flex items-center gap-2">
-              <Phone className="size-3.5 text-muted-foreground shrink-0" />
+        {/* 3. Phone */}
+        <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-3.5 shadow-2xs">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-muted/40 text-muted-foreground shrink-0">
+            <Phone className="size-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold text-muted-foreground">
+              Phone
+            </p>
+            {patient.phone ? (
               <a
                 href={`tel:${patient.phone}`}
-                className="font-medium text-foreground hover:text-primary hover:underline"
+                className="font-heading text-sm font-bold text-foreground hover:text-primary truncate block"
               >
                 {patient.phone}
               </a>
-            </div>
-          )}
+            ) : (
+              <p className="font-heading text-sm font-bold text-muted-foreground">
+                Not provided
+              </p>
+            )}
+          </div>
+        </div>
 
-          {patient.email && (
-            <div className="flex items-center gap-2">
-              <Mail className="size-3.5 text-muted-foreground shrink-0" />
+        {/* 4. Email */}
+        <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-3.5 shadow-2xs">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-muted/40 text-muted-foreground shrink-0">
+            <Mail className="size-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold text-muted-foreground">
+              Email
+            </p>
+            {patient.email ? (
               <a
                 href={`mailto:${patient.email}`}
-                className="truncate font-medium text-foreground hover:text-primary hover:underline"
+                className="font-heading text-sm font-bold text-foreground hover:text-primary truncate block"
+                title={patient.email}
               >
                 {patient.email}
               </a>
-            </div>
-          )}
+            ) : (
+              <p className="font-heading text-sm font-bold text-muted-foreground">
+                Not provided
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
 
-          {patient.address && (
-            <div className="flex items-start gap-2">
-              <MapPin className="size-3.5 text-muted-foreground shrink-0 mt-0.5" />
-              <span className="text-muted-foreground">{patient.address}</span>
-            </div>
-          )}
+      {/* Address Row */}
+      <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-3.5 shadow-2xs">
+        <div className="flex size-9 items-center justify-center rounded-xl bg-muted/40 text-muted-foreground shrink-0">
+          <MapPin className="size-4" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold text-muted-foreground">
+            Address
+          </p>
+          <p className="font-heading text-sm font-bold text-foreground truncate">
+            {patient.address || "No residential address provided"}
+          </p>
+        </div>
+      </div>
+
+      {/* Bottom 3-Metric Summary Strip */}
+      <div className="grid grid-cols-3 gap-3 rounded-2xl border border-emerald-200/60 bg-emerald-50/30 dark:bg-emerald-950/20 dark:border-emerald-900/40 p-4">
+        {/* Metric 1: Allergies */}
+        <div className="flex items-center gap-2.5">
+          <div className="flex size-8 items-center justify-center rounded-xl bg-emerald-100/60 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 shrink-0">
+            <ShieldCheck className="size-4" />
+          </div>
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              No. of Allergies
+            </p>
+            <p className="font-heading text-base font-extrabold text-foreground leading-tight">
+              {allergiesCount}
+            </p>
+          </div>
         </div>
 
-        {(patient.emergency_contact_name || patient.emergency_contact_phone) && (
-          <div className="border-t border-border/50 pt-2.5">
-            <p className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              <Shield className="size-3 text-primary" />
-              <span>Emergency Contact</span>
-            </p>
-            <div className="mt-1 flex items-center justify-between text-xs">
-              <span className="font-medium text-foreground">
-                {patient.emergency_contact_name || "Contact"}
-              </span>
-              {patient.emergency_contact_phone && (
-                <a
-                  href={`tel:${patient.emergency_contact_phone}`}
-                  className="text-muted-foreground hover:text-primary hover:underline"
-                >
-                  {patient.emergency_contact_phone}
-                </a>
-              )}
-            </div>
+        {/* Metric 2: Current Medications */}
+        <div className="flex items-center gap-2.5">
+          <div className="flex size-8 items-center justify-center rounded-xl bg-blue-100/60 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 shrink-0">
+            <Pill className="size-4" />
           </div>
-        )}
-      </CardContent>
-    </Card>
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Current Medications
+            </p>
+            <p className="font-heading text-base font-extrabold text-foreground leading-tight">
+              {medsCount}
+            </p>
+          </div>
+        </div>
+
+        {/* Metric 3: Chronic Conditions */}
+        <div className="flex items-center gap-2.5">
+          <div className="flex size-8 items-center justify-center rounded-xl bg-emerald-100/60 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 shrink-0">
+            <Activity className="size-4" />
+          </div>
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Chronic Conditions
+            </p>
+            <p className="font-heading text-base font-extrabold text-foreground leading-tight">
+              {conditionsCount}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -95,10 +95,10 @@ export function ConsultationActionButton({
       onClick={handleClick}
       disabled={isPending}
       className={cn(
-        "gap-1.5 font-medium transition-all",
-        isConfirmed && !variant && "bg-primary text-primary-foreground hover:bg-primary/90",
-        isCheckedIn && !variant && "bg-violet-600 text-white hover:bg-violet-700 dark:bg-violet-700 dark:hover:bg-violet-800",
-        isCompleted && !variant && "border-border/80 text-foreground hover:bg-muted",
+        "gap-1.5 font-medium transition-all rounded-xl",
+        isConfirmed && !variant && "bg-[#0B3B36] text-white hover:bg-[#0B3B36]/90 shadow-2xs font-semibold",
+        isCheckedIn && !variant && "bg-purple-50 text-purple-700 border border-purple-300 hover:bg-purple-100 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800 shadow-2xs font-semibold",
+        isCompleted && !variant && "border-border/80 text-foreground hover:bg-muted font-semibold",
         className,
       )}
     >

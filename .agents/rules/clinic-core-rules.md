@@ -39,7 +39,8 @@ These rules are mandatory for all work in this repository.
 - Patient sees only their own records.
 - Backend/RLS must enforce access; hidden buttons are not security.
 
-## Verification
+## Verification & Result Documentation
 - After meaningful UI changes, use Antigravity's built-in browser sub-agent to run the actual flow.
 - Verify console errors, failed network requests, loading states and responsive layout.
 - Never declare the task complete only because code compiles.
+- **MANDATORY**: Always write the comprehensive technical report, root-cause diagnosis, code/schema diffs, and verification summary directly into `result.md` at the end of every task/problem automatically.
