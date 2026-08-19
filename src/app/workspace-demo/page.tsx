@@ -35,7 +35,7 @@ export default function WorkspaceDemoPage() {
           {[
             { label: "My appointments", value: "12", note: "4 completed · 1 checked in", icon: CalendarCheck2, tone: "bg-primary-soft text-primary" },
             { label: "Active patients", value: "1,248", note: "+34 this month", icon: Users, tone: "bg-blue-500/10 text-blue-700 dark:text-blue-300" },
-            { label: "Outstanding balance", value: "৳82,450", note: "8 open invoices", icon: WalletCards, tone: "bg-warning/10 text-warning" },
+            { label: "Outstanding balance", value: "€82,450", note: "8 open invoices", icon: WalletCards, tone: "bg-warning/10 text-warning" },
             { label: "Care completed", value: "86%", note: "Today’s visit progress", icon: CheckCircle2, tone: "bg-success/10 text-success" },
           ].map((metric) => <article key={metric.label} className="rounded-2xl border border-border bg-surface p-5"><span className={`flex size-10 items-center justify-center rounded-xl ${metric.tone}`}><metric.icon className="size-[18px]" /></span><p className="mt-5 text-xs font-semibold text-muted-foreground">{metric.label}</p><p className="mt-1 font-heading text-[28px] font-extrabold tracking-[-0.035em]">{metric.value}</p><p className="mt-2 text-[11px] text-muted-foreground">{metric.note}</p></article>)}
         </section>

@@ -61,7 +61,7 @@ export default async function PortalOdontogramPage() {
                 <div key={entry.id} className="grid gap-3 rounded-2xl border border-border p-4 sm:grid-cols-[64px_1fr_auto] sm:items-center">
                   <span className="flex size-12 items-center justify-center rounded-xl bg-background-subtle font-bold text-primary">{entry.tooth_number}</span>
                   <div><div className="flex flex-wrap items-center gap-2"><p className="font-semibold">{entry.recommended_treatment || entry.condition_code || "Clinical review"}</p>{entry.treatment_priority && <Badge variant="outline" className={cn("capitalize", PRIORITY_STYLE[entry.treatment_priority])}>{entry.treatment_priority}</Badge>}</div><p className="mt-1 text-xs text-text-muted">{entry.condition_code || entry.status.replace("_", " ")}{entry.planned_date ? ` · Planned ${new Date(entry.planned_date).toLocaleDateString()}` : ""}</p></div>
-                  <p className="font-semibold">{entry.estimated_fee ? `৳${Number(entry.estimated_fee).toLocaleString()}` : "—"}</p>
+                  <p className="font-semibold">{entry.estimated_fee ? `€${Number(entry.estimated_fee).toLocaleString()}` : "—"}</p>
                 </div>
               ))}
             </div>
@@ -72,9 +72,9 @@ export default async function PortalOdontogramPage() {
 
         <div className="space-y-5">
           <article className="rounded-3xl border border-border bg-surface p-5 shadow-sm">
-            <div className="flex items-center gap-3"><WalletCards className="size-5 text-primary" /><h2 className="font-heading text-lg font-bold">Estimated care value</h2></div>
-            <p className="mt-5 text-3xl font-bold">৳{estimatedTotal.toLocaleString()}</p>
-            <p className="mt-2 text-xs leading-5 text-text-muted">Indicative fees recorded against planned items. Your issued invoice is the final billing record.</p>
+            <div className="flex items-center gap-3"><WalletCards className="size-5 text-primary" /><h2 className="font-heading text-lg font-bold">Service fee total</h2></div>
+            <p className="mt-5 text-3xl font-bold">€{estimatedTotal.toLocaleString()}</p>
+            <p className="mt-2 text-xs leading-5 text-text-muted">Service fees recorded against planned items. Your issued invoice is the final billing record.</p>
           </article>
           <article className="rounded-3xl border border-border bg-surface p-5 shadow-sm">
             <div className="flex items-center gap-3"><CalendarDays className="size-5 text-primary" /><h2 className="font-heading text-lg font-bold">Chart recency</h2></div>

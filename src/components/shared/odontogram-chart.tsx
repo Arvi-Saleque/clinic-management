@@ -633,14 +633,14 @@ export function OdontogramChart({
                 </div>
               </div>
 
-              {/* Field 4: Estimated fee (BDT) */}
+              {/* Field 4: Service fee (EUR) */}
               <div className="space-y-1">
                 <Label className="text-[11px] font-semibold text-muted-foreground">
-                  Estimated fee (BDT)
+                  Service fee (€)
                 </Label>
                 <div className="relative">
                   <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                    ৳
+                    €
                   </span>
                   <Input
                     type="number"

@@ -485,7 +485,7 @@ export function BookingWizard({
                       </span>
                       <span>&bull;</span>
                       <span className="font-heading font-bold text-foreground">
-                        ৳{s.price.toLocaleString()}
+                        €{s.price.toLocaleString()}
                       </span>
                     </div>
 
@@ -523,7 +523,7 @@ export function BookingWizard({
 
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-semibold text-text-muted">
-                    {service.duration_minutes} mins &middot; ৳{service.price.toLocaleString()}
+                    {service.duration_minutes} mins &middot; €{service.price.toLocaleString()}
                   </span>
                   <Button variant="outline" size="sm" onClick={() => setStep("service")} className="rounded-xl text-xs">
                     Change
@@ -591,7 +591,7 @@ export function BookingWizard({
                         </span>
                         <span>&bull;</span>
                         <span className="font-heading font-bold text-foreground">
-                          ৳{p.effective_price.toLocaleString()}
+                          €{p.effective_price.toLocaleString()}
                         </span>
                       </div>
 
@@ -620,7 +620,7 @@ export function BookingWizard({
                     {service.name} with <strong className="text-primary">{practitioner.doctor_name}</strong>
                   </p>
                   <p className="text-xs text-text-muted">
-                    {practitioner.title || "Dental Specialist"} &middot; {practitioner.effective_duration_minutes} min &middot; ৳{practitioner.effective_price.toLocaleString()}
+                    {practitioner.title || "Dental Specialist"} &middot; {practitioner.effective_duration_minutes} min &middot; €{practitioner.effective_price.toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -917,7 +917,7 @@ export function BookingWizard({
                               <div>
                                 <p className="font-bold text-sm text-foreground">{doc.doctor_name}</p>
                                 <p className="text-xs text-text-muted">
-                                  {doc.title || "Dental Specialist"} &middot; {doc.effective_duration_minutes} min &middot; ৳{doc.effective_price.toLocaleString()}
+                                  {doc.title || "Dental Specialist"} &middot; {doc.effective_duration_minutes} min &middot; €{doc.effective_price.toLocaleString()}
                                 </p>
                               </div>
                             </div>
@@ -1001,9 +1001,9 @@ export function BookingWizard({
               </div>
 
               <div className="flex flex-wrap items-center justify-between border-t border-border/80 pt-5 text-sm gap-2">
-                <span className="font-semibold text-text-secondary">Estimated Service / Consultation Fee:</span>
+                <span className="font-semibold text-text-secondary">Service fee:</span>
                 <span className="font-heading text-2xl font-extrabold text-foreground">
-                  ৳{practitioner.effective_price.toLocaleString()}
+                  €{practitioner.effective_price.toLocaleString()}
                 </span>
               </div>
             </div>

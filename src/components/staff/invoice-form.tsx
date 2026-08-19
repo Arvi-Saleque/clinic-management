@@ -172,7 +172,7 @@ export function InvoiceForm({ initialPatient = null }: { initialPatient?: Patien
 
       <div className="ml-auto max-w-sm rounded-2xl border border-primary/12 bg-primary-soft/40 p-4">
         <div className="mb-3 flex items-center gap-2 text-xs font-extrabold text-primary"><Calculator className="size-4" />Invoice summary</div>
-        <div className="space-y-2 text-xs"><div className="flex justify-between text-muted-foreground"><span>Subtotal</span><span>৳{subtotal.toLocaleString()}</span></div><div className="flex justify-between text-muted-foreground"><span>Discount</span><span>-৳{discount.toLocaleString()}</span></div><div className="flex justify-between text-muted-foreground"><span>Tax</span><span>৳{tax.toLocaleString()}</span></div><div className="mt-2 flex justify-between border-t border-primary/15 pt-3 font-heading text-base font-extrabold"><span>Total</span><span>৳{total.toLocaleString()}</span></div></div>
+        <div className="space-y-2 text-xs"><div className="flex justify-between text-muted-foreground"><span>Subtotal</span><span>€{subtotal.toLocaleString()}</span></div><div className="flex justify-between text-muted-foreground"><span>Discount</span><span>-€{discount.toLocaleString()}</span></div><div className="flex justify-between text-muted-foreground"><span>Tax</span><span>€{tax.toLocaleString()}</span></div><div className="mt-2 flex justify-between border-t border-primary/15 pt-3 font-heading text-base font-extrabold"><span>Total</span><span>€{total.toLocaleString()}</span></div></div>
       </div>
 
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}

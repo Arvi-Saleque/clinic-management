@@ -4,11 +4,18 @@ import * as React from "react";
 import { format } from "date-fns";
 import {
   AlertTriangle,
+  ArrowRight,
   CalendarClock,
+  CalendarX,
+  Check,
+  ChevronLeft,
   Clock3,
   FileText,
+  Loader2,
   Pill,
   RefreshCw,
+  ShieldAlert,
+  ShieldCheck,
   Stethoscope,
   XCircle,
 } from "lucide-react";
@@ -69,21 +76,43 @@ const STATUS_STYLE: Record<string, string> = {
   no_show: "border-destructive/20 bg-destructive/10 text-destructive",
 };
 
+const CANCEL_REASONS = [
+  "Schedule conflict",
+  "Feeling better / Symptoms resolved",
+  "Need a different practitioner",
+  "Travelling or personal reason",
+  "Other",
+];
+
 export function AppointmentCard(props: AppointmentCardProps) {
   const [cancelling, setCancelling] = React.useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false);
+  const [cancelStep, setCancelStep] = React.useState<1 | 2>(1);
+  const [cancelReason, setCancelReason] = React.useState<string>("");
+  const [confirmedIrreversible, setConfirmedIrreversible] = React.useState(false);
   const [prescriptionDialogOpen, setPrescriptionDialogOpen] = React.useState(false);
 
   const canChange = ["pending", "confirmed"].includes(props.status) && new Date(props.starts_at) > new Date();
   const hasPrescription = Boolean(props.prescription && props.prescription.prescription_items?.length);
 
+  // Reset dialog state when opening/closing
+  function handleOpenCancelDialog(open: boolean) {
+    setCancelDialogOpen(open);
+    if (open) {
+      setCancelStep(1);
+      setCancelReason("");
+      setConfirmedIrreversible(false);
+    }
+  }
+
   async function handleCancel() {
     setCancelling(true);
-    const { error } = await cancelOwnAppointmentAction(props.id, "Cancelled by patient");
+    const { error } = await cancelOwnAppointmentAction(props.id, cancelReason || "Cancelled by patient");
     setCancelling(false);
-    if (error) toast.error(error);
-    else {
-      toast.success("Appointment cancelled");
+    if (error) {
+      toast.error(error);
+    } else {
+      toast.success("Appointment successfully cancelled.");
       setCancelDialogOpen(false);
     }
   }
@@ -137,15 +166,15 @@ export function AppointmentCard(props: AppointmentCardProps) {
               )}
             </div>
             <div className="text-left sm:text-right">
-              <p className="text-xs text-text-muted">Estimated fee</p>
-              <p className="mt-1 text-lg font-bold">৳{Number(props.price).toLocaleString()}</p>
+              <p className="text-xs text-text-muted">Service fee</p>
+              <p className="mt-1 text-lg font-bold">€{Number(props.price).toLocaleString()}</p>
             </div>
           </div>
 
           {/* Action Row */}
           {(canChange || hasPrescription) && (
             <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border pt-4">
-              {/* View Prescription Button for Previous / Completed Visits */}
+              {/* View Prescription Button */}
               {hasPrescription && props.prescription && (
                 <Dialog open={prescriptionDialogOpen} onOpenChange={setPrescriptionDialogOpen}>
                   <DialogTrigger
@@ -216,27 +245,193 @@ export function AppointmentCard(props: AppointmentCardProps) {
 
               {canChange && (
                 <>
-                  <ButtonLink href={`/portal/appointments/book?reschedule=${props.id}`} variant="outline" className="gap-2">
-                    <RefreshCw className="size-4" /> Reschedule
+                  {/* Reschedule Button */}
+                  <ButtonLink
+                    href={`/portal/appointments/book?reschedule=${props.id}`}
+                    variant="outline"
+                    className="gap-2 rounded-xl text-xs font-semibold hover:border-primary hover:bg-primary-soft/40"
+                  >
+                    <RefreshCw className="size-3.5" /> Reschedule Visit
                   </ButtonLink>
-                  <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-                    <DialogTrigger render={<Button variant="ghost" className="gap-2 text-destructive" />}>
-                      <XCircle className="size-4" /> Cancel appointment
+
+                  {/* Cancel Appointment Button & DOUBLE-CONFIRMATION MODAL */}
+                  <Dialog open={cancelDialogOpen} onOpenChange={handleOpenCancelDialog}>
+                    <DialogTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          className="gap-1.5 rounded-xl text-xs text-destructive hover:bg-destructive/10"
+                        />
+                      }
+                    >
+                      <XCircle className="size-3.5" /> Cancel Visit
                     </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Cancel this appointment?</DialogTitle>
-                        <DialogDescription>
-                          {format(date, "EEEE, d MMMM 'at' HH:mm")} · {props.serviceName}. This action cannot be undone from the
-                          portal.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <DialogFooter>
-                        <DialogClose render={<Button variant="outline" />}>Keep appointment</DialogClose>
-                        <Button variant="destructive" disabled={cancelling} onClick={handleCancel}>
-                          {cancelling ? "Cancelling..." : "Yes, cancel"}
-                        </Button>
-                      </DialogFooter>
+                    <DialogContent className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface p-6 sm:p-8 max-w-lg shadow-2xl">
+                      {/* Ambient Warning Glow */}
+                      <div className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-destructive/10 blur-3xl" />
+
+                      {/* ── STEP 1: INITIAL CANCEL WARNING & REASON ── */}
+                      {cancelStep === 1 && (
+                        <div className="space-y-5">
+                          <div className="text-center space-y-2">
+                            <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-400 shadow-sm">
+                              <AlertTriangle className="size-8 stroke-[2.25]" />
+                            </div>
+                            <DialogTitle className="font-heading text-xl sm:text-2xl font-extrabold text-foreground">
+                              Cancel This Appointment?
+                            </DialogTitle>
+                            <DialogDescription className="text-xs text-text-secondary max-w-sm mx-auto">
+                              Please review your appointment details before continuing.
+                            </DialogDescription>
+                          </div>
+
+                          {/* Appointment Summary Box */}
+                          <div className="rounded-2xl border border-border/80 bg-background-subtle p-4 space-y-2 text-xs">
+                            <div className="flex items-center justify-between font-bold text-foreground text-sm border-b border-border/60 pb-2">
+                              <span>{props.serviceName}</span>
+                              <span className="text-primary font-semibold">€{Number(props.price).toLocaleString()}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-text-muted">
+                              <CalendarClock className="size-3.5 text-primary" />
+                              <span>{format(date, "EEEE, MMMM d, yyyy")} &middot; {format(date, "HH:mm")}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-text-muted">
+                              <Stethoscope className="size-3.5 text-primary" />
+                              <span>Doctor: {props.practitionerName}</span>
+                            </div>
+                          </div>
+
+                          {/* Alternative: Reschedule Banner */}
+                          <div className="flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary-soft/40 p-3.5 text-xs">
+                            <div>
+                              <p className="font-bold text-foreground">Need a different time instead?</p>
+                              <p className="text-[11px] text-text-muted">Reschedule in seconds without losing your booking.</p>
+                            </div>
+                            <ButtonLink
+                              href={`/portal/appointments/book?reschedule=${props.id}`}
+                              size="sm"
+                              className="rounded-xl text-xs font-semibold bg-primary hover:bg-primary-hover shrink-0"
+                            >
+                              Reschedule
+                            </ButtonLink>
+                          </div>
+
+                          {/* Reason Selector */}
+                          <div className="space-y-2">
+                            <label className="text-xs font-semibold text-text-secondary block">
+                              Reason for cancellation (optional):
+                            </label>
+                            <div className="flex flex-wrap gap-1.5">
+                              {CANCEL_REASONS.map((r) => (
+                                <button
+                                  key={r}
+                                  type="button"
+                                  onClick={() => setCancelReason(r)}
+                                  className={cn(
+                                    "rounded-xl px-2.5 py-1 text-[11px] font-medium border transition-all",
+                                    cancelReason === r
+                                      ? "border-destructive bg-destructive/15 text-destructive font-semibold shadow-xs"
+                                      : "border-border bg-surface text-text-muted hover:border-destructive/40",
+                                  )}
+                                >
+                                  {r}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-2 pt-2 border-t border-border/60">
+                            <DialogClose
+                              render={
+                                <Button
+                                  variant="outline"
+                                  className="w-full sm:w-auto rounded-xl text-xs font-semibold"
+                                />
+                              }
+                            >
+                              Keep Appointment
+                            </DialogClose>
+                            <Button
+                              variant="destructive"
+                              className="w-full sm:w-auto rounded-xl text-xs font-bold gap-1.5"
+                              onClick={() => setCancelStep(2)}
+                            >
+                              Proceed to Cancel <ArrowRight className="size-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── STEP 2: DOUBLE CONFIRMATION (FINAL STEP) ── */}
+                      {cancelStep === 2 && (
+                        <div className="space-y-5">
+                          <div className="text-center space-y-2">
+                            <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/15 text-destructive shadow-lg shadow-destructive/15 animate-pulse">
+                              <ShieldAlert className="size-8 stroke-[2.25]" />
+                            </div>
+                            <DialogTitle className="font-heading text-xl sm:text-2xl font-extrabold text-destructive">
+                              Double Confirmation Required
+                            </DialogTitle>
+                            <DialogDescription className="text-xs text-text-secondary max-w-sm mx-auto">
+                              This cancellation is permanent and cannot be undone.
+                            </DialogDescription>
+                          </div>
+
+                          {/* High-Alert Warning Box */}
+                          <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-xs text-destructive leading-relaxed space-y-1.5">
+                            <p className="font-bold flex items-center gap-1.5">
+                              <XCircle className="size-4" /> Final Cancellation Notice
+                            </p>
+                            <p className="text-text-secondary text-[11px]">
+                              Your appointment on <strong className="text-foreground">{format(date, "EEEE, MMMM d")} at {format(date, "HH:mm")}</strong> for <strong className="text-foreground">{props.serviceName}</strong> will be permanently cancelled and the time slot will be made immediately available to other patients.
+                            </p>
+                          </div>
+
+                          {/* Double-Confirmation Toggle Checkbox */}
+                          <label className="flex items-start gap-3 rounded-2xl border border-border/80 bg-background-subtle p-3.5 cursor-pointer hover:bg-background-subtle/80 transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={confirmedIrreversible}
+                              onChange={(e) => setConfirmedIrreversible(e.target.checked)}
+                              className="mt-0.5 size-4 rounded text-destructive accent-destructive cursor-pointer"
+                            />
+                            <span className="text-xs font-semibold text-foreground select-none leading-snug">
+                              I understand that this action is irreversible and permanently cancels my visit.
+                            </span>
+                          </label>
+
+                          {/* Actions */}
+                          <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-2 pt-2 border-t border-border/60">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={cancelling}
+                              onClick={() => setCancelStep(1)}
+                              className="w-full sm:w-auto rounded-xl text-xs font-semibold gap-1"
+                            >
+                              <ChevronLeft className="size-3.5" /> Back
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              disabled={!confirmedIrreversible || cancelling}
+                              onClick={handleCancel}
+                              className="w-full sm:w-auto rounded-xl text-xs font-bold gap-1.5 bg-destructive hover:bg-destructive/90 shadow-md shadow-destructive/20 disabled:opacity-50"
+                            >
+                              {cancelling ? (
+                                <>
+                                  <Loader2 className="size-3.5 animate-spin" /> Cancelling...
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle className="size-3.5" /> Confirm Permanent Cancellation
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </DialogContent>
                   </Dialog>
                 </>
