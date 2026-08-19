@@ -59,7 +59,6 @@ export function AvailabilityPlanner({
           dayOfWeek: dow,
           enabled: true,
           intervals: matchingRules.map((r) => ({
-            id: r.id,
             startTime: r.start_time.slice(0, 5),
             endTime: r.end_time.slice(0, 5),
           })),
@@ -68,7 +67,7 @@ export function AvailabilityPlanner({
         map[dow] = {
           dayOfWeek: dow,
           enabled: false,
-          intervals: [{ startTime: "09:00", endTime: "17:00" }],
+          intervals: [],
         };
       }
     }

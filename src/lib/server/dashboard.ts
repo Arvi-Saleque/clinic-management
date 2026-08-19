@@ -125,7 +125,6 @@ export async function getDashboardStats() {
     .select("starts_at, status")
     .gte("starts_at", rangeStart.toISOString())
     .lt("starts_at", rangeEnd.toISOString());
-
   if (profile?.organization_id) {
     todayQuery = todayQuery.eq("organization_id", profile.organization_id);
     weekQuery = weekQuery.eq("organization_id", profile.organization_id);
