@@ -8,6 +8,7 @@ import {
   CalendarClock,
   Check,
   CheckCircle2,
+  ChevronDown,
   ClipboardList,
   Eye,
   FileCheck,
@@ -22,7 +23,6 @@ import {
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -67,6 +67,18 @@ export function EncounterDraftForm({
   const [isPendingSave, startSaveTransition] = useTransition();
   const [isCompleting, setIsCompleting] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    chiefComplaint: true,
+    diagnosis: false,
+    treatment: false,
+    patientNotes: false,
+    privateNotes: false,
+    followUp: false,
+  });
+
+  const setSectionOpen = (section: string, open: boolean) => {
+    setOpenSections((current) => ({ ...current, [section]: open }));
+  };
 
   // Initial form snapshot from server-loaded context
   const initialSnapshot: DraftSnapshot = {
@@ -288,145 +300,145 @@ export function EncounterDraftForm({
     : null;
 
   return (
-    <div className="space-y-5">
-      {/* Consultation Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/80 bg-card p-3.5 shadow-sm">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-surface px-4 py-3 shadow-[0_12px_34px_-30px_rgba(4,34,31,0.45)]">
         <div className="flex items-center gap-2.5">
-          <ClipboardList className="size-5 text-primary" />
+          <span className="flex size-8 items-center justify-center rounded-xl bg-primary-soft text-primary">
+            <ClipboardList className="size-4" />
+          </span>
           <div>
-            <h2 className="font-heading text-base font-semibold text-foreground">
-              Clinical Documentation
-            </h2>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <h2 className="text-sm font-bold text-foreground">Clinical Documentation</h2>
+            <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
               {isCompleting ? (
-                <span className="flex items-center gap-1 text-primary font-medium">
-                  <Loader2 className="size-3 animate-spin" />
+                <>
+                  <Loader2 className="size-3 animate-spin text-primary" />
                   Finalizing consultation...
-                </span>
+                </>
               ) : isPendingSave ? (
-                <span className="flex items-center gap-1 text-primary">
-                  <Loader2 className="size-3 animate-spin" />
+                <>
+                  <Loader2 className="size-3 animate-spin text-primary" />
                   Saving draft...
-                </span>
+                </>
               ) : isDirty ? (
-                <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                  <AlertCircle className="size-3" />
+                <>
+                  <AlertCircle className="size-3 text-amber-600" />
                   Unsaved changes
-                </span>
+                </>
               ) : (
-                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                  <CheckCircle2 className="size-3" />
+                <>
+                  <CheckCircle2 className="size-3 text-emerald-600" />
                   {formattedSavedAt ? `Saved at ${formattedSavedAt}` : "All changes saved"}
-                </span>
+                </>
               )}
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          {/* Save Draft Action */}
+        <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="outline"
             onClick={handleSaveDraft}
             disabled={!isDirty || isBusy}
             size="sm"
-            className="gap-1.5"
+            className="gap-1.5 rounded-xl"
           >
             {isPendingSave ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
-                <span>Saving...</span>
+                Saving...
               </>
             ) : !isDirty ? (
               <>
                 <Check className="size-3.5" />
-                <span>Saved</span>
+                Saved
               </>
             ) : (
               <>
                 <Save className="size-3.5" />
-                <span>Save Draft</span>
+                Save Draft
               </>
             )}
           </Button>
-
-          {/* Complete Consultation Action */}
           <Button
             type="button"
             onClick={handleOpenCompleteDialog}
             disabled={isBusy}
             size="sm"
-            className="gap-1.5 bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 font-medium"
+            className="gap-1.5 rounded-xl bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
           >
             {isCompleting ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
-                <span>Completing...</span>
+                Completing...
               </>
             ) : (
               <>
                 <CheckCircle2 className="size-3.5" />
-                <span>Complete Consultation</span>
+                Complete Consultation
               </>
             )}
           </Button>
         </div>
       </div>
 
-      {/* Clinical Notes Inputs */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        {/* Chief Complaint */}
-        <Card className="border-border/80 shadow-sm">
-          <CardHeader className="pb-2.5">
-            <div className="flex items-center justify-between">
-              <Label
-                htmlFor="chief-complaint"
-                className="flex items-center gap-2 text-sm font-semibold text-foreground cursor-pointer"
-              >
-                <FileHeart className="size-4 text-primary" />
-                <span>Chief Complaint</span>
-              </Label>
-              <span className="text-[11px] text-muted-foreground">
-                {chiefComplaint.length}/1000
+      <div className="overflow-hidden rounded-2xl border border-border/70 bg-surface shadow-[0_12px_34px_-30px_rgba(4,34,31,0.45)]">
+        <details
+          open={openSections.chiefComplaint || !!fieldErrors.chiefComplaint}
+          onToggle={(event) => setSectionOpen("chiefComplaint", event.currentTarget.open)}
+          className="group border-b border-border/60 last:border-b-0"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 marker:hidden sm:px-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft/70 text-primary">
+                <FileHeart className="size-4" />
               </span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">Chief Complaint</p>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">Presenting symptoms or primary dental concern</p>
+              </div>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-1.5">
+            <div className="flex items-center gap-3">
+              <span className="hidden text-[11px] text-muted-foreground sm:inline">{chiefComplaint.length}/1000</span>
+              <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+            </div>
+          </summary>
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
             <Textarea
               id="chief-complaint"
               value={chiefComplaint}
               disabled={isBusy}
               onChange={(e) => setChiefComplaint(e.target.value)}
               placeholder="Document the patient's presenting symptoms or primary dental concern..."
-              rows={3}
-              className="resize-y"
+              rows={4}
+              className="resize-y rounded-xl bg-background"
               aria-invalid={!!fieldErrors.chiefComplaint}
             />
-            {fieldErrors.chiefComplaint && (
-              <p className="text-xs text-destructive">{fieldErrors.chiefComplaint}</p>
-            )}
-          </CardContent>
-        </Card>
+            {fieldErrors.chiefComplaint && <p className="mt-1.5 text-xs text-destructive">{fieldErrors.chiefComplaint}</p>}
+          </div>
+        </details>
 
-        {/* Clinical Diagnosis */}
-        <Card className="border-border/80 shadow-sm">
-          <CardHeader className="pb-2.5">
-            <div className="flex items-center justify-between">
-              <Label
-                htmlFor="diagnosis"
-                className="flex items-center gap-2 text-sm font-semibold text-foreground cursor-pointer"
-              >
-                <FileText className="size-4 text-primary" />
-                <span>Clinical Diagnosis</span>
-                <span className="text-destructive">*</span>
-              </Label>
-              <span className="text-[11px] text-muted-foreground">
-                {diagnosis.length}/1000
+        <details
+          open={openSections.diagnosis || !!fieldErrors.diagnosis}
+          onToggle={(event) => setSectionOpen("diagnosis", event.currentTarget.open)}
+          className="group border-b border-border/60 last:border-b-0"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 marker:hidden sm:px-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft/70 text-primary">
+                <FileText className="size-4" />
               </span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-foreground">Clinical Diagnosis</p>
+                  <Badge variant="outline" className="border-primary/15 bg-primary-soft/50 text-[10px] font-medium text-primary">Required</Badge>
+                </div>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">Assessment, findings and relevant pathology</p>
+              </div>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-1.5">
+            <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
             <Textarea
               id="diagnosis"
               value={diagnosis}
@@ -441,145 +453,150 @@ export function EncounterDraftForm({
                   });
                 }
               }}
-              placeholder="Enter diagnostic assessment, clinical findings, pathology (Required for completion)..."
-              rows={3}
-              className="resize-y"
+              placeholder="Enter diagnostic assessment, clinical findings, pathology..."
+              rows={4}
+              className="resize-y rounded-xl bg-background"
               aria-invalid={!!fieldErrors.diagnosis}
             />
-            {fieldErrors.diagnosis && (
-              <p className="text-xs text-destructive">{fieldErrors.diagnosis}</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Performed Treatment */}
-      <Card className="border-border/80 shadow-sm">
-        <CardHeader className="pb-2.5">
-          <div className="flex items-center justify-between">
-            <Label
-              htmlFor="performed-treatment"
-              className="flex items-center gap-2 text-sm font-semibold text-foreground cursor-pointer"
-            >
-              <FileCheck className="size-4 text-primary" />
-              <span>Performed Treatment & Procedures</span>
-              <span className="text-destructive">*</span>
-            </Label>
-            <span className="text-[11px] text-muted-foreground">
-              {performedTreatment.length}/1000
-            </span>
+            {fieldErrors.diagnosis && <p className="mt-1.5 text-xs text-destructive">{fieldErrors.diagnosis}</p>}
           </div>
-        </CardHeader>
-        <CardContent className="space-y-1.5">
-          <Textarea
-            id="performed-treatment"
-            value={performedTreatment}
-            disabled={isBusy}
-            onChange={(e) => {
-              setPerformedTreatment(e.target.value);
-              if (fieldErrors.performedTreatment) {
-                setFieldErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.performedTreatment;
-                  return next;
-                });
-              }
-            }}
-            placeholder="Document all procedures performed, tooth numbers treated, materials, anesthesia, techniques used (Required for completion)..."
-            rows={4}
-            className="resize-y"
-            aria-invalid={!!fieldErrors.performedTreatment}
-          />
-          {fieldErrors.performedTreatment && (
-            <p className="text-xs text-destructive">{fieldErrors.performedTreatment}</p>
-          )}
-        </CardContent>
-      </Card>
+        </details>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {/* Patient-Facing Advice / Notes */}
-        <Card className="border-border/80 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2.5">
-            <Label
-              htmlFor="patient-notes"
-              className="flex items-center gap-2 text-sm font-semibold text-foreground cursor-pointer"
-            >
-              <MessageSquare className="size-4 text-primary" />
-              <span>Patient Advice & Instructions</span>
-            </Label>
-            <Badge
-              variant="outline"
-              className="border-emerald-500/30 bg-emerald-500/10 text-[10px] text-emerald-700 dark:text-emerald-300 font-normal"
-            >
-              <Eye className="mr-1 size-3" />
-              Visible to patient
-            </Badge>
-          </CardHeader>
-          <CardContent className="space-y-1.5">
+        <details
+          open={openSections.treatment || !!fieldErrors.performedTreatment}
+          onToggle={(event) => setSectionOpen("treatment", event.currentTarget.open)}
+          className="group border-b border-border/60 last:border-b-0"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 marker:hidden sm:px-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft/70 text-primary">
+                <FileCheck className="size-4" />
+              </span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-foreground">Performed Treatment & Procedures</p>
+                  <Badge variant="outline" className="border-primary/15 bg-primary-soft/50 text-[10px] font-medium text-primary">Required</Badge>
+                </div>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">Procedures, tooth numbers, materials and techniques</p>
+              </div>
+            </div>
+            <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
+            <Textarea
+              id="performed-treatment"
+              value={performedTreatment}
+              disabled={isBusy}
+              onChange={(e) => {
+                setPerformedTreatment(e.target.value);
+                if (fieldErrors.performedTreatment) {
+                  setFieldErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.performedTreatment;
+                    return next;
+                  });
+                }
+              }}
+              placeholder="Document procedures performed, tooth numbers treated, materials, anaesthesia and techniques used..."
+              rows={4}
+              className="resize-y rounded-xl bg-background"
+              aria-invalid={!!fieldErrors.performedTreatment}
+            />
+            {fieldErrors.performedTreatment && <p className="mt-1.5 text-xs text-destructive">{fieldErrors.performedTreatment}</p>}
+          </div>
+        </details>
+
+        <details
+          open={openSections.patientNotes}
+          onToggle={(event) => setSectionOpen("patientNotes", event.currentTarget.open)}
+          className="group border-b border-border/60 last:border-b-0"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 marker:hidden sm:px-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft/70 text-primary">
+                <MessageSquare className="size-4" />
+              </span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-foreground">Patient Advice & Instructions</p>
+                  <Badge variant="outline" className="hidden border-emerald-500/20 bg-emerald-500/8 text-[10px] font-medium text-emerald-700 sm:inline-flex">
+                    <Eye className="mr-1 size-3" /> Patient visible
+                  </Badge>
+                </div>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">Post-operative guidance and care instructions</p>
+              </div>
+            </div>
+            <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
             <Textarea
               id="patient-notes"
               value={patientNotes}
               disabled={isBusy}
               onChange={(e) => setPatientNotes(e.target.value)}
               placeholder="Post-operative care guidelines, home hygiene instructions, recommended OTC remedies..."
-              rows={3}
-              className="resize-y"
+              rows={4}
+              className="resize-y rounded-xl bg-background"
             />
-          </CardContent>
-        </Card>
+          </div>
+        </details>
 
-        {/* Private Clinician Notes */}
-        <Card className="border-slate-300/80 bg-slate-50/50 shadow-sm dark:border-slate-700/60 dark:bg-slate-900/40">
-          <CardHeader className="flex flex-row items-center justify-between pb-2.5">
-            <Label
-              htmlFor="private-notes"
-              className="flex items-center gap-2 text-sm font-semibold text-foreground cursor-pointer"
-            >
-              <Lock className="size-4 text-slate-700 dark:text-slate-300" />
-              <span>Private Clinician Notes</span>
-            </Label>
-            <Badge
-              variant="secondary"
-              className="bg-slate-200/80 text-[10px] font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-200"
-            >
-              Private — not visible to patient
-            </Badge>
-          </CardHeader>
-          <CardContent className="space-y-1.5">
+        <details
+          open={openSections.privateNotes}
+          onToggle={(event) => setSectionOpen("privateNotes", event.currentTarget.open)}
+          className="group border-b border-border/60 last:border-b-0"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 marker:hidden sm:px-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                <Lock className="size-4" />
+              </span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-foreground">Private Clinician Notes</p>
+                  <Badge variant="secondary" className="text-[10px] font-medium">Internal</Badge>
+                </div>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">Internal notes not visible to the patient</p>
+              </div>
+            </div>
+            <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
             <Textarea
               id="private-notes"
               value={privateNotes}
               disabled={isBusy}
               onChange={(e) => setPrivateNotes(e.target.value)}
               placeholder="Internal clinician reflections, differential diagnosis thoughts, staff observations..."
-              rows={3}
-              className="resize-y bg-background/80"
+              rows={4}
+              className="resize-y rounded-xl bg-background"
             />
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </details>
 
-      {/* Follow-up & Recall Section */}
-      <Card className="border-border/80 shadow-sm">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <CalendarClock className="size-4 text-primary" />
-              <CardTitle className="text-sm font-semibold text-foreground">
-                Follow-up & Recall Recommendation
-              </CardTitle>
+        <details
+          open={openSections.followUp || !!fieldErrors.followUpDate || !!fieldErrors.followUpReason}
+          onToggle={(event) => setSectionOpen("followUp", event.currentTarget.open)}
+          className="group last:border-b-0"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 marker:hidden sm:px-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft/70 text-primary">
+                <CalendarClock className="size-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">Follow-up & Recall Recommendation</p>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                  {followUpRecommended ? "Follow-up recommended" : "No follow-up currently recommended"}
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Label
-                htmlFor="follow-up-switch"
-                className="text-xs text-muted-foreground cursor-pointer"
-              >
-                {followUpRecommended ? "Recommended" : "Not recommended"}
-              </Label>
+            <div className="flex items-center gap-3">
               <Switch
                 id="follow-up-switch"
                 checked={followUpRecommended}
                 disabled={isBusy}
+                onClick={(event) => event.stopPropagation()}
                 onCheckedChange={(checked) => {
                   setFollowUpRecommended(checked);
                   if (!checked) {
@@ -588,20 +605,19 @@ export function EncounterDraftForm({
                       delete next.followUpDate;
                       return next;
                     });
+                  } else {
+                    setSectionOpen("followUp", true);
                   }
                 }}
               />
+              <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {followUpRecommended ? (
-            <div className="space-y-3 rounded-lg border border-primary/20 bg-primary/5 p-3.5">
+          </summary>
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
+            {followUpRecommended ? (
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="follow-up-date" className="text-xs font-medium text-foreground">
-                    Target Follow-up Date <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="follow-up-date" className="text-xs font-medium">Target Follow-up Date *</Label>
                   <Input
                     id="follow-up-date"
                     type="date"
@@ -618,48 +634,35 @@ export function EncounterDraftForm({
                       }
                     }}
                     aria-invalid={!!fieldErrors.followUpDate}
-                    className="bg-background"
+                    className="rounded-xl bg-background"
                   />
-                  {fieldErrors.followUpDate && (
-                    <p className="text-xs text-destructive">{fieldErrors.followUpDate}</p>
-                  )}
+                  {fieldErrors.followUpDate && <p className="text-xs text-destructive">{fieldErrors.followUpDate}</p>}
                 </div>
-
                 <div className="space-y-1.5">
-                  <Label htmlFor="follow-up-reason" className="text-xs font-medium text-foreground">
-                    Follow-up Reason / Clinical Objective
-                  </Label>
+                  <Label htmlFor="follow-up-reason" className="text-xs font-medium">Reason / Clinical Objective</Label>
                   <Input
                     id="follow-up-reason"
-                    type="text"
                     value={followUpReason}
                     disabled={isBusy}
                     onChange={(e) => setFollowUpReason(e.target.value)}
-                    placeholder="e.g. Suture removal, crown cementation, 2-week review..."
-                    className="bg-background"
+                    placeholder="e.g. crown cementation or 2-week review"
                     maxLength={500}
+                    className="rounded-xl bg-background"
                   />
-                  {fieldErrors.followUpReason && (
-                    <p className="text-xs text-destructive">{fieldErrors.followUpReason}</p>
-                  )}
+                  {fieldErrors.followUpReason && <p className="text-xs text-destructive">{fieldErrors.followUpReason}</p>}
                 </div>
               </div>
-            </div>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              No follow-up visit is currently recommended for this consultation. Switch on to plan a recall.
-            </p>
-          )}
-        </CardContent>
-      </Card>
+            ) : (
+              <p className="text-xs leading-5 text-muted-foreground">Enable follow-up only when a recall or review visit is clinically recommended.</p>
+            )}
+          </div>
+        </details>
+      </div>
 
-      {/* Confirmation Dialog for Irreversible Consultation Completion */}
       <Dialog
         open={isConfirmDialogOpen}
         onOpenChange={(open) => {
-          if (!isCompleting) {
-            setIsConfirmDialogOpen(open);
-          }
+          if (!isCompleting) setIsConfirmDialogOpen(open);
         }}
       >
         <DialogContent className="sm:max-w-md">
@@ -668,53 +671,37 @@ export function EncounterDraftForm({
               <ShieldCheck className="size-5" />
               <DialogTitle>Complete consultation?</DialogTitle>
             </div>
-            <DialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed pt-1">
+            <DialogDescription className="pt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
               Finalizing this consultation will commit the current clinical documentation and transition the record into an immutable, read-only state.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="rounded-lg border border-border/80 bg-muted/30 p-3 text-xs space-y-2">
+          <div className="space-y-2 rounded-xl border border-border/80 bg-muted/30 p-3 text-xs">
             <div className="flex items-start gap-2">
-              <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
               <span>The linked appointment will be marked <strong>Completed</strong>.</span>
             </div>
             <div className="flex items-start gap-2">
-              <Lock className="size-4 text-primary shrink-0 mt-0.5" />
+              <Lock className="mt-0.5 size-4 shrink-0 text-primary" />
               <span>Clinical notes and treatment records cannot be edited after finalization.</span>
             </div>
             {isDirty && (
               <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400">
-                <AlertCircle className="size-4 shrink-0 mt-0.5" />
+                <AlertCircle className="mt-0.5 size-4 shrink-0" />
                 <span>Your current unsaved changes will be saved directly into the final permanent record.</span>
               </div>
             )}
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsConfirmDialogOpen(false)}
-              disabled={isCompleting}
-            >
+            <Button type="button" variant="outline" onClick={() => setIsConfirmDialogOpen(false)} disabled={isCompleting}>
               Cancel
             </Button>
-            <Button
-              type="button"
-              onClick={handleConfirmComplete}
-              disabled={isCompleting}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
-            >
+            <Button type="button" onClick={handleConfirmComplete} disabled={isCompleting} className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
               {isCompleting ? (
-                <>
-                  <Loader2 className="size-3.5 animate-spin" />
-                  <span>Completing...</span>
-                </>
+                <><Loader2 className="size-3.5 animate-spin" /> Completing...</>
               ) : (
-                <>
-                  <CheckCircle2 className="size-3.5" />
-                  <span>Complete Consultation</span>
-                </>
+                <><CheckCircle2 className="size-3.5" /> Complete Consultation</>
               )}
             </Button>
           </DialogFooter>

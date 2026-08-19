@@ -5,7 +5,6 @@ import { CalendarClock, CalendarDays, CheckCircle2, Clock3, ShieldCheck, UserChe
 import { Card } from "@/components/ui/card";
 import { ComingSoon } from "@/components/shared/coming-soon";
 import { SchedulerToolbar } from "@/components/staff/scheduler-toolbar";
-import { AppointmentList } from "@/components/staff/appointment-list";
 import { NewAppointmentDialog } from "@/components/staff/new-appointment-dialog";
 import { AvailabilityPlanner } from "@/components/staff/availability-planner";
 import { DailyScheduleBoard } from "@/components/staff/daily-schedule-board";
@@ -100,10 +99,6 @@ export default async function StaffSchedulerPage({ searchParams }: { searchParam
         </article>
       </section>
 
-      <section className="rounded-3xl border border-border bg-surface p-5 sm:p-6">
-        <div className="mb-4"><h2 className="font-heading text-lg font-extrabold">Today’s Appointments</h2><p className="mt-1 text-xs text-muted-foreground">Manage appointment status, check-in, consultation and cancellations.</p></div>
-        <AppointmentList appointments={appointments} />
-      </section>
     </div>
   );
 }

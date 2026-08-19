@@ -26,11 +26,9 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/portal/dashboard", label: "Care overview", icon: LayoutDashboard },
-  { href: "/portal/appointments", label: "Appointments", icon: CalendarDays },
+  { href: "/portal/appointments", label: "My visits", icon: CalendarDays },
   { href: "/portal/appointments/book", label: "Book a visit", icon: Plus },
   { href: "/portal/odontogram", label: "My dental care", icon: Smile },
-  { href: "/portal/prescriptions", label: "Prescriptions", icon: FileText },
-  { href: "/portal/invoices", label: "Billing & invoices", icon: Receipt },
   { href: "/portal/profile", label: "Health profile", icon: UserRound },
 ] as const;
 
@@ -188,8 +186,8 @@ export function PortalShell({ profile, patientReference, registered, children }:
             <Menu />
           </Button>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">Personal care portal</p>
-            <p className="truncate text-sm text-text-muted">Secure access to your visits, treatment and billing</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">Personal Care Sanctuary</p>
+            <p className="truncate text-xs text-text-muted sm:text-sm">Calm, gentle & private dental care</p>
           </div>
           <div className="flex items-center gap-2">
             <ButtonLink href="/contact" variant="ghost" className="hidden gap-2 sm:inline-flex">
@@ -205,11 +203,6 @@ export function PortalShell({ profile, patientReference, registered, children }:
         </header>
 
         <main className="mx-auto w-full max-w-[1480px] p-4 sm:p-6 lg:p-8">{children}</main>
-
-        <footer className="mx-auto flex w-full max-w-[1480px] flex-col gap-2 px-4 pb-6 text-xs text-text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <span>Clinic Care · Confidential patient workspace</span>
-          <span>For urgent dental concerns, contact the clinic directly.</span>
-        </footer>
       </div>
     </div>
   );

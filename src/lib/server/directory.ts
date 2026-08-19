@@ -293,7 +293,7 @@ export async function listOwnPrescriptions() {
   const { data } = await supabase
     .from("prescriptions")
     .select(
-      "id, issued_at, status, notes, practitioners:practitioner_id(profiles:profile_id(full_name)), prescription_items(id, medicine_name, dosage, frequency, duration, instructions)",
+      "id, appointment_id, issued_at, status, notes, practitioners:practitioner_id(profiles:profile_id(full_name)), prescription_items(id, medicine_name, dosage, frequency, duration, instructions)",
     )
     .eq("patient_id", patient.id)
     .order("issued_at", { ascending: false });
