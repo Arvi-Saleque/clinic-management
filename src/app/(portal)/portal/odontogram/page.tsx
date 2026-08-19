@@ -1,86 +1,310 @@
 import type { Metadata } from "next";
-import { AlertTriangle, CalendarDays, CheckCircle2, ClipboardList, ShieldCheck, Smile, WalletCards } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarCheck2,
+  CalendarClock,
+  CalendarDays,
+  CheckCircle2,
+  ClipboardList,
+  FileSpreadsheet,
+  Layers,
+  ShieldAlert,
+  ShieldCheck,
+  Smile,
+  Sparkles,
+  Stethoscope,
+  WalletCards,
+} from "lucide-react";
 
 import { OdontogramChart } from "@/components/shared/odontogram-chart";
 import { Badge } from "@/components/ui/badge";
+import { ButtonLink } from "@/components/ui/button";
 import { getOwnOdontogram } from "@/lib/server/odontogram";
 import { getOwnPortalPatient } from "@/lib/server/patient-portal";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "My dental care" };
+export const metadata: Metadata = { title: "My Dental Care" };
 
 const PRIORITY_STYLE: Record<string, string> = {
-  routine: "border-success/20 bg-success/10 text-success",
-  priority: "border-warning/20 bg-warning/10 text-warning",
-  urgent: "border-destructive/20 bg-destructive/10 text-destructive",
+  routine: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold",
+  priority: "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300 font-semibold",
+  urgent: "border-destructive/20 bg-destructive/10 text-destructive font-bold",
 };
 
 export default async function PortalOdontogramPage() {
   const [patient, entries] = await Promise.all([getOwnPortalPatient(), getOwnOdontogram()]);
-  const planned = entries.filter((entry) => entry.recommended_treatment || ["planned", "in_progress"].includes(entry.status));
+  const planned = entries.filter(
+    (entry) => entry.recommended_treatment || ["planned", "in_progress"].includes(entry.status),
+  );
   const urgent = planned.filter((entry) => entry.treatment_priority === "urgent").length;
   const estimatedTotal = planned.reduce((sum, entry) => sum + Number(entry.estimated_fee ?? 0), 0);
 
+  const lastUpdated = entries.length
+    ? new Date(Math.max(...entries.map((entry) => new Date(entry.recorded_at).getTime())))
+    : null;
+
   return (
-    <div className="space-y-7">
-      <section className="relative rounded-[30px] border-b border-border/60 pb-6 bg-transparent">
-        <div className="relative grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
-          <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">
-              Tooth-by-tooth record
+    <div className="space-y-8">
+      {/* ── HEADER & STATS OVERVIEW ── */}
+      <section className="relative rounded-3xl border-b border-border/60 pb-6 bg-transparent">
+        <div className="grid gap-6 lg:grid-cols-[1.2fr_auto] lg:items-end">
+          <div className="space-y-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary-soft/60 px-3.5 py-1 text-xs font-semibold text-primary shadow-xs">
+              <Smile className="size-3.5" /> Tooth-by-tooth record
             </span>
-            <h1 className="mt-3 font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">My dental care</h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-text-secondary">Explore your current dental chart, recorded conditions and recommended next treatments.</p>
+            <h1 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+              My dental care
+            </h1>
+            <p className="max-w-xl text-sm leading-6 text-text-secondary">
+              Explore your current dental chart, recorded conditions and recommended next treatments.
+            </p>
           </div>
-          <div className="grid grid-cols-3 gap-2.5">
-            <div className="rounded-2xl border border-border bg-surface p-4 text-center shadow-xs"><p className="text-2xl font-bold text-foreground">{entries.length}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-text-muted">Charted</p></div>
-            <div className="rounded-2xl border border-border bg-surface p-4 text-center shadow-xs"><p className="text-2xl font-bold text-foreground">{planned.length}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-text-muted">Planned</p></div>
-            <div className="rounded-2xl border border-border bg-surface p-4 text-center shadow-xs"><p className="text-2xl font-bold text-foreground">{urgent}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-text-muted">Urgent</p></div>
+
+          {/* Quick Metrics Overview Strip */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="rounded-2xl border border-border/80 bg-surface p-4 text-center shadow-xs transition-all hover:border-primary/30">
+              <div className="flex items-center justify-center text-primary mb-1">
+                <Layers className="size-4" />
+              </div>
+              <p className="font-heading text-2xl font-extrabold text-foreground">{entries.length}</p>
+              <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">Charted</p>
+            </div>
+
+            <div className="rounded-2xl border border-border/80 bg-surface p-4 text-center shadow-xs transition-all hover:border-primary/30">
+              <div className="flex items-center justify-center text-primary mb-1">
+                <ClipboardList className="size-4" />
+              </div>
+              <p className="font-heading text-2xl font-extrabold text-foreground">{planned.length}</p>
+              <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">Planned</p>
+            </div>
+
+            <div className="rounded-2xl border border-border/80 bg-surface p-4 text-center shadow-xs transition-all hover:border-destructive/30">
+              <div className="flex items-center justify-center text-amber-500 mb-1">
+                <AlertTriangle className="size-4" />
+              </div>
+              <p className={cn("font-heading text-2xl font-extrabold", urgent > 0 ? "text-destructive" : "text-foreground")}>
+                {urgent}
+              </p>
+              <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">Urgent</p>
+            </div>
+
+            <div className="rounded-2xl border border-border/80 bg-surface p-4 text-center shadow-xs transition-all hover:border-primary/30">
+              <div className="flex items-center justify-center text-primary mb-1">
+                <WalletCards className="size-4" />
+              </div>
+              <p className="font-heading text-2xl font-extrabold text-foreground">€{estimatedTotal.toLocaleString()}</p>
+              <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">Service Total</p>
+            </div>
           </div>
         </div>
       </section>
 
+      {/* ── INTERACTIVE 3D ODONTOGRAM CHART ── */}
       {!patient ? (
-        <div className="rounded-3xl border border-dashed border-border bg-surface p-10 text-center"><Smile className="mx-auto size-9 text-text-muted" /><h2 className="mt-4 font-heading text-lg font-bold">Complete registration first</h2><p className="mt-2 text-sm text-text-muted">Your chart becomes available after your patient record is created.</p></div>
+        <div className="rounded-3xl border border-dashed border-border bg-surface p-12 text-center space-y-3">
+          <Smile className="mx-auto size-12 text-text-muted" />
+          <h2 className="font-heading text-xl font-bold text-foreground">Complete registration first</h2>
+          <p className="text-sm text-text-muted max-w-sm mx-auto leading-relaxed">
+            Your anatomical chart becomes fully interactive once your clinical record has been verified.
+          </p>
+        </div>
       ) : (
-        <section className="rounded-3xl border border-border bg-surface p-4 shadow-sm sm:p-6">
-          <div className="mb-5 flex flex-col gap-3 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl bg-primary-soft text-primary"><Smile className="size-5" /></span><div><h2 className="font-heading text-lg font-bold">Interactive dental chart</h2><p className="text-xs text-text-muted">Select a tooth to review its latest clinical record.</p></div></div>
-            <span className="flex items-center gap-2 text-xs text-text-muted"><ShieldCheck className="size-4 text-success" />Clinician-recorded · read only</span>
+        <section className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface p-5 sm:p-7 shadow-sm">
+          {/* Ambient Lighting Background */}
+          <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/5 blur-3xl" />
+          <div className="pointer-events-none absolute -left-24 -bottom-24 size-72 rounded-full bg-emerald-500/5 blur-3xl" />
+
+          <div className="relative mb-6 flex flex-col gap-3 border-b border-border/60 pb-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3.5">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary shadow-xs">
+                <Smile className="size-6" />
+              </div>
+              <div>
+                <h2 className="font-heading text-xl font-bold text-foreground">Interactive dental chart</h2>
+                <p className="text-xs text-text-muted">Select any tooth to review its anatomical condition and clinical record.</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+              <ShieldCheck className="size-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Clinician-recorded &middot; Read-only</span>
+            </div>
           </div>
+
           <OdontogramChart patientId={patient.id} entries={entries} editable={false} />
         </section>
       )}
 
-      <section className="grid gap-5 xl:grid-cols-[1.25fr_0.75fr]">
-        <article className="rounded-3xl border border-border bg-surface p-5 shadow-sm sm:p-6">
-          <div className="flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl bg-primary-soft text-primary"><ClipboardList className="size-5" /></span><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-text-muted">Next steps</p><h2 className="font-heading text-lg font-bold">Treatment recommendations</h2></div></div>
+      {/* ── TREATMENT RECOMMENDATIONS & INSIGHTS ── */}
+      <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr] items-start">
+        {/* Left Column: Treatment recommendations */}
+        <article className="rounded-[32px] border border-border/80 bg-surface p-6 sm:p-7 shadow-sm space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-2xl bg-primary-soft text-primary shadow-xs">
+                <ClipboardList className="size-5" />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-text-muted">Next Steps</p>
+                <h2 className="font-heading text-lg font-bold text-foreground">Treatment recommendations</h2>
+              </div>
+            </div>
+
+            <span className="rounded-full border border-border bg-background-subtle px-3 py-1 text-xs font-semibold text-text-muted">
+              {planned.length} {planned.length === 1 ? "procedure" : "procedures"} recommended
+            </span>
+          </div>
+
           {planned.length ? (
-            <div className="mt-5 space-y-3">
+            <div className="space-y-3.5">
               {planned.map((entry) => (
-                <div key={entry.id} className="grid gap-3 rounded-2xl border border-border p-4 sm:grid-cols-[64px_1fr_auto] sm:items-center">
-                  <span className="flex size-12 items-center justify-center rounded-xl bg-background-subtle font-bold text-primary">{entry.tooth_number}</span>
-                  <div><div className="flex flex-wrap items-center gap-2"><p className="font-semibold">{entry.recommended_treatment || entry.condition_code || "Clinical review"}</p>{entry.treatment_priority && <Badge variant="outline" className={cn("capitalize", PRIORITY_STYLE[entry.treatment_priority])}>{entry.treatment_priority}</Badge>}</div><p className="mt-1 text-xs text-text-muted">{entry.condition_code || entry.status.replace("_", " ")}{entry.planned_date ? ` · Planned ${new Date(entry.planned_date).toLocaleDateString()}` : ""}</p></div>
-                  <p className="font-semibold">{entry.estimated_fee ? `€${Number(entry.estimated_fee).toLocaleString()}` : "—"}</p>
+                <div
+                  key={entry.id}
+                  className="grid gap-3.5 rounded-2xl border border-border/80 bg-background-subtle/60 p-4.5 sm:grid-cols-[56px_1fr_auto] sm:items-center transition-all hover:border-primary/30 hover:bg-background-subtle"
+                >
+                  <div className="flex size-14 items-center justify-center rounded-2xl border border-primary/20 bg-surface font-mono text-lg font-extrabold text-primary shadow-xs">
+                    {entry.tooth_number}
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-heading text-sm font-bold text-foreground">
+                        {entry.recommended_treatment || entry.condition_code || "Clinical review"}
+                      </p>
+                      {entry.treatment_priority && (
+                        <Badge variant="outline" className={cn("capitalize text-[11px] px-2 py-0.5", PRIORITY_STYLE[entry.treatment_priority])}>
+                          {entry.treatment_priority}
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
+                      <span className="flex items-center gap-1 font-medium text-text-secondary">
+                        <Smile className="size-3 text-primary" />
+                        Tooth #{entry.tooth_number} &middot; {entry.condition_code || entry.status.replace("_", " ")}
+                      </span>
+                      {entry.planned_date && (
+                        <span className="flex items-center gap-1">
+                          <CalendarClock className="size-3 text-primary" />
+                          Target Date: {new Date(entry.planned_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                      )}
+                    </div>
+
+                    {entry.condition_note && (
+                      <p className="text-xs text-text-secondary pt-1 italic">
+                        &ldquo;{entry.condition_note}&rdquo;
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="text-left sm:text-right pt-2 sm:pt-0 border-t border-border/40 sm:border-t-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted block">Service fee</span>
+                    <span className="font-heading text-base font-bold text-foreground">
+                      {entry.estimated_fee ? `€${Number(entry.estimated_fee).toLocaleString()}` : "Included"}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="mt-5 flex items-center gap-3 rounded-2xl bg-success/8 p-5"><CheckCircle2 className="size-6 text-success" /><div><p className="font-semibold">No treatment currently planned</p><p className="mt-1 text-xs text-text-muted">New recommendations will appear after clinical charting.</p></div></div>
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-8 text-center space-y-2">
+              <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <CheckCircle2 className="size-6 stroke-[2.25]" />
+              </div>
+              <h3 className="font-heading text-base font-bold text-foreground">No active treatment planned</h3>
+              <p className="text-xs text-text-muted max-w-sm leading-relaxed">
+                All teeth are charted healthy or fully observed. New recommendations will appear automatically after your next clinical review.
+              </p>
+            </div>
           )}
         </article>
 
+        {/* Right Column: Financial & Clinical Summary Cards */}
         <div className="space-y-5">
-          <article className="rounded-3xl border border-border bg-surface p-5 shadow-sm">
-            <div className="flex items-center gap-3"><WalletCards className="size-5 text-primary" /><h2 className="font-heading text-lg font-bold">Service fee total</h2></div>
-            <p className="mt-5 text-3xl font-bold">€{estimatedTotal.toLocaleString()}</p>
-            <p className="mt-2 text-xs leading-5 text-text-muted">Service fees recorded against planned items. Your issued invoice is the final billing record.</p>
+          {/* Card 1: Service fee total */}
+          <article className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-2xl bg-primary-soft text-primary shadow-xs">
+                  <WalletCards className="size-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-text-muted">Total Care Value</p>
+                  <h3 className="font-heading text-base font-bold text-foreground">Service fee total</h3>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <p className="font-heading text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
+                €{estimatedTotal.toLocaleString()}
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-text-muted">
+                Service fees recorded against planned items. Your issued clinic invoice is the final billing record upon completion of care.
+              </p>
+            </div>
           </article>
-          <article className="rounded-3xl border border-border bg-surface p-5 shadow-sm">
-            <div className="flex items-center gap-3"><CalendarDays className="size-5 text-primary" /><h2 className="font-heading text-lg font-bold">Chart recency</h2></div>
-            <p className="mt-4 text-sm">{entries.length ? `Last updated ${new Date(Math.max(...entries.map((entry) => new Date(entry.recorded_at).getTime()))).toLocaleDateString()}` : "No chart entries yet"}</p>
+
+          {/* Card 2: Chart Recency */}
+          <article className="rounded-[32px] border border-border/80 bg-surface p-6 shadow-sm space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-2xl bg-primary-soft text-primary shadow-xs">
+                <CalendarDays className="size-5" />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-text-muted">Verification</p>
+                <h3 className="font-heading text-base font-bold text-foreground">Chart recency</h3>
+              </div>
+            </div>
+
+            <div className="pt-1">
+              <p className="text-sm font-semibold text-foreground">
+                {lastUpdated
+                  ? `Last charted on ${lastUpdated.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`
+                  : "No chart entries recorded yet"}
+              </p>
+              <p className="mt-1 text-xs text-text-muted">
+                Updated in real-time by your clinician during in-office dental consultations.
+              </p>
+            </div>
           </article>
-          {urgent > 0 && <div className="flex items-start gap-3 rounded-2xl border border-destructive/20 bg-destructive/8 p-4 text-sm"><AlertTriangle className="mt-0.5 size-5 shrink-0 text-destructive" /><p>{urgent} urgent treatment item{urgent === 1 ? "" : "s"} recorded. Contact the clinic to arrange care.</p></div>}
+
+          {/* Card 3: Urgent Notice if present */}
+          {urgent > 0 && (
+            <article className="rounded-[32px] border border-destructive/30 bg-destructive/8 p-5 shadow-sm space-y-2.5">
+              <div className="flex items-center gap-2 text-destructive font-bold text-sm">
+                <AlertTriangle className="size-4 shrink-0" />
+                <span>Urgent Care Attention</span>
+              </div>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                You have <strong className="text-destructive font-bold">{urgent} urgent treatment item{urgent === 1 ? "" : "s"}</strong> recorded on your chart. Please arrange a visit with your doctor promptly.
+              </p>
+              <ButtonLink
+                href="/portal/appointments/book"
+                size="sm"
+                className="rounded-xl text-xs font-semibold bg-destructive hover:bg-destructive/90 text-white w-full shadow-md shadow-destructive/20 h-9"
+              >
+                Book Recommended Care
+              </ButtonLink>
+            </article>
+          )}
+
+          {/* Card 4: Quick Action Banner */}
+          <div className="rounded-[32px] border border-primary/20 bg-primary-soft/40 p-5 space-y-3">
+            <div className="flex items-center gap-2 text-primary font-bold text-xs">
+              <Stethoscope className="size-4" /> Schedule Follow-up Visit
+            </div>
+            <p className="text-xs text-text-secondary leading-relaxed">
+              Need to proceed with any of your planned restorations or consultations? Secure your preferred time slot online in seconds.
+            </p>
+            <ButtonLink
+              href="/portal/appointments/book"
+              className="w-full rounded-2xl text-xs font-bold bg-primary hover:bg-primary-hover text-primary-foreground shadow-md shadow-primary/20 h-10"
+            >
+              Book a Care Visit
+            </ButtonLink>
+          </div>
         </div>
       </section>
     </div>

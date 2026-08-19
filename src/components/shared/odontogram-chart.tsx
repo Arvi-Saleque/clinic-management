@@ -113,16 +113,16 @@ function ToothModel({
       aria-pressed={selected}
       aria-label={`Select tooth ${tooth}`}
       className={cn(
-        "group flex w-[48px] sm:w-[52px] shrink-0 flex-col items-center rounded-2xl border px-1 py-1.5 transition-all duration-150 focus-visible:outline-none",
+        "group flex flex-1 min-w-[20px] max-w-[54px] flex-col items-center rounded-xl sm:rounded-2xl border px-0.5 sm:px-1 py-1 sm:py-1.5 transition-all duration-150 focus-visible:outline-none",
         selected
-          ? "border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/40 shadow-2xs ring-2 ring-emerald-500/20"
+          ? "border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 shadow-xs ring-2 ring-emerald-500/20 scale-[1.04]"
           : "border-transparent hover:border-border/80 hover:bg-muted/40",
         upper ? "justify-end" : "justify-start",
       )}
     >
       {upper && (
         <span className={cn(
-          "mb-1 font-mono text-[10px] font-bold",
+          "mb-0.5 sm:mb-1 font-mono text-[9px] sm:text-[11px] font-bold",
           selected ? "text-emerald-800 dark:text-emerald-300 font-extrabold" : "text-muted-foreground"
         )}>
           {tooth}
@@ -132,7 +132,7 @@ function ToothModel({
         viewBox="0 0 50 68"
         className={cn(
           "w-full drop-shadow-xs transition duration-150 group-hover:-translate-y-0.5",
-          wide ? "h-[50px] sm:h-[54px]" : "h-[46px] sm:h-[50px]",
+          wide ? "h-[36px] sm:h-[46px] md:h-[52px]" : "h-[32px] sm:h-[42px] md:h-[48px]",
           !upper && "rotate-180",
         )}
         aria-hidden="true"
@@ -191,14 +191,14 @@ function ToothModel({
       </svg>
       {!upper && (
         <span className={cn(
-          "mt-1 font-mono text-[10px] font-bold",
+          "mt-0.5 sm:mt-1 font-mono text-[9px] sm:text-[11px] font-bold",
           selected ? "text-emerald-800 dark:text-emerald-300 font-extrabold" : "text-muted-foreground"
         )}>
           {tooth}
         </span>
       )}
       <span
-        className="mt-1 size-1.5 rounded-full"
+        className="mt-0.5 sm:mt-1 size-1.5 rounded-full"
         style={{ backgroundColor: status.color }}
       />
     </button>
@@ -371,16 +371,16 @@ export function OdontogramChart({
             </span>
           </div>
 
-          {/* Odontogram Arch Map */}
-          <div className="rounded-2xl border border-border/60 bg-muted/10 p-5 space-y-4 overflow-x-auto">
-            <div className="min-w-[800px] space-y-4">
+          {/* Odontogram Arch Map (Full Width, Zero Side Scrolling) */}
+          <div className="rounded-2xl border border-border/60 bg-muted/10 p-3 sm:p-5 md:p-6 space-y-4 w-full">
+            <div className="w-full space-y-4 max-w-4xl mx-auto">
               {/* Upper Arch Label */}
               <p className="text-center text-[10px] font-extrabold uppercase tracking-[0.18em] text-muted-foreground">
                 Upper Arch
               </p>
 
               {/* Upper Teeth Row */}
-              <div className="flex justify-center gap-1 sm:gap-1.5">
+              <div className="flex items-center justify-center gap-0.5 sm:gap-1 md:gap-1.5 w-full">
                 {UPPER_ROW.map((tooth) => (
                   <ToothModel
                     key={tooth}
@@ -399,7 +399,7 @@ export function OdontogramChart({
               </p>
 
               {/* Lower Teeth Row */}
-              <div className="flex justify-center gap-1 sm:gap-1.5">
+              <div className="flex items-center justify-center gap-0.5 sm:gap-1 md:gap-1.5 w-full">
                 {LOWER_ROW.map((tooth) => (
                   <ToothModel
                     key={tooth}
@@ -695,60 +695,77 @@ export function OdontogramChart({
               </div>
             </div>
           ) : (
-            /* Read-Only State for Completed Consultations */
-            <div className="mt-4 space-y-3.5 rounded-2xl bg-muted/20 border border-border/60 p-4 text-xs">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Status
-                </p>
-                <div className="mt-1 flex items-center gap-1.5 font-semibold text-foreground">
-                  <span
-                    className="size-2 rounded-full"
-                    style={{
-                      backgroundColor:
-                        STATUS_OPTIONS.find((item) => item.value === selectedEntry?.status)
-                          ?.color ?? "#10b981",
-                    }}
-                  />
-                  <span>
-                    {STATUS_OPTIONS.find((item) => item.value === selectedEntry?.status)
-                      ?.label ?? "Healthy / observed"}
-                  </span>
+            /* Luxury Read-Only State for Patient Portal & Completed Consultations */
+            <div className="mt-4 space-y-3.5 rounded-2xl bg-background-subtle/80 border border-border/80 p-4 text-xs">
+              <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+                    Tooth Status
+                  </p>
+                  <div className="mt-1 flex items-center gap-2 font-bold text-foreground text-sm">
+                    <span
+                      className="size-2.5 rounded-full ring-2 ring-border/50"
+                      style={{
+                        backgroundColor:
+                          STATUS_OPTIONS.find((item) => item.value === selectedEntry?.status)
+                            ?.color ?? "#10b981",
+                      }}
+                    />
+                    <span>
+                      {STATUS_OPTIONS.find((item) => item.value === selectedEntry?.status)
+                        ?.label ?? "Healthy / observed"}
+                    </span>
+                  </div>
                 </div>
+
+                {selectedEntry?.treatment_priority && (
+                  <span className="rounded-xl border border-border bg-surface px-2.5 py-1 text-[11px] font-semibold capitalize text-foreground shadow-2xs">
+                    {selectedEntry.treatment_priority}
+                  </span>
+                )}
               </div>
 
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-1 rounded-xl bg-surface/80 border border-border/60 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
                   Clinical Finding
                 </p>
-                <p className="mt-0.5 font-bold text-foreground">
-                  {selectedEntry?.condition_code || "Healthy"}
+                <p className="font-heading text-sm font-bold text-foreground">
+                  {selectedEntry?.condition_code || "Healthy Tooth"}
                 </p>
               </div>
 
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-1 rounded-xl bg-surface/80 border border-border/60 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
                   Recommended Treatment
                 </p>
-                <p className="mt-0.5 font-semibold text-foreground">
-                  {selectedEntry?.recommended_treatment || "Observation"}
+                <p className="font-heading text-sm font-bold text-foreground">
+                  {selectedEntry?.recommended_treatment || "Routine observation & hygiene"}
                 </p>
               </div>
 
+              {selectedEntry?.estimated_fee && (
+                <div className="flex items-center justify-between rounded-xl bg-primary-soft/40 border border-primary/20 p-3">
+                  <span className="text-xs font-semibold text-text-secondary">Service Fee:</span>
+                  <span className="font-heading text-sm font-extrabold text-foreground">
+                    €{Number(selectedEntry.estimated_fee).toLocaleString()}
+                  </span>
+                </div>
+              )}
+
               {selectedEntry?.condition_note && (
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <div className="space-y-1 rounded-xl bg-surface/80 border border-border/60 p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
                     Clinical Note
                   </p>
-                  <p className="mt-0.5 text-muted-foreground leading-relaxed">
-                    {selectedEntry.condition_note}
+                  <p className="text-xs text-text-secondary leading-relaxed italic">
+                    &ldquo;{selectedEntry.condition_note}&rdquo;
                   </p>
                 </div>
               )}
 
-              <div className="flex items-center gap-1.5 pt-2 text-[10px] text-muted-foreground border-t border-border/50">
-                <Info className="size-3 text-primary shrink-0" />
-                <span>Read-only view for finalized consultation.</span>
+              <div className="flex items-center gap-2 pt-2 text-[11px] text-text-muted border-t border-border/60">
+                <Info className="size-3.5 text-primary shrink-0" />
+                <span>Recorded by attending clinician during chart examination.</span>
               </div>
             </div>
           )}
