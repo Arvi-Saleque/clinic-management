@@ -1,189 +1,483 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { format } from "date-fns";
-import { ArrowUpRight, CalendarCheck2, ChevronRight, FileText, Plus, Receipt, Sparkles, Stethoscope, UserCheck, Users, WalletCards, Clock3 } from "lucide-react";
+import {
+  differenceInMinutes,
+  differenceInYears,
+  format,
+} from "date-fns";
+import {
+  Building2,
+  Calendar,
+  CalendarDays,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  Clock3,
+  ExternalLink,
+  Loader2,
+  Stethoscope,
+  TrendingUp,
+  XCircle,
+} from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { ConsultationActionButton } from "@/components/clinical/consultation-action-button";
-import { getProfile } from "@/lib/auth/session";
 import { getDashboardStats } from "@/lib/server/dashboard";
-import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Dashboard" };
-
-const STATUS_STYLE: Record<string, string> = {
-  pending: "bg-warning/12 text-warning border-warning/20",
-  confirmed: "bg-blue-500/10 text-blue-700 border-blue-500/20 dark:text-blue-300",
-  checked_in: "bg-violet-500/10 text-violet-700 border-violet-500/20 dark:text-violet-300",
-  completed: "bg-success/10 text-success border-success/20",
-};
-
-function getGreetingDisplayName(fullName?: string | null): string {
-  if (!fullName) return "";
-  const cleaned = fullName.replace(/\s*\([^)]*\)/g, "").trim();
-  if (!cleaned) return "";
-  const parts = cleaned.split(/\s+/);
-  if (parts.length > 1 && /^(dr\.?|mr\.?|ms\.?|mrs\.?|prof\.?)/i.test(parts[0])) {
-    const title = parts[0].endsWith(".") ? parts[0] : `${parts[0]}.`;
-    return `${title} ${parts[1]}`;
-  }
-  return parts[0];
-}
+export const metadata: Metadata = { title: "Dashboard | Dental Workspace" };
 
 export default async function StaffDashboardPage() {
-  const [profile, stats] = await Promise.all([getProfile(), getDashboardStats()]);
-  const maxActivity = Math.max(...stats.activity.map((day) => day.count), 1);
-  const nextAppointment = stats.todaysSchedule.find((appointment) => new Date(appointment.starts_at) >= new Date());
-  const greeting = new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening";
-  const displayName = getGreetingDisplayName(profile?.full_name);
+  const stats = await getDashboardStats();
+  const {
+    nextAppointment,
+    upcomingAppointmentsList,
+    completedAppointmentsList,
+    completedCount,
+    inProgressCount,
+    upcomingCount,
+    cancelledNoShowCount,
+  } = stats;
 
-  const metrics = [
-    { label: stats.practitionerScoped ? "My appointments" : "Today’s appointments", value: stats.todaysAppointments, note: `${stats.completedAppointments} completed · ${stats.checkedInPatients} checked in`, icon: CalendarCheck2, tone: "bg-primary-soft text-primary", href: "/scheduler" },
-    { label: "Active patients", value: stats.totalPatients, note: `+${stats.newPatientsThisMonth} registered this month`, icon: Users, tone: "bg-blue-500/10 text-blue-700 dark:text-blue-300", href: "/patients" },
-    { label: "Outstanding balance", value: `৳${stats.outstandingAmount.toLocaleString()}`, note: `${stats.outstandingInvoiceCount} open invoices`, icon: WalletCards, tone: "bg-amber-500/12 text-amber-700 dark:text-amber-300", href: "/billing/invoices" },
-    { label: "Next 7 days", value: stats.upcomingSevenDays, note: "Confirmed and pending visits", icon: UserCheck, tone: "bg-violet-500/10 text-violet-700 dark:text-violet-300", href: "/scheduler" },
-  ];
+  const now = new Date();
+
+  // Next appointment time relative string (e.g. "In 18 min", "Now", "10:00 AM")
+  let nextRelativeTime = "Today";
+  if (nextAppointment) {
+    const apptDate = new Date(nextAppointment.starts_at);
+    const diffMins = differenceInMinutes(apptDate, now);
+    if (diffMins > 0 && diffMins <= 60) {
+      nextRelativeTime = `In ${diffMins} min`;
+    } else if (diffMins <= 0 && diffMins >= -30) {
+      nextRelativeTime = "In progress";
+    } else {
+      nextRelativeTime = format(apptDate, "h:mm a");
+    }
+  }
+
+  // Next appointment patient details
+  const nextPatient = nextAppointment?.patients;
+  const nextPatientName = nextPatient
+    ? `${nextPatient.first_name} ${nextPatient.last_name}`
+    : "Patient";
+  const isNewPatient =
+    nextPatient?.created_at &&
+    differenceInYears(now, new Date(nextPatient.created_at)) === 0 &&
+    new Date(nextPatient.created_at).toDateString() === now.toDateString();
 
   return (
-    <div className="space-y-7">
-      <section className="relative overflow-hidden rounded-[28px] border border-primary/10 bg-secondary p-6 text-secondary-foreground shadow-[0_28px_70px_-48px_rgba(5,40,38,0.85)] sm:p-8">
-        <div className="pointer-events-none absolute -right-10 -top-20 size-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 right-1/4 size-36 rounded-full bg-accent/15 blur-3xl" />
-        <div className="relative flex flex-col justify-between gap-6 xl:flex-row xl:items-end">
-          <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/75">
-              <Sparkles className="size-3.5 text-accent" />{format(new Date(), "EEEE, d MMMM")}
-            </div>
-            <h1 className="max-w-2xl font-heading text-3xl font-extrabold tracking-[-0.035em] text-white sm:text-[38px] sm:leading-[1.12]">
-              Good {greeting}{displayName ? `, ${displayName}` : ""}.
-            </h1>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-white/65">Your clinic is organised for today. Review the diary, open a patient record or complete clinical documentation from one workspace.</p>
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start w-full">
+      {/* ============================================================= */}
+      {/* LEFT COLUMN (8 cols): Hero Banner + Upcoming Appointments     */}
+      {/* ============================================================= */}
+      <div className="xl:col-span-8 space-y-6 min-w-0">
+        {/* 1. HERO BANNER: NEXT APPOINTMENT */}
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#062420] via-[#093530] to-[#0c443d] border border-emerald-900/60 p-6 sm:p-7 text-white shadow-lg">
+          {/* Subtle dental watermark / glow */}
+          <div className="pointer-events-none absolute -right-6 -bottom-10 size-72 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 opacity-[0.07] hidden sm:block">
+            <svg viewBox="0 0 200 200" className="size-64 fill-white">
+              <path d="M100 20C70 20 50 40 50 70C50 100 65 140 80 180C85 195 95 195 100 175C105 195 115 195 120 180C135 140 150 100 150 70C150 40 130 20 100 20Z" />
+            </svg>
           </div>
-          <div className="flex flex-wrap gap-2.5">
-            <ButtonLink href="/patients" variant="outline" size="lg" className="h-11 gap-2 border-white/15 bg-white/8 px-4 text-white hover:bg-white/14 hover:text-white"><Users className="size-4" />Find patient</ButtonLink>
-            <ButtonLink href="/scheduler" size="lg" className="h-11 gap-2 bg-accent px-4 text-accent-foreground hover:bg-accent/90"><Plus className="size-4" />New appointment</ButtonLink>
-          </div>
-        </div>
-      </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Clinic summary">
-        {metrics.map((metric) => (
-          <Link key={metric.label} href={metric.href} className="group rounded-2xl border border-border bg-surface p-5 shadow-[0_14px_38px_-32px_rgba(9,47,44,0.55)] transition duration-200 hover:-translate-y-0.5 hover:border-primary/25">
-            <div className="flex items-start justify-between"><span className={cn("flex size-10 items-center justify-center rounded-xl", metric.tone)}><metric.icon className="size-[18px]" /></span><ArrowUpRight className="size-4 text-muted-foreground transition group-hover:text-primary" /></div>
-            <p className="mt-5 text-xs font-semibold text-muted-foreground">{metric.label}</p>
-            <p className="mt-1 font-heading text-[28px] font-extrabold tracking-[-0.035em]">{metric.value}</p>
-            <p className="mt-2 text-[11px] text-muted-foreground">{metric.note}</p>
-          </Link>
-        ))}
-      </section>
+          <div className="relative space-y-5">
+            {/* Top Label */}
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-emerald-300/80">
+              Next Appointment
+            </p>
 
-      <section className="grid gap-5 xl:grid-cols-[1.55fr_0.85fr]">
-        <article className="overflow-hidden rounded-3xl border border-border bg-surface shadow-[0_20px_52px_-42px_rgba(9,47,44,0.55)]">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4 sm:px-6">
-            <div><h2 className="font-heading text-lg font-extrabold tracking-tight">Today’s clinical diary</h2><p className="mt-1 text-xs text-muted-foreground">Patient, treatment, timing and live visit status.</p></div>
-            <ButtonLink href="/scheduler" variant="outline" size="sm" className="gap-1.5">Open full diary<ChevronRight className="size-3.5" /></ButtonLink>
-          </div>
-          {stats.todaysSchedule.length === 0 ? (
-            <div className="flex min-h-72 flex-col items-center justify-center px-6 text-center"><span className="flex size-12 items-center justify-center rounded-2xl bg-primary-soft text-primary"><CalendarCheck2 className="size-5" /></span><p className="mt-4 text-sm font-bold">No appointments scheduled today</p><p className="mt-1 max-w-sm text-xs leading-5 text-muted-foreground">Set your availability or create an appointment to start today’s diary.</p></div>
-          ) : (
-            <div className="divide-y divide-border">
-              {stats.todaysSchedule.slice(0, 7).map((appointment) => (
-                <div key={appointment.id} className="group grid gap-3 px-5 py-4 transition hover:bg-muted/55 sm:grid-cols-[74px_1fr_auto] sm:items-center sm:px-6">
-                  <div>
-                    <p className="font-heading text-base font-extrabold">{format(new Date(appointment.starts_at), "HH:mm")}</p>
-                    <p className="mt-0.5 text-[10px] text-muted-foreground">{appointment.services?.duration_minutes ?? 30} min</p>
-                  </div>
+            {nextAppointment ? (
+              <div className="space-y-5">
+                {/* Patient Header Block */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    {/* Patient Avatar */}
+                    <div className="size-16 sm:size-18 rounded-full border-2 border-emerald-400/50 bg-emerald-950/80 flex items-center justify-center text-lg sm:text-xl font-extrabold text-emerald-200 shadow-md shrink-0">
+                      {nextPatient ? `${nextPatient.first_name[0]}${nextPatient.last_name[0]}` : "PT"}
+                    </div>
 
-                  <div className="flex min-w-0 items-center gap-2">
-                    <Link
-                      href={`/patients/${appointment.patients?.id ?? ""}`}
-                      className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-[10px] font-extrabold text-primary hover:opacity-80"
-                    >
-                      {appointment.patients ? `${appointment.patients.first_name[0]}${appointment.patients.last_name[0]}` : "PT"}
-                    </Link>
-                    <div className="min-w-0">
-                      <Link
-                        href={`/patients/${appointment.patients?.id ?? ""}`}
-                        className="truncate text-sm font-bold text-foreground hover:text-primary hover:underline block"
-                      >
-                        {appointment.patients ? `${appointment.patients.first_name} ${appointment.patients.last_name}` : "Patient"}
-                      </Link>
-                      <p className="truncate text-[11px] text-muted-foreground">
-                        {appointment.services?.name ?? "Dental consultation"} · {appointment.practitioners?.profiles?.full_name ?? "Practitioner"}
+                    {/* Name + Badge */}
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                          {nextPatientName}
+                        </h2>
+                        <span className="rounded-full bg-emerald-900/70 text-emerald-200 border border-emerald-500/40 px-2.5 py-0.5 text-[11px] font-semibold shadow-2xs">
+                          {isNewPatient ? "New patient" : "Returning patient"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-emerald-200/70 mt-0.5">
+                        {nextPatient?.phone ?? "Patient on schedule"}
                       </p>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className={cn("w-fit capitalize", STATUS_STYLE[appointment.status])}>
-                      {appointment.status.replace("_", " ")}
-                    </Badge>
-                    <ConsultationActionButton
-                      appointmentId={appointment.id}
-                      status={appointment.status}
-                      size="sm"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </article>
-
-        <div className="grid gap-5">
-          <article className="rounded-3xl border border-border bg-surface p-5 shadow-[0_20px_52px_-42px_rgba(9,47,44,0.55)] sm:p-6">
-            <div className="flex items-center justify-between"><div><h2 className="font-heading text-lg font-extrabold tracking-tight">7-day activity</h2><p className="mt-1 text-xs text-muted-foreground">Appointment volume by day</p></div><span className="rounded-xl bg-primary-soft px-2.5 py-1.5 text-[10px] font-bold text-primary">Live diary</span></div>
-            <div className="mt-7 flex h-36 items-end justify-between gap-2" aria-label="Appointment activity bar chart">
-              {stats.activity.map((day) => <div key={day.date} className="flex h-full flex-1 flex-col items-center justify-end gap-2"><span className="text-[10px] font-bold text-muted-foreground">{day.count}</span><div className="group relative flex h-[104px] w-full max-w-8 items-end overflow-hidden rounded-full bg-muted"><div className="w-full rounded-full bg-gradient-to-t from-primary to-accent transition-all duration-500 group-hover:brightness-110" style={{ height: `${Math.max(8, (day.count / maxActivity) * 100)}%` }} /></div><span className="text-[10px] font-semibold text-muted-foreground">{day.label}</span></div>)}
-            </div>
-          </article>
-
-          <article className="rounded-3xl border border-border bg-surface p-5 shadow-[0_20px_52px_-42px_rgba(9,47,44,0.55)] sm:p-6">
-            <div className="flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl bg-success/10 text-success"><Clock3 className="size-[18px]" /></span><div><h2 className="text-sm font-extrabold">Next in the diary</h2><p className="text-[11px] text-muted-foreground">Prepare before the patient arrives</p></div></div>
-            {nextAppointment ? (
-              <div className="mt-5 rounded-2xl border border-primary/10 bg-primary-soft/45 p-4 space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-extrabold">
-                      {nextAppointment.patients ? `${nextAppointment.patients.first_name} ${nextAppointment.patients.last_name}` : "Patient"}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {nextAppointment.services?.name ?? "Dental consultation"}
-                    </p>
-                  </div>
-                  <span className="rounded-lg bg-primary px-2.5 py-1.5 text-xs font-extrabold text-primary-foreground">
-                    {format(new Date(nextAppointment.starts_at), "HH:mm")}
-                  </span>
                 </div>
 
-                <div className="pt-1">
+                {/* 4-Metric Data Strip */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-emerald-800/50">
+                  {/* Metric 1: Time */}
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-200/70">
+                      <Clock className="size-3 text-emerald-300" />
+                      <span>Time</span>
+                    </div>
+                    <p className="font-heading text-base font-extrabold text-white">
+                      {format(new Date(nextAppointment.starts_at), "hh:mm a")}
+                    </p>
+                    <p className="text-[11px] font-medium text-emerald-300/90">
+                      {nextRelativeTime}
+                    </p>
+                  </div>
+
+                  {/* Metric 2: Service */}
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-200/70">
+                      <Stethoscope className="size-3 text-emerald-300" />
+                      <span>Service</span>
+                    </div>
+                    <p className="font-bold text-xs sm:text-sm text-white truncate">
+                      {nextAppointment.services?.name ?? "Dental Consultation"}
+                    </p>
+                    <p className="text-[11px] text-emerald-200/60 truncate">
+                      {nextAppointment.notes || "Standard care"}
+                    </p>
+                  </div>
+
+                  {/* Metric 3: Duration */}
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-200/70">
+                      <Clock3 className="size-3 text-emerald-300" />
+                      <span>Duration</span>
+                    </div>
+                    <p className="font-heading text-base font-extrabold text-white">
+                      {nextAppointment.services?.duration_minutes ?? 30} min
+                    </p>
+                  </div>
+
+                  {/* Metric 4: Location */}
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-200/70">
+                      <Building2 className="size-3 text-emerald-300" />
+                      <span>Location</span>
+                    </div>
+                    <p className="font-bold text-xs sm:text-sm text-white truncate">
+                      {nextAppointment.branches?.name || "Operatory 2"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Bottom Action CTAs */}
+                <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
+                  <ButtonLink
+                    href="/appointments"
+                    variant="ghost"
+                    className="h-9 px-4 rounded-xl border border-white/20 bg-white/10 text-xs font-semibold text-white hover:bg-white/15 backdrop-blur-xs gap-1.5"
+                  >
+                    <span>View appointment</span>
+                    <ExternalLink className="size-3.5" />
+                  </ButtonLink>
+
                   <ConsultationActionButton
                     appointmentId={nextAppointment.id}
                     status={nextAppointment.status}
                     size="sm"
-                    className="w-full"
+                    className="h-9 px-5 rounded-xl bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-[#062420] font-bold text-xs shadow-md"
                   />
                 </div>
-
-                <Link href={`/patients/${nextAppointment.patients?.id ?? ""}`} className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
-                  Open patient record<ChevronRight className="size-3.5" />
-                </Link>
               </div>
             ) : (
-              <p className="mt-5 rounded-2xl bg-muted p-4 text-xs leading-5 text-muted-foreground">No more appointments today.</p>
+              <div className="py-6 text-center space-y-2">
+                <p className="font-bold text-sm text-white">
+                  No more appointments scheduled for today.
+                </p>
+                <p className="text-xs text-emerald-200/70">
+                  You are all caught up. Check your weekly schedule or add new appointments.
+                </p>
+                <div className="pt-2">
+                  <ButtonLink
+                    href="/scheduler"
+                    variant="ghost"
+                    className="h-8.5 px-4 rounded-xl border border-white/20 bg-white/10 text-xs font-semibold text-white hover:bg-white/15"
+                  >
+                    Open Scheduler
+                  </ButtonLink>
+                </div>
+              </div>
             )}
-          </article>
-        </div>
-      </section>
+          </div>
+        </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {[
-          { href: "/clinical/prescriptions/new", icon: FileText, title: "Document prescription", text: "Record medicines, dosage, frequency and patient instructions." },
-          { href: "/billing/invoices/new", icon: Receipt, title: "Create patient invoice", text: "Itemise treatment charges and set a clear payment due date." },
-          { href: "/clinical/odontogram", icon: Stethoscope, title: "Update dental chart", text: "Record tooth condition, planned care and clinical history." },
-        ].map((action) => <Link key={action.href} href={action.href} className="group flex items-start gap-4 rounded-2xl border border-border bg-surface p-5 transition hover:border-primary/25"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground transition group-hover:bg-primary-soft group-hover:text-primary"><action.icon className="size-[18px]" /></span><div><h3 className="text-sm font-extrabold">{action.title}</h3><p className="mt-1 text-[11px] leading-5 text-muted-foreground">{action.text}</p></div></Link>)}
-      </section>
+        {/* 2. CARD: TODAY'S UPCOMING APPOINTMENTS */}
+        <section className="rounded-3xl border border-border/80 bg-card p-6 space-y-4 shadow-2xs">
+          {/* Header */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="size-9 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 flex items-center justify-center border border-emerald-200/60 shrink-0">
+                <Calendar className="size-4" />
+              </div>
+              <h3 className="font-heading text-base font-bold text-foreground">
+                Today&apos;s upcoming appointments
+              </h3>
+            </div>
+
+            <Link
+              href="/appointments"
+              className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
+            >
+              <span>View full schedule</span>
+              <ChevronRight className="size-3.5" />
+            </Link>
+          </div>
+
+          {/* List of Upcoming Items */}
+          {upcomingAppointmentsList.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border/80 bg-muted/10 p-8 text-center">
+              <p className="text-xs font-semibold text-muted-foreground">
+                No upcoming appointments remaining today.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border/50">
+              {upcomingAppointmentsList.map((appt) => {
+                const patient = appt.patients;
+                const patientName = patient
+                  ? `${patient.first_name} ${patient.last_name}`
+                  : "Patient";
+
+                return (
+                  <Link
+                    key={appt.id}
+                    href={`/patients/${patient?.id ?? ""}`}
+                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3.5 first:pt-1 last:pb-1 hover:bg-muted/30 -mx-2 px-2 rounded-xl transition-all"
+                  >
+                    {/* Time & Timeline Circle */}
+                    <div className="flex items-center gap-3 w-28 shrink-0">
+                      <span className="font-heading text-xs font-bold text-foreground">
+                        {format(new Date(appt.starts_at), "hh:mm a")}
+                      </span>
+                      <span className="size-2 rounded-full border-2 border-muted-foreground/40 bg-card group-hover:border-primary shrink-0" />
+                    </div>
+
+                    {/* Patient Name */}
+                    <div className="min-w-0 w-44 shrink-0">
+                      <span className="font-bold text-xs text-foreground group-hover:text-primary truncate block">
+                        {patientName}
+                      </span>
+                    </div>
+
+                    {/* Service & Tooth/Notes */}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium text-foreground truncate">
+                        {appt.services?.name ?? "Dental Check-up"}
+                      </p>
+                      {appt.notes && (
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {appt.notes}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Duration & Action Chevron */}
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="text-xs text-muted-foreground font-medium">
+                        {appt.services?.duration_minutes ?? 30} min
+                      </span>
+                      <ChevronRight className="size-4 text-muted-foreground group-hover:text-primary transition-transform group-hover:translate-x-0.5" />
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Footer Count */}
+          <div className="pt-2 border-t border-border/50 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+            <CalendarDays className="size-3.5" />
+            <span>{upcomingAppointmentsList.length} appointments remaining</span>
+          </div>
+        </section>
+      </div>
+
+      {/* ============================================================= */}
+      {/* RIGHT COLUMN (4 cols): Progress + Completed                   */}
+      {/* ============================================================= */}
+      <aside className="xl:col-span-4 space-y-6">
+        {/* 3. CARD: TODAY'S PROGRESS */}
+        <section className="rounded-3xl border border-border/80 bg-card p-6 space-y-4 shadow-2xs">
+          {/* Header */}
+          <div className="flex items-center gap-2.5">
+            <div className="size-8 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 flex items-center justify-center shrink-0">
+              <TrendingUp className="size-4" />
+            </div>
+            <h3 className="font-heading text-base font-bold text-foreground">
+              Today&apos;s progress
+            </h3>
+          </div>
+
+          {/* 2x2 Metric Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Tile 1: Completed */}
+            <div className="rounded-2xl border border-border/70 bg-card p-3.5 space-y-2 shadow-2xs">
+              <div className="size-7 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 flex items-center justify-center border border-emerald-200/60">
+                <Check className="size-3.5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground">
+                  Completed
+                </p>
+                <p className="font-heading text-2xl font-extrabold text-foreground">
+                  {completedCount}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {completedCount === 1 ? "appointment" : "appointments"}
+                </p>
+              </div>
+            </div>
+
+            {/* Tile 2: In Progress */}
+            <div className="rounded-2xl border border-border/70 bg-card p-3.5 space-y-2 shadow-2xs">
+              <div className="size-7 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 flex items-center justify-center border border-blue-200/60">
+                <Loader2 className="size-3.5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground">
+                  In progress
+                </p>
+                <p className="font-heading text-2xl font-extrabold text-foreground">
+                  {inProgressCount}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {inProgressCount === 1 ? "appointment" : "appointments"}
+                </p>
+              </div>
+            </div>
+
+            {/* Tile 3: Upcoming */}
+            <div className="rounded-2xl border border-border/70 bg-card p-3.5 space-y-2 shadow-2xs">
+              <div className="size-7 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 flex items-center justify-center border border-amber-200/60">
+                <Clock3 className="size-3.5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground">
+                  Upcoming
+                </p>
+                <p className="font-heading text-2xl font-extrabold text-foreground">
+                  {upcomingCount}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {upcomingCount === 1 ? "appointment" : "appointments"}
+                </p>
+              </div>
+            </div>
+
+            {/* Tile 4: Cancelled / No-show */}
+            <div className="rounded-2xl border border-border/70 bg-card p-3.5 space-y-2 shadow-2xs">
+              <div className="size-7 rounded-full bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 flex items-center justify-center border border-rose-200/60">
+                <XCircle className="size-3.5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground">
+                  Cancelled / No-show
+                </p>
+                <p className="font-heading text-2xl font-extrabold text-foreground">
+                  {cancelledNoShowCount}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {cancelledNoShowCount === 1 ? "appointment" : "appointments"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Link */}
+          <div className="pt-2 border-t border-border/50 text-center">
+            <Link
+              href="/scheduler"
+              className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+            >
+              <span>View full clinical diary</span>
+              <ChevronRight className="size-3.5" />
+            </Link>
+          </div>
+        </section>
+
+        {/* 4. CARD: COMPLETED TODAY */}
+        <section className="rounded-3xl border border-border/80 bg-card p-6 space-y-4 shadow-2xs">
+          {/* Header */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="size-8 rounded-full bg-muted/40 text-muted-foreground flex items-center justify-center shrink-0">
+                <CheckCircle2 className="size-4 text-emerald-600" />
+              </div>
+              <h3 className="font-heading text-sm font-bold text-foreground">
+                Completed today
+              </h3>
+              <span className="rounded-full bg-muted/60 text-muted-foreground border border-border/60 px-2 py-0.2 text-[10px] font-semibold">
+                {completedCount}
+              </span>
+            </div>
+
+            <Link
+              href="/appointments"
+              className="text-xs font-semibold text-muted-foreground hover:text-foreground"
+            >
+              View all
+            </Link>
+          </div>
+
+          {/* Completed List */}
+          {completedAppointmentsList.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border/80 bg-muted/10 p-6 text-center">
+              <p className="text-xs text-muted-foreground">
+                No consultations completed yet today.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border/50">
+              {completedAppointmentsList.slice(0, 5).map((appt) => {
+                const patient = appt.patients;
+                const patientName = patient
+                  ? `${patient.first_name} ${patient.last_name}`
+                  : "Patient";
+
+                return (
+                  <Link
+                    key={appt.id}
+                    href={`/patients/${patient?.id ?? ""}`}
+                    className="group flex items-center justify-between gap-2.5 py-2.5 first:pt-0 last:pb-0 hover:bg-muted/30 -mx-2 px-2 rounded-xl transition-all"
+                  >
+                    {/* Time */}
+                    <span className="text-[11px] font-semibold text-muted-foreground w-16 shrink-0">
+                      {format(new Date(appt.starts_at), "hh:mm a")}
+                    </span>
+
+                    {/* Small Avatar */}
+                    <div className="size-6 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 flex items-center justify-center text-[10px] font-bold shrink-0">
+                      {patient ? `${patient.first_name[0]}` : "P"}
+                    </div>
+
+                    {/* Name & Service */}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-foreground truncate group-hover:text-primary">
+                        {patientName}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        {appt.services?.name ?? "Consultation"}
+                      </p>
+                    </div>
+
+                    {/* Green Check Indicator */}
+                    <div className="size-5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 flex items-center justify-center border border-emerald-200/60 shrink-0">
+                      <Check className="size-3" />
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </aside>
     </div>
   );
 }
