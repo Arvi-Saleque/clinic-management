@@ -171,15 +171,15 @@ export function PortalShell({ profile, patientReference, registered, children }:
       )}
 
       <div className="relative min-h-screen lg:pl-[276px]">
-        {/* Full Main Patient Section Sanctuary Background Image */}
+        {/* Full Main Patient Section Sanctuary Background Image (High Visibility) */}
         <div
-          className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-[0.16] dark:opacity-[0.08] lg:left-[276px]"
+          className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-60 dark:opacity-30 lg:left-[276px]"
           style={{ backgroundImage: "url('/marketing/portal_sanctuary_bg.jpg')" }}
         />
-        {/* Atmospheric Gradient Wash for Pristine Contrast & Luxury Feel */}
-        <div className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90 backdrop-blur-[1px] lg:left-[276px]" />
+        {/* Soft, Light Glass Wash for Crisp Text Contrast */}
+        <div className="pointer-events-none fixed inset-0 z-0 bg-background/30 dark:bg-background/60 backdrop-blur-[0.5px] lg:left-[276px]" />
 
-        <header className="sticky top-0 z-30 flex h-[72px] items-center border-b border-border/80 bg-background/85 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 flex h-[72px] items-center border-b border-border/70 bg-background/70 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
           <Button
             variant="ghost"
             size="icon"
