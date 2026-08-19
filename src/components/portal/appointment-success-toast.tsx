@@ -3,6 +3,7 @@
 import * as React from "react";
 import {
   CalendarCheck,
+  CalendarX,
   CheckCircle2,
   LayoutDashboard,
   ShieldCheck,
@@ -21,7 +22,7 @@ import {
 
 export function AppointmentSuccessToast({ success }: { success?: string }) {
   const [open, setOpen] = React.useState(false);
-  const [type, setType] = React.useState<"booked" | "rescheduled" | null>(null);
+  const [type, setType] = React.useState<"booked" | "rescheduled" | "cancelled" | null>(null);
 
   React.useEffect(() => {
     if (!success) return;
@@ -34,6 +35,10 @@ export function AppointmentSuccessToast({ success }: { success?: string }) {
       setType("rescheduled");
       setOpen(true);
       toast.success("Appointment rescheduled successfully.");
+    } else if (success === "cancelled") {
+      setType("cancelled");
+      setOpen(true);
+      toast.success("Appointment cancelled successfully.");
     }
 
     // Strip success parameter from URL so browser refresh does not re-trigger
@@ -47,6 +52,7 @@ export function AppointmentSuccessToast({ success }: { success?: string }) {
   if (!type) return null;
 
   const isRescheduled = type === "rescheduled";
+  const isCancelled = type === "cancelled";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -63,12 +69,18 @@ export function AppointmentSuccessToast({ success }: { success?: string }) {
 
           <DialogHeader className="text-center space-y-1">
             <DialogTitle className="font-heading text-xl sm:text-2xl font-extrabold text-foreground text-center">
-              {isRescheduled ? "Appointment Rescheduled!" : "Appointment Confirmed!"}
+              {isCancelled
+                ? "Appointment Cancelled"
+                : isRescheduled
+                  ? "Appointment Rescheduled!"
+                  : "Appointment Confirmed!"}
             </DialogTitle>
             <DialogDescription className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed text-center">
-              {isRescheduled
-                ? "Your dental visit has been successfully updated in our clinical calendar."
-                : "Your dental care visit has been securely scheduled at our clinical sanctuary."}
+              {isCancelled
+                ? "Your dental visit has been successfully cancelled and removed from your active schedule."
+                : isRescheduled
+                  ? "Your dental visit has been successfully updated in our clinical calendar."
+                  : "Your dental care visit has been securely scheduled at our clinical sanctuary."}
             </DialogDescription>
           </DialogHeader>
 
@@ -76,21 +88,17 @@ export function AppointmentSuccessToast({ success }: { success?: string }) {
           <div className="rounded-2xl border border-border/80 bg-background-subtle p-3.5 text-left space-y-2.5 text-xs">
             <div className="flex items-center gap-2.5">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                <CalendarCheck className="size-3.5" />
+                {isCancelled ? <CalendarX className="size-3.5" /> : <CalendarCheck className="size-3.5" />}
               </div>
               <div>
-                <p className="font-bold text-foreground">Instant Calendar Lock</p>
-                <p className="text-[11px] text-text-muted">Your preferred chair and slot are officially reserved.</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2.5">
-              <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
-                <Stethoscope className="size-3.5" />
-              </div>
-              <div>
-                <p className="font-bold text-foreground">Assigned Practitioner</p>
-                <p className="text-[11px] text-text-muted">Your doctor has been notified and prepared for this visit.</p>
+                <p className="font-bold text-foreground">
+                  {isCancelled ? "Chair & Slot Released" : "Instant Calendar Lock"}
+                </p>
+                <p className="text-[11px] text-text-muted">
+                  {isCancelled
+                    ? "Your reserved time is now cleared from our clinical calendar."
+                    : "Your preferred chair and slot are officially reserved."}
+                </p>
               </div>
             </div>
 
@@ -99,28 +107,72 @@ export function AppointmentSuccessToast({ success }: { success?: string }) {
                 <ShieldCheck className="size-3.5" />
               </div>
               <div>
-                <p className="font-bold text-foreground">Private Health Record</p>
-                <p className="text-[11px] text-text-muted">All details are securely stored in your patient portal.</p>
+                <p className="font-bold text-foreground">
+                  {isCancelled ? "Patient Record Updated" : "Assigned Practitioner"}
+                </p>
+                <p className="text-[11px] text-text-muted">
+                  {isCancelled
+                    ? "Your records have been updated with zero cancellation fee."
+                    : "Your doctor has been notified and prepared for this visit."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                <Stethoscope className="size-3.5" />
+              </div>
+              <div>
+                <p className="font-bold text-foreground">
+                  {isCancelled ? "Rebook Anytime" : "Private Health Record"}
+                </p>
+                <p className="text-[11px] text-text-muted">
+                  {isCancelled
+                    ? "You can schedule a new care visit whenever you are ready."
+                    : "All details are securely stored in your patient portal."}
+                </p>
               </div>
             </div>
           </div>
 
           {/* Actions */}
           <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 pt-2 border-t border-border/60">
-            <ButtonLink
-              href="/portal/dashboard"
-              variant="outline"
-              className="w-full sm:w-auto rounded-2xl h-10 px-5 text-xs font-semibold gap-1.5 border-border"
-              onClick={() => setOpen(false)}
-            >
-              <LayoutDashboard className="size-3.5" /> Overview
-            </ButtonLink>
-            <Button
-              className="w-full sm:w-auto rounded-2xl h-10 px-5 text-xs font-bold bg-primary hover:bg-primary-hover text-primary-foreground shadow-md shadow-primary/20"
-              onClick={() => setOpen(false)}
-            >
-              View My Visits
-            </Button>
+            {isCancelled ? (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full sm:w-auto rounded-2xl h-10 px-5 text-xs font-semibold border-border"
+                  onClick={() => setOpen(false)}
+                >
+                  Close
+                </Button>
+                <ButtonLink
+                  href="/portal/appointments/book"
+                  className="w-full sm:w-auto rounded-2xl h-10 px-5 text-xs font-bold bg-primary hover:bg-primary-hover text-primary-foreground shadow-md shadow-primary/20"
+                  onClick={() => setOpen(false)}
+                >
+                  Book New Visit
+                </ButtonLink>
+              </>
+            ) : (
+              <>
+                <ButtonLink
+                  href="/portal/dashboard"
+                  variant="outline"
+                  className="w-full sm:w-auto rounded-2xl h-10 px-5 text-xs font-semibold gap-1.5 border-border"
+                  onClick={() => setOpen(false)}
+                >
+                  <LayoutDashboard className="size-3.5" /> Overview
+                </ButtonLink>
+                <Button
+                  className="w-full sm:w-auto rounded-2xl h-10 px-5 text-xs font-bold bg-primary hover:bg-primary-hover text-primary-foreground shadow-md shadow-primary/20"
+                  onClick={() => setOpen(false)}
+                >
+                  View My Visits
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </DialogContent>

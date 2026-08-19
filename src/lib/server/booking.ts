@@ -56,7 +56,7 @@ export async function cancelOwnAppointmentAction(
   if (error) return { error: error.message };
   revalidatePath("/portal/appointments");
   revalidatePath("/portal/dashboard");
-  return { error: null };
+  redirect("/portal/appointments?success=cancelled");
 }
 
 export async function rescheduleOwnAppointmentAction(
