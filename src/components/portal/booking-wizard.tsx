@@ -349,31 +349,27 @@ export function BookingWizard({
   return (
     <Card className="overflow-hidden rounded-[32px] border border-border/80 bg-surface shadow-xl">
       {/* ================================================================
-          LUXURY SANCTUARY HEADER BANNER
+          CLEAN HEADER (NO HEAVY BACKGROUND COLOR)
           ================================================================ */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-secondary via-secondary/95 to-primary/40 px-6 py-8 text-secondary-foreground sm:px-10 sm:py-10">
-        {/* Ambient Glowing Orbs */}
-        <div className="pointer-events-none absolute -right-16 -top-20 size-72 rounded-full bg-accent/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 -left-20 size-72 rounded-full bg-primary/20 blur-3xl" />
-
-        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+      <div className="relative px-6 py-6 sm:px-10 sm:py-8 border-b border-border/60 bg-transparent">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary backdrop-blur-md">
               <Sparkles className="size-3.5 text-accent" />
               {reschedule ? "Appointment Management" : "Clinical Sanctuary Scheduling"}
             </div>
-            <h1 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
+            <h1 className="font-heading text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
               {reschedule ? "Reschedule Dental Visit" : "Book a Care Visit"}
             </h1>
-            <p className="text-sm text-white/80 max-w-xl leading-relaxed">
+            <p className="text-sm text-text-secondary max-w-xl leading-relaxed">
               {reschedule
                 ? "Select a new date and time that fits your schedule."
                 : "Choose your preferred dental service, practitioner, and an optimal appointment time."}
             </p>
           </div>
 
-          <div className="hidden lg:flex size-14 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md text-white shadow-inner">
-            {reschedule ? <RefreshCw className="size-7 text-accent" /> : <ShieldCheck className="size-7 text-accent" />}
+          <div className="hidden sm:flex size-12 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary-soft text-primary shadow-xs">
+            {reschedule ? <RefreshCw className="size-6 text-primary" /> : <ShieldCheck className="size-6 text-primary" />}
           </div>
         </div>
       </div>
