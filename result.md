@@ -906,3 +906,24 @@ graph TD
 1. **Public Marketing Site (`/`, `/about`, `/services`, `/results`, `/book`)**: Focuses on **visual excellence**, **high-speed RSC delivery**, **Tailwind v4 + Vanilla Luxury CSS**, and **cinematic GSAP + Lenis scroll animations**.
 2. **Patient Booking & Portal (`/portal`, `/book`)**: Focuses on **Supabase SSR Auth**, **React Hook Form + Zod**, and **interactive calendar scheduling**.
 3. **Staff & Clinical Management (`/dashboard`, `/scheduler`, `/patients`)**: Focuses on **real-time synchronization**, **accessible Base UI components**, **clinical odontograms**, and **instant notification alerts**.
+
+---
+
+## 33. Homepage Hero CTA Animation Persistence Fix
+
+### A. Diagnosis & Root Cause
+- **Issue**: During page entrance and slideshow transitions on the marketing homepage hero (`/`), the dual CTA buttons (`Book a Consultation` & `Explore Treatments`) disappeared or remained stuck in an invisible state (`opacity: 0`).
+- **Root Cause**:
+  1. In `src/components/marketing/homepage-motion.tsx`, `heroTl.from(heroButtons.children, ...)` applied inline `opacity: 0` without `fromTo` boundaries or `clearProps: "all"`. During React mount/hydration or timeline execution, inline `opacity: 0` remained attached to the DOM anchor tags.
+  2. In `src/styles/marketing-luxury.css`, `.hero-cta-group`, `.hero-btn-primary`, and `.hero-btn-secondary` lacked explicit `z-index: 25`, `position: relative`, and `pointer-events: auto` to prevent overlay interception from the fixed wallpaper.
+
+### B. Changes Applied
+1. **GSAP Hero Timeline ([`src/components/marketing/homepage-motion.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/homepage-motion.tsx))**:
+   - Converted `heroTl.from()` calls to `heroTl.fromTo()` with explicit `{ y: 20, scale: 0.94, opacity: 0 }` to `{ y: 0, scale: 1, opacity: 1, clearProps: "all" }`.
+   - Added an `onComplete` hook to the GSAP timeline calling `gsap.set(heroButtons.children, { clearProps: "all" })` to ensure all inline opacity and transform properties are cleanly removed after entrance.
+2. **Hero Button CSS ([`src/styles/marketing-luxury.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-luxury.css))**:
+   - Added `position: relative`, `z-index: 25`, and `pointer-events: auto` to `.hero-cta-group`, `.hero-btn-primary`, and `.hero-btn-secondary`.
+
+### C. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+- **eslint**: `npx eslint` -> **PASSED (0 errors)**
