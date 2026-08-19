@@ -4,6 +4,7 @@ import { addDays, format } from "date-fns";
 import { ComingSoon } from "@/components/shared/coming-soon";
 import { AvailabilityPlanner } from "@/components/staff/availability-planner";
 import { PractitionerSchedulerSelector } from "@/components/staff/availability/practitioner-scheduler-selector";
+import { requireStaff } from "@/lib/auth/guards";
 import {
   getSchedulerContext,
   listAvailabilityRules,
@@ -18,6 +19,7 @@ export default async function StaffSchedulerPage({
 }: {
   searchParams: Promise<{ practitioner?: string }>;
 }) {
+  const profile = await requireStaff();
   const params = await searchParams;
   const context = await getSchedulerContext(params.practitioner);
   const activePractitioner = context.activePractitioner;
@@ -42,6 +44,8 @@ export default async function StaffSchedulerPage({
       getPractitionerAppointmentCountsForRange(activePractitioner.id, startRangeStr, endRangeStr),
     ]);
 
+  const isReceptionist = profile.role === "receptionist";
+
   return (
     <div className="space-y-6 w-full pb-12">
       {/* 1. Header & Actions */}
@@ -51,7 +55,9 @@ export default async function StaffSchedulerPage({
             Availability &amp; Diary
           </h1>
           <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-            Manage your working hours and availability.
+            {isReceptionist
+              ? "View doctor working schedules and clinical availability."
+              : "Manage your working hours and availability."}
           </p>
         </div>
 
@@ -73,6 +79,7 @@ export default async function StaffSchedulerPage({
         rules={rules}
         exceptions={exceptions}
         appointmentCounts={appointmentCounts}
+        userRole={profile.role}
       />
     </div>
   );

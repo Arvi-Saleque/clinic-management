@@ -5,9 +5,12 @@ import { PortalShell } from "@/components/portal/portal-shell";
 
 export const metadata: Metadata = { title: "Patient portal concept" };
 
+const DEMO_VISIT_1_DATE = "2026-08-21T10:00:00.000Z";
+const DEMO_VISIT_2_DATE = "2026-09-09T14:30:00.000Z";
+
 export default function PatientPortalDemoPage() {
-  const visit1Date = new Date(Date.now() + 86400000 * 2).toISOString();
-  const visit2Date = new Date(Date.now() + 86400000 * 21).toISOString();
+  const visit1Date = DEMO_VISIT_1_DATE;
+  const visit2Date = DEMO_VISIT_2_DATE;
 
   return (
     <PortalShell

@@ -4,8 +4,9 @@ import { CalendarCheck2 } from "lucide-react";
 
 import { ComingSoon } from "@/components/shared/coming-soon";
 import { AppointmentsWorkspace } from "@/components/staff/appointments-workspace";
+import { requireStaff } from "@/lib/auth/guards";
 import { getSchedulerContext } from "@/lib/server/appointments";
-import { listAppointmentsForDay } from "@/lib/server/directory";
+import { listAppointmentsForDay, listServices } from "@/lib/server/directory";
 
 export const metadata: Metadata = { title: "Appointments" };
 
@@ -14,6 +15,7 @@ export default async function StaffAppointmentsPage({
 }: {
   searchParams: Promise<{ practitioner?: string; date?: string }>;
 }) {
+  const profile = await requireStaff();
   const params = await searchParams;
   const context = await getSchedulerContext(params.practitioner);
   const activePractitioner = context.activePractitioner;
@@ -28,7 +30,10 @@ export default async function StaffAppointmentsPage({
   }
 
   const date = params.date ?? format(new Date(), "yyyy-MM-dd");
-  const appointments = await listAppointmentsForDay(activePractitioner.id, date);
+  const [appointments, services] = await Promise.all([
+    listAppointmentsForDay(activePractitioner.id, date),
+    listServices(),
+  ]);
 
   return (
     <div className="space-y-5 w-full pb-12">
@@ -51,8 +56,11 @@ export default async function StaffAppointmentsPage({
         appointments={appointments}
         practitioners={context.practitioners}
         practitionerId={activePractitioner.id}
+        branchId={activePractitioner.branch_id}
         date={date}
         canSelectPractitioner={context.canSelectPractitioner}
+        userRole={profile.role}
+        services={services}
       />
     </div>
   );

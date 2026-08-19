@@ -3,11 +3,13 @@ import { ArrowLeft, CheckCircle2, FileCheck2, Receipt, ShieldCheck } from "lucid
 
 import { ButtonLink } from "@/components/ui/button";
 import { InvoiceForm } from "@/components/staff/invoice-form";
+import { requireClinician } from "@/lib/auth/guards";
 import { getPatientById } from "@/lib/server/directory";
 
 export const metadata: Metadata = { title: "New invoice" };
 
 export default async function NewInvoicePage({ searchParams }: { searchParams: Promise<{ patientId?: string }> }) {
+  await requireClinician();
   const { patientId } = await searchParams;
   const initialPatient = patientId ? await getPatientById(patientId) : null;
   return (

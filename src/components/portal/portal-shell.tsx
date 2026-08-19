@@ -5,13 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   CalendarDays,
-  FileText,
   HeartPulse,
   LayoutDashboard,
   Menu,
   MessageCircleQuestion,
   Plus,
-  Receipt,
   ShieldCheck,
   Smile,
   Sparkles,

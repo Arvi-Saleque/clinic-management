@@ -25,6 +25,7 @@ interface AvailabilityPlannerProps {
   rules: AvailabilityRuleRow[];
   exceptions?: AvailabilityExceptionRow[];
   appointmentCounts?: Record<string, number>;
+  userRole?: string;
 }
 
 export function AvailabilityPlanner({
@@ -32,8 +33,10 @@ export function AvailabilityPlanner({
   rules,
   exceptions = [],
   appointmentCounts = {},
+  userRole = "dentist",
 }: AvailabilityPlannerProps) {
   const router = useRouter();
+  const isReadOnly = userRole === "receptionist";
 
   // Active month for calendar view
   const [currentMonth, setCurrentMonth] = React.useState<Date>(() => new Date());
@@ -92,9 +95,10 @@ export function AvailabilityPlanner({
   }, [router]);
 
   const handleOpenWeeklyEditor = React.useCallback((dayOfWeek?: number) => {
+    if (isReadOnly) return;
     setFocusedWeekday(dayOfWeek ?? null);
     setIsWeeklyModalOpen(true);
-  }, []);
+  }, [isReadOnly]);
 
   return (
     <div className="space-y-6 w-full">
@@ -143,6 +147,7 @@ export function AvailabilityPlanner({
             initialIntervals={selectedEffective.intervals}
             initialLeaveReason={selectedEffective.leaveReason}
             onSuccess={handleRefresh}
+            isReadOnly={isReadOnly}
           />
         </div>
       </div>
@@ -153,18 +158,21 @@ export function AvailabilityPlanner({
       <WeeklyRoutineSection
         weeklyMap={weeklyMap}
         onOpenEditor={handleOpenWeeklyEditor}
+        isReadOnly={isReadOnly}
       />
 
-      {/* Weekly Routine Modal Dialog */}
-      <WeeklyRoutineDialog
-        key={isWeeklyModalOpen ? "weekly-open" : "weekly-closed"}
-        open={isWeeklyModalOpen}
-        onOpenChange={setIsWeeklyModalOpen}
-        practitionerId={practitionerId}
-        initialRules={weeklyMap}
-        focusedWeekday={focusedWeekday}
-        onSuccess={handleRefresh}
-      />
+      {/* Weekly Routine Modal Dialog - Dentist/Admin Only */}
+      {!isReadOnly && (
+        <WeeklyRoutineDialog
+          key={isWeeklyModalOpen ? "weekly-open" : "weekly-closed"}
+          open={isWeeklyModalOpen}
+          onOpenChange={setIsWeeklyModalOpen}
+          practitionerId={practitionerId}
+          initialRules={weeklyMap}
+          focusedWeekday={focusedWeekday}
+          onSuccess={handleRefresh}
+        />
+      )}
     </div>
   );
 }
