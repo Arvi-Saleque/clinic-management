@@ -346,98 +346,86 @@ export function BookingWizard({
   const currentStepIndex = stepsList.findIndex((s) => s.id === step);
 
   return (
-    <div className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface/90 backdrop-blur-xl shadow-xl transition-all">
+    <div className="relative overflow-hidden rounded-[36px] sm:rounded-[44px] border border-border/80 bg-surface/90 backdrop-blur-2xl p-6 sm:p-8 lg:p-10 shadow-2xl space-y-7 transition-all">
       {/* Soft Ambient Background Glow */}
-      <div className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-primary/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -left-24 size-80 rounded-full bg-accent/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-32 -top-32 size-96 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 size-96 rounded-full bg-accent/10 blur-3xl" />
 
-      {/* ================================================================
-          CLEAN HEADER (NO HEAVY BACKGROUND COLOR)
-          ================================================================ */}
-      <div className="relative z-10 px-6 py-6 sm:px-10 sm:py-8 border-b border-border/60 bg-transparent">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/80 px-3 py-1 text-xs font-semibold text-primary backdrop-blur-md">
-              {reschedule ? "Appointment Management" : "Clinical Sanctuary Scheduling"}
-            </div>
-            <h1 className="font-heading text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              {reschedule ? "Reschedule Appointment" : "Book an Appointment"}
-            </h1>
-            <p className="text-sm text-text-secondary max-w-xl leading-relaxed">
-              {reschedule
-                ? "Select a new date and time that fits your schedule."
-                : "Choose your preferred dental service, practitioner, and an optimal appointment time."}
-            </p>
-          </div>
-
-          <div className="hidden sm:flex size-12 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary-soft text-primary shadow-xs">
-            {reschedule ? <RefreshCw className="size-6 text-primary" /> : <ShieldCheck className="size-6 text-primary" />}
-          </div>
+      {/* ── OUTER CARD HEADER (CENTER-ALIGNED) ── */}
+      <div className="relative z-10 flex flex-col items-center text-center space-y-3 max-w-2xl mx-auto pt-2 pb-1">
+        <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/80 px-4 py-1 text-xs font-semibold text-primary backdrop-blur-md shadow-xs">
+          {reschedule ? "Appointment Management" : "Clinical Sanctuary Scheduling"}
         </div>
+        <h1 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+          {reschedule ? "Reschedule Appointment" : "Book an Appointment"}
+        </h1>
+        <p className="text-sm sm:text-base text-text-secondary leading-relaxed max-w-xl mx-auto">
+          {reschedule
+            ? "Select a new date and time that fits your schedule."
+            : "Choose your preferred dental service, practitioner, and an optimal appointment time."}
+        </p>
       </div>
 
-      {/* ================================================================
-          MODERN STEPPER BAR (PROGRESS TRACKER)
-          ================================================================ */}
-      {!reschedule && (
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/70 bg-background-subtle/70 px-6 py-4 sm:px-10">
-          <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto py-1">
-            {stepsList.map((item, idx) => {
-              const isCurrent = item.id === step;
-              const isDone = idx < currentStepIndex;
+      {/* ── INNER NESTED LUXURY BOOKING CARD ("ONE CARD INSIDE ANOTHER") ── */}
+      <div className="relative z-10 overflow-hidden rounded-[32px] border border-border/80 bg-background-subtle/80 backdrop-blur-xl shadow-lg">
+        {/* Stepper Progress Bar */}
+        {!reschedule && (
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/70 bg-surface/90 px-6 py-4 sm:px-8">
+            <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto py-1">
+              {stepsList.map((item, idx) => {
+                const isCurrent = item.id === step;
+                const isDone = idx < currentStepIndex;
 
-              return (
-                <div key={item.id} className="flex items-center gap-2">
-                  <div
-                    className={cn(
-                      "flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-200",
-                      isCurrent && "bg-primary text-primary-foreground shadow-md shadow-primary/25 ring-2 ring-primary/30",
-                      isDone && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-                      !isCurrent && !isDone && "bg-surface text-text-muted border border-border/70",
-                    )}
-                  >
-                    <span
+                return (
+                  <div key={item.id} className="flex items-center gap-2">
+                    <div
                       className={cn(
-                        "flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
-                        isCurrent && "bg-white text-primary",
-                        isDone && "bg-emerald-600 text-white",
-                        !isCurrent && !isDone && "bg-background-subtle text-text-muted",
+                        "flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-200",
+                        isCurrent && "bg-primary text-primary-foreground shadow-md shadow-primary/25 ring-2 ring-primary/30",
+                        isDone && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+                        !isCurrent && !isDone && "bg-surface text-text-muted border border-border/70",
                       )}
                     >
-                      {isDone ? <Check className="size-3 stroke-[2.5]" /> : item.num}
-                    </span>
-                    <span className="whitespace-nowrap">{item.label}</span>
+                      <span
+                        className={cn(
+                          "flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
+                          isCurrent && "bg-white text-primary",
+                          isDone && "bg-emerald-600 text-white",
+                          !isCurrent && !isDone && "bg-background-subtle text-text-muted",
+                        )}
+                      >
+                        {isDone ? <Check className="size-3 stroke-[2.5]" /> : item.num}
+                      </span>
+                      <span className="whitespace-nowrap">{item.label}</span>
+                    </div>
+
+                    {idx < stepsList.length - 1 && (
+                      <span className="text-border text-sm hidden sm:inline">&rarr;</span>
+                    )}
                   </div>
+                );
+              })}
+            </div>
 
-                  {idx < stepsList.length - 1 && (
-                    <span className="text-border text-sm hidden sm:inline">&rarr;</span>
-                  )}
-                </div>
-              );
-            })}
+            {step !== "service" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 rounded-xl text-xs text-text-secondary hover:text-foreground"
+                onClick={() => {
+                  if (step === "confirm") setStep("slot");
+                  else if (step === "slot") setStep("practitioner");
+                  else if (step === "practitioner") setStep("service");
+                }}
+              >
+                <ChevronLeft className="size-4" /> Previous Step
+              </Button>
+            )}
           </div>
+        )}
 
-          {step !== "service" && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1.5 rounded-xl text-xs text-text-secondary hover:text-foreground"
-              onClick={() => {
-                if (step === "confirm") setStep("slot");
-                else if (step === "slot") setStep("practitioner");
-                else if (step === "practitioner") setStep("service");
-              }}
-            >
-              <ChevronLeft className="size-4" /> Previous Step
-            </Button>
-          )}
-        </div>
-      )}
-
-      {/* ================================================================
-          STEP CONTENT
-          ================================================================ */}
-      <CardContent className="p-6 sm:p-10 space-y-8">
+        {/* Stepper Inner Content Area */}
+        <div className="p-6 sm:p-8 lg:p-9 space-y-8">
         {/* ── STEP 1: SERVICE SELECTION ── */}
         {step === "service" && (
           <div className="space-y-6">
@@ -1050,7 +1038,8 @@ export function BookingWizard({
             </div>
           </div>
         )}
-      </CardContent>
+        </div>
+      </div>
     </div>
   );
 }
