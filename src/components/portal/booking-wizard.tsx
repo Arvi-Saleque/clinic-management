@@ -26,7 +26,6 @@ import {
   MapPin,
   RefreshCw,
   ShieldCheck,
-  Sparkles,
   Stethoscope,
   Users,
 } from "lucide-react";
@@ -355,7 +354,6 @@ export function BookingWizard({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary backdrop-blur-md">
-              <Sparkles className="size-3.5 text-accent" />
               {reschedule ? "Appointment Management" : "Clinical Sanctuary Scheduling"}
             </div>
             <h1 className="font-heading text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">

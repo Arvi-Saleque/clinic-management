@@ -14,7 +14,6 @@ import {
   Receipt,
   ShieldCheck,
   Smile,
-  Sparkles,
   UserRound,
   X,
 } from "lucide-react";
@@ -107,9 +106,8 @@ export function PortalShell({ profile, patientReference, registered, children }:
           </span>
         </Link>
 
-        <div className="mt-8 flex items-center justify-between px-3">
+        <div className="mt-8 px-3">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-text-muted">My care</p>
-          <Sparkles className="size-3.5 text-accent" />
         </div>
         <div className="mt-2 flex-1 overflow-y-auto">
           <PortalNavigation pathname={pathname} />

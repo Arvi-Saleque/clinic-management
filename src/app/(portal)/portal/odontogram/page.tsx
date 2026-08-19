@@ -23,18 +23,19 @@ export default async function PortalOdontogramPage() {
 
   return (
     <div className="space-y-7">
-      <section className="relative overflow-hidden rounded-[30px] bg-secondary p-6 text-secondary-foreground shadow-xl sm:p-8">
-        <div className="absolute -right-16 -top-20 size-64 rounded-full bg-accent/15 blur-3xl" />
+      <section className="relative rounded-[30px] border-b border-border/60 pb-6 bg-transparent">
         <div className="relative grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Tooth-by-tooth record</p>
-            <h1 className="mt-2 font-serif text-4xl">My dental care</h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-white/60">Explore your current dental chart, recorded conditions and recommended next treatments.</p>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">
+              Tooth-by-tooth record
+            </span>
+            <h1 className="mt-3 font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">My dental care</h1>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-text-secondary">Explore your current dental chart, recorded conditions and recommended next treatments.</p>
           </div>
-          <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 text-center"><p className="text-2xl font-bold">{entries.length}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-white/50">Charted</p></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 text-center"><p className="text-2xl font-bold">{planned.length}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-white/50">Planned</p></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-4 text-center"><p className="text-2xl font-bold">{urgent}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-white/50">Urgent</p></div>
+          <div className="grid grid-cols-3 gap-2.5">
+            <div className="rounded-2xl border border-border bg-surface p-4 text-center shadow-xs"><p className="text-2xl font-bold text-foreground">{entries.length}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-text-muted">Charted</p></div>
+            <div className="rounded-2xl border border-border bg-surface p-4 text-center shadow-xs"><p className="text-2xl font-bold text-foreground">{planned.length}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-text-muted">Planned</p></div>
+            <div className="rounded-2xl border border-border bg-surface p-4 text-center shadow-xs"><p className="text-2xl font-bold text-foreground">{urgent}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-text-muted">Urgent</p></div>
           </div>
         </div>
       </section>

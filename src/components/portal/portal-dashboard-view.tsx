@@ -13,7 +13,6 @@ import {
   MessageCircle,
   Navigation,
   RefreshCw,
-  Sparkles,
   Stethoscope,
   ArrowRight,
   Smile,
@@ -64,7 +63,7 @@ function getGreeting(name: string) {
   const hour = new Date().getHours();
   if (hour < 12) return { text: `Good morning, ${name}`, emoji: "🌿" };
   if (hour < 17) return { text: `Good afternoon, ${name}`, emoji: "☀️" };
-  return { text: `Good evening, ${name}`, emoji: "✨" };
+  return { text: `Good evening, ${name}`, emoji: "🌙" };
 }
 
 function getRelativeTimeBadge(date: Date, index: number) {
@@ -198,7 +197,6 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary-soft/80 px-3 py-0.5 text-xs font-semibold text-primary backdrop-blur-md">
-              <Sparkles className="size-3.5" />
               Patient Sanctuary
             </span>
             {props.patientReference && (
@@ -420,7 +418,7 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
               </div>
 
               <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-300">
-                All Caught Up ✨
+                All Caught Up
               </Badge>
 
               <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
