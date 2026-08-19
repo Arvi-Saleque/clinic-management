@@ -1,8 +1,19 @@
 "use client";
 
 import * as React from "react";
-import { format, addDays } from "date-fns";
 import {
+  format,
+  addDays,
+  differenceInDays,
+  startOfDay,
+  isSameDay,
+  isToday,
+  isBefore,
+  isAfter,
+} from "date-fns";
+import {
+  Calendar as CalendarIcon,
+  CalendarDays,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -10,6 +21,7 @@ import {
   Loader2,
   RefreshCw,
   ShieldCheck,
+  Sparkles,
   Stethoscope,
   Users,
 } from "lucide-react";
@@ -17,7 +29,9 @@ import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { getAvailableSlots, type SlotResult } from "@/lib/server/appointments";
 import { listPractitionersForService } from "@/lib/server/directory";
 import { bookOwnAppointmentAction, rescheduleOwnAppointmentAction } from "@/lib/server/booking";
@@ -46,6 +60,9 @@ export function BookingWizard({
   services: Service[];
   reschedule?: { id: string; startsAt: string; serviceId: string; practitionerId: string } | null;
 }) {
+  const today = React.useMemo(() => startOfDay(new Date()), []);
+  const maxBookingDate = React.useMemo(() => addDays(today, 30), [today]);
+
   const [step, setStep] = React.useState<Step>(reschedule ? "slot" : "service");
   const [service, setService] = React.useState<Service | null>(() =>
     reschedule ? services.find((item) => item.id === reschedule.serviceId) ?? null : null,
@@ -53,9 +70,23 @@ export function BookingWizard({
   const [offeredPractitioners, setOfferedPractitioners] = React.useState<ServicePractitionerOption[]>([]);
   const [loadingPractitioners, setLoadingPractitioners] = React.useState(false);
   const [practitioner, setPractitioner] = React.useState<ServicePractitionerOption | null>(null);
+
+  // Selected date ("yyyy-MM-dd")
   const [date, setDate] = React.useState(() =>
-    format(reschedule ? new Date(reschedule.startsAt) : new Date(), "yyyy-MM-dd"),
+    format(reschedule ? new Date(reschedule.startsAt) : today, "yyyy-MM-dd"),
   );
+
+  // Offset for 7-day strip window (0 to 24 days from today)
+  const [stripOffset, setStripOffset] = React.useState<number>(() => {
+    if (reschedule) {
+      const diff = differenceInDays(startOfDay(new Date(reschedule.startsAt)), today);
+      return Math.max(0, Math.min(23, diff - 2));
+    }
+    return 0;
+  });
+
+  const [calendarOpen, setCalendarOpen] = React.useState(false);
+
   const [slots, setSlots] = React.useState<SlotResult[]>([]);
   const [loadingSlots, setLoadingSlots] = React.useState(false);
   const [otherDoctorSlots, setOtherDoctorSlots] = React.useState<OtherDoctorAvailability[]>([]);
@@ -63,6 +94,44 @@ export function BookingWizard({
   const [selectedSlot, setSelectedSlot] = React.useState<SlotResult | null>(null);
   const [booking, setBooking] = React.useState<string | null>(null);
   const [recommendedSlot, setRecommendedSlot] = React.useState<string | null>(null);
+
+  // Calculate the 7 days currently in the visible strip
+  const visible7Days = React.useMemo(() => {
+    return Array.from({ length: 7 }).map((_, idx) => addDays(today, stripOffset + idx));
+  }, [today, stripOffset]);
+
+  // Selected date object
+  const selectedDateObj = React.useMemo(() => {
+    try {
+      return new Date(`${date}T00:00:00`);
+    } catch {
+      return today;
+    }
+  }, [date, today]);
+
+  // Handle selecting a specific date (from 7-day strip or calendar picker)
+  function handleSelectDate(d: Date) {
+    const formatted = format(d, "yyyy-MM-dd");
+    setDate(formatted);
+    setSelectedSlot(null);
+    setRecommendedSlot(null);
+
+    // Keep the 7-day strip in sync if picked date is outside current window
+    const diff = differenceInDays(startOfDay(d), today);
+    if (diff < stripOffset || diff >= stripOffset + 7) {
+      setStripOffset(Math.max(0, Math.min(23, diff - 2)));
+    }
+  }
+
+  // Shift strip left by 7 days (or 1 day)
+  function handleStripPrevious() {
+    setStripOffset((prev) => Math.max(0, prev - 7));
+  }
+
+  // Shift strip right by 7 days (or 1 day)
+  function handleStripNext() {
+    setStripOffset((prev) => Math.min(23, prev + 7));
+  }
 
   // Handle service selection: state reset + dynamic doctor loading
   async function handleSelectService(s: Service) {
@@ -117,7 +186,6 @@ export function BookingWizard({
           if (matched) {
             setPractitioner(matched);
           } else {
-            // Fallback object if practitioner is no longer in offered list
             setPractitioner({
               id: reschedule.practitionerId,
               practitioner_id: reschedule.practitionerId,
@@ -156,10 +224,11 @@ export function BookingWizard({
         if (matchedDoc) {
           setPractitioner(matchedDoc);
           setDate(pending.date);
+          const diff = differenceInDays(startOfDay(new Date(pending.date)), today);
+          setStripOffset(Math.max(0, Math.min(23, diff - 2)));
           setRecommendedSlot(pending.slotStart);
           setStep("slot");
         } else {
-          // Practitioner no longer offers this service: land on Step 2 safely
           setStep("practitioner");
           toast.info("Please select an available doctor for this service.");
         }
@@ -247,7 +316,6 @@ export function BookingWizard({
         toast.error(result.error);
         setBooking(null);
       }
-      // On success the server action redirects automatically
     } catch (err: unknown) {
       const isRedirect =
         typeof err === "object" &&
@@ -266,10 +334,11 @@ export function BookingWizard({
   }
 
   return (
-    <Card className="overflow-hidden rounded-3xl shadow-sm">
+    <Card className="overflow-hidden rounded-3xl shadow-sm border border-border/80 bg-surface">
+      {/* Header Banner */}
       <div className="bg-secondary px-5 py-6 text-secondary-foreground sm:px-7">
         <div className="flex items-center gap-3">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-white/10">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-white/10 shadow-xs">
             {reschedule ? <RefreshCw className="size-5 text-accent" /> : <ShieldCheck className="size-5 text-accent" />}
           </span>
           <div>
@@ -343,12 +412,13 @@ export function BookingWizard({
           {reschedule && "Your service and practitioner will stay the same."}
           {!reschedule && step === "service" && "Step 1 of 4 — choose the care service you need"}
           {!reschedule && step === "practitioner" && "Step 2 of 4 — doctors who actively provide this procedure"}
-          {!reschedule && step === "slot" && "Step 3 of 4 — select from your doctor or view other available doctors"}
+          {!reschedule && step === "slot" && "Step 3 of 4 — select from 7-day strip or pick any date within 30 days"}
           {!reschedule && step === "confirm" && "Step 4 of 4 — review and confirm your visit details"}
         </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* STEP 1: SERVICE */}
         {step === "service" && (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {services.map((s) => (
@@ -372,6 +442,7 @@ export function BookingWizard({
           </div>
         )}
 
+        {/* STEP 2: PRACTITIONER */}
         {step === "practitioner" && (
           <div className="space-y-4">
             {service && (
@@ -445,14 +516,13 @@ export function BookingWizard({
           </div>
         )}
 
+        {/* STEP 3: DATE & TIME SLOT PICKER (7-DAY STRIP + 30-DAY CALENDAR) */}
         {step === "slot" && service && practitioner && (
           <div className="space-y-6">
             {/* Service & Primary Doctor Info Bar */}
             <div className="flex items-center justify-between rounded-2xl border border-border bg-background-subtle p-4 text-sm">
               <div>
-                <p className="font-semibold text-foreground">
-                  {service.name}
-                </p>
+                <p className="font-semibold text-foreground">{service.name}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Selected Doctor: <strong className="text-foreground">{practitioner.doctor_name}</strong> &middot; {practitioner.effective_duration_minutes} min &middot; ৳{practitioner.effective_price.toLocaleString()}
                 </p>
@@ -478,45 +548,165 @@ export function BookingWizard({
               </p>
             )}
 
-            {/* Date Navigator */}
-            <div className="flex items-center justify-between rounded-2xl border border-border bg-surface p-3">
-              <Button
-                variant="outline"
-                size="icon-sm"
-                onClick={() => {
-                  setSelectedSlot(null);
-                  setRecommendedSlot(null);
-                  setDate(format(addDays(new Date(`${date}T00:00:00`), -1), "yyyy-MM-dd"));
-                }}
-                aria-label="Previous day"
-              >
-                <ChevronLeft className="size-4" />
-              </Button>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-foreground">
-                  {format(new Date(`${date}T00:00:00`), "EEEE, d MMMM yyyy")}
-                </p>
-                <p className="text-[11px] text-muted-foreground">Viewing available slots</p>
+            {/* ==========================================================
+                7-DAY STRIP & 30-DAY CALENDAR PICKER CARD
+                ========================================================== */}
+            <div className="rounded-3xl border border-border/80 bg-surface p-5 sm:p-6 shadow-sm space-y-5">
+              {/* Month Header & 30-Day Calendar Quick Picker */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border/60 pb-4">
+                <div>
+                  <h3 className="font-heading text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+                    {format(selectedDateObj, "MMMM yyyy")}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Select a date within the upcoming 30 days ({format(today, "MMM d")} &ndash; {format(maxBookingDate, "MMM d, yyyy")})
+                  </p>
+                </div>
+
+                {/* 30-Day Popover Calendar Trigger */}
+                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                  <PopoverTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 rounded-xl border-border bg-background-subtle px-3.5 text-xs font-semibold text-foreground hover:border-primary hover:bg-primary-soft/40 shadow-xs"
+                      />
+                    }
+                  >
+                    <CalendarDays className="size-4 text-primary" />
+                    <span>Choose from 30 Days</span>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="p-0 rounded-2xl shadow-xl border-border">
+                    <div className="p-3 border-b border-border bg-background-subtle text-center">
+                      <p className="text-xs font-semibold text-foreground">Available Booking Window</p>
+                      <p className="text-[11px] text-muted-foreground">Pick any day within the next 30 days</p>
+                    </div>
+                    <div className="p-2">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDateObj}
+                        onSelect={(d) => {
+                          if (d) {
+                            handleSelectDate(d);
+                            setCalendarOpen(false);
+                          }
+                        }}
+                        disabled={(d) => isBefore(d, today) || isAfter(d, maxBookingDate)}
+                      />
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
-              <Button
-                variant="outline"
-                size="icon-sm"
-                onClick={() => {
-                  setSelectedSlot(null);
-                  setRecommendedSlot(null);
-                  setDate(format(addDays(new Date(`${date}T00:00:00`), 1), "yyyy-MM-dd"));
-                }}
-                aria-label="Next day"
-              >
-                <ChevronRight className="size-4" />
-              </Button>
+
+              {/* 7-Day Interactive Strip Navigation */}
+              <div className="relative flex items-center justify-between gap-2 sm:gap-3">
+                {/* Left Button */}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  disabled={stripOffset === 0}
+                  onClick={handleStripPrevious}
+                  aria-label="Previous 7 days"
+                  className="size-10 shrink-0 rounded-2xl border-border/80 bg-background-subtle/80 hover:bg-primary-soft hover:border-primary transition-all disabled:opacity-30 shadow-xs"
+                >
+                  <ChevronLeft className="size-4 text-foreground" />
+                </Button>
+
+                {/* 7-Day Strip Cards Grid */}
+                <div className="grid flex-1 grid-cols-7 gap-1.5 sm:gap-2.5">
+                  {visible7Days.map((dayItem) => {
+                    const isSelected = isSameDay(dayItem, selectedDateObj);
+                    const isCurrentDay = isToday(dayItem);
+                    const isPast = isBefore(dayItem, today);
+                    const isBeyond30 = isAfter(dayItem, maxBookingDate);
+                    const disabled = isPast || isBeyond30;
+
+                    const weekdayShort = format(dayItem, "EEE");
+                    const dayNum = format(dayItem, "d");
+
+                    return (
+                      <button
+                        key={dayItem.toISOString()}
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => handleSelectDate(dayItem)}
+                        className={cn(
+                          "group relative flex flex-col items-center justify-center rounded-2xl py-3 px-1 transition-all duration-200",
+                          isSelected
+                            ? "bg-primary text-primary-foreground font-bold shadow-md shadow-primary/25 scale-[1.04] ring-2 ring-primary ring-offset-2 ring-offset-background"
+                            : "bg-background-subtle hover:bg-primary-soft/50 border border-border/70 text-foreground hover:border-primary/40",
+                          disabled && "opacity-35 pointer-events-none cursor-not-allowed",
+                        )}
+                      >
+                        {/* Short Weekday */}
+                        <span
+                          className={cn(
+                            "text-[11px] font-medium tracking-wide",
+                            isSelected ? "text-primary-foreground/90 font-semibold" : "text-muted-foreground",
+                          )}
+                        >
+                          {weekdayShort}
+                        </span>
+
+                        {/* Day Number */}
+                        <span
+                          className={cn(
+                            "font-heading text-lg sm:text-xl font-bold leading-tight my-0.5",
+                            isSelected ? "text-primary-foreground" : "text-foreground",
+                          )}
+                        >
+                          {dayNum}
+                        </span>
+
+                        {/* Bottom Status Indicator */}
+                        <div
+                          className={cn(
+                            "mt-1 h-1 w-5 rounded-full transition-colors",
+                            isSelected
+                              ? "bg-white"
+                              : isCurrentDay
+                                ? "bg-accent"
+                                : "bg-emerald-500/40 group-hover:bg-emerald-500",
+                          )}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Right Button */}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  disabled={stripOffset >= 23}
+                  onClick={handleStripNext}
+                  aria-label="Next 7 days"
+                  className="size-10 shrink-0 rounded-2xl border-border/80 bg-background-subtle/80 hover:bg-primary-soft hover:border-primary transition-all disabled:opacity-30 shadow-xs"
+                >
+                  <ChevronRight className="size-4 text-foreground" />
+                </Button>
+              </div>
+
+              {/* Selected Day Context Indicator */}
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-background-subtle/70 px-4 py-2.5 text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">
+                  {format(selectedDateObj, "EEEE, MMMM d, yyyy")}
+                </span>
+                <span className="text-primary font-medium flex items-center gap-1.5">
+                  <span className="size-1.5 rounded-full bg-emerald-500" />
+                  {loadingSlots ? "Checking slots..." : `${slots.length} available slots for ${practitioner.doctor_name}`}
+                </span>
+              </div>
             </div>
 
-            {/* 1. SELECTED DOCTOR AVAILABLE SLOTS */}
-            <div className="rounded-3xl border border-primary/30 bg-surface p-5 shadow-xs sm:p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-border/60 pb-3">
+            {/* ==========================================================
+                TIME SLOTS GRID (AESTHETIC PILL BUTTONS)
+                ========================================================== */}
+            <div className="rounded-3xl border border-primary/25 bg-surface p-5 sm:p-6 shadow-xs space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
                 <div className="flex items-center gap-3">
-                  <span className="flex size-10 items-center justify-center rounded-xl bg-primary-soft text-primary font-bold">
+                  <span className="flex size-10 items-center justify-center rounded-xl bg-primary-soft text-primary font-bold shadow-xs">
                     <Stethoscope className="size-5" />
                   </span>
                   <div>
@@ -529,61 +719,83 @@ export function BookingWizard({
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {practitioner.title || "Dental Specialist"} &middot; {practitioner.effective_duration_minutes} min
+                      {practitioner.title || "Dental Specialist"} &middot; {practitioner.effective_duration_minutes} min duration
                     </p>
                   </div>
                 </div>
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Available Slots
+                </span>
               </div>
 
               {loadingSlots ? (
-                <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
-                  <Loader2 className="size-4 animate-spin text-primary" /> Loading open times for {practitioner.doctor_name}...
+                <div className="flex flex-col items-center justify-center py-8 text-center text-sm text-muted-foreground gap-2">
+                  <Loader2 className="size-6 animate-spin text-primary" />
+                  <p>Loading open times for {format(selectedDateObj, "MMM d")}...</p>
                 </div>
               ) : slots.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border p-4 text-center">
-                  <p className="text-sm font-medium text-foreground">No open slots for {practitioner.doctor_name} on this date.</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    Try changing the date above or check the available times of other doctors below.
+                <div className="rounded-2xl border border-dashed border-border p-6 text-center space-y-3">
+                  <p className="text-sm font-semibold text-foreground">
+                    No open slots for {practitioner.doctor_name} on {format(selectedDateObj, "EEEE, MMM d")}.
                   </p>
+                  <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                    Please pick another date from the 7-day strip above, or select an alternative doctor below.
+                  </p>
+                  {/* Quick jump to next day button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSelectDate(addDays(selectedDateObj, 1))}
+                    className="rounded-xl border-primary/30 text-xs font-semibold text-primary hover:bg-primary-soft"
+                  >
+                    Check Next Day ({format(addDays(selectedDateObj, 1), "MMM d")}) &rarr;
+                  </Button>
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-                  {slots.map((slot) => (
-                    <Button
-                      key={slot.slot_start}
-                      variant="outline"
-                      onClick={() => handleSelectSlot(slot)}
-                      className={cn(
-                        "rounded-xl py-5 transition-all",
-                        slot.slot_start === recommendedSlot &&
-                          "border-primary bg-primary/10 ring-1 ring-primary",
-                        selectedSlot?.slot_start === slot.slot_start &&
-                          "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
-                      )}
-                    >
-                      <span className="flex items-center gap-1.5 font-semibold">
-                        <span
-                          className={cn(
-                            "size-1.5 rounded-full",
-                            selectedSlot?.slot_start === slot.slot_start ? "bg-white" : "bg-success",
-                          )}
-                        />
-                        {format(new Date(slot.slot_start), "HH:mm")}
-                      </span>
-                    </Button>
-                  ))}
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5 pt-1">
+                  {slots.map((slot) => {
+                    const isChosen = selectedSlot?.slot_start === slot.slot_start;
+                    const isHomepagePick = slot.slot_start === recommendedSlot;
+
+                    return (
+                      <button
+                        key={slot.slot_start}
+                        type="button"
+                        onClick={() => handleSelectSlot(slot)}
+                        className={cn(
+                          "group relative flex items-center justify-center rounded-full py-3 px-3 text-sm font-semibold transition-all duration-200 hover:scale-[1.03]",
+                          isChosen
+                            ? "bg-primary text-primary-foreground font-bold shadow-md shadow-primary/30 ring-2 ring-primary ring-offset-2 ring-offset-background"
+                            : "border border-emerald-500/20 bg-emerald-500/10 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-500/20 hover:border-emerald-500/40 hover:shadow-xs",
+                          isHomepagePick && !isChosen && "ring-1 ring-accent border-accent bg-accent/15",
+                        )}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span
+                            className={cn(
+                              "size-1.5 rounded-full",
+                              isChosen ? "bg-white" : "bg-emerald-500",
+                            )}
+                          />
+                          {format(new Date(slot.slot_start), "HH:mm")}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
 
-            {/* 2. ALL OTHER DOCTORS AVAILABLE TIMES */}
+            {/* ==========================================================
+                ALTERNATIVE DOCTORS SLOTS ON THE SAME DATE
+                ========================================================== */}
             {offeredPractitioners.length > 1 && (
               <div className="space-y-4 pt-2">
                 <div className="flex items-center gap-2 px-1">
                   <Users className="size-4 text-primary" />
                   <div>
                     <h3 className="font-heading text-sm font-bold text-foreground">
-                      Other Doctors Available on {format(new Date(`${date}T00:00:00`), "MMM d")}
+                      Other Doctors Available on {format(selectedDateObj, "MMM d")}
                     </h3>
                     <p className="text-xs text-muted-foreground">
                       Need a different time? Click any open slot below to book with that doctor instead.
@@ -628,19 +840,19 @@ export function BookingWizard({
                               No open slots on this date for {doc.doctor_name}.
                             </p>
                           ) : (
-                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6 pt-1">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5 pt-1">
                               {docSlots.map((slot) => (
-                                <Button
+                                <button
                                   key={slot.slot_start}
-                                  variant="outline"
+                                  type="button"
                                   onClick={() => handleSelectOtherDoctorSlot(doc, slot)}
-                                  className="rounded-xl py-5 border-border/80 bg-surface hover:border-primary hover:bg-primary-soft/40"
+                                  className="group flex items-center justify-center rounded-full py-2.5 px-3 text-xs font-semibold border border-border/80 bg-surface hover:border-primary hover:bg-primary-soft/40 hover:scale-[1.03] transition-all shadow-xs"
                                 >
-                                  <span className="flex items-center gap-1.5 text-xs font-semibold">
-                                    <span className="size-1.5 rounded-full bg-success" />
+                                  <span className="flex items-center gap-1.5">
+                                    <span className="size-1.5 rounded-full bg-emerald-500" />
                                     {format(new Date(slot.slot_start), "HH:mm")}
                                   </span>
-                                </Button>
+                                </button>
                               ))}
                             </div>
                           )}
@@ -660,6 +872,7 @@ export function BookingWizard({
           </div>
         )}
 
+        {/* STEP 4: CONFIRMATION */}
         {step === "confirm" && service && practitioner && selectedSlot && (
           <div className="space-y-5">
             <div className="rounded-2xl border border-border bg-background-subtle p-5 space-y-4">
