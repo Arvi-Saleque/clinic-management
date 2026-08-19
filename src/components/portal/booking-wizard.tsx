@@ -57,6 +57,84 @@ interface OtherDoctorAvailability {
   slots: SlotResult[];
 }
 
+const SERVICE_THEMES = [
+  {
+    card: "bg-emerald-500/[0.05] hover:bg-emerald-500/[0.10] border-emerald-500/25 hover:border-emerald-500/50 dark:bg-emerald-950/20",
+    badge: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    iconBg: "bg-emerald-600 text-white shadow-md shadow-emerald-600/20",
+    accent: "bg-emerald-500",
+    textHover: "group-hover:text-emerald-700 dark:group-hover:text-emerald-300",
+    arrow: "text-emerald-600 dark:text-emerald-400",
+  },
+  {
+    card: "bg-teal-500/[0.05] hover:bg-teal-500/[0.10] border-teal-500/25 hover:border-teal-500/50 dark:bg-teal-950/20",
+    badge: "border-teal-500/30 bg-teal-500/15 text-teal-700 dark:text-teal-300",
+    iconBg: "bg-teal-600 text-white shadow-md shadow-teal-600/20",
+    accent: "bg-teal-500",
+    textHover: "group-hover:text-teal-700 dark:group-hover:text-teal-300",
+    arrow: "text-teal-600 dark:text-teal-400",
+  },
+  {
+    card: "bg-sky-500/[0.05] hover:bg-sky-500/[0.10] border-sky-500/25 hover:border-sky-500/50 dark:bg-sky-950/20",
+    badge: "border-sky-500/30 bg-sky-500/15 text-sky-700 dark:text-sky-300",
+    iconBg: "bg-sky-600 text-white shadow-md shadow-sky-600/20",
+    accent: "bg-sky-500",
+    textHover: "group-hover:text-sky-700 dark:group-hover:text-sky-300",
+    arrow: "text-sky-600 dark:text-sky-400",
+  },
+  {
+    card: "bg-indigo-500/[0.05] hover:bg-indigo-500/[0.10] border-indigo-500/25 hover:border-indigo-500/50 dark:bg-indigo-950/20",
+    badge: "border-indigo-500/30 bg-indigo-500/15 text-indigo-700 dark:text-indigo-300",
+    iconBg: "bg-indigo-600 text-white shadow-md shadow-indigo-600/20",
+    accent: "bg-indigo-500",
+    textHover: "group-hover:text-indigo-700 dark:group-hover:text-indigo-300",
+    arrow: "text-indigo-600 dark:text-indigo-400",
+  },
+  {
+    card: "bg-amber-500/[0.05] hover:bg-amber-500/[0.10] border-amber-500/25 hover:border-amber-500/50 dark:bg-amber-950/20",
+    badge: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-300",
+    iconBg: "bg-amber-600 text-white shadow-md shadow-amber-600/20",
+    accent: "bg-amber-500",
+    textHover: "group-hover:text-amber-700 dark:group-hover:text-amber-300",
+    arrow: "text-amber-600 dark:text-amber-400",
+  },
+  {
+    card: "bg-rose-500/[0.05] hover:bg-rose-500/[0.10] border-rose-500/25 hover:border-rose-500/50 dark:bg-rose-950/20",
+    badge: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-300",
+    iconBg: "bg-rose-600 text-white shadow-md shadow-rose-600/20",
+    accent: "bg-rose-500",
+    textHover: "group-hover:text-rose-700 dark:group-hover:text-rose-300",
+    arrow: "text-rose-600 dark:text-rose-400",
+  },
+];
+
+const DOCTOR_THEMES = [
+  {
+    card: "bg-emerald-500/[0.06] hover:bg-emerald-500/[0.12] border-emerald-500/30 hover:border-emerald-500/55 dark:bg-emerald-950/25",
+    badge: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    iconBg: "bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-md shadow-emerald-500/20",
+    arrow: "text-emerald-600 dark:text-emerald-400",
+  },
+  {
+    card: "bg-teal-500/[0.06] hover:bg-teal-500/[0.12] border-teal-500/30 hover:border-teal-500/55 dark:bg-teal-950/25",
+    badge: "border-teal-500/30 bg-teal-500/15 text-teal-700 dark:text-teal-300",
+    iconBg: "bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-md shadow-teal-500/20",
+    arrow: "text-teal-600 dark:text-teal-400",
+  },
+  {
+    card: "bg-sky-500/[0.06] hover:bg-sky-500/[0.12] border-sky-500/30 hover:border-sky-500/55 dark:bg-sky-950/25",
+    badge: "border-sky-500/30 bg-sky-500/15 text-sky-700 dark:text-sky-300",
+    iconBg: "bg-gradient-to-br from-sky-500 to-sky-700 text-white shadow-md shadow-sky-500/20",
+    arrow: "text-sky-600 dark:text-sky-400",
+  },
+  {
+    card: "bg-indigo-500/[0.06] hover:bg-indigo-500/[0.12] border-indigo-500/30 hover:border-indigo-500/55 dark:bg-indigo-950/25",
+    badge: "border-indigo-500/30 bg-indigo-500/15 text-indigo-700 dark:text-indigo-300",
+    iconBg: "bg-gradient-to-br from-indigo-500 to-indigo-700 text-white shadow-md shadow-indigo-500/20",
+    arrow: "text-indigo-600 dark:text-indigo-400",
+  },
+];
+
 export function BookingWizard({
   services,
   reschedule,
@@ -427,6 +505,7 @@ export function BookingWizard({
         {/* Stepper Inner Content Area */}
         <div className="p-6 sm:p-8 lg:p-9 space-y-8">
         {/* ── STEP 1: SERVICE SELECTION ── */}
+        {/* ── STEP 1: SERVICE SELECTION ── */}
         {step === "service" && (
           <div className="space-y-6">
             <div className="space-y-1">
@@ -439,54 +518,60 @@ export function BookingWizard({
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {services.map((s, idx) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => handleSelectService(s)}
-                  className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-surface p-6 text-left shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:bg-primary-soft/30 hover:shadow-xl"
-                >
-                  {/* Accent line on hover */}
-                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary opacity-0 transition-opacity group-hover:opacity-100" />
+              {services.map((s, idx) => {
+                const theme = SERVICE_THEMES[idx % SERVICE_THEMES.length];
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => handleSelectService(s)}
+                    className={cn(
+                      "group relative flex flex-col justify-between overflow-hidden rounded-3xl p-6 text-left shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-xl backdrop-blur-md border",
+                      theme.card,
+                    )}
+                  >
+                    {/* Accent line on hover */}
+                    <div className={cn("absolute left-0 top-0 bottom-0 w-1.5 opacity-0 transition-opacity group-hover:opacity-100", theme.accent)} />
 
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex size-11 items-center justify-center rounded-2xl bg-primary-soft text-primary font-bold shadow-xs group-hover:scale-105 transition-transform">
-                        <Stethoscope className="size-5" />
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className={cn("flex size-11 items-center justify-center rounded-2xl font-bold shadow-xs group-hover:scale-105 transition-transform", theme.iconBg)}>
+                          <Stethoscope className="size-5" />
+                        </div>
+                        <span className={cn("rounded-full border px-2.5 py-1 text-[11px] font-semibold", theme.badge)}>
+                          Procedure 0{idx + 1}
+                        </span>
                       </div>
-                      <span className="rounded-full border border-border bg-background-subtle px-2.5 py-1 text-[11px] font-semibold text-text-muted">
-                        Procedure 0{idx + 1}
-                      </span>
+
+                      <div>
+                        <h3 className={cn("font-heading text-lg font-bold text-foreground transition-colors", theme.textHover)}>
+                          {s.name}
+                        </h3>
+                        <p className="text-xs text-text-muted mt-0.5">
+                          Comprehensive dental consultation & treatment
+                        </p>
+                      </div>
                     </div>
 
-                    <div>
-                      <h3 className="font-heading text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                        {s.name}
-                      </h3>
-                      <p className="text-xs text-text-muted mt-0.5">
-                        Comprehensive dental consultation & treatment
-                      </p>
-                    </div>
-                  </div>
+                    <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4">
+                      <div className="flex items-center gap-3 text-xs">
+                        <span className="flex items-center gap-1 font-medium text-text-secondary">
+                          <Clock className="size-3.5 text-primary" />
+                          {s.duration_minutes} mins
+                        </span>
+                        <span>&bull;</span>
+                        <span className="font-heading font-bold text-foreground">
+                          €{s.price.toLocaleString()}
+                        </span>
+                      </div>
 
-                  <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4">
-                    <div className="flex items-center gap-3 text-xs">
-                      <span className="flex items-center gap-1 font-medium text-text-secondary">
-                        <Clock className="size-3.5 text-primary" />
-                        {s.duration_minutes} mins
-                      </span>
-                      <span>&bull;</span>
-                      <span className="font-heading font-bold text-foreground">
-                        €{s.price.toLocaleString()}
+                      <span className={cn("flex items-center gap-1 text-xs font-semibold group-hover:translate-x-1 transition-transform", theme.arrow)}>
+                        Select <ArrowRight className="size-3.5" />
                       </span>
                     </div>
-
-                    <span className="flex items-center gap-1 text-xs font-semibold text-primary group-hover:translate-x-1 transition-transform">
-                      Select <ArrowRight className="size-3.5" />
-                    </span>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
 
               {services.length === 0 && (
                 <div className="col-span-2 rounded-3xl border border-dashed border-border p-8 text-center text-text-muted">
@@ -548,51 +633,57 @@ export function BookingWizard({
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {offeredPractitioners.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => handleSelectPractitioner(p)}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-surface p-6 text-left shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:bg-primary-soft/30 hover:shadow-xl"
-                  >
-                    <div className="space-y-3.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-hover text-primary-foreground font-bold shadow-md shadow-primary/20 group-hover:scale-105 transition-transform">
-                          <Stethoscope className="size-6" />
+                {offeredPractitioners.map((p, idx) => {
+                  const theme = DOCTOR_THEMES[idx % DOCTOR_THEMES.length];
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => handleSelectPractitioner(p)}
+                      className={cn(
+                        "group relative flex flex-col justify-between overflow-hidden rounded-3xl p-6 text-left shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-xl backdrop-blur-md border",
+                        theme.card,
+                      )}
+                    >
+                      <div className="space-y-3.5">
+                        <div className="flex items-center justify-between">
+                          <div className={cn("flex size-12 items-center justify-center rounded-2xl font-bold shadow-md group-hover:scale-105 transition-transform", theme.iconBg)}>
+                            <Stethoscope className="size-6" />
+                          </div>
+                          <Badge variant="outline" className={cn("text-[11px] font-semibold", theme.badge)}>
+                            Available
+                          </Badge>
                         </div>
-                        <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 text-[11px]">
-                          Available
-                        </Badge>
+
+                        <div>
+                          <h3 className="font-heading text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                            {p.doctor_name}
+                          </h3>
+                          <p className="text-xs text-text-muted mt-0.5">
+                            {p.title || "Senior Dental Specialist"}
+                          </p>
+                        </div>
                       </div>
 
-                      <div>
-                        <h3 className="font-heading text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                          {p.doctor_name}
-                        </h3>
-                        <p className="text-xs text-text-muted mt-0.5">
-                          {p.title || "Senior Dental Specialist"}
-                        </p>
-                      </div>
-                    </div>
+                      <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4">
+                        <div className="flex items-center gap-3 text-xs">
+                          <span className="flex items-center gap-1 font-medium text-text-secondary">
+                            <Clock className="size-3.5 text-primary" />
+                            {p.effective_duration_minutes} min
+                          </span>
+                          <span>&bull;</span>
+                          <span className="font-heading font-bold text-foreground">
+                            €{p.effective_price.toLocaleString()}
+                          </span>
+                        </div>
 
-                    <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4">
-                      <div className="flex items-center gap-3 text-xs">
-                        <span className="flex items-center gap-1 font-medium text-text-secondary">
-                          <Clock className="size-3.5 text-primary" />
-                          {p.effective_duration_minutes} min
+                        <span className={cn("flex items-center gap-1 text-xs font-semibold group-hover:translate-x-1 transition-transform", theme.arrow)}>
+                          Select Doctor <ArrowRight className="size-3.5" />
                         </span>
-                        <span>&bull;</span>
-                        <span className="font-heading font-bold text-foreground">
-                          €{p.effective_price.toLocaleString()}
-                        </span>
                       </div>
-
-                      <span className="flex items-center gap-1 text-xs font-semibold text-primary group-hover:translate-x-1 transition-transform">
-                        Select Doctor <ArrowRight className="size-3.5" />
-                      </span>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
