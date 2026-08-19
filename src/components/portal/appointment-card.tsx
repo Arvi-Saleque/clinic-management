@@ -5,10 +5,12 @@ import { format } from "date-fns";
 import {
   AlertTriangle,
   ArrowRight,
+  Calendar,
   CalendarClock,
   CalendarX,
   Check,
   ChevronLeft,
+  Clock,
   Clock3,
   FileText,
   Loader2,
@@ -17,6 +19,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   Stethoscope,
+  X,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -81,7 +84,7 @@ const CANCEL_REASONS = [
   "Feeling better / Symptoms resolved",
   "Need a different practitioner",
   "Travelling or personal reason",
-  "Other",
+  "Other reason",
 ];
 
 export function AppointmentCard(props: AppointmentCardProps) {
@@ -266,53 +269,81 @@ export function AppointmentCard(props: AppointmentCardProps) {
                     >
                       <XCircle className="size-3.5" /> Cancel Visit
                     </DialogTrigger>
-                    <DialogContent className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface p-6 sm:p-8 max-w-lg shadow-2xl">
-                      {/* Ambient Warning Glow */}
+                    <DialogContent className="sm:max-w-[540px] w-full relative overflow-hidden rounded-[32px] border border-border/80 bg-surface p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+                      {/* Ambient Subtle Red Glow */}
                       <div className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-destructive/10 blur-3xl" />
+                      <div className="pointer-events-none absolute -left-16 -bottom-16 size-48 rounded-full bg-amber-500/10 blur-3xl" />
+
+                      {/* 2-Step Progress Header */}
+                      <div className="flex items-center justify-center gap-2.5 pb-2">
+                        <div
+                          className={cn(
+                            "flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-bold transition-all",
+                            cancelStep === 1
+                              ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 shadow-xs"
+                              : "bg-background-subtle text-text-muted",
+                          )}
+                        >
+                          <span className="flex size-4 items-center justify-center rounded-full bg-amber-500 text-[10px] text-white">1</span>
+                          <span>Details & Reason</span>
+                        </div>
+                        <span className="text-text-muted text-xs font-bold">&rarr;</span>
+                        <div
+                          className={cn(
+                            "flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-bold transition-all",
+                            cancelStep === 2
+                              ? "bg-destructive/15 text-destructive border border-destructive/30 shadow-xs"
+                              : "bg-background-subtle text-text-muted",
+                          )}
+                        >
+                          <span className="flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] text-white">2</span>
+                          <span>Final Confirmation</span>
+                        </div>
+                      </div>
 
                       {/* ── STEP 1: INITIAL CANCEL WARNING & REASON ── */}
                       {cancelStep === 1 && (
-                        <div className="space-y-5">
+                        <div className="space-y-5 pt-2">
                           <div className="text-center space-y-2">
-                            <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-400 shadow-sm">
+                            <div className="mx-auto flex size-16 items-center justify-center rounded-3xl border border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-400 shadow-md shadow-amber-500/10">
                               <AlertTriangle className="size-8 stroke-[2.25]" />
                             </div>
                             <DialogTitle className="font-heading text-xl sm:text-2xl font-extrabold text-foreground">
                               Cancel This Appointment?
                             </DialogTitle>
                             <DialogDescription className="text-xs text-text-secondary max-w-sm mx-auto">
-                              Please review your appointment details before continuing.
+                              Please review your booking details before proceeding.
                             </DialogDescription>
                           </div>
 
                           {/* Appointment Summary Box */}
-                          <div className="rounded-2xl border border-border/80 bg-background-subtle p-4 space-y-2 text-xs">
+                          <div className="rounded-2xl border border-border/80 bg-background-subtle p-4 space-y-2.5 text-xs">
                             <div className="flex items-center justify-between font-bold text-foreground text-sm border-b border-border/60 pb-2">
                               <span>{props.serviceName}</span>
                               <span className="text-primary font-semibold">€{Number(props.price).toLocaleString()}</span>
                             </div>
                             <div className="flex items-center gap-2 text-text-muted">
-                              <CalendarClock className="size-3.5 text-primary" />
+                              <CalendarClock className="size-4 text-primary" />
                               <span>{format(date, "EEEE, MMMM d, yyyy")} &middot; {format(date, "HH:mm")}</span>
                             </div>
                             <div className="flex items-center gap-2 text-text-muted">
-                              <Stethoscope className="size-3.5 text-primary" />
+                              <Stethoscope className="size-4 text-primary" />
                               <span>Doctor: {props.practitionerName}</span>
                             </div>
                           </div>
 
-                          {/* Alternative: Reschedule Banner */}
+                          {/* Friendly Alternative: Reschedule Banner */}
                           <div className="flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary-soft/40 p-3.5 text-xs">
-                            <div>
+                            <div className="space-y-0.5">
                               <p className="font-bold text-foreground">Need a different time instead?</p>
-                              <p className="text-[11px] text-text-muted">Reschedule in seconds without losing your booking.</p>
+                              <p className="text-[11px] text-text-muted">You can easily reschedule without losing your booking.</p>
                             </div>
                             <ButtonLink
                               href={`/portal/appointments/book?reschedule=${props.id}`}
                               size="sm"
-                              className="rounded-xl text-xs font-semibold bg-primary hover:bg-primary-hover shrink-0"
+                              className="rounded-xl text-xs font-semibold bg-primary hover:bg-primary-hover shrink-0 gap-1.5 shadow-xs"
                             >
-                              Reschedule
+                              <RefreshCw className="size-3" /> Reschedule
                             </ButtonLink>
                           </div>
 
@@ -322,110 +353,124 @@ export function AppointmentCard(props: AppointmentCardProps) {
                               Reason for cancellation (optional):
                             </label>
                             <div className="flex flex-wrap gap-1.5">
-                              {CANCEL_REASONS.map((r) => (
-                                <button
-                                  key={r}
-                                  type="button"
-                                  onClick={() => setCancelReason(r)}
-                                  className={cn(
-                                    "rounded-xl px-2.5 py-1 text-[11px] font-medium border transition-all",
-                                    cancelReason === r
-                                      ? "border-destructive bg-destructive/15 text-destructive font-semibold shadow-xs"
-                                      : "border-border bg-surface text-text-muted hover:border-destructive/40",
-                                  )}
-                                >
-                                  {r}
-                                </button>
-                              ))}
+                              {CANCEL_REASONS.map((r) => {
+                                const isSelected = cancelReason === r;
+                                return (
+                                  <button
+                                    key={r}
+                                    type="button"
+                                    onClick={() => setCancelReason(isSelected ? "" : r)}
+                                    className={cn(
+                                      "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium border transition-all duration-200",
+                                      isSelected
+                                        ? "border-destructive bg-destructive/15 text-destructive font-bold shadow-xs scale-[1.02]"
+                                        : "border-border bg-surface text-text-muted hover:border-destructive/40 hover:text-foreground",
+                                    )}
+                                  >
+                                    {isSelected && <Check className="size-3 stroke-[2.5]" />}
+                                    <span>{r}</span>
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
 
                           {/* Actions */}
-                          <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-2 pt-2 border-t border-border/60">
+                          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-3 border-t border-border/60">
                             <DialogClose
                               render={
                                 <Button
+                                  type="button"
                                   variant="outline"
-                                  className="w-full sm:w-auto rounded-xl text-xs font-semibold"
+                                  className="w-full sm:w-auto rounded-2xl h-11 px-5 text-xs font-semibold border-border"
                                 />
                               }
                             >
                               Keep Appointment
                             </DialogClose>
                             <Button
-                              variant="destructive"
-                              className="w-full sm:w-auto rounded-xl text-xs font-bold gap-1.5"
+                              type="button"
+                              className="w-full sm:w-auto rounded-2xl h-11 px-5 text-xs font-bold gap-1.5 bg-destructive text-white hover:bg-destructive/90 shadow-md shadow-destructive/20"
                               onClick={() => setCancelStep(2)}
                             >
-                              Proceed to Cancel <ArrowRight className="size-3.5" />
+                              Proceed to Cancel <ArrowRight className="size-3.5 text-white" />
                             </Button>
                           </div>
                         </div>
                       )}
 
-                      {/* ── STEP 2: DOUBLE CONFIRMATION (FINAL STEP) ── */}
+                      {/* ── STEP 2: DOUBLE CONFIRMATION (FINAL PERMANENT STEP) ── */}
                       {cancelStep === 2 && (
-                        <div className="space-y-5">
+                        <div className="space-y-5 pt-2">
                           <div className="text-center space-y-2">
-                            <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/15 text-destructive shadow-lg shadow-destructive/15 animate-pulse">
+                            <div className="mx-auto flex size-16 items-center justify-center rounded-3xl border border-destructive/30 bg-destructive/15 text-destructive shadow-lg shadow-destructive/20 animate-pulse">
                               <ShieldAlert className="size-8 stroke-[2.25]" />
                             </div>
                             <DialogTitle className="font-heading text-xl sm:text-2xl font-extrabold text-destructive">
                               Double Confirmation Required
                             </DialogTitle>
                             <DialogDescription className="text-xs text-text-secondary max-w-sm mx-auto">
-                              This cancellation is permanent and cannot be undone.
+                              Please review and confirm to permanently cancel this visit.
                             </DialogDescription>
                           </div>
 
-                          {/* High-Alert Warning Box */}
-                          <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-xs text-destructive leading-relaxed space-y-1.5">
-                            <p className="font-bold flex items-center gap-1.5">
-                              <XCircle className="size-4" /> Final Cancellation Notice
-                            </p>
-                            <p className="text-text-secondary text-[11px]">
-                              Your appointment on <strong className="text-foreground">{format(date, "EEEE, MMMM d")} at {format(date, "HH:mm")}</strong> for <strong className="text-foreground">{props.serviceName}</strong> will be permanently cancelled and the time slot will be made immediately available to other patients.
+                          {/* High-Alert Warning Notice Box */}
+                          <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-xs text-destructive leading-relaxed space-y-2">
+                            <div className="flex items-center gap-2 font-bold text-sm">
+                              <XCircle className="size-4 shrink-0" /> Permanent Cancellation Notice
+                            </div>
+                            <p className="text-text-secondary text-xs leading-relaxed">
+                              Your reserved chair on <strong className="text-foreground">{format(date, "EEEE, MMMM d, yyyy")} at {format(date, "HH:mm")}</strong> for <strong className="text-foreground">{props.serviceName}</strong> with <strong className="text-foreground">{props.practitionerName}</strong> will be permanently released and made immediately available to other patients.
                             </p>
                           </div>
 
-                          {/* Double-Confirmation Toggle Checkbox */}
-                          <label className="flex items-start gap-3 rounded-2xl border border-border/80 bg-background-subtle p-3.5 cursor-pointer hover:bg-background-subtle/80 transition-colors">
+                          {/* Interactive Double-Confirmation Checkbox Card */}
+                          <label
+                            className={cn(
+                              "flex items-start gap-3 rounded-2xl border p-4 cursor-pointer transition-all duration-200",
+                              confirmedIrreversible
+                                ? "border-destructive bg-destructive/10 shadow-xs ring-1 ring-destructive/30"
+                                : "border-border/80 bg-background-subtle hover:border-destructive/40",
+                            )}
+                          >
                             <input
                               type="checkbox"
                               checked={confirmedIrreversible}
                               onChange={(e) => setConfirmedIrreversible(e.target.checked)}
-                              className="mt-0.5 size-4 rounded text-destructive accent-destructive cursor-pointer"
+                              className="mt-0.5 size-4.5 rounded text-destructive accent-destructive cursor-pointer"
                             />
-                            <span className="text-xs font-semibold text-foreground select-none leading-snug">
-                              I understand that this action is irreversible and permanently cancels my visit.
+                            <span className="text-xs font-semibold text-foreground select-none leading-relaxed">
+                              I understand that this cancellation is irreversible and my reserved appointment will be permanently removed.
                             </span>
                           </label>
 
                           {/* Actions */}
-                          <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-2 pt-2 border-t border-border/60">
+                          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-3 border-t border-border/60">
                             <Button
+                              type="button"
                               variant="outline"
-                              size="sm"
                               disabled={cancelling}
                               onClick={() => setCancelStep(1)}
-                              className="w-full sm:w-auto rounded-xl text-xs font-semibold gap-1"
+                              className="w-full sm:w-auto rounded-2xl h-11 px-5 text-xs font-semibold gap-1.5 border-border"
                             >
-                              <ChevronLeft className="size-3.5" /> Back
+                              <ChevronLeft className="size-3.5" /> Back to Options
                             </Button>
                             <Button
-                              variant="destructive"
-                              size="sm"
+                              type="button"
                               disabled={!confirmedIrreversible || cancelling}
                               onClick={handleCancel}
-                              className="w-full sm:w-auto rounded-xl text-xs font-bold gap-1.5 bg-destructive hover:bg-destructive/90 shadow-md shadow-destructive/20 disabled:opacity-50"
+                              className={cn(
+                                "w-full sm:w-auto rounded-2xl h-11 px-6 text-xs font-bold gap-2 bg-destructive text-white shadow-lg shadow-destructive/25 transition-all",
+                                confirmedIrreversible ? "hover:bg-destructive/90 cursor-pointer" : "opacity-45 cursor-not-allowed",
+                              )}
                             >
                               {cancelling ? (
                                 <>
-                                  <Loader2 className="size-3.5 animate-spin" /> Cancelling...
+                                  <Loader2 className="size-4 animate-spin text-white" /> Cancelling...
                                 </>
                               ) : (
                                 <>
-                                  <XCircle className="size-3.5" /> Confirm Permanent Cancellation
+                                  <XCircle className="size-4 text-white stroke-[2.25]" /> Confirm Cancellation
                                 </>
                               )}
                             </Button>
