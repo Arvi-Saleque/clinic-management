@@ -56,21 +56,29 @@ function PortalNavigation({ pathname, onNavigate }: { pathname: string; onNaviga
             href={item.href}
             onClick={onNavigate}
             className={cn(
-              "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+              "group relative flex items-center justify-between rounded-2xl px-3 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-200",
               active
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-text-secondary hover:bg-primary-soft hover:text-primary",
+                ? "bg-gradient-to-r from-primary to-primary-hover text-primary-foreground font-bold shadow-md shadow-primary/20 ring-1 ring-primary/30"
+                : "text-text-secondary hover:bg-background-subtle/90 hover:text-foreground",
             )}
           >
-            <span
-              className={cn(
-                "flex size-8 items-center justify-center rounded-lg transition-colors",
-                active ? "bg-white/12" : "bg-surface group-hover:bg-surface-elevated",
-              )}
-            >
-              <item.icon className="size-4" />
-            </span>
-            {item.label}
+            <div className="flex items-center gap-3 min-w-0">
+              <span
+                className={cn(
+                  "flex size-8.5 shrink-0 items-center justify-center rounded-xl transition-all duration-200 shadow-2xs",
+                  active
+                    ? "bg-white/20 text-white shadow-inner"
+                    : "bg-background-subtle text-text-muted group-hover:bg-primary-soft group-hover:text-primary group-hover:scale-105",
+                )}
+              >
+                <item.icon className="size-4" />
+              </span>
+              <span className="truncate">{item.label}</span>
+            </div>
+
+            {active && (
+              <span className="size-1.5 rounded-full bg-white/80 shadow-xs mr-0.5 shrink-0" />
+            )}
           </Link>
         );
       })}
@@ -90,79 +98,120 @@ export function PortalShell({ profile, patientReference, registered, children }:
 
   return (
     <div className="min-h-screen bg-background-subtle text-foreground">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[276px] flex-col border-r border-border bg-surface/95 px-4 py-5 backdrop-blur-xl lg:flex">
-        <Link href="/portal/dashboard" className="flex items-center gap-3 px-2">
-          <span className="relative flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/15">
-            <HeartPulse className="size-5" />
-            <span className="absolute -right-1 -top-1 size-3 rounded-full border-2 border-surface bg-accent" />
-          </span>
-          <span>
-            <span className="block font-heading text-lg font-bold tracking-tight">Clinic Care</span>
-            <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-              Patient portal
-            </span>
-          </span>
-        </Link>
+      {/* ── DESKTOP CLASSY FROSTED SIDEBAR ── */}
+      <aside className="fixed inset-y-0 left-0 z-40 hidden h-screen w-[288px] flex-col border-r border-border/80 bg-surface/95 px-4.5 py-5 backdrop-blur-2xl shadow-xl lg:flex overflow-hidden">
+        {/* Soft Ambient Glow inside Sidebar */}
+        <div className="pointer-events-none absolute -top-16 -left-16 size-52 rounded-full bg-primary/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 -right-16 size-52 rounded-full bg-emerald-500/10 blur-3xl" />
 
-        <div className="mt-8 px-3">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-text-muted">My care</p>
-        </div>
-        <div className="mt-2 flex-1 overflow-y-auto">
-          <PortalNavigation pathname={pathname} />
-        </div>
+        <div className="relative z-10 flex flex-col h-full justify-between">
+          <div className="flex flex-col min-h-0 flex-1">
+            {/* Logo / Brand */}
+            <Link href="/portal/dashboard" className="flex items-center gap-3.5 px-2 py-1 group shrink-0">
+              <span className="relative flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-primary to-primary-hover text-primary-foreground shadow-lg shadow-primary/25 ring-2 ring-primary/15 group-hover:scale-105 transition-transform duration-300">
+                <HeartPulse className="size-5.5" />
+                <span className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-surface bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]" />
+              </span>
+              <div className="min-w-0">
+                <span className="block font-heading text-lg font-extrabold tracking-tight text-foreground group-hover:text-primary transition-colors leading-tight">
+                  Clinic Care
+                </span>
+                <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-primary leading-tight">
+                  Patient Sanctuary
+                </span>
+              </div>
+            </Link>
 
-        <div className="mb-3 rounded-2xl border border-border bg-background-subtle p-4">
-          <div className="flex items-center gap-2 text-sm font-semibold">
-            <ShieldCheck className="size-4 text-success" />
-            Private health workspace
+            {/* Section Heading */}
+            <div className="mt-6 px-3 flex items-center justify-between shrink-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-text-muted">My care</p>
+            </div>
+
+            {/* Nav List */}
+            <div className="mt-2 flex-1 overflow-y-auto pr-1">
+              <PortalNavigation pathname={pathname} />
+            </div>
           </div>
-          <p className="mt-1.5 text-xs leading-5 text-text-muted">
-            Your clinical and billing records are visible only to you and authorised clinic staff.
-          </p>
-        </div>
 
-        <div className="rounded-2xl border border-border bg-surface-elevated p-3">
-          <div className="flex items-center gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-sm font-bold text-primary">
-              {initials}
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold">{profile.full_name}</p>
-              <p className="truncate text-[11px] text-text-muted">
-                {patientReference ?? (registered ? "Patient account" : "Registration pending")}
+          <div className="space-y-3 pt-3 shrink-0">
+            {/* Privacy & Workspace Badge */}
+            <div className="rounded-2xl border border-border/70 bg-background-subtle/70 backdrop-blur-md p-3.5 space-y-1 shadow-2xs">
+              <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                <span className="flex size-5 items-center justify-center rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                  <ShieldCheck className="size-3.5" />
+                </span>
+                Private health workspace
+              </div>
+              <p className="text-[11px] leading-relaxed text-text-muted">
+                Your clinical and billing records are visible only to you and authorised clinic staff.
               </p>
             </div>
-            <SignOutButton compact />
+
+            {/* User Profile Card */}
+            <div className="rounded-[22px] border border-border/80 bg-surface/90 backdrop-blur-md p-3 shadow-xs transition-all hover:border-primary/30">
+              <div className="flex items-center gap-3">
+                <span className="flex size-9.5 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-hover font-serif text-xs font-extrabold text-primary-foreground shadow-md shadow-primary/20 ring-2 ring-primary/10">
+                  {initials}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-bold text-foreground">{profile.full_name}</p>
+                  <p className="truncate text-[10px] font-mono font-semibold text-primary">
+                    {patientReference ?? (registered ? "Patient account" : "Registration pending")}
+                  </p>
+                </div>
+                <SignOutButton compact />
+              </div>
+            </div>
           </div>
         </div>
       </aside>
 
+      {/* ── MOBILE DRAWER NAVIGATION ── */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             aria-label="Close navigation"
-            className="absolute inset-0 bg-secondary/45 backdrop-blur-sm"
+            className="absolute inset-0 bg-secondary/50 backdrop-blur-sm transition-opacity"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 flex w-[min(88vw,320px)] flex-col border-r border-border bg-surface p-5 shadow-2xl">
-            <div className="flex items-center justify-between">
+          <aside className="absolute inset-y-0 left-0 flex w-[min(88vw,320px)] flex-col border-r border-border/80 bg-surface/95 backdrop-blur-2xl p-5 shadow-2xl overflow-hidden">
+            {/* Ambient Lighting */}
+            <div className="pointer-events-none absolute -top-16 -left-16 size-52 rounded-full bg-primary/15 blur-3xl" />
+
+            <div className="relative z-10 flex items-center justify-between">
               <Link href="/portal/dashboard" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
-                <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                  <HeartPulse className="size-5" />
+                <span className="flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-hover text-primary-foreground shadow-md shadow-primary/20">
+                  <HeartPulse className="size-5.5" />
                 </span>
-                <span className="font-heading text-lg font-bold">Clinic Care</span>
+                <div>
+                  <span className="font-heading text-lg font-extrabold text-foreground">Clinic Care</span>
+                  <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+                    Patient Sanctuary
+                  </span>
+                </div>
               </Link>
-              <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)} aria-label="Close menu">
-                <X />
+              <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)} aria-label="Close menu" className="rounded-xl">
+                <X className="size-5" />
               </Button>
             </div>
-            <div className="mt-8 flex-1 overflow-y-auto">
+
+            <div className="relative z-10 mt-6 flex-1 overflow-y-auto">
               <PortalNavigation pathname={pathname} onNavigate={() => setMobileOpen(false)} />
             </div>
-            <div className="mt-5 rounded-2xl border border-border p-3">
-              <p className="text-sm font-semibold">{profile.full_name}</p>
-              <p className="mt-0.5 text-xs text-text-muted">{patientReference ?? "Patient portal"}</p>
-              <div className="mt-3">
+
+            <div className="relative z-10 mt-4 rounded-[22px] border border-border/80 bg-background-subtle/80 p-3.5 shadow-xs">
+              <div className="flex items-center gap-3">
+                <span className="flex size-9.5 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-hover font-serif text-xs font-extrabold text-primary-foreground shadow-md shadow-primary/20">
+                  {initials}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-foreground truncate">{profile.full_name}</p>
+                  <p className="text-[10px] font-mono font-semibold text-primary truncate">
+                    {patientReference ?? "Patient portal"}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-2.5 pt-2.5 border-t border-border/60">
                 <SignOutButton />
               </div>
             </div>
@@ -170,20 +219,22 @@ export function PortalShell({ profile, patientReference, registered, children }:
         </div>
       )}
 
-      <div className="relative min-h-screen lg:pl-[276px]">
+      {/* ── MAIN CONTENT WORKSPACE ── */}
+      <div className="relative min-h-screen lg:pl-[288px]">
         {/* Full Main Patient Section Sanctuary Background Image (High Visibility) */}
         <div
-          className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-60 dark:opacity-30 lg:left-[276px]"
+          className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-60 dark:opacity-30 lg:left-[288px]"
           style={{ backgroundImage: "url('/marketing/portal_sanctuary_bg.jpg')" }}
         />
         {/* Soft, Light Glass Wash for Crisp Text Contrast */}
-        <div className="pointer-events-none fixed inset-0 z-0 bg-background/30 dark:bg-background/60 backdrop-blur-[0.5px] lg:left-[276px]" />
+        <div className="pointer-events-none fixed inset-0 z-0 bg-background/30 dark:bg-background/60 backdrop-blur-[0.5px] lg:left-[288px]" />
 
+        {/* TOP BAR */}
         <header className="sticky top-0 z-30 flex h-[72px] items-center border-b border-border/70 bg-background/70 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
           <Button
             variant="ghost"
             size="icon"
-            className="mr-2 lg:hidden"
+            className="mr-2 lg:hidden rounded-xl"
             onClick={() => setMobileOpen(true)}
             aria-label="Open navigation"
           >
@@ -194,14 +245,17 @@ export function PortalShell({ profile, patientReference, registered, children }:
             <p className="truncate text-xs text-text-muted sm:text-sm">Calm, gentle & private dental care</p>
           </div>
           <div className="flex items-center gap-2">
-            <ButtonLink href="/contact" variant="ghost" className="hidden gap-2 sm:inline-flex">
+            <ButtonLink href="/contact" variant="ghost" className="hidden gap-2 sm:inline-flex rounded-xl">
               <MessageCircleQuestion className="size-4" />
               Help
             </ButtonLink>
             <ThemeToggle />
-            <ButtonLink href={registered ? "/portal/appointments/book" : "/portal/register"} className="gap-2">
+            <ButtonLink
+              href={registered ? "/portal/appointments/book" : "/portal/register"}
+              className="gap-2 rounded-2xl bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-xs shadow-md shadow-primary/20 h-10 px-4"
+            >
               <Plus className="size-4" />
-              <span className="hidden sm:inline">{registered ? "Book appointment" : "Register"}</span>
+              <span className="hidden sm:inline">{registered ? "Book an appointment" : "Register"}</span>
             </ButtonLink>
           </div>
         </header>
