@@ -170,8 +170,16 @@ export function PortalShell({ profile, patientReference, registered, children }:
         </div>
       )}
 
-      <div className="lg:pl-[276px]">
-        <header className="sticky top-0 z-30 flex h-[72px] items-center border-b border-border bg-background/85 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
+      <div className="relative min-h-screen lg:pl-[276px]">
+        {/* Full Main Patient Section Sanctuary Background Image */}
+        <div
+          className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-[0.16] dark:opacity-[0.08] lg:left-[276px]"
+          style={{ backgroundImage: "url('/marketing/portal_sanctuary_bg.jpg')" }}
+        />
+        {/* Atmospheric Gradient Wash for Pristine Contrast & Luxury Feel */}
+        <div className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90 backdrop-blur-[1px] lg:left-[276px]" />
+
+        <header className="sticky top-0 z-30 flex h-[72px] items-center border-b border-border/80 bg-background/85 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
           <Button
             variant="ghost"
             size="icon"
@@ -198,7 +206,7 @@ export function PortalShell({ profile, patientReference, registered, children }:
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-[1480px] p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="relative z-10 mx-auto w-full max-w-[1480px] p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

@@ -248,21 +248,21 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
                 <div
                   key={appointment.id}
                   className={cn(
-                    "relative overflow-hidden rounded-[32px] border bg-surface p-6 shadow-xl transition-all sm:p-8 lg:p-10",
+                    "relative overflow-hidden rounded-[32px] border bg-surface/90 backdrop-blur-xl p-6 shadow-xl transition-all sm:p-8 lg:p-10",
                     isFirst
-                      ? "border-primary/30 shadow-primary/5"
+                      ? "border-primary/35 shadow-lg shadow-primary/5 ring-1 ring-primary/10"
                       : "border-border/80 shadow-xs hover:border-primary/20",
                   )}
                 >
                   {/* Soft subtle ambient background glow */}
                   {isFirst && (
                     <>
-                      <div className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-primary/5 blur-3xl dark:bg-primary/10" />
-                      <div className="pointer-events-none absolute -bottom-24 -left-24 size-80 rounded-full bg-accent/5 blur-3xl" />
+                      <div className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-primary/10 blur-3xl" />
+                      <div className="pointer-events-none absolute -bottom-24 -left-24 size-80 rounded-full bg-accent/10 blur-3xl" />
                     </>
                   )}
 
-                  <div className="relative space-y-8">
+                  <div className="relative z-10 space-y-8">
                     {/* Header inside appointment card */}
                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-6">
                       <div className="flex items-center gap-2">
@@ -340,7 +340,7 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
 
                     {/* Practitioner and Clinic Location Cards */}
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="flex items-center gap-3.5 rounded-2xl border border-border/70 bg-background-subtle/70 p-4">
+                      <div className="flex items-center gap-3.5 rounded-2xl border border-border/80 bg-surface/85 backdrop-blur-md p-4 shadow-2xs">
                         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary shadow-xs">
                           <Stethoscope className="size-6" />
                         </div>
@@ -351,7 +351,7 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between gap-3.5 rounded-2xl border border-border/70 bg-background-subtle/70 p-4">
+                      <div className="flex items-center justify-between gap-3.5 rounded-2xl border border-border/80 bg-surface/85 backdrop-blur-md p-4 shadow-2xs">
                         <div className="flex items-center gap-3.5 min-w-0">
                           <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent/15 text-accent-foreground dark:text-accent shadow-xs">
                             <MapPin className="size-6" />
@@ -365,7 +365,7 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
 
                         <button
                           onClick={() => setDirectionModalOpen(true)}
-                          className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-semibold text-primary shadow-xs hover:bg-surface-elevated"
+                          className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-border/80 bg-surface/90 px-3 py-2 text-xs font-semibold text-primary shadow-xs hover:bg-surface-elevated transition-colors"
                         >
                           <Navigation className="size-3.5" /> Directions
                         </button>
