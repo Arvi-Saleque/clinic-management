@@ -916,3 +916,113 @@ export async function getEncounterWorkspaceContext(
     };
   }
 }
+
+/**
+ * Resolves an active, recent, or newly initialized consultation encounter ID for a patient.
+ * Enables direct routing from /patients/[patientId] to the clinical consultation workspace.
+ */
+export async function resolveOrCreatePatientEncounterId(
+  patientId: string,
+): Promise<string | null> {
+  try {
+    const supabase = await createClient();
+    const profile = await requireClinician();
+
+    // 1. Verify patient exists
+    const { data: patient, error: patientErr } = await supabase
+      .from("patients")
+      .select("id, organization_id")
+      .eq("id", patientId)
+      .maybeSingle();
+
+    if (patientErr || !patient) return null;
+
+    // 2. Check for active in_progress encounter
+    const { data: activeEnc } = await supabase
+      .from("clinical_encounters")
+      .select("id")
+      .eq("patient_id", patientId)
+      .eq("organization_id", patient.organization_id)
+      .eq("status", "in_progress")
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (activeEnc?.id) {
+      return activeEnc.id;
+    }
+
+    // 3. Check for any confirmed/checked_in appointment to start or resume
+    const { data: apptRow } = await supabase
+      .from("appointments")
+      .select("id, status")
+      .eq("patient_id", patientId)
+      .eq("organization_id", patient.organization_id)
+      .in("status", ["confirmed", "checked_in"])
+      .order("starts_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (apptRow?.id) {
+      const startRes = await startOrResumeEncounterAction(apptRow.id);
+      if (startRes.data?.encounter_id) {
+        return startRes.data.encounter_id;
+      }
+    }
+
+    // 4. Check for any previous encounter
+    const { data: latestEnc } = await supabase
+      .from("clinical_encounters")
+      .select("id")
+      .eq("patient_id", patientId)
+      .eq("organization_id", patient.organization_id)
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (latestEnc?.id) {
+      return latestEnc.id;
+    }
+
+    // 5. If no encounter exists, resolve practitioner identity
+    let practitionerId: string | null = null;
+    const { data: practRow } = await supabase
+      .from("practitioners")
+      .select("id")
+      .eq("profile_id", profile.id)
+      .maybeSingle();
+
+    if (practRow?.id) {
+      practitionerId = practRow.id;
+    } else {
+      const { data: fallbackPract } = await supabase
+        .from("practitioners")
+        .select("id")
+        .limit(1)
+        .maybeSingle();
+      practitionerId = fallbackPract?.id ?? null;
+    }
+
+    if (!practitionerId) return null;
+
+    // 6. Create a new in-progress clinical encounter for this patient
+    const { data: newEnc, error: createErr } = await supabase
+      .from("clinical_encounters")
+      .insert({
+        organization_id: patient.organization_id,
+        patient_id: patientId,
+        practitioner_id: practitionerId,
+        status: "in_progress",
+        started_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
+
+    if (createErr || !newEnc) return null;
+
+    return newEnc.id;
+  } catch {
+    return null;
+  }
+}
+

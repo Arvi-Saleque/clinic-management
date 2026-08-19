@@ -45,6 +45,9 @@ interface FollowUpAppointmentDialogProps {
   };
   scheduling: EncounterFollowUpSchedulingContext;
   initialDate: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactElement;
 }
 
 export function FollowUpAppointmentDialog({
@@ -52,9 +55,14 @@ export function FollowUpAppointmentDialog({
   patient,
   scheduling,
   initialDate,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
+  trigger,
 }: FollowUpAppointmentDialogProps) {
   const router = useRouter();
-  const [open, setOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = setControlledOpen || setInternalOpen;
 
   const [date, setDate] = React.useState(
     initialDate || format(new Date(), "yyyy-MM-dd"),
@@ -132,10 +140,14 @@ export function FollowUpAppointmentDialog({
         if (!next) resetState();
       }}
     >
-      <DialogTrigger render={<Button size="sm" className="gap-1.5 font-medium shadow-xs" />}>
-        <CalendarClock className="size-4" />
-        <span>Schedule Follow-up Appointment</span>
-      </DialogTrigger>
+      {trigger ? (
+        <DialogTrigger render={trigger} />
+      ) : controlledOpen === undefined ? (
+        <DialogTrigger render={<Button size="sm" className="gap-1.5 font-medium shadow-xs" />}>
+          <CalendarClock className="size-4" />
+          <span>Schedule Follow-up Appointment</span>
+        </DialogTrigger>
+      ) : null}
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base font-semibold">

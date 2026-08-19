@@ -35,10 +35,22 @@ interface Patient {
   last_name: string;
   phone: string | null;
 }
+
 interface Service {
   id: string;
   name: string;
   duration_minutes: number;
+}
+
+interface NewAppointmentDialogProps {
+  practitionerId: string;
+  branchId: string;
+  date: string;
+  services: Service[];
+  initialPatient?: Patient | null;
+  defaultOpen?: boolean;
+  triggerVariant?: "default" | "outline" | "secondary" | "ghost";
+  triggerClassName?: string;
 }
 
 export function NewAppointmentDialog({
@@ -48,14 +60,9 @@ export function NewAppointmentDialog({
   services,
   initialPatient = null,
   defaultOpen = false,
-}: {
-  practitionerId: string;
-  branchId: string;
-  date: string;
-  services: Service[];
-  initialPatient?: Patient | null;
-  defaultOpen?: boolean;
-}) {
+  triggerVariant = "outline",
+  triggerClassName,
+}: NewAppointmentDialogProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(defaultOpen);
 
@@ -129,8 +136,15 @@ export function NewAppointmentDialog({
         if (!next) reset();
       }}
     >
-      <DialogTrigger render={<Button className="gap-2" />}>
-        <Plus className="size-4" />
+      <DialogTrigger
+        render={
+          <Button
+            variant={triggerVariant}
+            className={triggerClassName || "h-9 gap-1.5 rounded-xl px-3.5 text-xs font-semibold border-border/80"}
+          />
+        }
+      >
+        <Plus className="size-3.5" />
         New appointment
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
