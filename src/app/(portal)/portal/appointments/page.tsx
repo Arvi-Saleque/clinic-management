@@ -5,6 +5,7 @@ import { AppointmentCard, type PrescriptionSummary } from "@/components/portal/a
 import { AppointmentSuccessToast } from "@/components/portal/appointment-success-toast";
 import { ButtonLink } from "@/components/ui/button";
 import { listOwnAppointments, listOwnPrescriptions } from "@/lib/server/directory";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "My visits" };
 
@@ -90,21 +91,39 @@ export default async function PortalAppointmentsPage({
   };
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-8">
       <AppointmentSuccessToast success={success} />
-      <section className="flex flex-col gap-5 rounded-[28px] border border-border bg-surface p-6 shadow-sm sm:flex-row sm:items-end sm:justify-between sm:p-8">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Care timeline</p>
-          <h1 className="mt-2 font-serif text-4xl">My visits</h1>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-text-muted">
-            Review your upcoming care, access past visit records and prescriptions, or book a new appointment.
+      
+      {/* ── HEADER BANNER ── */}
+      <section className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface/85 backdrop-blur-xl p-6 sm:p-8 shadow-sm transition-all sm:flex sm:items-end sm:justify-between sm:gap-6">
+        {/* Soft Ambient Glow */}
+        <div className="pointer-events-none absolute -right-20 -top-20 size-60 rounded-full bg-primary/10 blur-3xl" />
+        <div className="pointer-events-none absolute -left-20 -bottom-20 size-60 rounded-full bg-emerald-500/5 blur-3xl" />
+
+        <div className="relative z-10 space-y-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary-soft/80 px-3 py-0.5 text-xs font-semibold text-primary backdrop-blur-md">
+            Care Timeline
+          </span>
+          <h1 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+            My visits
+          </h1>
+          <p className="max-w-xl text-sm leading-relaxed text-text-secondary">
+            Review your upcoming care, access past visit records and prescriptions, or book an appointment.
           </p>
         </div>
-        <ButtonLink href="/portal/appointments/book" size="lg" className="gap-2">
-          <Plus className="size-4" /> Book an appointment
-        </ButtonLink>
+
+        <div className="relative z-10 mt-5 sm:mt-0 shrink-0">
+          <ButtonLink
+            href="/portal/appointments/book"
+            size="lg"
+            className="gap-2 rounded-2xl bg-primary hover:bg-primary-hover text-primary-foreground shadow-md shadow-primary/20 font-bold text-sm h-11 px-6"
+          >
+            <Plus className="size-4" /> Book an appointment
+          </ButtonLink>
+        </div>
       </section>
 
+      {/* ── METRIC STATS STRIP ── */}
       <section className="grid gap-4 sm:grid-cols-3">
         {[
           {
@@ -112,65 +131,87 @@ export default async function PortalAppointmentsPage({
             value: upcoming.length,
             icon: CalendarCheck,
             className: "bg-primary-soft text-primary",
+            border: "hover:border-primary/40",
           },
           {
             label: "Completed",
             value: completed,
             icon: CheckCircle2,
-            className: "bg-success/10 text-success",
+            className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+            border: "hover:border-emerald-500/40",
           },
           {
             label: "Cancelled",
             value: cancelled,
             icon: XCircle,
             className: "bg-destructive/10 text-destructive",
+            border: "hover:border-destructive/40",
           },
         ].map((item) => (
           <div
             key={item.label}
-            className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-5 shadow-sm"
+            className={cn(
+              "flex items-center gap-4.5 rounded-[24px] border border-border/80 bg-surface/85 backdrop-blur-xl p-5 shadow-xs transition-all hover:scale-[1.01] hover:shadow-md",
+              item.border,
+            )}
           >
-            <span className={`flex size-11 items-center justify-center rounded-xl ${item.className}`}>
-              <item.icon className="size-5" />
+            <span className={`flex size-12 shrink-0 items-center justify-center rounded-2xl shadow-xs ${item.className}`}>
+              <item.icon className="size-6" />
             </span>
             <div>
-              <p className="text-2xl font-bold">{item.value}</p>
-              <p className="text-xs text-text-muted">{item.label} visits</p>
+              <p className="font-heading text-2xl sm:text-3xl font-extrabold text-foreground leading-tight">
+                {item.value}
+              </p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                {item.label} visits
+              </p>
             </div>
           </div>
         ))}
       </section>
 
-      <section>
-        <div className="mb-4 flex items-center gap-3">
-          <CalendarCheck className="size-5 text-primary" />
+      {/* ── UPCOMING VISITS SECTION ── */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="flex size-9 items-center justify-center rounded-xl bg-primary-soft text-primary">
+            <CalendarCheck className="size-4.5" />
+          </div>
           <div>
-            <h2 className="font-heading text-xl font-bold">Upcoming care</h2>
+            <h2 className="font-heading text-xl font-bold text-foreground">Upcoming care</h2>
             <p className="text-xs text-text-muted">Confirmed and pending visits</p>
           </div>
         </div>
         {upcoming.length ? (
           <div className="space-y-4">{upcoming.map(renderCard)}</div>
         ) : (
-          <div className="rounded-3xl border border-dashed border-border bg-surface p-10 text-center">
-            <CalendarCheck className="mx-auto size-9 text-text-muted" />
-            <h3 className="mt-4 font-heading text-lg font-bold">No upcoming visits</h3>
-            <p className="mt-2 text-sm text-text-muted">Choose a service and a time that suits you.</p>
-            <ButtonLink href="/portal/appointments/book" className="mt-5">
-              Book an appointment
-            </ButtonLink>
+          <div className="rounded-[32px] border border-dashed border-border/80 bg-surface/85 backdrop-blur-xl p-12 text-center space-y-3 shadow-xs">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-primary-soft/60 text-primary mx-auto">
+              <CalendarCheck className="size-7" />
+            </div>
+            <h3 className="font-heading text-lg font-bold text-foreground">No upcoming visits</h3>
+            <p className="text-sm text-text-muted max-w-sm mx-auto leading-relaxed">
+              Choose your preferred doctor, treatment service, and time that fits your schedule.
+            </p>
+            <div className="pt-2">
+              <ButtonLink href="/portal/appointments/book" className="rounded-2xl px-6 h-10 font-bold text-xs">
+                Book an appointment
+              </ButtonLink>
+            </div>
           </div>
         )}
       </section>
 
+      {/* ── VISIT HISTORY & PRESCRIPTIONS ── */}
       {history.length > 0 && (
-        <section>
-          <div className="mb-4 flex items-center gap-3">
-            <History className="size-5 text-primary" />
+        <section className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-primary-soft text-primary">
+              <History className="size-4.5" />
+            </div>
             <div>
-              <h2 className="font-heading text-xl font-bold">Visit history & prescriptions</h2>
+              <h2 className="font-heading text-xl font-bold text-foreground">Visit history & prescriptions</h2>
               <p className="text-xs text-text-muted">
-                Completed and past visits — click &quot;View Prescription&quot; to review prescribed medicines
+                Completed and past visits &mdash; click &ldquo;View Prescription&rdquo; to review prescribed medicines
               </p>
             </div>
           </div>

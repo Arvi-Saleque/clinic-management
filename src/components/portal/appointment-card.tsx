@@ -111,60 +111,73 @@ export function AppointmentCard(props: AppointmentCardProps) {
   const date = new Date(props.starts_at);
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-border bg-surface shadow-sm transition-all hover:border-primary/25 hover:shadow-md">
-      <div className="grid md:grid-cols-[150px_1fr]">
-        <div className="flex items-center gap-4 border-b border-border bg-background-subtle p-5 md:block md:border-b-0 md:border-r md:text-center">
-          <div className="flex size-16 shrink-0 flex-col items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm md:mx-auto">
-            <span className="text-[10px] font-bold uppercase tracking-widest">{format(date, "MMM")}</span>
-            <span className="text-2xl font-bold leading-none">{format(date, "dd")}</span>
+    <article className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface/90 backdrop-blur-xl shadow-md transition-all hover:border-primary/35 hover:shadow-xl hover:shadow-primary/5">
+      <div className="grid md:grid-cols-[160px_1fr]">
+        {/* Left Date Sidebar */}
+        <div className="flex items-center gap-4 border-b border-border/60 bg-background-subtle/60 backdrop-blur-md p-5 sm:p-6 md:flex-col md:justify-center md:border-b-0 md:border-r md:text-center">
+          <div className="flex size-16 md:size-20 shrink-0 flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-hover text-primary-foreground shadow-md shadow-primary/20 md:mx-auto">
+            <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-primary-foreground/80">
+              {format(date, "MMM")}
+            </span>
+            <span className="font-heading text-2xl md:text-3xl font-extrabold leading-none tracking-tight">
+              {format(date, "dd")}
+            </span>
           </div>
-          <div className="md:mt-3">
-            <p className="text-sm font-semibold">{format(date, "EEEE")}</p>
+          <div className="md:mt-1.5">
+            <p className="text-sm font-bold text-foreground">{format(date, "EEEE")}</p>
             <p className="mt-0.5 text-xs text-text-muted">{format(date, "yyyy")}</p>
           </div>
         </div>
 
-        <div className="p-5 sm:p-6">
+        {/* Right Content */}
+        <div className="p-6 sm:p-7 space-y-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-heading text-lg font-bold">{props.serviceName}</h2>
-                <Badge variant="outline" className={cn("capitalize", STATUS_STYLE[props.status])}>
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h2 className="font-heading text-xl font-bold text-foreground">{props.serviceName}</h2>
+                <Badge variant="outline" className={cn("capitalize text-xs font-semibold px-2.5 py-0.5 shadow-2xs", STATUS_STYLE[props.status])}>
                   {props.status.replace("_", " ")}
                 </Badge>
               </div>
-              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-text-muted">
-                <span className="flex items-center gap-2">
-                  <Clock3 className="size-4 text-primary" />
-                  {format(date, "HH:mm")}
-                  {props.ends_at ? ` – ${format(new Date(props.ends_at), "HH:mm")}` : ""}
+
+              {/* Meta Chips */}
+              <div className="flex flex-wrap gap-2 text-xs">
+                <span className="inline-flex items-center gap-1.5 rounded-xl border border-border/70 bg-background-subtle/80 px-3 py-1.5 font-medium text-foreground">
+                  <Clock3 className="size-3.5 text-primary" />
+                  {format(date, "h:mm a")}
+                  {props.ends_at ? ` – ${format(new Date(props.ends_at), "h:mm a")}` : ""}
                 </span>
-                <span className="flex items-center gap-2">
-                  <Stethoscope className="size-4 text-primary" />
+                <span className="inline-flex items-center gap-1.5 rounded-xl border border-border/70 bg-background-subtle/80 px-3 py-1.5 font-medium text-foreground">
+                  <Stethoscope className="size-3.5 text-primary" />
                   {props.practitionerName}
                 </span>
                 {props.duration && (
-                  <span className="flex items-center gap-2">
-                    <CalendarClock className="size-4 text-primary" />
+                  <span className="inline-flex items-center gap-1.5 rounded-xl border border-border/70 bg-background-subtle/80 px-3 py-1.5 text-text-muted">
+                    <CalendarClock className="size-3.5 text-primary" />
                     {props.duration} minutes
                   </span>
                 )}
               </div>
+
               {props.notes && (
-                <div className="mt-4 flex items-start gap-2 rounded-xl bg-background-subtle p-3 text-xs leading-5 text-text-muted">
-                  <FileText className="mt-0.5 size-3.5 shrink-0" /> {props.notes}
+                <div className="flex items-start gap-2 rounded-2xl border border-border/60 bg-background-subtle/80 p-3.5 text-xs text-text-secondary">
+                  <FileText className="mt-0.5 size-3.5 shrink-0 text-primary" />
+                  <span>{props.notes}</span>
                 </div>
               )}
             </div>
-            <div className="text-left sm:text-right">
-              <p className="text-xs text-text-muted">Service fee</p>
-              <p className="mt-1 text-lg font-bold">€{Number(props.price).toLocaleString()}</p>
+
+            <div className="text-left sm:text-right shrink-0 rounded-2xl border border-border/60 bg-background-subtle/60 p-3 sm:px-4 sm:py-3">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">Service fee</p>
+              <p className="mt-0.5 font-heading text-xl font-extrabold text-foreground">
+                €{Number(props.price).toLocaleString()}
+              </p>
             </div>
           </div>
 
           {/* Action Row */}
           {(canChange || hasPrescription) && (
-            <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border pt-4">
+            <div className="flex flex-wrap items-center gap-2.5 border-t border-border/60 pt-4">
               {/* View Prescription Button */}
               {hasPrescription && props.prescription && (
                 <Dialog open={prescriptionDialogOpen} onOpenChange={setPrescriptionDialogOpen}>
@@ -172,7 +185,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
                     render={
                       <Button
                         variant="outline"
-                        className="gap-2 rounded-xl border-primary/30 bg-primary-soft/40 font-semibold text-primary hover:bg-primary-soft"
+                        className="gap-2 rounded-2xl border-primary/30 bg-primary-soft/50 font-bold text-xs text-primary hover:bg-primary-soft h-9.5 px-4 shadow-2xs"
                       />
                     }
                   >
@@ -240,7 +253,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
                   <ButtonLink
                     href={`/portal/appointments/book?reschedule=${props.id}`}
                     variant="outline"
-                    className="gap-2 rounded-xl text-xs font-semibold hover:border-primary hover:bg-primary-soft/40"
+                    className="gap-2 rounded-2xl border-border bg-surface text-xs font-semibold hover:border-primary hover:bg-primary-soft/40 h-9.5 px-4 shadow-2xs"
                   >
                     <RefreshCw className="size-3.5" /> Reschedule Visit
                   </ButtonLink>
@@ -251,10 +264,10 @@ export function AppointmentCard(props: AppointmentCardProps) {
                       render={
                         <Button
                           variant="ghost"
-                          className="gap-1.5 rounded-xl text-xs text-destructive hover:bg-destructive/10"
+                          className="gap-1.5 rounded-2xl border border-destructive/20 bg-destructive/5 text-xs font-semibold text-destructive hover:bg-destructive/10 h-9.5 px-4 shadow-2xs"
                         />
                       }
-                    >
+                    >    
                       <XCircle className="size-3.5" /> Cancel Visit
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[480px] w-full relative overflow-hidden rounded-[32px] border border-border/80 bg-surface p-6 sm:p-7 shadow-2xl">
