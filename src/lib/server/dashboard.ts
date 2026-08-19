@@ -3,7 +3,70 @@
 import { addDays, eachDayOfInterval, format, startOfDay, subDays } from "date-fns";
 
 import { getProfile } from "@/lib/auth/session";
+import { requireStaff } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
+
+export interface ReceptionistDashboardAppointment {
+  id: string;
+  starts_at: string;
+  ends_at: string;
+  status: string;
+  notes: string | null;
+  patients: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    phone: string | null;
+    dob: string | null;
+  } | null;
+  services: {
+    id: string;
+    name: string;
+    duration_minutes: number;
+    price: number;
+  } | null;
+  practitioners: {
+    id: string;
+    title: string | null;
+    profiles: { full_name: string } | null;
+  } | null;
+  branches: {
+    id: string;
+    name: string;
+  } | null;
+}
+
+export interface ReceptionistDashboardContext {
+  profile: {
+    id: string;
+    full_name: string;
+    role: string;
+    organization_id: string | null;
+  };
+  todayDateFormatted: string;
+  greeting: string;
+  practitioners: Array<{
+    id: string;
+    title: string | null;
+    branch_id: string;
+    profiles: { full_name: string } | null;
+  }>;
+  services: Array<{
+    id: string;
+    name: string;
+    duration_minutes: number;
+  }>;
+  activePractitionerId?: string;
+  nextAppointment: ReceptionistDashboardAppointment | null;
+  waitingAppointments: ReceptionistDashboardAppointment[];
+  upcomingAppointments: ReceptionistDashboardAppointment[];
+  completedAppointments: ReceptionistDashboardAppointment[];
+  counts: {
+    waiting: number;
+    upcoming: number;
+    completed: number;
+  };
+}
 
 export async function getDashboardStats() {
   const supabase = await createClient();
@@ -62,6 +125,10 @@ export async function getDashboardStats() {
     .select("starts_at, status")
     .gte("starts_at", rangeStart.toISOString())
     .lt("starts_at", rangeEnd.toISOString());
+  if (profile?.organization_id) {
+    todayQuery = todayQuery.eq("organization_id", profile.organization_id);
+    weekQuery = weekQuery.eq("organization_id", profile.organization_id);
+  }
 
   if (practitionerId) {
     todayQuery = todayQuery.eq("practitioner_id", practitionerId);
@@ -149,5 +216,148 @@ export async function getDashboardStats() {
     upcomingSevenDays,
     activity,
     practitionerScoped: profile?.role === "dentist",
+  };
+}
+
+/**
+ * Dedicated Receptionist front-desk dashboard context.
+ * Queries ONLY operational queue data (no clinical encounters/notes/odontogram).
+ */
+export async function getReceptionistDashboardContext(
+  practitionerFilterId?: string,
+): Promise<ReceptionistDashboardContext> {
+  const profile = await requireStaff();
+  const supabase = await createClient();
+
+  const now = new Date();
+  const todayStart = startOfDay(now);
+  const tomorrowStart = addDays(todayStart, 1);
+
+  // Dynamic greeting based on current local hour
+  const currentHour = now.getHours();
+  const greeting =
+    currentHour < 12
+      ? "Good morning"
+      : currentHour < 17
+        ? "Good afternoon"
+        : "Good evening";
+
+  // 1. Fetch permitted active practitioners
+  const { data: practitionersData } = await supabase
+    .from("practitioners")
+    .select("id, title, branch_id, is_bookable, profiles:profile_id(full_name)")
+    .eq("is_bookable", true)
+    .order("id");
+  const practitioners = (practitionersData ?? []) as Array<{
+    id: string;
+    title: string | null;
+    branch_id: string;
+    profiles: { full_name: string } | null;
+  }>;
+
+  // 2. Fetch services for booking
+  const { data: servicesData } = await supabase
+    .from("services")
+    .select("id, name, duration_minutes")
+    .order("name");
+  const services = (servicesData ?? []) as Array<{
+    id: string;
+    name: string;
+    duration_minutes: number;
+  }>;
+
+  // 3. Query today's operational queue across permitted branch/org
+  let query = supabase
+    .from("appointments")
+    .select(`
+      id,
+      starts_at,
+      ends_at,
+      status,
+      notes,
+      patients:patient_id(
+        id,
+        first_name,
+        last_name,
+        phone,
+        dob
+      ),
+      services:service_id(
+        id,
+        name,
+        duration_minutes,
+        price
+      ),
+      practitioners:practitioner_id(
+        id,
+        title,
+        profiles:profile_id(full_name)
+      ),
+      branches:branch_id(
+        id,
+        name
+      )
+    `)
+    .gte("starts_at", todayStart.toISOString())
+    .lt("starts_at", tomorrowStart.toISOString())
+    .order("starts_at", { ascending: true });
+
+  if (profile.organization_id) {
+    query = query.eq("organization_id", profile.organization_id);
+  }
+
+  if (practitionerFilterId) {
+    query = query.eq("practitioner_id", practitionerFilterId);
+  }
+
+  const { data: appointmentsData } = await query;
+  const rawSchedule = (appointmentsData ?? []) as unknown as ReceptionistDashboardAppointment[];
+
+  // Classify queues
+  const rawWaiting = rawSchedule.filter((a) => a.status === "checked_in");
+  const upcomingConfirmed = rawSchedule.filter((a) =>
+    ["confirmed", "booked", "pending"].includes(a.status),
+  );
+  const completedAppointments = rawSchedule.filter((a) => a.status === "completed");
+
+  // Determine Next Patient Hero:
+  // 1. Arrived/waiting patient requiring immediate attention, OR
+  // 2. Earliest future upcoming confirmed appointment
+  const nextAppointment =
+    rawWaiting[0] ??
+    upcomingConfirmed.find((a) => new Date(a.starts_at) >= now) ??
+    upcomingConfirmed[0] ??
+    null;
+
+  // De-duplication rule:
+  // The Next Patient hero appointment must NOT appear in Waiting Now OR in Today's Upcoming!
+  const waitingAppointments = rawWaiting.filter(
+    (a) => !nextAppointment || a.id !== nextAppointment.id,
+  );
+  const upcomingAppointments = upcomingConfirmed.filter(
+    (a) => !nextAppointment || a.id !== nextAppointment.id,
+  );
+
+  return {
+    profile: {
+      id: profile.id,
+      full_name: profile.full_name,
+      role: profile.role,
+      organization_id: profile.organization_id,
+    },
+    todayDateFormatted: format(now, "EEEE, d MMMM yyyy"),
+    greeting,
+    practitioners,
+    services,
+    activePractitionerId: practitionerFilterId,
+    nextAppointment,
+    waitingAppointments,
+    upcomingAppointments,
+    completedAppointments,
+    counts: {
+      waiting: rawWaiting.length,
+      upcoming: upcomingConfirmed.length,
+      completed: completedAppointments.length,
+    },
   };
 }

@@ -139,11 +139,14 @@ export function LoginForm() {
   const [activeTab, setActiveTab] = useState<"doctors" | "staff" | "patients">("doctors");
   const [isExpanded, setIsExpanded] = useState(false);
   const emailRef = React.useRef<HTMLInputElement>(null);
+  const passwordRef = React.useRef<HTMLInputElement>(null);
 
   function fillEmail(email: string) {
     if (emailRef.current) {
       emailRef.current.value = email;
-      emailRef.current.focus();
+    }
+    if (passwordRef.current) {
+      passwordRef.current.value = "ClinicDemo#2026";
     }
   }
 
@@ -266,6 +269,7 @@ export function LoginForm() {
             </Link>
           </div>
           <Input
+            ref={passwordRef}
             id="password"
             name="password"
             type="password"

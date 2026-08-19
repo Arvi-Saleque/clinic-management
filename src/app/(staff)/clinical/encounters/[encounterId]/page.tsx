@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
 import { EncounterWorkspace } from "@/components/clinical/encounter-workspace/encounter-workspace";
+import { requireClinician } from "@/lib/auth/guards";
 import { getEncounterWorkspaceContext } from "@/lib/server/encounters";
 
 interface PageProps {
@@ -29,6 +30,9 @@ export async function generateMetadata({
 export default async function ClinicalEncounterWorkspacePage({
   params,
 }: PageProps) {
+  // Enforce clinician-only access: Receptionists cannot enter clinical consultation workspace
+  await requireClinician();
+
   const { encounterId } = await params;
   const result = await getEncounterWorkspaceContext(encounterId);
 
@@ -72,5 +76,9 @@ export default async function ClinicalEncounterWorkspacePage({
     );
   }
 
-  return <EncounterWorkspace context={result.data} />;
+  return (
+    <div className="w-full">
+      <EncounterWorkspace context={result.data} />
+    </div>
+  );
 }

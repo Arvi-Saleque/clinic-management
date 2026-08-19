@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getProfile, getUser } from "@/lib/auth/session";
+import { requireClinician, requireStaff } from "@/lib/auth/guards";
 import type { ServicePractitionerOption } from "@/types/services";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -131,12 +132,17 @@ export async function listServices() {
 }
 
 export async function searchPatients(query: string) {
+  const profile = await requireStaff();
   const supabase = await createClient();
   let request = supabase
     .from("patients")
     .select("id, first_name, last_name, phone")
     .order("first_name")
     .limit(20);
+
+  if (profile.organization_id) {
+    request = request.eq("organization_id", profile.organization_id);
+  }
 
   if (query.trim()) {
     request = request.or(
@@ -167,7 +173,7 @@ export async function listAppointmentsForDay(practitionerId: string, date: strin
   const { data } = await supabase
     .from("appointments")
     .select(
-      "id, starts_at, ends_at, status, notes, originating_encounter_id, patients:patient_id(id, first_name, last_name, phone), services:service_id(name, duration_minutes)",
+      "id, starts_at, ends_at, status, notes, originating_encounter_id, patients:patient_id(id, first_name, last_name, phone), services:service_id(id, name, duration_minutes)",
     )
     .eq("practitioner_id", allowedPractitionerId)
     .gte("starts_at", dayStart)
@@ -200,12 +206,23 @@ export async function listOwnAppointments() {
   return data ?? [];
 }
 
-export async function listInvoices() {
+export async function listInvoices(patientId?: string) {
+  const profile = await requireStaff();
   const supabase = await createClient();
-  const { data } = await supabase
+  let query = supabase
     .from("invoices")
     .select("id, invoice_number, status, subtotal, discount_amount, tax_amount, total, issue_date, due_date, patients:patient_id(id, first_name, last_name, phone)")
     .order("issue_date", { ascending: false });
+
+  if (profile.organization_id) {
+    query = query.eq("organization_id", profile.organization_id);
+  }
+
+  if (patientId) {
+    query = query.eq("patient_id", patientId);
+  }
+
+  const { data } = await query;
   const invoices = data ?? [];
   if (invoices.length === 0) return [];
   const { data: payments } = await supabase.from("payments").select("invoice_id, amount").in("invoice_id", invoices.map((invoice) => invoice.id));
@@ -243,14 +260,20 @@ export async function listOwnInvoices() {
 }
 
 export async function getInvoiceDetail(invoiceId: string) {
+  const profile = await requireStaff();
   const supabase = await createClient();
-  const { data: invoice } = await supabase
+  let query = supabase
     .from("invoices")
     .select(
       "id, invoice_number, status, subtotal, tax_amount, discount_amount, total, due_date, issue_date, notes, patients:patient_id(id, first_name, last_name, phone)",
     )
-    .eq("id", invoiceId)
-    .maybeSingle();
+    .eq("id", invoiceId);
+
+  if (profile.organization_id) {
+    query = query.eq("organization_id", profile.organization_id);
+  }
+
+  const { data: invoice } = await query.maybeSingle();
   if (!invoice) return null;
 
   const { data: items } = await supabase
@@ -268,6 +291,7 @@ export async function getInvoiceDetail(invoiceId: string) {
 }
 
 export async function listStaffPrescriptions() {
+  await requireClinician();
   const supabase = await createClient();
   const { data } = await supabase
     .from("prescriptions")
@@ -301,6 +325,7 @@ export async function listOwnPrescriptions() {
 }
 
 export async function listPatients(query?: string) {
+  const profile = await requireStaff();
   const supabase = await createClient();
   const normalized = query?.trim() ?? "";
   const searchingByReference = /^pt-/i.test(normalized);
@@ -309,6 +334,10 @@ export async function listPatients(query?: string) {
     .select("id, first_name, last_name, phone, dob, created_at")
     .order("created_at", { ascending: false })
     .limit(250);
+
+  if (profile.organization_id) {
+    request = request.eq("organization_id", profile.organization_id);
+  }
 
   if (normalized && !searchingByReference) {
     request = request.or(
@@ -347,18 +376,25 @@ export async function listPatients(query?: string) {
 }
 
 export async function getPatientById(patientId: string) {
+  const profile = await requireStaff();
   const supabase = await createClient();
-  const { data } = await supabase
+  let query = supabase
     .from("patients")
     .select(
       "id, first_name, last_name, phone, email, dob, gender, address, emergency_contact_name, emergency_contact_phone, created_at",
     )
-    .eq("id", patientId)
-    .maybeSingle();
+    .eq("id", patientId);
+
+  if (profile.organization_id) {
+    query = query.eq("organization_id", profile.organization_id);
+  }
+
+  const { data } = await query.maybeSingle();
   return data;
 }
 
 export async function getPatientMedicalHistory(patientId: string) {
+  await requireClinician();
   const supabase = await createClient();
   const { data } = await supabase
     .from("medical_history")

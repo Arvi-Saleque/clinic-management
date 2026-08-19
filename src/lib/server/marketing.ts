@@ -6,27 +6,64 @@ import { createClient } from "@/lib/supabase/server";
  * practitioners_public_read, branches_public_read, opening_hours_public_read) --
  * safe to call from anon (signed-out) visitors. */
 
-export async function listPublicServices() {
+export interface PublicServiceItem {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  duration_minutes: number;
+  price: number;
+  category_id: string | null;
+  category: string;
+}
+
+export async function listPublicServices(): Promise<PublicServiceItem[]> {
   const supabase = await createClient();
-  const { data } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase as any)
     .from("services")
-    .select("id, name, slug, description, duration_minutes, price, category")
+    .select("id, name, slug, description, duration_minutes, price, category_id, service_categories:category_id(id, name, description)")
     .eq("show_on_website", true)
     .eq("is_active", true)
     .order("name");
-  return data ?? [];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data ?? []).map((s: any): PublicServiceItem => ({
+    id: s.id,
+    name: s.name,
+    slug: s.slug,
+    description: s.description,
+    duration_minutes: s.duration_minutes,
+    price: s.price,
+    category_id: s.category_id ?? null,
+    category: s.service_categories?.name ?? "General Dentistry",
+  }));
 }
 
-export async function getPublicServiceBySlug(slug: string) {
+export async function getPublicServiceBySlug(slug: string): Promise<PublicServiceItem | null> {
   const supabase = await createClient();
-  const { data } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase as any)
     .from("services")
-    .select("id, name, slug, description, duration_minutes, price, category")
+    .select("id, name, slug, description, duration_minutes, price, category_id, service_categories:category_id(id, name, description)")
     .eq("slug", slug)
     .eq("show_on_website", true)
     .eq("is_active", true)
     .maybeSingle();
-  return data;
+
+  if (!data) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const s = data as any;
+  return {
+    id: s.id,
+    name: s.name,
+    slug: s.slug,
+    description: s.description,
+    duration_minutes: s.duration_minutes,
+    price: s.price,
+    category_id: s.category_id ?? null,
+    category: s.service_categories?.name ?? "General Dentistry",
+  };
 }
 
 export async function listPublicPractitioners() {
