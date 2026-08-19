@@ -45,6 +45,8 @@ html.lenis body {
 .luxury-homepage-root .homepage-hero-word,
 .luxury-homepage-root .homepage-section-word {
   display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
 }
 
 /* Hero / parallax performance hints. */
