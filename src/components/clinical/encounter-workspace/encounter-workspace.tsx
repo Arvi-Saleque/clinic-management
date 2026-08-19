@@ -48,12 +48,14 @@ export function EncounterWorkspace({ context }: EncounterWorkspaceProps) {
   const [activeSection, setActiveSection] = useState<WorkspaceSection>("documentation");
 
   return (
-    <div className="mx-auto w-full max-w-[1480px] space-y-5">
+    <div className="w-full space-y-5 pb-12">
+      {/* Top Patient Header */}
       <EncounterHeader context={context} isDirty={isDraftDirty} />
 
+      {/* Tab Navigation Pill Bar */}
       <nav
         aria-label="Consultation sections"
-        className="overflow-x-auto rounded-2xl border border-border/70 bg-surface/90 p-1.5 shadow-[0_12px_34px_-30px_rgba(4,34,31,0.45)]"
+        className="overflow-x-auto rounded-2xl border border-border/80 bg-card p-1.5 shadow-2xs"
       >
         <div className="flex min-w-max items-center gap-1.5" role="tablist">
           {workspaceTabs.map((tab) => {
@@ -68,13 +70,13 @@ export function EncounterWorkspace({ context }: EncounterWorkspaceProps) {
                 aria-selected={isActive}
                 onClick={() => setActiveSection(tab.value)}
                 className={cn(
-                  "relative flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25",
+                  "flex h-9 items-center gap-2 rounded-xl px-4 text-xs font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-[0_8px_20px_-14px_rgba(0,103,89,0.85)]"
-                    : "text-muted-foreground hover:bg-primary-soft/55 hover:text-foreground",
+                    ? "bg-[#0B3B36] text-white shadow-xs"
+                    : "text-muted-foreground hover:bg-muted/40 hover:text-foreground",
                 )}
               >
-                <Icon className="size-4" />
+                <Icon className="size-3.5" />
                 <span>{tab.label}</span>
               </button>
             );
@@ -84,12 +86,16 @@ export function EncounterWorkspace({ context }: EncounterWorkspaceProps) {
 
       {/* Panels stay mounted so draft / prescription state is never lost when switching tabs. */}
       <section hidden={activeSection !== "documentation"} role="tabpanel">
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-          <div className="min-w-0">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-12 items-start">
+          {/* Left Column (8 cols): Clinical Documentation Form */}
+          <div className="xl:col-span-8 min-w-0">
             {context.is_editable ? (
               <EncounterDraftForm
                 encounter={context.encounter}
                 privateNotes={context.private_notes}
+                patient={context.patient}
+                appointment={context.appointment}
+                followUpScheduling={context.follow_up_scheduling}
                 onDirtyChange={setIsDraftDirty}
               />
             ) : (
@@ -104,37 +110,41 @@ export function EncounterWorkspace({ context }: EncounterWorkspaceProps) {
             )}
           </div>
 
-          <aside className="xl:sticky xl:top-24 xl:self-start">
-            <AppointmentContextCard appointment={context.appointment} />
+          {/* Right Column (4 cols): Consultation Snapshot */}
+          <aside className="xl:col-span-4 sticky top-6">
+            <AppointmentContextCard
+              appointment={context.appointment}
+              encounter={context.encounter}
+              isDirty={isDraftDirty}
+            />
           </aside>
         </div>
       </section>
 
       <section hidden={activeSection !== "odontogram"} role="tabpanel">
-        <div className="rounded-2xl border border-border/70 bg-surface p-4 shadow-[0_12px_34px_-30px_rgba(4,34,31,0.45)] sm:p-5">
-          <OdontogramChart
-            encounterId={context.encounter.id}
-            entries={context.odontogram.current_entries}
-            encounterEntries={context.odontogram.encounter_entries}
-            editable={context.is_editable}
-          />
-        </div>
+        <OdontogramChart
+          encounterId={context.encounter.id}
+          entries={context.odontogram.current_entries}
+          encounterEntries={context.odontogram.encounter_entries}
+          editable={context.is_editable}
+        />
       </section>
 
       <section hidden={activeSection !== "prescriptions"} role="tabpanel">
-        <div className="rounded-2xl border border-border/70 bg-surface p-4 shadow-[0_12px_34px_-30px_rgba(4,34,31,0.45)] sm:p-5">
-          <EncounterPrescriptionModule
-            encounterId={context.encounter.id}
-            prescriptions={context.prescriptions}
-            editable={context.is_editable}
-          />
-        </div>
+        <EncounterPrescriptionModule
+          encounterId={context.encounter.id}
+          prescriptions={context.prescriptions}
+          editable={context.is_editable}
+        />
       </section>
 
       <section hidden={activeSection !== "patient"} role="tabpanel">
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grid gap-5 lg:grid-cols-2 items-start">
           <MedicalAlertsCard medicalHistory={context.medical_history} />
-          <PatientContextCard patient={context.patient} />
+          <PatientContextCard
+            patient={context.patient}
+            medicalHistory={context.medical_history}
+          />
         </div>
       </section>
 

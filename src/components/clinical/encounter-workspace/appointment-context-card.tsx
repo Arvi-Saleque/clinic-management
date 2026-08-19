@@ -1,31 +1,50 @@
 import { format } from "date-fns";
 import {
   CalendarDays,
+  CheckCircle2,
   Clock3,
+  FileText,
   MapPin,
   Stethoscope,
   User,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { EncounterWorkspaceAppointment } from "@/types/clinical";
+import type {
+  ClinicalEncounter,
+  EncounterWorkspaceAppointment,
+} from "@/types/clinical";
 
 interface AppointmentContextCardProps {
   appointment: EncounterWorkspaceAppointment | null;
+  encounter?: ClinicalEncounter;
+  isDirty?: boolean;
 }
 
-export function AppointmentContextCard({ appointment }: AppointmentContextCardProps) {
+export function AppointmentContextCard({
+  appointment,
+  encounter,
+  isDirty = false,
+}: AppointmentContextCardProps) {
   if (!appointment) {
     return (
-      <Card className="border-border/70 shadow-[0_12px_34px_-30px_rgba(4,34,31,0.45)]">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <CalendarDays className="size-4 text-primary" />
-            Appointment Summary
-          </CardTitle>
+      <Card className="rounded-2xl border border-border/80 bg-card shadow-2xs">
+        <CardHeader className="pb-3 border-b border-border/50">
+          <div className="flex items-center justify-between gap-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-bold text-foreground">
+              <FileText className="size-4 text-primary" />
+              Consultation Snapshot
+            </CardTitle>
+            <Badge
+              variant="outline"
+              className="border-emerald-200/80 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+            >
+              Direct Visit
+            </Badge>
+          </div>
         </CardHeader>
-        <CardContent>
-          <p className="text-xs leading-5 text-muted-foreground">
+        <CardContent className="pt-4">
+          <p className="text-xs leading-relaxed text-muted-foreground">
             Direct clinical encounter without a linked appointment.
           </p>
         </CardContent>
@@ -39,7 +58,15 @@ export function AppointmentContextCard({ appointment }: AppointmentContextCardPr
     "h:mm a",
   )}`;
 
+  const isCompleted = encounter?.status === "completed";
+
   const rows = [
+    {
+      icon: CheckCircle2,
+      label: "Status",
+      value: isCompleted ? "Completed" : "Consultation in progress",
+      isStatus: true,
+    },
     appointment.service_name
       ? { icon: Stethoscope, label: "Service", value: appointment.service_name }
       : null,
@@ -55,59 +82,73 @@ export function AppointmentContextCard({ appointment }: AppointmentContextCardPr
     icon: typeof CalendarDays;
     label: string;
     value: string;
+    isStatus?: boolean;
   }>;
 
   return (
-    <Card className="border-border/70 shadow-[0_12px_34px_-30px_rgba(4,34,31,0.45)]">
-      <CardHeader className="pb-2.5">
+    <Card className="rounded-2xl border border-border/80 bg-card shadow-2xs">
+      <CardHeader className="pb-3 border-b border-border/50">
         <div className="flex items-center justify-between gap-3">
-          <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <CalendarDays className="size-4 text-primary" />
-            Appointment Summary
+          <CardTitle className="flex items-center gap-2 text-sm font-bold text-foreground">
+            <FileText className="size-4 text-primary" />
+            Consultation Snapshot
           </CardTitle>
-          <Badge
-            variant="outline"
-            className="border-emerald-500/20 bg-emerald-500/8 text-[10px] font-medium capitalize text-emerald-700 dark:text-emerald-300"
-          >
-            {appointment.status.replace(/_/g, " ")}
-          </Badge>
+          {isDirty ? (
+            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200/80 dark:bg-amber-950/40 dark:text-amber-300">
+              <span className="size-1.5 rounded-full bg-amber-600" />
+              Unsaved
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300">
+              <span className="size-1.5 rounded-full bg-emerald-600" />
+              Saved
+            </span>
+          )}
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-0">
-        {rows.map(({ icon: Icon, label, value }) => (
+      <CardContent className="pt-3.5 space-y-0">
+        {rows.map(({ icon: Icon, label, value, isStatus }) => (
           <div
             key={label}
-            className="flex items-start justify-between gap-4 border-b border-border/45 py-3 last:border-b-0"
+            className="flex items-center justify-between gap-3 border-b border-border/40 py-2.5 last:border-b-0"
           >
             <span className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Icon className="size-3.5" />
+              <Icon className="size-3.5 text-muted-foreground/70" />
               {label}
             </span>
-            <span className="max-w-[190px] text-right text-xs font-semibold leading-5 text-foreground">
-              {value}
-            </span>
+            {isStatus ? (
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+                <span className="size-1.5 rounded-full bg-emerald-600" />
+                {value}
+              </span>
+            ) : (
+              <span className="max-w-[190px] text-right text-xs font-semibold text-foreground truncate">
+                {value}
+              </span>
+            )}
           </div>
         ))}
 
+        {/* Metrics Row: Duration and Base Fee */}
         {(appointment.service_duration !== null || appointment.service_price !== null) && (
-          <div className="grid grid-cols-2 gap-3 border-t border-border/50 pt-3">
+          <div className="grid grid-cols-2 gap-3 border-t border-border/50 pt-3 mt-1">
             {appointment.service_duration !== null && (
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                <p className="text-[11px] font-semibold text-muted-foreground">
                   Duration
                 </p>
-                <p className="mt-1 text-sm font-semibold text-foreground">
+                <p className="mt-0.5 text-sm font-bold text-foreground">
                   {appointment.service_duration} mins
                 </p>
               </div>
             )}
             {appointment.service_price !== null && (
               <div className="text-right">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                  Base fee
+                <p className="text-[11px] font-semibold text-muted-foreground">
+                  Base Fee
                 </p>
-                <p className="mt-1 text-sm font-semibold text-foreground">
+                <p className="mt-0.5 text-sm font-bold text-foreground tabular-nums">
                   ${appointment.service_price.toFixed(2)}
                 </p>
               </div>
@@ -115,12 +156,15 @@ export function AppointmentContextCard({ appointment }: AppointmentContextCardPr
           </div>
         )}
 
+        {/* Booking Note */}
         {appointment.notes && (
-          <div className="mt-3 rounded-xl bg-muted/35 px-3 py-2.5">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              Booking note
+          <div className="mt-3.5 rounded-xl bg-muted/25 border border-border/60 p-3 space-y-1">
+            <p className="text-[11px] font-bold text-foreground">
+              Booking Note
             </p>
-            <p className="mt-1 text-xs leading-5 text-foreground/80">{appointment.notes}</p>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              {appointment.notes}
+            </p>
           </div>
         )}
       </CardContent>
