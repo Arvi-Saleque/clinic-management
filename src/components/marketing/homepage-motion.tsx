@@ -94,22 +94,62 @@ export function HomepageMotion() {
             aria: "auto",
           });
 
-          const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+          const heroTl = gsap.timeline({
+            defaults: { ease: "power3.out" },
+            onComplete: () => {
+              if (heroButtons) gsap.set(heroButtons.children, { clearProps: "all" });
+              if (heroTrust) gsap.set(heroTrust, { clearProps: "all" });
+              if (heroDesc) gsap.set(heroDesc, { clearProps: "all" });
+              if (heroChips) gsap.set(heroChips.children, { clearProps: "all" });
+              if (heroController) gsap.set(heroController, { clearProps: "all" });
+            },
+          });
+
           if (heroTrust) {
-            heroTl.from(heroTrust, { y: 20, opacity: 0, duration: 0.7 }, 0.15);
+            heroTl.fromTo(
+              heroTrust,
+              { y: 20, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.7, clearProps: "all" },
+              0.15,
+            );
           }
-          heroTl.from(split.words, { yPercent: 120, opacity: 0, duration: 0.85, stagger: 0.055 }, 0.25);
+          heroTl.fromTo(
+            split.words,
+            { yPercent: 120, opacity: 0 },
+            { yPercent: 0, opacity: 1, duration: 0.85, stagger: 0.055, clearProps: "all" },
+            0.25,
+          );
           if (heroDesc) {
-            heroTl.from(heroDesc, { y: 24, opacity: 0, duration: 0.75 }, 0.55);
+            heroTl.fromTo(
+              heroDesc,
+              { y: 24, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.75, clearProps: "all" },
+              0.55,
+            );
           }
-          if (heroButtons) {
-            heroTl.from(heroButtons.children, { y: 20, scale: 0.94, opacity: 0, duration: 0.65, stagger: 0.1 }, 0.7);
+          if (heroButtons && heroButtons.children.length > 0) {
+            heroTl.fromTo(
+              heroButtons.children,
+              { y: 20, scale: 0.94, opacity: 0 },
+              { y: 0, scale: 1, opacity: 1, duration: 0.65, stagger: 0.1, clearProps: "all" },
+              0.7,
+            );
           }
-          if (heroChips) {
-            heroTl.from(heroChips.children, { y: 16, opacity: 0, duration: 0.6, stagger: 0.08 }, 0.85);
+          if (heroChips && heroChips.children.length > 0) {
+            heroTl.fromTo(
+              heroChips.children,
+              { y: 16, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.6, stagger: 0.08, clearProps: "all" },
+              0.85,
+            );
           }
           if (heroController) {
-            heroTl.from(heroController, { y: 18, opacity: 0, duration: 0.55 }, 0.95);
+            heroTl.fromTo(
+              heroController,
+              { y: 18, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.55, clearProps: "all" },
+              0.95,
+            );
           }
           heroTl.call(() => split.revert(), [], 1.6);
 
