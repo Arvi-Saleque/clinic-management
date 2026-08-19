@@ -7,7 +7,9 @@ export interface ClinicService {
   description: string | null;
   duration_minutes: number;
   price: number;
+  category_id?: string | null;
   category: string | null;
+  icon_key?: string | null;
   is_active: boolean;
   show_on_website: boolean;
   created_at: string;
@@ -17,7 +19,9 @@ export interface DoctorServiceConfig {
   service_id: string;
   name: string;
   slug: string;
+  category_id?: string | null;
   category: string | null;
+  icon_key?: string | null;
   description: string | null;
   clinic_duration_minutes: number;
   clinic_price: number;
@@ -60,3 +64,27 @@ export interface ServicePractitionerOption {
   profiles: { full_name: string } | null;
 }
 
+export interface CategoryItem {
+  id?: string;
+  name: string;
+  description?: string | null;
+  serviceCount: number;
+}
+
+export interface ServiceFormContext {
+  practitioner: {
+    id: string;
+    title: string | null;
+    full_name: string;
+    branch_id: string;
+  } | null;
+  allPractitioners: {
+    id: string;
+    title: string | null;
+    full_name: string;
+  }[];
+  canSelectPractitioner: boolean;
+  categories: CategoryItem[];
+  service?: DoctorServiceConfig & { show_on_website?: boolean };
+  userRole?: string;
+}
