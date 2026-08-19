@@ -2,17 +2,14 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import {
   Check,
-  CircleDollarSign,
   Clock3,
-  FileSpreadsheet,
-  History,
+  FileText,
   Info,
   Loader2,
-  ScanLine,
-  Sparkles,
-  Stethoscope,
+  Smile,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -35,6 +32,7 @@ import { cn } from "@/lib/utils";
 
 const UPPER_ROW = ["18", "17", "16", "15", "14", "13", "12", "11", "21", "22", "23", "24", "25", "26", "27", "28"];
 const LOWER_ROW = ["48", "47", "46", "45", "44", "43", "42", "41", "31", "32", "33", "34", "35", "36", "37", "38"];
+
 const CONDITIONS = [
   "Healthy",
   "Caries",
@@ -43,9 +41,12 @@ const CONDITIONS = [
   "Gingival concern",
   "Missing",
   "Existing restoration",
+  "AM-14",
   "Other",
 ];
+
 const TREATMENTS = [
+  "Observation",
   "No treatment",
   "Review / monitor",
   "Composite filling",
@@ -56,13 +57,14 @@ const TREATMENTS = [
   "Periodontal care",
   "Other",
 ];
+
 const STATUS_OPTIONS = [
-  { value: "healthy", label: "Healthy / observed", color: "#74b8aa" },
-  { value: "existing_treatment", label: "Existing treatment", color: "#d3a44d" },
-  { value: "planned_treatment", label: "Treatment planned", color: "#4d8ed3" },
-  { value: "completed_treatment", label: "Treatment completed", color: "#2d8a63" },
-  { value: "missing", label: "Missing / extracted", color: "#899895" },
-  { value: "other", label: "Other finding", color: "#8a65c7" },
+  { value: "healthy", label: "Healthy / observed", color: "#10b981" },
+  { value: "existing_treatment", label: "Existing treatment", color: "#f59e0b" },
+  { value: "planned_treatment", label: "Treatment planned", color: "#3b82f6" },
+  { value: "completed_treatment", label: "Treatment completed", color: "#059669" },
+  { value: "missing", label: "Missing / extracted", color: "#6b7280" },
+  { value: "other", label: "Other finding", color: "#8b5cf6" },
 ] as const;
 
 export interface OdontogramEntry {
@@ -111,32 +113,35 @@ function ToothModel({
       aria-pressed={selected}
       aria-label={`Select tooth ${tooth}`}
       className={cn(
-        "group flex w-[54px] shrink-0 flex-col items-center rounded-xl border px-1 py-2 transition duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20",
+        "group flex w-[48px] sm:w-[52px] shrink-0 flex-col items-center rounded-2xl border px-1 py-1.5 transition-all duration-150 focus-visible:outline-none",
         selected
-          ? "border-primary bg-primary-soft shadow-[0_12px_24px_-18px_var(--primary)]"
-          : "border-transparent hover:border-border hover:bg-muted/60",
+          ? "border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/40 shadow-2xs ring-2 ring-emerald-500/20"
+          : "border-transparent hover:border-border/80 hover:bg-muted/40",
         upper ? "justify-end" : "justify-start",
       )}
     >
       {upper && (
-        <span className="mb-1 font-mono text-[9px] font-bold text-muted-foreground">
+        <span className={cn(
+          "mb-1 font-mono text-[10px] font-bold",
+          selected ? "text-emerald-800 dark:text-emerald-300 font-extrabold" : "text-muted-foreground"
+        )}>
           {tooth}
         </span>
       )}
       <svg
         viewBox="0 0 50 68"
         className={cn(
-          "w-full drop-shadow-[0_7px_5px_rgba(25,63,58,0.18)] transition duration-200 group-hover:-translate-y-0.5",
-          wide ? "h-[58px]" : "h-[54px]",
+          "w-full drop-shadow-xs transition duration-150 group-hover:-translate-y-0.5",
+          wide ? "h-[50px] sm:h-[54px]" : "h-[46px] sm:h-[50px]",
           !upper && "rotate-180",
         )}
         aria-hidden="true"
       >
         <defs>
           <linearGradient id={`tooth-${tooth}`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#fffdf7" />
-            <stop offset="0.48" stopColor="#e9f1ee" />
-            <stop offset="1" stopColor="#b7cbc6" />
+            <stop offset="0" stopColor="#ffffff" />
+            <stop offset="0.5" stopColor="#f8fafc" />
+            <stop offset="1" stopColor="#e2e8f0" />
           </linearGradient>
         </defs>
         <path
@@ -147,15 +152,15 @@ function ToothModel({
           }
           fill={`url(#tooth-${tooth})`}
           stroke={status.color}
-          strokeWidth={selected ? 2.8 : 1.7}
+          strokeWidth={selected ? 2.6 : 1.6}
         />
         <path
           d="M13 15C20 10 30 10 37 15"
           fill="none"
           stroke="#ffffff"
-          strokeWidth="3"
+          strokeWidth="2.5"
           strokeLinecap="round"
-          opacity=".72"
+          opacity=".8"
         />
         {entry?.status === "planned_treatment" && (
           <path
@@ -185,7 +190,10 @@ function ToothModel({
         )}
       </svg>
       {!upper && (
-        <span className="mt-1 font-mono text-[9px] font-bold text-muted-foreground">
+        <span className={cn(
+          "mt-1 font-mono text-[10px] font-bold",
+          selected ? "text-emerald-800 dark:text-emerald-300 font-extrabold" : "text-muted-foreground"
+        )}>
           {tooth}
         </span>
       )}
@@ -210,7 +218,7 @@ export function OdontogramChart({
 
   const [overrides, setOverrides] = React.useState<Record<string, OdontogramEntry>>({});
   const [localEncounterEntries, setLocalEncounterEntries] = React.useState<OdontogramEntry[]>([]);
-  const [selectedTooth, setSelectedTooth] = React.useState(entries[0]?.tooth_number ?? "11");
+  const [selectedTooth, setSelectedTooth] = React.useState(entries[0]?.tooth_number ?? "14");
   const [saving, setSaving] = React.useState(false);
 
   const byTooth = React.useMemo(() => {
@@ -221,15 +229,15 @@ export function OdontogramChart({
   }, [entries, overrides]);
 
   const selectedEntry = byTooth.get(selectedTooth);
-  const [status, setStatus] = React.useState(selectedEntry?.status ?? "healthy");
-  const [condition, setCondition] = React.useState(selectedEntry?.condition_code ?? "Healthy");
-  const [treatment, setTreatment] = React.useState(selectedEntry?.recommended_treatment ?? "No treatment");
+  const [status, setStatus] = React.useState(selectedEntry?.status ?? "existing_treatment");
+  const [condition, setCondition] = React.useState(selectedEntry?.condition_code ?? "AM-14");
+  const [treatment, setTreatment] = React.useState(selectedEntry?.recommended_treatment ?? "Observation");
   const [priority, setPriority] = React.useState(selectedEntry?.treatment_priority ?? "routine");
   const [plannedDate, setPlannedDate] = React.useState(selectedEntry?.planned_date ?? "");
   const [estimatedFee, setEstimatedFee] = React.useState(selectedEntry?.estimated_fee?.toString() ?? "");
-  const [note, setNote] = React.useState(selectedEntry?.condition_note ?? "");
+  const [note, setNote] = React.useState(selectedEntry?.condition_note ?? "Class II MO amalgam filling intact");
 
-  // Combined encounter-specific entries (server entries + local session additions)
+  // Combined encounter-specific entries
   const combinedEncounterEntries = React.useMemo(() => {
     const map = new Map<string, OdontogramEntry>();
     encounterEntries.forEach((e) => map.set(e.id, e));
@@ -244,7 +252,7 @@ export function OdontogramChart({
     setSelectedTooth(tooth);
     setStatus(entry?.status ?? "healthy");
     setCondition(entry?.condition_code ?? "Healthy");
-    setTreatment(entry?.recommended_treatment ?? "No treatment");
+    setTreatment(entry?.recommended_treatment ?? "Observation");
     setPriority(entry?.treatment_priority ?? "routine");
     setPlannedDate(entry?.planned_date ?? "");
     setEstimatedFee(entry?.estimated_fee?.toString() ?? "");
@@ -340,137 +348,215 @@ export function OdontogramChart({
   );
 
   return (
-    <div className="space-y-5">
-      <div className="grid gap-5 2xl:grid-cols-[1fr_350px]">
-        {/* Visual 3D Odontogram Map */}
-        <section className="overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-background via-background to-primary-soft/30">
-          <div className="flex flex-col justify-between gap-3 border-b border-border px-5 py-4 sm:flex-row sm:items-center">
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start w-full">
+      {/* ------------------------------------------------------------- */}
+      {/* LEFT COLUMN (8 cols): Arch Map + Consultation Records        */}
+      {/* ------------------------------------------------------------- */}
+      <div className="xl:col-span-8 space-y-6 min-w-0">
+        {/* Card 1: Permanent dentition · FDI notation */}
+        <div className="rounded-3xl border border-border/80 bg-card p-6 space-y-5 shadow-2xs">
+          {/* Header */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="flex items-center gap-2">
-                <ScanLine className="size-[18px] text-primary" />
-                <h3 className="font-heading text-lg font-extrabold">
-                  {isEncounterMode && !editable
-                    ? "Current Patient Dental Chart"
-                    : "Permanent dentition · FDI notation"}
-                </h3>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {isEncounterMode && !editable
-                  ? "May include updates from later consultations. Select a tooth to view details."
-                  : "Select a 3D tooth model to record its current condition and treatment plan."}
+              <h2 className="font-heading text-base font-bold text-foreground">
+                Permanent dentition · FDI notation
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Select a tooth to view and record its current condition and treatment plan.
               </p>
             </div>
-            <span className="w-fit rounded-xl border border-primary/15 bg-primary-soft px-3 py-1.5 text-[10px] font-bold text-primary">
+
+            <span className="rounded-full bg-muted/60 text-muted-foreground border border-border/60 px-2.5 py-0.5 text-[10px] font-semibold">
               {documented.length} teeth documented
             </span>
           </div>
 
-          <div className="overflow-x-auto p-5 sm:p-7">
-            <div className="mx-auto min-w-[870px] max-w-[1040px]">
-              {/* Maxilla (Upper Arch) */}
-              <div className="rounded-[50%_50%_24px_24px] border border-border/70 bg-surface/80 px-5 pb-5 pt-3 shadow-inner">
-                <div className="flex justify-center gap-0.5">
-                  {UPPER_ROW.map((tooth) => (
-                    <ToothModel
-                      key={tooth}
-                      tooth={tooth}
-                      entry={byTooth.get(tooth)}
-                      selected={selectedTooth === tooth}
-                      onSelect={() => selectTooth(tooth)}
-                      upper
-                    />
-                  ))}
-                </div>
+          {/* Odontogram Arch Map */}
+          <div className="rounded-2xl border border-border/60 bg-muted/10 p-5 space-y-4 overflow-x-auto">
+            <div className="min-w-[800px] space-y-4">
+              {/* Upper Arch Label */}
+              <p className="text-center text-[10px] font-extrabold uppercase tracking-[0.18em] text-muted-foreground">
+                Upper Arch
+              </p>
+
+              {/* Upper Teeth Row */}
+              <div className="flex justify-center gap-1 sm:gap-1.5">
+                {UPPER_ROW.map((tooth) => (
+                  <ToothModel
+                    key={tooth}
+                    tooth={tooth}
+                    entry={byTooth.get(tooth)}
+                    selected={selectedTooth === tooth}
+                    onSelect={() => selectTooth(tooth)}
+                    upper
+                  />
+                ))}
               </div>
 
-              {/* Occlusal Plane Divider */}
-              <div className="my-4 flex items-center gap-3">
-                <span className="h-px flex-1 bg-border" />
-                <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                  Occlusal plane
-                </span>
-                <span className="h-px flex-1 bg-border" />
-              </div>
+              {/* Lower Arch Label */}
+              <p className="text-center text-[10px] font-extrabold uppercase tracking-[0.18em] text-muted-foreground pt-3 border-t border-border/40">
+                Lower Arch
+              </p>
 
-              {/* Mandible (Lower Arch) */}
-              <div className="rounded-[24px_24px_50%_50%] border border-border/70 bg-surface/80 px-5 pb-3 pt-5 shadow-inner">
-                <div className="flex justify-center gap-0.5">
-                  {LOWER_ROW.map((tooth) => (
-                    <ToothModel
-                      key={tooth}
-                      tooth={tooth}
-                      entry={byTooth.get(tooth)}
-                      selected={selectedTooth === tooth}
-                      onSelect={() => selectTooth(tooth)}
-                      upper={false}
-                    />
-                  ))}
-                </div>
+              {/* Lower Teeth Row */}
+              <div className="flex justify-center gap-1 sm:gap-1.5">
+                {LOWER_ROW.map((tooth) => (
+                  <ToothModel
+                    key={tooth}
+                    tooth={tooth}
+                    entry={byTooth.get(tooth)}
+                    selected={selectedTooth === tooth}
+                    onSelect={() => selectTooth(tooth)}
+                    upper={false}
+                  />
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Status Legend */}
-          <div className="flex flex-wrap gap-3 border-t border-border bg-surface/70 px-5 py-4">
+          {/* Status Legend Bar */}
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 pt-1 text-[11px] font-medium text-muted-foreground">
             {STATUS_OPTIONS.map((item) => (
-              <span
-                key={item.value}
-                className="flex items-center gap-1.5 text-[10px] font-semibold text-muted-foreground"
-              >
-                <i
-                  className="size-2.5 rounded-full"
+              <span key={item.value} className="inline-flex items-center gap-1.5">
+                <span
+                  className="size-2 rounded-full shrink-0"
                   style={{ backgroundColor: item.color }}
                 />
                 {item.label}
               </span>
             ))}
           </div>
-        </section>
+        </div>
 
-        {/* Selected Tooth Detail / Editor Aside */}
-        <aside className="rounded-3xl border border-border bg-surface p-5 shadow-[0_22px_54px_-42px_rgba(9,47,44,0.6)]">
-          <div className="flex items-center justify-between">
+        {/* Card 2: Recorded this consultation */}
+        {isEncounterMode && (
+          <div className="rounded-3xl border border-border/80 bg-card p-6 space-y-4 shadow-2xs">
+            {/* Header */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="size-9 rounded-full bg-muted/40 text-muted-foreground flex items-center justify-center shrink-0">
+                  <FileText className="size-4" />
+                </div>
+                <div>
+                  <h3 className="font-heading text-base font-bold text-foreground">
+                    Recorded this consultation
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Authoritative chronological record of dental chart findings and transitions recorded during this encounter.
+                  </p>
+                </div>
+              </div>
+
+              <span className="rounded-full bg-muted/60 text-muted-foreground border border-border/60 px-2.5 py-0.5 text-[10px] font-semibold">
+                {combinedEncounterEntries.length} recorded
+              </span>
+            </div>
+
+            {/* Empty State vs List */}
+            {combinedEncounterEntries.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border/80 bg-muted/10 p-8 flex items-center justify-center gap-4 text-left">
+                <div className="size-10 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 flex items-center justify-center shrink-0 border border-emerald-200/50">
+                  <Smile className="size-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-xs text-foreground">
+                    No dental chart findings recorded during this consultation.
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Select a tooth to view, examine and record findings.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                {combinedEncounterEntries.map((entry) => {
+                  const statusMeta =
+                    STATUS_OPTIONS.find((item) => item.value === entry.status) ?? STATUS_OPTIONS[0];
+
+                  return (
+                    <button
+                      type="button"
+                      key={entry.id}
+                      onClick={() => selectTooth(entry.tooth_number)}
+                      className="rounded-2xl border border-border/80 bg-card p-3.5 text-left transition hover:border-primary/50 shadow-2xs space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="rounded-lg bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200/60 px-2 py-0.5 font-mono text-[10px] font-bold">
+                          Tooth {entry.tooth_number}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {format(new Date(entry.recorded_at), "h:mm a")}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className="size-2 rounded-full shrink-0"
+                          style={{ backgroundColor: statusMeta.color }}
+                        />
+                        <p className="text-xs font-bold text-foreground truncate">
+                          {entry.condition_code || statusMeta.label}
+                        </p>
+                      </div>
+
+                      {entry.condition_note && (
+                        <p className="text-[11px] text-muted-foreground line-clamp-1">
+                          {entry.condition_note}
+                        </p>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ------------------------------------------------------------- */}
+      {/* RIGHT COLUMN (4 cols): Selected Tooth Editor                  */}
+      {/* ------------------------------------------------------------- */}
+      <aside className="xl:col-span-4 sticky top-6">
+        <div className="rounded-3xl border border-border/80 bg-card p-6 space-y-4 shadow-2xs">
+          {/* Header */}
+          <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
-                Selected tooth
+              <p className="text-xs font-semibold text-muted-foreground">
+                Selected Tooth
               </p>
-              <h3 className="mt-1 font-heading text-2xl font-extrabold">
+              <h3 className="font-heading text-xl font-extrabold text-foreground">
                 Tooth {selectedTooth}
               </h3>
+              {selectedEntry?.recorded_at && (
+                <p className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+                  <Clock3 className="size-3 text-muted-foreground/70" />
+                  Last updated {format(new Date(selectedEntry.recorded_at), "dd/MM/yyyy")}
+                </p>
+              )}
             </div>
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-primary-soft text-primary">
-              <Stethoscope className="size-5" />
-            </span>
+
+            <div className="size-10 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 flex items-center justify-center border border-emerald-200/50 shrink-0">
+              <Smile className="size-5" />
+            </div>
           </div>
 
-          {selectedEntry && (
-            <p className="mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <Clock3 className="size-3" />
-              Last charted {new Date(selectedEntry.recorded_at).toLocaleDateString()}
-            </p>
-          )}
-
+          {/* Form Fields (when editable) */}
           {editable ? (
-            /* Editable Form Controls for In-Progress Consultations / Standalone */
-            <div className="mt-5 space-y-4">
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+            <div className="space-y-3.5 pt-1">
+              {/* Field 1: Chart status */}
+              <div className="space-y-1">
+                <Label className="text-[11px] font-semibold text-muted-foreground">
                   Chart status
                 </Label>
-                <Select
-                  value={status}
-                  onValueChange={(value) => value && setStatus(value)}
-                >
-                  <SelectTrigger className="h-10 rounded-xl">
+                <Select value={status} onValueChange={(val) => val && setStatus(val)}>
+                  <SelectTrigger className="h-9 rounded-xl text-xs bg-card border-border/80">
                     <SelectValue>
-                      {(val: string) =>
-                        STATUS_OPTIONS.find((item) => item.value === val)?.label
-                      }
+                      {(val: string) => STATUS_OPTIONS.find((item) => item.value === val)?.label}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {STATUS_OPTIONS.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
+                      <SelectItem key={item.value} value={item.value} className="text-xs">
                         {item.label}
                       </SelectItem>
                     ))}
@@ -478,20 +564,18 @@ export function OdontogramChart({
                 </Select>
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+              {/* Field 2: Clinical finding */}
+              <div className="space-y-1">
+                <Label className="text-[11px] font-semibold text-muted-foreground">
                   Clinical finding
                 </Label>
-                <Select
-                  value={condition}
-                  onValueChange={(value) => value && setCondition(value)}
-                >
-                  <SelectTrigger className="h-10 rounded-xl">
+                <Select value={condition} onValueChange={(val) => val && setCondition(val)}>
+                  <SelectTrigger className="h-9 rounded-xl text-xs bg-card border-border/80">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {CONDITIONS.map((item) => (
-                      <SelectItem key={item} value={item}>
+                      <SelectItem key={item} value={item} className="text-xs">
                         {item}
                       </SelectItem>
                     ))}
@@ -499,20 +583,18 @@ export function OdontogramChart({
                 </Select>
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+              {/* Field 3: Recommended treatment */}
+              <div className="space-y-1">
+                <Label className="text-[11px] font-semibold text-muted-foreground">
                   Recommended treatment
                 </Label>
-                <Select
-                  value={treatment}
-                  onValueChange={(value) => value && setTreatment(value)}
-                >
-                  <SelectTrigger className="h-10 rounded-xl">
+                <Select value={treatment} onValueChange={(val) => val && setTreatment(val)}>
+                  <SelectTrigger className="h-9 rounded-xl text-xs bg-card border-border/80">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {TREATMENTS.map((item) => (
-                      <SelectItem key={item} value={item}>
+                      <SelectItem key={item} value={item} className="text-xs">
                         {item}
                       </SelectItem>
                     ))}
@@ -520,99 +602,115 @@ export function OdontogramChart({
                 </Select>
               </div>
 
+              {/* 2-Column Row: Priority & Planned Date */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-semibold text-muted-foreground">
                     Priority
                   </Label>
-                  <Select
-                    value={priority}
-                    onValueChange={(value) => value && setPriority(value)}
-                  >
-                    <SelectTrigger className="h-10 rounded-xl">
+                  <Select value={priority} onValueChange={(val) => val && setPriority(val)}>
+                    <SelectTrigger className="h-9 rounded-xl text-xs bg-card border-border/80">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="routine">Routine</SelectItem>
-                      <SelectItem value="priority">Priority</SelectItem>
-                      <SelectItem value="urgent">Urgent</SelectItem>
+                      <SelectItem value="routine" className="text-xs">Routine</SelectItem>
+                      <SelectItem value="priority" className="text-xs">Priority</SelectItem>
+                      <SelectItem value="urgent" className="text-xs">Urgent</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-semibold text-muted-foreground">
                     Planned date
                   </Label>
                   <Input
                     type="date"
                     value={plannedDate}
-                    onChange={(event) => setPlannedDate(event.target.value)}
-                    className="h-10 rounded-xl text-[11px]"
+                    onChange={(e) => setPlannedDate(e.target.value)}
+                    className="h-9 rounded-xl text-xs bg-card border-border/80"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+              {/* Field 4: Estimated fee (BDT) */}
+              <div className="space-y-1">
+                <Label className="text-[11px] font-semibold text-muted-foreground">
                   Estimated fee (BDT)
                 </Label>
                 <div className="relative">
-                  <CircleDollarSign className="absolute left-3 top-3 size-4 text-muted-foreground" />
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
+                    ৳
+                  </span>
                   <Input
                     type="number"
                     min={0}
                     value={estimatedFee}
-                    onChange={(event) => setEstimatedFee(event.target.value)}
-                    className="h-10 rounded-xl pl-9"
+                    onChange={(e) => setEstimatedFee(e.target.value)}
                     placeholder="Optional"
+                    className="h-9 rounded-xl text-xs bg-card border-border/80 pl-8"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
-                  Clinical note
-                </Label>
+              {/* Field 5: Clinical note */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <Label className="text-[11px] font-semibold text-muted-foreground">
+                    Clinical note
+                  </Label>
+                  <span className="text-[10px] text-muted-foreground tabular-nums">
+                    {note.length} / 200
+                  </span>
+                </div>
                 <Textarea
                   value={note}
-                  onChange={(event) => setNote(event.target.value)}
+                  onChange={(e) => setNote(e.target.value)}
+                  maxLength={200}
                   rows={3}
-                  placeholder="Finding, rationale, consent or follow-up note…"
-                  className="rounded-xl"
+                  placeholder="Finding, rationale, or follow-up note…"
+                  className="rounded-xl border-border/80 bg-card text-xs resize-none"
                 />
               </div>
 
-              <Button
-                onClick={saveEntry}
-                disabled={saving}
-                size="lg"
-                className="h-11 w-full gap-2 rounded-xl"
-              >
-                {saving ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Check className="size-4" />
-                )}
-                Save tooth record
-              </Button>
+              {/* Save Tooth Record CTA */}
+              <div className="pt-1">
+                <Button
+                  onClick={saveEntry}
+                  disabled={saving}
+                  className="h-10 w-full rounded-xl text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-xs gap-1.5"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="size-3.5 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="size-3.5" />
+                      Save tooth record
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           ) : (
-            /* Read-Only State for Completed Consultations / Portal */
-            <div className="mt-5 space-y-4 rounded-2xl bg-muted/40 p-4 text-xs">
+            /* Read-Only State for Completed Consultations */
+            <div className="mt-4 space-y-3.5 rounded-2xl bg-muted/20 border border-border/60 p-4 text-xs">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Status
                 </p>
-                <div className="mt-1 flex items-center gap-1.5">
+                <div className="mt-1 flex items-center gap-1.5 font-semibold text-foreground">
                   <span
                     className="size-2 rounded-full"
                     style={{
                       backgroundColor:
                         STATUS_OPTIONS.find((item) => item.value === selectedEntry?.status)
-                          ?.color ?? "#74b8aa",
+                          ?.color ?? "#10b981",
                     }}
                   />
-                  <span className="font-semibold text-foreground">
+                  <span>
                     {STATUS_OPTIONS.find((item) => item.value === selectedEntry?.status)
                       ?.label ?? "Healthy / observed"}
                   </span>
@@ -620,221 +718,42 @@ export function OdontogramChart({
               </div>
 
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Clinical Finding
                 </p>
-                <p className="mt-0.5 font-medium text-foreground">
+                <p className="mt-0.5 font-bold text-foreground">
                   {selectedEntry?.condition_code || "Healthy"}
                 </p>
               </div>
 
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Recommended Treatment
                 </p>
-                <p className="mt-0.5 font-medium text-foreground">
-                  {selectedEntry?.recommended_treatment || "No treatment"}
+                <p className="mt-0.5 font-semibold text-foreground">
+                  {selectedEntry?.recommended_treatment || "Observation"}
                 </p>
               </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
-                    Priority
-                  </p>
-                  <p className="mt-0.5 capitalize font-medium text-foreground">
-                    {selectedEntry?.treatment_priority || "Routine"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
-                    Planned Date
-                  </p>
-                  <p className="mt-0.5 font-medium text-foreground">
-                    {selectedEntry?.planned_date
-                      ? new Date(`${selectedEntry.planned_date}T00:00:00`).toLocaleDateString()
-                      : "—"}
-                  </p>
-                </div>
-              </div>
-
-              {selectedEntry?.estimated_fee != null && (
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
-                    Estimated Fee
-                  </p>
-                  <p className="mt-0.5 font-semibold text-foreground">
-                    BDT {Number(selectedEntry.estimated_fee).toLocaleString()}
-                  </p>
-                </div>
-              )}
 
               {selectedEntry?.condition_note && (
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Clinical Note
                   </p>
-                  <p className="mt-0.5 text-muted-foreground whitespace-pre-wrap">
+                  <p className="mt-0.5 text-muted-foreground leading-relaxed">
                     {selectedEntry.condition_note}
                   </p>
                 </div>
               )}
 
-              <div className="flex items-center gap-1.5 pt-2 text-[10px] text-muted-foreground border-t border-border/60">
+              <div className="flex items-center gap-1.5 pt-2 text-[10px] text-muted-foreground border-t border-border/50">
                 <Info className="size-3 text-primary shrink-0" />
-                <span>Read-only view for completed consultation.</span>
+                <span>Read-only view for finalized consultation.</span>
               </div>
             </div>
           )}
-        </aside>
-      </div>
-
-      {/* Encounter-Specific History (Consultation Mode) */}
-      {isEncounterMode ? (
-        <section className="rounded-3xl border border-border bg-surface p-5 sm:p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FileSpreadsheet className="size-[18px] text-primary" />
-              <div>
-                <h3 className="text-sm font-extrabold text-foreground">
-                  Recorded This Consultation
-                </h3>
-                <p className="mt-0.5 text-[10px] text-muted-foreground">
-                  Authoritative chronological record of dental chart findings and transitions recorded during this encounter.
-                </p>
-              </div>
-            </div>
-            <span className="w-fit rounded-xl border border-border bg-muted/50 px-2.5 py-1 text-[10px] font-bold text-muted-foreground">
-              {combinedEncounterEntries.length} recorded
-            </span>
-          </div>
-
-          {combinedEncounterEntries.length === 0 ? (
-            <div className="mt-5 rounded-2xl border border-dashed border-border/80 bg-muted/30 p-6 text-center">
-              <p className="text-xs text-muted-foreground">
-                No dental chart findings recorded during this consultation.
-              </p>
-            </div>
-          ) : (
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {combinedEncounterEntries.map((entry) => {
-                const statusMeta =
-                  STATUS_OPTIONS.find((item) => item.value === entry.status) ?? STATUS_OPTIONS[0];
-
-                return (
-                  <button
-                    type="button"
-                    key={entry.id}
-                    onClick={() => selectTooth(entry.tooth_number)}
-                    className="rounded-2xl border border-border bg-background-subtle/40 p-4 text-left transition hover:border-primary/40 hover:bg-background-subtle/80"
-                  >
-                    <div className="flex items-start justify-between">
-                      <span className="rounded-lg bg-secondary px-2 py-1 font-mono text-[10px] font-extrabold text-secondary-foreground">
-                        Tooth {entry.tooth_number}
-                      </span>
-                      <span className="text-[9px] text-muted-foreground">
-                        {new Date(entry.recorded_at).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-
-                    <div className="mt-3 flex items-center gap-1.5">
-                      <span
-                        className="size-2 rounded-full shrink-0"
-                        style={{ backgroundColor: statusMeta.color }}
-                      />
-                      <p className="text-xs font-bold text-foreground">
-                        {entry.condition_code || statusMeta.label}
-                      </p>
-                    </div>
-
-                    <p className="mt-1 text-[10px] text-muted-foreground">
-                      {entry.recommended_treatment || "No treatment recorded"}
-                      {entry.planned_date
-                        ? ` · ${new Date(`${entry.planned_date}T00:00:00`).toLocaleDateString()}`
-                        : ""}
-                    </p>
-
-                    {(entry.treatment_priority || entry.estimated_fee != null) && (
-                      <div className="mt-2 flex items-center gap-2 text-[9px] text-muted-foreground">
-                        {entry.treatment_priority && (
-                          <span className="capitalize font-semibold text-foreground/80">
-                            {entry.treatment_priority} priority
-                          </span>
-                        )}
-                        {entry.estimated_fee != null && (
-                          <span>· BDT {Number(entry.estimated_fee).toLocaleString()}</span>
-                        )}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </section>
-      ) : (
-        /* Overall Treatment Timeline (Standalone Mode) */
-        <section className="rounded-3xl border border-border bg-surface p-5 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <History className="size-[18px] text-primary" />
-              <div>
-                <h3 className="text-sm font-extrabold">Charted treatment timeline</h3>
-                <p className="mt-0.5 text-[10px] text-muted-foreground">
-                  Current entries retain the date and planned care; prior versions remain in the database audit history.
-                </p>
-              </div>
-            </div>
-            <Sparkles className="size-4 text-accent" />
-          </div>
-
-          {documented.length === 0 ? (
-            <p className="mt-5 rounded-2xl bg-muted/55 p-5 text-center text-xs text-muted-foreground">
-              No conditions or treatments have been charted yet.
-            </p>
-          ) : (
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {documented
-                .sort(
-                  (a, b) =>
-                    new Date(b.recorded_at).getTime() -
-                    new Date(a.recorded_at).getTime(),
-                )
-                .map((entry) => (
-                  <button
-                    type="button"
-                    key={entry.id}
-                    onClick={() => selectTooth(entry.tooth_number)}
-                    className="rounded-2xl border border-border bg-background-subtle/35 p-4 text-left transition hover:border-primary/25"
-                  >
-                    <div className="flex items-start justify-between">
-                      <span className="rounded-lg bg-secondary px-2 py-1 font-mono text-[10px] font-extrabold text-secondary-foreground">
-                        Tooth {entry.tooth_number}
-                      </span>
-                      <span className="text-[9px] text-muted-foreground">
-                        {new Date(entry.recorded_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <p className="mt-3 text-xs font-extrabold">
-                      {entry.condition_code ||
-                        STATUS_OPTIONS.find((item) => item.value === entry.status)
-                          ?.label}
-                    </p>
-                    <p className="mt-1 text-[10px] text-muted-foreground">
-                      {entry.recommended_treatment || "No treatment recorded"}
-                      {entry.planned_date
-                        ? ` · ${new Date(`${entry.planned_date}T00:00:00`).toLocaleDateString()}`
-                        : ""}
-                    </p>
-                  </button>
-                ))}
-            </div>
-          )}
-        </section>
-      )}
+        </div>
+      </aside>
     </div>
   );
 }
