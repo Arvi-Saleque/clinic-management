@@ -1,17 +1,13 @@
 import type { Metadata } from "next";
 import {
   AlertTriangle,
-  CalendarCheck2,
   CalendarClock,
   CalendarDays,
   CheckCircle2,
   ClipboardList,
-  FileSpreadsheet,
   Layers,
-  ShieldAlert,
   ShieldCheck,
   Smile,
-  Sparkles,
   Stethoscope,
   WalletCards,
 } from "lucide-react";
@@ -46,23 +42,27 @@ export default async function PortalOdontogramPage() {
   return (
     <div className="space-y-8">
       {/* ── HEADER & STATS OVERVIEW ── */}
-      <section className="relative rounded-3xl border-b border-border/60 pb-6 bg-transparent">
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_auto] lg:items-end">
+      <section className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface/85 backdrop-blur-xl p-6 sm:p-8 shadow-sm transition-all">
+        {/* Soft Ambient Glow */}
+        <div className="pointer-events-none absolute -right-20 -top-20 size-60 rounded-full bg-primary/10 blur-3xl" />
+        <div className="pointer-events-none absolute -left-20 -bottom-20 size-60 rounded-full bg-emerald-500/5 blur-3xl" />
+
+        <div className="relative z-10 grid gap-6 lg:grid-cols-[1.2fr_auto] lg:items-end">
           <div className="space-y-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary-soft/60 px-3.5 py-1 text-xs font-semibold text-primary shadow-xs">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary-soft/80 px-3.5 py-1 text-xs font-semibold text-primary backdrop-blur-md shadow-xs">
               <Smile className="size-3.5" /> Tooth-by-tooth record
             </span>
             <h1 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
               My dental care
             </h1>
-            <p className="max-w-xl text-sm leading-6 text-text-secondary">
+            <p className="max-w-xl text-sm leading-relaxed text-text-secondary">
               Explore your current dental chart, recorded conditions and recommended next treatments.
             </p>
           </div>
 
           {/* Quick Metrics Overview Strip */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="rounded-2xl border border-border/80 bg-surface p-4 text-center shadow-xs transition-all hover:border-primary/30">
+            <div className="rounded-[24px] border border-border/80 bg-surface/90 backdrop-blur-xl p-4.5 text-center shadow-xs transition-all hover:border-primary/40 hover:scale-[1.02]">
               <div className="flex items-center justify-center text-primary mb-1">
                 <Layers className="size-4" />
               </div>
@@ -70,7 +70,7 @@ export default async function PortalOdontogramPage() {
               <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">Charted</p>
             </div>
 
-            <div className="rounded-2xl border border-border/80 bg-surface p-4 text-center shadow-xs transition-all hover:border-primary/30">
+            <div className="rounded-[24px] border border-border/80 bg-surface/90 backdrop-blur-xl p-4.5 text-center shadow-xs transition-all hover:border-primary/40 hover:scale-[1.02]">
               <div className="flex items-center justify-center text-primary mb-1">
                 <ClipboardList className="size-4" />
               </div>
@@ -78,7 +78,7 @@ export default async function PortalOdontogramPage() {
               <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">Planned</p>
             </div>
 
-            <div className="rounded-2xl border border-border/80 bg-surface p-4 text-center shadow-xs transition-all hover:border-destructive/30">
+            <div className="rounded-[24px] border border-border/80 bg-surface/90 backdrop-blur-xl p-4.5 text-center shadow-xs transition-all hover:border-destructive/40 hover:scale-[1.02]">
               <div className="flex items-center justify-center text-amber-500 mb-1">
                 <AlertTriangle className="size-4" />
               </div>
@@ -88,7 +88,7 @@ export default async function PortalOdontogramPage() {
               <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">Urgent</p>
             </div>
 
-            <div className="rounded-2xl border border-border/80 bg-surface p-4 text-center shadow-xs transition-all hover:border-primary/30">
+            <div className="rounded-[24px] border border-border/80 bg-surface/90 backdrop-blur-xl p-4.5 text-center shadow-xs transition-all hover:border-primary/40 hover:scale-[1.02]">
               <div className="flex items-center justify-center text-primary mb-1">
                 <WalletCards className="size-4" />
               </div>
@@ -101,7 +101,7 @@ export default async function PortalOdontogramPage() {
 
       {/* ── INTERACTIVE 3D ODONTOGRAM CHART ── */}
       {!patient ? (
-        <div className="rounded-3xl border border-dashed border-border bg-surface p-12 text-center space-y-3">
+        <div className="rounded-[32px] border border-dashed border-border/80 bg-surface/90 backdrop-blur-xl p-12 text-center space-y-3 shadow-xl">
           <Smile className="mx-auto size-12 text-text-muted" />
           <h2 className="font-heading text-xl font-bold text-foreground">Complete registration first</h2>
           <p className="text-sm text-text-muted max-w-sm mx-auto leading-relaxed">
@@ -109,10 +109,10 @@ export default async function PortalOdontogramPage() {
           </p>
         </div>
       ) : (
-        <section className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface p-5 sm:p-7 shadow-sm">
+        <section className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface/90 backdrop-blur-xl p-6 sm:p-8 shadow-xl transition-all">
           {/* Ambient Lighting Background */}
-          <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/5 blur-3xl" />
-          <div className="pointer-events-none absolute -left-24 -bottom-24 size-72 rounded-full bg-emerald-500/5 blur-3xl" />
+          <div className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-primary/10 blur-3xl" />
+          <div className="pointer-events-none absolute -left-24 -bottom-24 size-80 rounded-full bg-emerald-500/10 blur-3xl" />
 
           <div className="relative mb-6 flex flex-col gap-3 border-b border-border/60 pb-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3.5">
@@ -138,7 +138,7 @@ export default async function PortalOdontogramPage() {
       {/* ── TREATMENT RECOMMENDATIONS & INSIGHTS ── */}
       <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr] items-start">
         {/* Left Column: Treatment recommendations */}
-        <article className="rounded-[32px] border border-border/80 bg-surface p-6 sm:p-7 shadow-sm space-y-6">
+        <article className="rounded-[32px] border border-border/80 bg-surface/90 backdrop-blur-xl p-6 sm:p-8 shadow-xl space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-4">
             <div className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-2xl bg-primary-soft text-primary shadow-xs">
@@ -160,7 +160,7 @@ export default async function PortalOdontogramPage() {
               {planned.map((entry) => (
                 <div
                   key={entry.id}
-                  className="grid gap-3.5 rounded-2xl border border-border/80 bg-background-subtle/60 p-4.5 sm:grid-cols-[56px_1fr_auto] sm:items-center transition-all hover:border-primary/30 hover:bg-background-subtle"
+                  className="grid gap-3.5 rounded-2xl border border-border/80 bg-background-subtle/80 backdrop-blur-md p-4.5 sm:grid-cols-[56px_1fr_auto] sm:items-center transition-all hover:border-primary/40 hover:bg-background-subtle hover:shadow-md"
                 >
                   <div className="flex size-14 items-center justify-center rounded-2xl border border-primary/20 bg-surface font-mono text-lg font-extrabold text-primary shadow-xs">
                     {entry.tooth_number}
@@ -221,9 +221,9 @@ export default async function PortalOdontogramPage() {
         </article>
 
         {/* Right Column: Financial & Clinical Summary Cards */}
-        <div className="space-y-5">
+        <div className="space-y-6">
           {/* Card 1: Service fee total */}
-          <article className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface p-6 shadow-sm space-y-4">
+          <article className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface/90 backdrop-blur-xl p-6 sm:p-7 shadow-xl space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex size-10 items-center justify-center rounded-2xl bg-primary-soft text-primary shadow-xs">
@@ -247,7 +247,7 @@ export default async function PortalOdontogramPage() {
           </article>
 
           {/* Card 2: Chart Recency */}
-          <article className="rounded-[32px] border border-border/80 bg-surface p-6 shadow-sm space-y-3">
+          <article className="rounded-[32px] border border-border/80 bg-surface/90 backdrop-blur-xl p-6 sm:p-7 shadow-xl space-y-3">
             <div className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-2xl bg-primary-soft text-primary shadow-xs">
                 <CalendarDays className="size-5" />
@@ -272,7 +272,7 @@ export default async function PortalOdontogramPage() {
 
           {/* Card 3: Urgent Notice if present */}
           {urgent > 0 && (
-            <article className="rounded-[32px] border border-destructive/30 bg-destructive/8 p-5 shadow-sm space-y-2.5">
+            <article className="rounded-[32px] border border-destructive/30 bg-destructive/10 backdrop-blur-md p-6 shadow-md space-y-3">
               <div className="flex items-center gap-2 text-destructive font-bold text-sm">
                 <AlertTriangle className="size-4 shrink-0" />
                 <span>Urgent Care Attention</span>
@@ -291,7 +291,7 @@ export default async function PortalOdontogramPage() {
           )}
 
           {/* Card 4: Quick Action Banner */}
-          <div className="rounded-[32px] border border-primary/20 bg-primary-soft/40 p-5 space-y-3">
+          <div className="rounded-[32px] border border-primary/25 bg-primary-soft/60 backdrop-blur-md p-6 space-y-3 shadow-md">
             <div className="flex items-center gap-2 text-primary font-bold text-xs">
               <Stethoscope className="size-4" /> Schedule Follow-up Visit
             </div>

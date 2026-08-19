@@ -354,7 +354,7 @@ export function OdontogramChart({
       {/* ------------------------------------------------------------- */}
       <div className="xl:col-span-8 space-y-6 min-w-0">
         {/* Card 1: Permanent dentition · FDI notation */}
-        <div className="rounded-3xl border border-border/80 bg-card p-6 space-y-5 shadow-2xs">
+        <div className="rounded-[32px] border border-border/80 bg-surface/90 backdrop-blur-xl p-6 sm:p-7 space-y-5 shadow-xl transition-all">
           {/* Header */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -517,7 +517,7 @@ export function OdontogramChart({
       {/* RIGHT COLUMN (4 cols): Selected Tooth Editor                  */}
       {/* ------------------------------------------------------------- */}
       <aside className="xl:col-span-4 sticky top-6">
-        <div className="rounded-3xl border border-border/80 bg-card p-6 space-y-4 shadow-2xs">
+        <div className="rounded-[32px] border border-border/80 bg-surface/90 backdrop-blur-xl p-6 sm:p-7 space-y-4 shadow-xl transition-all">
           {/* Header */}
           <div className="flex items-center justify-between gap-3">
             <div>

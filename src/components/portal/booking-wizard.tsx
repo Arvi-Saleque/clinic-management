@@ -346,14 +346,18 @@ export function BookingWizard({
   const currentStepIndex = stepsList.findIndex((s) => s.id === step);
 
   return (
-    <Card className="overflow-hidden rounded-[32px] border border-border/80 bg-surface shadow-xl">
+    <div className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface/90 backdrop-blur-xl shadow-xl transition-all">
+      {/* Soft Ambient Background Glow */}
+      <div className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -left-24 size-80 rounded-full bg-accent/10 blur-3xl" />
+
       {/* ================================================================
           CLEAN HEADER (NO HEAVY BACKGROUND COLOR)
           ================================================================ */}
-      <div className="relative px-6 py-6 sm:px-10 sm:py-8 border-b border-border/60 bg-transparent">
+      <div className="relative z-10 px-6 py-6 sm:px-10 sm:py-8 border-b border-border/60 bg-transparent">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/80 px-3 py-1 text-xs font-semibold text-primary backdrop-blur-md">
               {reschedule ? "Appointment Management" : "Clinical Sanctuary Scheduling"}
             </div>
             <h1 className="font-heading text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
@@ -1047,6 +1051,6 @@ export function BookingWizard({
           </div>
         )}
       </CardContent>
-    </Card>
+    </div>
   );
 }
