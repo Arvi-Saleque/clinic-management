@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { requireClinician } from "@/lib/auth/guards";
 import { getSingleServiceContext } from "@/lib/server/doctor-services";
 import { ServiceForm } from "@/components/staff/service-form";
 
@@ -15,6 +16,7 @@ export default async function EditServicePage({
   params: Promise<{ serviceId: string }>;
   searchParams: Promise<{ practitioner?: string }>;
 }) {
+  await requireClinician();
   const { serviceId } = await params;
   const { practitioner } = await searchParams;
 

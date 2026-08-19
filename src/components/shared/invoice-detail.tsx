@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { formatCurrency } from "@/lib/utils";
 
 interface InvoiceDetailProps {
   invoice: {
@@ -64,8 +65,8 @@ export function InvoiceDetail({ invoice, items, payments, children }: InvoiceDet
                   <tr key={item.id} className="border-b border-border last:border-0">
                     <td className="p-3">{item.description}</td>
                     <td className="p-3">{item.quantity}</td>
-                    <td className="p-3">&#2547;{Number(item.unit_price).toLocaleString()}</td>
-                    <td className="p-3 text-right">&#2547;{Number(item.line_total).toLocaleString()}</td>
+                    <td className="p-3">{formatCurrency(item.unit_price)}</td>
+                    <td className="p-3 text-right">{formatCurrency(item.line_total)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -75,32 +76,32 @@ export function InvoiceDetail({ invoice, items, payments, children }: InvoiceDet
           <div className="ml-auto max-w-xs space-y-1 text-sm">
             <div className="flex justify-between text-muted-foreground">
               <span>Subtotal</span>
-              <span>&#2547;{Number(invoice.subtotal).toLocaleString()}</span>
+              <span>{formatCurrency(invoice.subtotal)}</span>
             </div>
             {Number(invoice.tax_amount) > 0 && (
               <div className="flex justify-between text-muted-foreground">
                 <span>Tax</span>
-                <span>&#2547;{Number(invoice.tax_amount).toLocaleString()}</span>
+                <span>{formatCurrency(invoice.tax_amount)}</span>
               </div>
             )}
             {Number(invoice.discount_amount) > 0 && (
               <div className="flex justify-between text-muted-foreground">
                 <span>Discount</span>
-                <span>-&#2547;{Number(invoice.discount_amount).toLocaleString()}</span>
+                <span>-{formatCurrency(invoice.discount_amount)}</span>
               </div>
             )}
             <Separator className="my-1" />
             <div className="flex justify-between font-medium">
               <span>Total</span>
-              <span>&#2547;{Number(invoice.total).toLocaleString()}</span>
+              <span>{formatCurrency(invoice.total)}</span>
             </div>
             <div className="flex justify-between text-muted-foreground">
               <span>Paid</span>
-              <span>&#2547;{totalPaid.toLocaleString()}</span>
+              <span>{formatCurrency(totalPaid)}</span>
             </div>
             <div className="flex justify-between font-medium">
               <span>Balance</span>
-              <span>&#2547;{balance.toLocaleString()}</span>
+              <span>{formatCurrency(balance)}</span>
             </div>
           </div>
 
@@ -117,10 +118,10 @@ export function InvoiceDetail({ invoice, items, payments, children }: InvoiceDet
             {payments.map((p) => (
               <div key={p.id} className="flex justify-between text-sm">
                 <span className="capitalize text-muted-foreground">
-                  {p.method.replace("_", " ")} &middot; {new Date(p.paid_at).toLocaleDateString()}
+                  {p.method === "other" ? "Other" : p.method.replace("_", " ")} &middot; {new Date(p.paid_at).toLocaleDateString()}
                   {p.reference ? ` · ${p.reference}` : ""}
                 </span>
-                <span className="font-medium">&#2547;{Number(p.amount).toLocaleString()}</span>
+                <span className="font-medium">{formatCurrency(p.amount)}</span>
               </div>
             ))}
           </CardContent>

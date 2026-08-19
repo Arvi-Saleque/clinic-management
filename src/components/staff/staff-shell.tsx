@@ -9,14 +9,12 @@ import {
   CalendarDays,
   ChevronRight,
   Command,
-  FileText,
   LayoutDashboard,
   Menu,
   Plus,
   Receipt,
   Search,
   ShieldCheck,
-  Smile,
   Sparkles,
   Stethoscope,
   Users,
@@ -26,23 +24,68 @@ import {
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { SignOutButton } from "@/components/shared/sign-out-button";
 import { Button, ButtonLink } from "@/components/ui/button";
+import { formatRoleLabel } from "@/lib/constants/roles";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/lib/auth/session";
 import type { LucideIcon } from "lucide-react";
 
-const NAV: { href: string; label: string; shortLabel: string; icon: LucideIcon; clinical?: boolean }[] = [
+interface NavItem {
+  href: string;
+  label: string;
+  shortLabel: string;
+  icon: LucideIcon;
+}
+
+const RECEPTIONIST_NAV: NavItem[] = [
+  { href: "/dashboard", label: "Dashboard", shortLabel: "Dashboard", icon: LayoutDashboard },
+  { href: "/appointments", label: "Appointments", shortLabel: "Appointments", icon: CalendarCheck2 },
+  { href: "/patients", label: "Patients", shortLabel: "Patients", icon: Users },
+  { href: "/scheduler", label: "Clinical Diary", shortLabel: "Clinical Diary", icon: CalendarDays },
+  { href: "/billing/invoices", label: "Billing & Payments", shortLabel: "Billing", icon: Receipt },
+];
+
+const DENTIST_NAV: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", shortLabel: "Dashboard", icon: LayoutDashboard },
   { href: "/patients", label: "Patients", shortLabel: "Patients", icon: Users },
   { href: "/scheduler", label: "Clinical Diary", shortLabel: "Clinical Diary", icon: CalendarDays },
   { href: "/appointments", label: "Appointments", shortLabel: "Appointments", icon: CalendarCheck2 },
   { href: "/billing/invoices", label: "Billing & Payments", shortLabel: "Billing", icon: Receipt },
-  { href: "/clinical/prescriptions", label: "Prescriptions", shortLabel: "Prescriptions", icon: FileText, clinical: true },
-  { href: "/clinical/odontogram", label: "Dental Chart", shortLabel: "Dental Chart", icon: Smile, clinical: true },
-  { href: "/clinical/services", label: "Services & Treatments", shortLabel: "Services", icon: Stethoscope, clinical: true },
+  { href: "/clinical/services", label: "Services & Treatments", shortLabel: "Services", icon: Stethoscope },
 ];
 
+const OWNER_ADMIN_NAV: NavItem[] = [
+  { href: "/dashboard", label: "Dashboard", shortLabel: "Dashboard", icon: LayoutDashboard },
+  { href: "/appointments", label: "Appointments", shortLabel: "Appointments", icon: CalendarCheck2 },
+  { href: "/patients", label: "Patients", shortLabel: "Patients", icon: Users },
+  { href: "/scheduler", label: "Clinical Diary", shortLabel: "Clinical Diary", icon: CalendarDays },
+  { href: "/billing/invoices", label: "Billing & Payments", shortLabel: "Billing", icon: Receipt },
+  { href: "/clinical/services", label: "Services & Treatments", shortLabel: "Services", icon: Stethoscope },
+];
+
+const ALL_NAV_ITEMS: NavItem[] = [
+  { href: "/dashboard", label: "Dashboard", shortLabel: "Dashboard", icon: LayoutDashboard },
+  { href: "/appointments", label: "Appointments", shortLabel: "Appointments", icon: CalendarCheck2 },
+  { href: "/patients", label: "Patients", shortLabel: "Patients", icon: Users },
+  { href: "/scheduler", label: "Clinical Diary", shortLabel: "Clinical Diary", icon: CalendarDays },
+  { href: "/billing/invoices", label: "Billing & Payments", shortLabel: "Billing", icon: Receipt },
+  { href: "/clinical/services", label: "Services & Treatments", shortLabel: "Services", icon: Stethoscope },
+];
+
+function getNavForRole(role: string): NavItem[] {
+  switch (role) {
+    case "receptionist":
+      return RECEPTIONIST_NAV;
+    case "dentist":
+      return DENTIST_NAV;
+    case "owner_admin":
+      return OWNER_ADMIN_NAV;
+    default:
+      return RECEPTIONIST_NAV;
+  }
+}
+
 function getPageLabel(pathname: string) {
-  const match = [...NAV].reverse().find((item) => pathname.startsWith(item.href));
+  const match = [...ALL_NAV_ITEMS].reverse().find((item) => pathname.startsWith(item.href));
   if (pathname.includes("/new")) return `New ${match?.shortLabel.toLowerCase() ?? "record"}`;
   return match?.shortLabel ?? "Clinic workspace";
 }
@@ -52,8 +95,7 @@ export function StaffShell({ profile, children }: { profile: Profile; children: 
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
-  const isClinician = profile.role === "dentist" || profile.role === "owner_admin";
-  const visibleNav = NAV.filter((item) => !item.clinical || isClinician);
+  const visibleNav = getNavForRole(profile.role);
 
   function submitSearch(event: React.FormEvent) {
     event.preventDefault();
@@ -121,7 +163,7 @@ export function StaffShell({ profile, children }: { profile: Profile; children: 
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-bold text-sidebar-foreground">{profile.full_name}</p>
-            <p className="truncate text-[10px] capitalize text-muted-foreground">{profile.role.replace("_", " ")}</p>
+            <p className="truncate text-[10px] font-medium text-muted-foreground">{formatRoleLabel(profile.role)}</p>
           </div>
           <SignOutButton compact />
         </div>

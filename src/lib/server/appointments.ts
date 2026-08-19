@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { addDays, format } from "date-fns";
 
 import { createClient } from "@/lib/supabase/server";
-import { requireStaff } from "@/lib/auth/guards";
+import { requireClinician, requireStaff } from "@/lib/auth/guards";
 import { getProfile } from "@/lib/auth/session";
 import type {
   AvailabilityExceptionRow,
@@ -113,7 +113,7 @@ export async function saveMultiIntervalWeeklyAvailability(
   input: SaveMultiIntervalAvailabilityInput,
 ): Promise<{ error: string | null }> {
   try {
-    await requireStaff();
+    await requireClinician();
     const parsed = saveMultiIntervalAvailabilitySchema.safeParse(input);
     if (!parsed.success) {
       return { error: parsed.error.issues[0]?.message ?? "Invalid schedule configuration" };
@@ -198,7 +198,7 @@ export async function setAvailabilityExceptionAction(
   input: CreateAvailabilityExceptionInput,
 ): Promise<{ success: boolean; error: string | null }> {
   try {
-    await requireStaff();
+    await requireClinician();
     const parsed = createAvailabilityExceptionSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid exception details" };
@@ -251,7 +251,7 @@ export async function deleteAvailabilityExceptionAction(
   input: DeleteAvailabilityExceptionInput,
 ): Promise<{ success: boolean; error: string | null }> {
   try {
-    await requireStaff();
+    await requireClinician();
     const parsed = deleteAvailabilityExceptionSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -283,7 +283,7 @@ export async function saveDayAvailabilityOverrideAction(
   input: SaveDateOverrideInput,
 ): Promise<{ success: boolean; error: string | null }> {
   try {
-    await requireStaff();
+    await requireClinician();
     const parsed = saveDateOverrideSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid date override details" };
@@ -325,7 +325,7 @@ export async function resetDayAvailabilityOverrideAction(
   input: ResetDateOverrideInput,
 ): Promise<{ success: boolean; error: string | null }> {
   try {
-    await requireStaff();
+    await requireClinician();
     const parsed = resetDateOverrideSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid reset input" };
@@ -648,10 +648,21 @@ export async function updateAppointmentStatus(
   status: AppointmentStatus,
   cancellationReason?: string,
 ): Promise<{ error: string | null }> {
-  await requireStaff();
+  const profile = await requireStaff();
   const supabase = await createClient();
 
-  const { error } = await supabase
+  // Receptionist authorization hardening:
+  // Receptionists are only permitted front-desk status transitions:
+  // - checked_in
+  // - cancelled
+  // - no_show
+  // - confirmed
+  // Setting "completed" is restricted to clinicians as part of the clinical encounter workflow!
+  if (profile.role === "receptionist" && status === "completed") {
+    return { error: "Only clinicians can mark an appointment completed as part of clinical care." };
+  }
+
+  let updateQuery = supabase
     .from("appointments")
     .update({
       status,
@@ -659,7 +670,34 @@ export async function updateAppointmentStatus(
     })
     .eq("id", appointmentId);
 
+  if (profile.organization_id) {
+    updateQuery = updateQuery.eq("organization_id", profile.organization_id);
+  }
+
+  const { error } = await updateQuery;
+
   if (error) return { error: error.message };
+  revalidatePath("/appointments");
+  revalidatePath("/scheduler");
+  revalidatePath("/dashboard");
+  return { error: null };
+}
+
+export async function rescheduleStaffAppointment(input: {
+  appointmentId: string;
+  newStartsAt: string;
+}): Promise<{ error: string | null }> {
+  await requireStaff();
+  const supabase = await createClient();
+
+  const { error } = await supabase.rpc("reschedule_appointment", {
+    p_appointment_id: input.appointmentId,
+    p_new_starts_at: input.newStartsAt,
+  });
+
+  if (error) return { error: sanitizeBookingError(error.message) };
+  revalidatePath("/appointments");
   revalidatePath("/scheduler");
   return { error: null };
 }
+

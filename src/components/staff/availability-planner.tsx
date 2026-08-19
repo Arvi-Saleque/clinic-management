@@ -2,19 +2,17 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  CalendarRange,
-  Clock,
-  RotateCw,
-} from "lucide-react";
+import { format } from "date-fns";
 
-import { Button } from "@/components/ui/button";
-import { AvailabilitySummaryStrip } from "./availability/availability-summary-strip";
-import { WeeklyHoursCompactSummary } from "./availability/weekly-hours-compact-summary";
-import { AvailabilityCalendarView } from "./availability/availability-calendar-view";
-import { WeeklyTemplateView } from "./availability/weekly-template-view";
-import { computeUpcoming30DaysAvailability } from "@/lib/availability";
+import { TodayScheduleHero } from "./availability/today-schedule-hero";
+import { AvailabilityCalendarGrid } from "./availability/availability-calendar-grid";
+import { AvailabilityDayDetailsPanel } from "./availability/availability-day-details-panel";
+import { WeeklyRoutineSection } from "./availability/weekly-routine-section";
+import { WeeklyRoutineDialog } from "./availability/weekly-routine-dialog";
+import {
+  computeMonthCalendarDays,
+  resolveEffectiveDayAvailability,
+} from "@/lib/availability";
 import type {
   AvailabilityExceptionRow,
   AvailabilityRuleRow,
@@ -27,20 +25,31 @@ interface AvailabilityPlannerProps {
   rules: AvailabilityRuleRow[];
   exceptions?: AvailabilityExceptionRow[];
   appointmentCounts?: Record<string, number>;
+  userRole?: string;
 }
 
 export function AvailabilityPlanner({
   practitionerId,
-  branchId = "",
   rules,
   exceptions = [],
   appointmentCounts = {},
+  userRole = "dentist",
 }: AvailabilityPlannerProps) {
   const router = useRouter();
-  const [viewMode, setViewMode] = React.useState<"overview" | "weekly-editor">("overview");
+  const isReadOnly = userRole === "receptionist";
+
+  // Active month for calendar view
+  const [currentMonth, setCurrentMonth] = React.useState<Date>(() => new Date());
+
+  // Selected date for day details editing (defaults to today)
+  const todayStr = React.useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
+  const [selectedDate, setSelectedDate] = React.useState<string>(todayStr);
+
+  // Weekly Routine Modal State
+  const [isWeeklyModalOpen, setIsWeeklyModalOpen] = React.useState(false);
   const [focusedWeekday, setFocusedWeekday] = React.useState<number | null>(null);
 
-  // Transform database rules into weekly map for template editor and summary
+  // Transform database rules into weekly map for weekly routine section & dialog
   const weeklyMap = React.useMemo(() => {
     const map: Record<number, DayAvailability> = {};
     for (let dow = 0; dow <= 6; dow++) {
@@ -50,7 +59,6 @@ export function AvailabilityPlanner({
           dayOfWeek: dow,
           enabled: true,
           intervals: matchingRules.map((r) => ({
-            id: r.id,
             startTime: r.start_time.slice(0, 5),
             endTime: r.end_time.slice(0, 5),
           })),
@@ -59,139 +67,111 @@ export function AvailabilityPlanner({
         map[dow] = {
           dayOfWeek: dow,
           enabled: false,
-          intervals: [{ startTime: "09:00", endTime: "17:00" }],
+          intervals: [],
         };
       }
     }
     return map;
   }, [rules]);
 
-  // Compute rolling 30-day operational availability
-  const thirtyDays = React.useMemo(() => {
-    return computeUpcoming30DaysAvailability(rules, exceptions, appointmentCounts);
-  }, [rules, exceptions, appointmentCounts]);
+  // Today's schedule data
+  const todayEffective = React.useMemo(() => {
+    return resolveEffectiveDayAvailability(todayStr, rules, exceptions);
+  }, [todayStr, rules, exceptions]);
+
+  // Selected date schedule data
+  const selectedEffective = React.useMemo(() => {
+    return resolveEffectiveDayAvailability(selectedDate, rules, exceptions);
+  }, [selectedDate, rules, exceptions]);
+
+  // Month calendar matrix
+  const calendarDays = React.useMemo(() => {
+    return computeMonthCalendarDays(currentMonth, rules, exceptions, appointmentCounts);
+  }, [currentMonth, rules, exceptions, appointmentCounts]);
 
   const handleRefresh = React.useCallback(() => {
     router.refresh();
   }, [router]);
 
   const handleOpenWeeklyEditor = React.useCallback((dayOfWeek?: number) => {
-    setViewMode("weekly-editor");
-    if (typeof dayOfWeek === "number") {
-      setFocusedWeekday(dayOfWeek);
-    }
-  }, []);
-
-  const handleBackToOverview = React.useCallback(() => {
-    setViewMode("overview");
-    setFocusedWeekday(null);
-  }, []);
+    if (isReadOnly) return;
+    setFocusedWeekday(dayOfWeek ?? null);
+    setIsWeeklyModalOpen(true);
+  }, [isReadOnly]);
 
   return (
-    <section className="space-y-4">
-      {/* Top Header Card */}
-      <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-primary mb-1">
-            <Clock className="w-3.5 h-3.5" />
-            Operational Schedule Control
-          </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
-            Working Hours & Availability
-          </h2>
-          <p className="mt-1 text-xs text-muted-foreground max-w-2xl leading-relaxed">
-            Set your regular working hours and make one-off changes when needed.
-          </p>
+    <div className="space-y-6 w-full">
+      {/* ------------------------------------------------------------- */}
+      {/* Layer 1: TODAY'S SCHEDULE                                     */}
+      {/* ------------------------------------------------------------- */}
+      <TodayScheduleHero
+        todayDate={new Date()}
+        isAvailable={todayEffective.isAvailable}
+        intervals={todayEffective.intervals}
+        statusType={
+          todayEffective.source === "full_day_leave"
+            ? "leave"
+            : todayEffective.source === "date_override"
+              ? "adjusted"
+              : todayEffective.isAvailable && todayEffective.intervals.length > 0
+                ? "available"
+                : "off"
+        }
+        leaveReason={todayEffective.leaveReason}
+      />
+
+      {/* ------------------------------------------------------------- */}
+      {/* Layer 2: MAIN 2-COLUMN AVAILABILITY WORKSPACE (Calendar + Day Panel) */}
+      {/* ------------------------------------------------------------- */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column (~67% / 8 cols): Month Calendar */}
+        <div className="lg:col-span-7 xl:col-span-8">
+          <AvailabilityCalendarGrid
+            currentMonth={currentMonth}
+            onMonthChange={setCurrentMonth}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            calendarDays={calendarDays}
+          />
         </div>
 
-        <div className="flex items-center gap-2 self-start md:self-auto">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            className="text-xs font-semibold gap-1.5 h-8"
-            title="Refresh availability schedule"
-          >
-            <RotateCw className="w-3.5 h-3.5" />
-            Refresh
-          </Button>
+        {/* Right Column (~33% / 4 cols): Selected Date Details Panel */}
+        <div className="lg:col-span-5 xl:col-span-4 sticky top-6">
+          <AvailabilityDayDetailsPanel
+            key={`${selectedDate}-${selectedEffective.source}`}
+            practitionerId={practitionerId}
+            selectedDate={selectedDate}
+            source={selectedEffective.source}
+            isInitialAvailable={selectedEffective.isAvailable}
+            initialIntervals={selectedEffective.intervals}
+            initialLeaveReason={selectedEffective.leaveReason}
+            onSuccess={handleRefresh}
+            isReadOnly={isReadOnly}
+          />
         </div>
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* 1. DEFAULT OVERVIEW MODE (No Permanent Tabs)                   */}
+      {/* Layer 3: WEEKLY ROUTINE SECTION                               */}
       {/* ------------------------------------------------------------- */}
-      {viewMode === "overview" && (
-        <div className="space-y-4">
-          {/* Step 1: Top Compact Operational KPI Strip */}
-          <AvailabilitySummaryStrip days={thirtyDays} />
+      <WeeklyRoutineSection
+        weeklyMap={weeklyMap}
+        onOpenEditor={handleOpenWeeklyEditor}
+        isReadOnly={isReadOnly}
+      />
 
-          {/* Step 2: Regular Weekly Hours (Directly above 30-Day Calendar) */}
-          <WeeklyHoursCompactSummary
-            weeklyMap={weeklyMap}
-            onEditWeeklyHours={handleOpenWeeklyEditor}
-          />
-
-          {/* Step 3: Upcoming 30 Days Operational Calendar */}
-          <AvailabilityCalendarView
-            days={thirtyDays}
-            practitionerId={practitionerId}
-            onRefresh={handleRefresh}
-            onEditWeeklyHours={handleOpenWeeklyEditor}
-          />
-        </div>
+      {/* Weekly Routine Modal Dialog - Dentist/Admin Only */}
+      {!isReadOnly && (
+        <WeeklyRoutineDialog
+          key={isWeeklyModalOpen ? "weekly-open" : "weekly-closed"}
+          open={isWeeklyModalOpen}
+          onOpenChange={setIsWeeklyModalOpen}
+          practitionerId={practitionerId}
+          initialRules={weeklyMap}
+          focusedWeekday={focusedWeekday}
+          onSuccess={handleRefresh}
+        />
       )}
-
-      {/* ------------------------------------------------------------- */}
-      {/* 2. DEDICATED WEEKLY EDITING MODE (Temporary Flow)              */}
-      {/* ------------------------------------------------------------- */}
-      {viewMode === "weekly-editor" && (
-        <div className="space-y-3">
-          {/* Back Navigation Bar */}
-          <div className="flex items-center justify-between">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleBackToOverview}
-              className="text-xs font-semibold gap-1.5 h-8 text-muted-foreground hover:text-foreground -ml-2"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Back to Schedule Overview
-            </Button>
-          </div>
-
-          {/* Weekly Editor Container */}
-          <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs space-y-4">
-            <div className="flex items-center gap-2.5 border-b border-border/50 pb-3">
-              <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
-                <CalendarRange className="w-4 h-4" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-foreground">
-                  Weekly Working Hours
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  Set your normal working routine. These hours automatically repeat every week unless a specific date has a one-off change.
-                </p>
-              </div>
-            </div>
-
-            <WeeklyTemplateView
-              branchId={branchId}
-              practitionerId={practitionerId}
-              initialRules={weeklyMap}
-              focusedWeekday={focusedWeekday}
-              onSuccess={() => {
-                handleRefresh();
-                handleBackToOverview();
-              }}
-              onViewScheduleOverview={handleBackToOverview}
-            />
-          </div>
-        </div>
-      )}
-    </section>
+    </div>
   );
 }

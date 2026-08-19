@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { Box, History, ScanLine, Sparkles } from "lucide-react";
 
 import { OdontogramPatientPicker } from "@/components/staff/odontogram-patient-picker";
+import { requireClinician } from "@/lib/auth/guards";
 
 export const metadata: Metadata = { title: "Dental Chart" };
 
-export default function StaffOdontogramPage() {
+export default async function StaffOdontogramPage() {
+  await requireClinician();
   return (
     <div className="space-y-6">
       <div>
