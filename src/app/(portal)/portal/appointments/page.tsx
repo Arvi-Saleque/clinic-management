@@ -101,7 +101,7 @@ export default async function PortalAppointmentsPage({
           </p>
         </div>
         <ButtonLink href="/portal/appointments/book" size="lg" className="gap-2">
-          <Plus className="size-4" /> Book a visit
+          <Plus className="size-4" /> Book an appointment
         </ButtonLink>
       </section>
 
@@ -157,7 +157,7 @@ export default async function PortalAppointmentsPage({
             <h3 className="mt-4 font-heading text-lg font-bold">No upcoming visits</h3>
             <p className="mt-2 text-sm text-text-muted">Choose a service and a time that suits you.</p>
             <ButtonLink href="/portal/appointments/book" className="mt-5">
-              Book a visit
+              Book an appointment
             </ButtonLink>
           </div>
         )}

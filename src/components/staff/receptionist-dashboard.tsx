@@ -211,7 +211,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
             className="h-9.5 gap-1.5 rounded-xl px-3.5 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-2xs"
           >
             <Plus className="size-3.5" />
-            Book Visit
+            Book Appointment
           </Button>
 
           {/* Quick Action 2: Register Patient */}

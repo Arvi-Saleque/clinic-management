@@ -357,7 +357,7 @@ export function BookingWizard({
               {reschedule ? "Appointment Management" : "Clinical Sanctuary Scheduling"}
             </div>
             <h1 className="font-heading text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              {reschedule ? "Reschedule Dental Visit" : "Book a Care Visit"}
+              {reschedule ? "Reschedule Appointment" : "Book an Appointment"}
             </h1>
             <p className="text-sm text-text-secondary max-w-xl leading-relaxed">
               {reschedule

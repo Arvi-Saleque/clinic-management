@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/portal/dashboard", label: "Care overview", icon: LayoutDashboard },
   { href: "/portal/appointments", label: "My visits", icon: CalendarDays },
-  { href: "/portal/appointments/book", label: "Book a visit", icon: Plus },
+  { href: "/portal/appointments/book", label: "Book an appointment", icon: Plus },
   { href: "/portal/odontogram", label: "My dental care", icon: Smile },
   { href: "/portal/profile", label: "Health profile", icon: UserRound },
 ] as const;
@@ -193,7 +193,7 @@ export function PortalShell({ profile, patientReference, registered, children }:
             <ThemeToggle />
             <ButtonLink href={registered ? "/portal/appointments/book" : "/portal/register"} className="gap-2">
               <Plus className="size-4" />
-              <span className="hidden sm:inline">{registered ? "Book visit" : "Register"}</span>
+              <span className="hidden sm:inline">{registered ? "Book appointment" : "Register"}</span>
             </ButtonLink>
           </div>
         </header>

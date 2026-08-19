@@ -174,7 +174,7 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
             Welcome, {props.firstName} {greeting.emoji}
           </h1>
           <p className="max-w-xl text-base leading-relaxed text-white/80">
-            Complete your quick digital registration to book visits, choose your practitioner, and access your private care details.
+            Complete your quick digital registration to book appointments, choose your practitioner, and access your private care details.
           </p>
           <div className="pt-3">
             <ButtonLink
@@ -223,7 +223,7 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
             href="/portal/appointments/book"
             className="gap-2 rounded-2xl bg-primary px-5 py-5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary-hover"
           >
-            <CalendarPlus className="size-4" /> Book a Visit
+            <CalendarPlus className="size-4" /> Book an Appointment
           </ButtonLink>
           <ButtonLink
             href="/portal/appointments"

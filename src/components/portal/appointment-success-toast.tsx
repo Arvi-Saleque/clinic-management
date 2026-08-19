@@ -152,7 +152,7 @@ export function AppointmentSuccessToast({ success }: { success?: string }) {
                   className="w-full sm:w-auto rounded-2xl h-10 px-5 text-xs font-bold bg-primary hover:bg-primary-hover text-primary-foreground shadow-md shadow-primary/20"
                   onClick={() => setOpen(false)}
                 >
-                  Book New Visit
+                  Book an Appointment
                 </ButtonLink>
               </>
             ) : (

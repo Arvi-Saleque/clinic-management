@@ -302,7 +302,7 @@ export default async function PortalOdontogramPage() {
               href="/portal/appointments/book"
               className="w-full rounded-2xl text-xs font-bold bg-primary hover:bg-primary-hover text-primary-foreground shadow-md shadow-primary/20 h-10"
             >
-              Book a Care Visit
+              Book an Appointment
             </ButtonLink>
           </div>
         </div>

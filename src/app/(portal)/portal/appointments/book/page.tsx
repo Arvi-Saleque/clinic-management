@@ -21,7 +21,7 @@ export default async function BookAppointmentPage({
     <div className="mx-auto max-w-4xl space-y-5">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Appointment self-service</p>
-        <h1 className="mt-2 font-serif text-4xl">{appointment ? "Choose a better time" : "Plan your next visit"}</h1>
+        <h1 className="mt-2 font-serif text-4xl">{appointment ? "Choose a better time" : "Book an appointment"}</h1>
         <p className="mt-2 text-sm text-text-muted">Live availability is checked again before your booking is confirmed.</p>
       </div>
       <BookingWizard
