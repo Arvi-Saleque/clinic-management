@@ -5,11 +5,13 @@ import { Activity, ArrowUpRight, FileCheck2, Pill, Plus, ShieldCheck, Stethoscop
 
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
+import { requireClinician } from "@/lib/auth/guards";
 import { listStaffPrescriptions } from "@/lib/server/directory";
 
 export const metadata: Metadata = { title: "Prescriptions" };
 
 export default async function StaffPrescriptionsPage() {
+  await requireClinician();
   const prescriptions = await listStaffPrescriptions();
   const active = prescriptions.filter((prescription) => prescription.status === "active").length;
   const medicines = prescriptions.reduce((sum, prescription) => sum + prescription.prescription_items.length, 0);

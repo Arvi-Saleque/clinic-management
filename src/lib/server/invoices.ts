@@ -4,9 +4,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
-import { requireStaff } from "@/lib/auth/guards";
+import { requireClinician, requireStaff } from "@/lib/auth/guards";
 import { getUser } from "@/lib/auth/session";
 import { createInvoiceSchema, recordPaymentSchema } from "@/lib/validation/invoice";
+import { formatCurrency } from "@/lib/utils";
 
 export type InvoiceActionState = { error: string | null };
 
@@ -14,12 +15,12 @@ function firstIssue(error: { issues: { message: string }[] }) {
   return error.issues[0]?.message ?? "Invalid input";
 }
 
-/** Staff only. Builds subtotal/total from line items and inserts invoice + invoice_items in one go. */
+/** Clinician / Admin only. Builds subtotal/total from line items and inserts invoice + invoice_items in one go. */
 export async function createInvoiceAction(
   _prev: InvoiceActionState,
   formData: FormData,
 ): Promise<InvoiceActionState> {
-  const profile = await requireStaff();
+  const profile = await requireClinician();
 
   const rawItems = JSON.parse(String(formData.get("items") ?? "[]"));
   const parsed = createInvoiceSchema.safeParse({
@@ -91,12 +92,34 @@ export async function recordPaymentAction(
 
   const supabase = await createClient();
 
-  const { data: invoice } = await supabase
+  let invoiceQuery = supabase
     .from("invoices")
-    .select("total")
-    .eq("id", invoiceId)
-    .single();
-  if (!invoice) return { error: "Invoice not found." };
+    .select("total, status")
+    .eq("id", invoiceId);
+
+  if (profile.organization_id) {
+    invoiceQuery = invoiceQuery.eq("organization_id", profile.organization_id);
+  }
+
+  const { data: invoice } = await invoiceQuery.single();
+  if (!invoice) return { error: "Invoice not found or unauthorized." };
+  if (invoice.status === "void") return { error: "Cannot record payment on a void invoice." };
+
+  const { data: payments } = await supabase
+    .from("payments")
+    .select("amount")
+    .eq("invoice_id", invoiceId);
+  const currentPaid = (payments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
+  const currentBalance = Math.max(0, Number(invoice.total) - currentPaid);
+
+  if (input.amount <= 0) {
+    return { error: "Payment amount must be greater than zero." };
+  }
+  if (input.amount > currentBalance) {
+    return {
+      error: `Payment amount (${formatCurrency(input.amount)}) exceeds remaining balance (${formatCurrency(currentBalance)}).`,
+    };
+  }
 
   const { error: paymentError } = await supabase.from("payments").insert({
     invoice_id: invoiceId,
@@ -107,17 +130,94 @@ export async function recordPaymentAction(
   });
   if (paymentError) return { error: paymentError.message };
 
-  const { data: payments } = await supabase
-    .from("payments")
-    .select("amount")
-    .eq("invoice_id", invoiceId);
-  const totalPaid = (payments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
+  const totalPaid = currentPaid + input.amount;
   const nextStatus = totalPaid >= Number(invoice.total) ? "paid" : "partially_paid";
 
-  await supabase.from("invoices").update({ status: nextStatus }).eq("id", invoiceId);
+  let updateQuery = supabase.from("invoices").update({ status: nextStatus }).eq("id", invoiceId);
+  if (profile.organization_id) {
+    updateQuery = updateQuery.eq("organization_id", profile.organization_id);
+  }
+  await updateQuery;
 
   revalidatePath(`/billing/invoices/${invoiceId}`);
+  revalidatePath("/billing/invoices");
   return { error: null };
+}
+
+/** Direct programmatic server action for modal payment submission */
+export async function recordDirectPaymentAction(input: {
+  invoiceId: string;
+  amount: number;
+  method: "cash" | "card" | "bank_transfer" | "other";
+  reference?: string;
+}): Promise<{ success: boolean; error: string | null }> {
+  try {
+    const profile = await requireStaff();
+    const parsed = recordPaymentSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, error: firstIssue(parsed.error) };
+    }
+
+    const data = parsed.data;
+    const supabase = await createClient();
+
+    let invoiceQuery = supabase
+      .from("invoices")
+      .select("total, status")
+      .eq("id", input.invoiceId);
+
+    if (profile.organization_id) {
+      invoiceQuery = invoiceQuery.eq("organization_id", profile.organization_id);
+    }
+
+    const { data: invoice } = await invoiceQuery.single();
+
+    if (!invoice) return { success: false, error: "Invoice not found or unauthorized." };
+    if (invoice.status === "void") return { success: false, error: "Cannot record payment on a void invoice." };
+
+    const { data: payments } = await supabase
+      .from("payments")
+      .select("amount")
+      .eq("invoice_id", input.invoiceId);
+    const currentPaid = (payments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
+    const currentBalance = Math.max(0, Number(invoice.total) - currentPaid);
+
+    if (data.amount <= 0) {
+      return { success: false, error: "Payment amount must be greater than zero." };
+    }
+    if (data.amount > currentBalance + 0.001) {
+      return {
+        success: false,
+        error: `Payment amount (${formatCurrency(data.amount)}) exceeds remaining balance (${formatCurrency(currentBalance)}).`,
+      };
+    }
+
+    const { error: paymentError } = await supabase.from("payments").insert({
+      invoice_id: input.invoiceId,
+      amount: data.amount,
+      method: data.method,
+      reference: data.reference || null,
+      recorded_by_staff_id: profile.id,
+    });
+
+    if (paymentError) return { success: false, error: paymentError.message };
+
+    const totalPaid = currentPaid + data.amount;
+    const nextStatus = totalPaid >= Number(invoice.total) ? "paid" : "partially_paid";
+
+    let updateQuery = supabase.from("invoices").update({ status: nextStatus }).eq("id", input.invoiceId);
+    if (profile.organization_id) {
+      updateQuery = updateQuery.eq("organization_id", profile.organization_id);
+    }
+    await updateQuery;
+
+    revalidatePath(`/billing/invoices/${input.invoiceId}`);
+    revalidatePath("/billing/invoices");
+    return { success: true, error: null };
+  } catch (err) {
+    console.error("Failed to record payment:", err);
+    return { success: false, error: err instanceof Error ? err.message : "Internal error recording payment" };
+  }
 }
 
 export async function getOwnPatientId() {

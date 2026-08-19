@@ -3,11 +3,13 @@ import { ArrowLeft, CheckCircle2, HeartPulse, Pill, ShieldAlert } from "lucide-r
 
 import { ButtonLink } from "@/components/ui/button";
 import { PrescriptionForm } from "@/components/staff/prescription-form";
+import { requireClinician } from "@/lib/auth/guards";
 import { getPatientById, getPatientMedicalHistory } from "@/lib/server/directory";
 
 export const metadata: Metadata = { title: "New prescription" };
 
 export default async function NewPrescriptionPage({ searchParams }: { searchParams: Promise<{ patientId?: string }> }) {
+  await requireClinician();
   const { patientId } = await searchParams;
   const [initialPatient, initialClinicalContext] = patientId
     ? await Promise.all([getPatientById(patientId), getPatientMedicalHistory(patientId)])
