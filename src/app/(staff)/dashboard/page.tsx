@@ -23,11 +23,30 @@ import {
 
 import { ButtonLink } from "@/components/ui/button";
 import { ConsultationActionButton } from "@/components/clinical/consultation-action-button";
-import { getDashboardStats } from "@/lib/server/dashboard";
+import { ReceptionistDashboard } from "@/components/staff/receptionist-dashboard";
+import { requireStaff } from "@/lib/auth/guards";
+import {
+  getDashboardStats,
+  getReceptionistDashboardContext,
+} from "@/lib/server/dashboard";
 
 export const metadata: Metadata = { title: "Dashboard | Dental Workspace" };
 
-export default async function StaffDashboardPage() {
+export default async function StaffDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ practitioner?: string }>;
+}) {
+  const profile = await requireStaff();
+
+  // Role Routing: Receptionist gets the dedicated minimal operational dashboard
+  if (profile.role === "receptionist") {
+    const params = await searchParams;
+    const context = await getReceptionistDashboardContext(params.practitioner);
+    return <ReceptionistDashboard context={context} />;
+  }
+
+  // Dentists & Owner Admins preserve their existing clinician dashboard
   const stats = await getDashboardStats();
   const {
     nextAppointment,

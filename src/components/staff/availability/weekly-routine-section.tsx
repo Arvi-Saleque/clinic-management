@@ -19,11 +19,13 @@ const DAYS = [
 interface WeeklyRoutineSectionProps {
   weeklyMap: Record<number, DayAvailability>;
   onOpenEditor: (dayOfWeek?: number) => void;
+  isReadOnly?: boolean;
 }
 
 export function WeeklyRoutineSection({
   weeklyMap,
   onOpenEditor,
+  isReadOnly = false,
 }: WeeklyRoutineSectionProps) {
   return (
     <div className="space-y-4">
@@ -36,19 +38,23 @@ export function WeeklyRoutineSection({
               Weekly Routine
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Your regular weekly working hours.
+              {isReadOnly
+                ? "Regular weekly working hours for this practitioner."
+                : "Your regular weekly working hours."}
             </p>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => onOpenEditor()}
-            className="h-8 gap-1.5 rounded-xl px-3 text-xs font-semibold"
-          >
-            <Edit3 className="size-3.5" />
-            Edit Routine
-          </Button>
+          {!isReadOnly && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenEditor()}
+              className="h-8 gap-1.5 rounded-xl px-3 text-xs font-semibold"
+            >
+              <Edit3 className="size-3.5" />
+              Edit Routine
+            </Button>
+          )}
         </div>
 
         {/* 7 Days Grid */}
@@ -93,27 +99,35 @@ export function WeeklyRoutineSection({
                   )}
                 </div>
 
-                {/* Footer Action */}
-                <button
-                  type="button"
-                  onClick={() => onOpenEditor(day.dow)}
-                  className="w-full text-center py-1 text-[10px] font-semibold text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/40 transition-colors flex items-center justify-center gap-1"
-                >
-                  <Plus className="size-2.5" /> Add slot
-                </button>
+                {/* Footer Action (Dentist Only) */}
+                {!isReadOnly ? (
+                  <button
+                    type="button"
+                    onClick={() => onOpenEditor(day.dow)}
+                    className="w-full text-center py-1 text-[10px] font-semibold text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/40 transition-colors flex items-center justify-center gap-1"
+                  >
+                    <Plus className="size-2.5" /> Add slot
+                  </button>
+                ) : (
+                  <div className="py-1 text-center text-[10px] font-medium text-muted-foreground/60">
+                    {isEnabled ? `${rule.intervals.length} ${rule.intervals.length === 1 ? "slot" : "slots"}` : "Off"}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Global Bottom Helper Tip */}
-      <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground py-1">
-        <Info className="size-3.5 text-primary shrink-0" />
-        <span className="text-[11px]">
-          <strong>Tip:</strong> Click any date in the calendar to adjust availability for that specific day.
-        </span>
-      </div>
+      {/* Global Bottom Helper Tip (Dentist Only) */}
+      {!isReadOnly && (
+        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground py-1">
+          <Info className="size-3.5 text-primary shrink-0" />
+          <span className="text-[11px]">
+            <strong>Tip:</strong> Click any date in the calendar to adjust availability for that specific day.
+          </span>
+        </div>
+      )}
     </div>
   );
 }

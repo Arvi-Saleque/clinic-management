@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Card3D } from "./luxury-card3d";
 import { Layers, Scan, ShieldCheck, Sparkles, Wand2, CalendarDays } from "lucide-react";

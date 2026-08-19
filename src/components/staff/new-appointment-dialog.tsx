@@ -49,8 +49,11 @@ interface NewAppointmentDialogProps {
   services: Service[];
   initialPatient?: Patient | null;
   defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   triggerVariant?: "default" | "outline" | "secondary" | "ghost";
   triggerClassName?: string;
+  hideTrigger?: boolean;
 }
 
 export function NewAppointmentDialog({
@@ -60,11 +63,18 @@ export function NewAppointmentDialog({
   services,
   initialPatient = null,
   defaultOpen = false,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
   triggerVariant = "outline",
   triggerClassName,
+  hideTrigger = false,
 }: NewAppointmentDialogProps) {
   const router = useRouter();
-  const [open, setOpen] = React.useState(defaultOpen);
+  const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? (setControlledOpen ?? (() => {})) : setInternalOpen;
 
   const [query, setQuery] = React.useState("");
   const [results, setResults] = React.useState<Patient[]>([]);
@@ -136,17 +146,19 @@ export function NewAppointmentDialog({
         if (!next) reset();
       }}
     >
-      <DialogTrigger
-        render={
-          <Button
-            variant={triggerVariant}
-            className={triggerClassName || "h-9 gap-1.5 rounded-xl px-3.5 text-xs font-semibold border-border/80"}
-          />
-        }
-      >
-        <Plus className="size-3.5" />
-        New appointment
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger
+          render={
+            <Button
+              variant={triggerVariant}
+              className={triggerClassName || "h-9 gap-1.5 rounded-xl px-3.5 text-xs font-semibold border-border/80"}
+            />
+          }
+        >
+          <Plus className="size-3.5" />
+          New appointment
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>New appointment</DialogTitle>

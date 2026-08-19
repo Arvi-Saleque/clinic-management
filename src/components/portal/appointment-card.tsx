@@ -9,7 +9,6 @@ import {
   FileText,
   Pill,
   RefreshCw,
-  ShieldCheck,
   Stethoscope,
   XCircle,
 } from "lucide-react";

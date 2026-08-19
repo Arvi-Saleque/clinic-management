@@ -7,6 +7,7 @@ import {
   CalendarOff,
   Check,
   Clock,
+  Info,
   Loader2,
   Plus,
   RotateCcw,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +35,7 @@ interface AvailabilityDayDetailsPanelProps {
   initialIntervals: TimeInterval[];
   initialLeaveReason?: string | null;
   onSuccess: () => void;
+  isReadOnly?: boolean;
 }
 
 export function AvailabilityDayDetailsPanel({
@@ -43,6 +46,7 @@ export function AvailabilityDayDetailsPanel({
   initialIntervals,
   initialLeaveReason = null,
   onSuccess,
+  isReadOnly = false,
 }: AvailabilityDayDetailsPanelProps) {
   const isOverride = source === "date_override" || source === "full_day_leave";
 
@@ -153,6 +157,110 @@ export function AvailabilityDayDetailsPanel({
     }
   };
 
+  // -------------------------------------------------------------------
+  // READ-ONLY VIEW (FOR RECEPTIONIST)
+  // -------------------------------------------------------------------
+  if (isReadOnly) {
+    const isWorking = isInitialAvailable && initialIntervals.length > 0;
+    const isLeave = source === "full_day_leave";
+
+    return (
+      <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-5">
+        {/* Header */}
+        <div className="border-b border-border/50 pb-3.5 space-y-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-semibold">
+              <CalendarDays className="size-3.5" />
+              <span>Selected Date</span>
+            </div>
+            <Badge
+              variant="outline"
+              className={cn(
+                "rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                isLeave
+                  ? "border-amber-300 bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+                  : source === "date_override"
+                    ? "border-purple-300 bg-purple-50 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300"
+                    : isWorking
+                      ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+                      : "border-border bg-muted/30 text-muted-foreground",
+              )}
+            >
+              {isLeave
+                ? "On Leave"
+                : source === "date_override"
+                  ? "Adjusted Hours"
+                  : isWorking
+                    ? "Regular Routine"
+                    : "Day Off"}
+            </Badge>
+          </div>
+          <h3 className="font-heading text-lg font-bold text-foreground">
+            {formattedDate}
+          </h3>
+        </div>
+
+        {/* Working Hours Display */}
+        <div className="space-y-3">
+          <Label className="text-xs font-semibold text-foreground">
+            Working Schedule
+          </Label>
+
+          {isWorking ? (
+            <div className="space-y-2">
+              {initialIntervals.map((inv, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-muted/15 px-3 py-2.5"
+                >
+                  <Clock className="size-4 text-primary" />
+                  <span className="font-heading text-sm font-bold tabular-nums text-foreground">
+                    {inv.startTime} – {inv.endTime}
+                  </span>
+                  <span className="ml-auto text-[10px] font-semibold text-muted-foreground">
+                    Available
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : isLeave ? (
+            <div className="rounded-xl border border-amber-200/80 bg-amber-50/60 dark:bg-amber-950/30 p-4 text-center space-y-1">
+              <CalendarOff className="size-5 text-amber-600 dark:text-amber-400 mx-auto mb-1" />
+              <p className="text-xs font-bold text-amber-900 dark:text-amber-300">
+                Doctor is On Leave
+              </p>
+              {initialLeaveReason && (
+                <p className="text-[11px] text-amber-800/80 dark:text-amber-400/80 italic">
+                  &ldquo;{initialLeaveReason}&rdquo;
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-border/70 bg-muted/10 p-4 text-center">
+              <p className="text-xs font-semibold text-muted-foreground">
+                Scheduled Day Off
+              </p>
+              <p className="text-[11px] text-muted-foreground/80 mt-0.5">
+                No working hours scheduled for this date.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Read-Only Notice */}
+        <div className="flex items-start gap-2 rounded-xl bg-muted/30 border border-border/50 p-3 text-[11px] text-muted-foreground leading-relaxed">
+          <Info className="size-3.5 shrink-0 text-muted-foreground mt-0.5" />
+          <span>
+            Front desk read-only view. Dentists manage their own clinical schedules and availability.
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------------
+  // EDITABLE VIEW (FOR DENTIST & OWNER ADMIN)
+  // -------------------------------------------------------------------
   return (
     <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-5">
       {/* Header */}
