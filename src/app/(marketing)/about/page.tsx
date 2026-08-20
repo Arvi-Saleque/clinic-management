@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Activity, ArrowRight, CalendarDays, Layers, Scan, Sparkles, UserCheck } from "lucide-react";
+import { Activity, ArrowRight, CalendarDays, Layers, Scan, ShieldCheck, Sparkles, UserCheck } from "lucide-react";
 import { Card3D } from "@/components/marketing/luxury-card3d";
 import { listPublicPractitioners } from "@/lib/server/marketing";
 
@@ -224,29 +224,86 @@ export default async function AboutPage() {
               {practitioners.map((doc) => {
                 const docName = (doc.profiles as { full_name?: string } | null)?.full_name || "Dental Practitioner";
                 return (
-                  <div key={doc.id} className="team-card bg-white rounded-3xl p-6 border border-[#273338]/10 shadow-[0_10px_30px_-5px_rgba(27,38,33,0.06)] hover:shadow-[0_20px_40px_-10px_rgba(43,87,72,0.15)] hover:border-[#9CB080]/40 transition-all duration-300 flex flex-col justify-between">
+                  <div
+                    key={doc.id}
+                    className="team-card group bg-white rounded-[32px] p-6 border border-[#273338]/10 shadow-[0_12px_36px_-6px_rgba(27,38,33,0.07),0_4px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_24px_50px_-10px_rgba(43,87,72,0.22)] hover:border-[#9CB080]/60 transition-all duration-500 flex flex-col justify-between"
+                  >
                     <div>
-                      <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-5 bg-muted/40 relative flex items-center justify-center">
+                      {/* Photo Container with zoom & floating badges */}
+                      <div className="aspect-[4/3] rounded-[24px] overflow-hidden mb-5 bg-gradient-to-br from-[#1B2623]/05 to-[#2B5748]/10 relative flex items-center justify-center border border-[#273338]/06">
                         {doc.photo_url ? (
-                          <img src={doc.photo_url} alt={docName} className="w-full h-full object-cover" />
+                          <img
+                            src={doc.photo_url}
+                            alt={docName}
+                            className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+                          />
                         ) : (
-                          <UserCheck className="w-12 h-12 text-[#2B5748]/40" />
+                          <UserCheck className="w-14 h-14 text-[#2B5748]/40" />
                         )}
+
+                        {/* Subtle bottom gradient on photo */}
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
+
+                        {/* Floating Category / Specialty Pill */}
+                        <div className="absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 bg-[#14201C]/85 backdrop-blur-md px-3 py-1 rounded-full border border-[#9CB080]/30 shadow-md">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#9CB080] animate-pulse" />
+                          <span className="text-[11px] font-semibold text-[#B5C89B] tracking-wide">
+                            {doc.title ? doc.title.split(",")[0] : "Dental Specialist"}
+                          </span>
+                        </div>
+
+                        {/* Verified Practitioner Badge */}
+                        <div className="absolute top-3.5 right-3.5 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-md border border-white/40 shadow-md flex items-center justify-center text-[#2B5748]">
+                          <ShieldCheck className="w-4 h-4 text-[#2B5748]" />
+                        </div>
                       </div>
-                      <h3 className="text-xl font-bold text-[#1F2421]">{docName}</h3>
-                      <p className="text-xs sm:text-sm font-semibold text-[#2B5748] mt-1">{doc.title || "General & Cosmetic Dentist"}</p>
-                      <p className="text-xs text-[#52605B] mt-3 line-clamp-3 leading-relaxed">
-                        {doc.bio || "Dedicated clinician providing individualized, gentle dental care and restorative treatments."}
-                      </p>
+
+                      {/* Doctor Info */}
+                      <div className="space-y-2">
+                        <h3 className="text-xl sm:text-2xl font-bold text-[#182320] tracking-tight group-hover:text-[#2B5748] transition-colors duration-200">
+                          {docName}
+                        </h3>
+
+                        <p className="text-xs sm:text-sm font-semibold text-[#2B5748] tracking-wide">
+                          {doc.title || "General & Cosmetic Dentist"}
+                        </p>
+
+                        {doc.specialties && doc.specialties.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {doc.specialties.map((spec, sIdx) => (
+                              <span
+                                key={sIdx}
+                                className="text-[11px] bg-[#2B5748]/08 text-[#2B5748] font-medium px-2.5 py-0.5 rounded-full border border-[#2B5748]/12"
+                              >
+                                {spec}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        <p className="text-xs sm:text-sm text-[#52605B] pt-2 line-clamp-3 leading-relaxed font-normal">
+                          {doc.bio || "Dedicated clinician providing individualized, gentle dental care and restorative treatments."}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="pt-5 mt-4 border-t border-[#273338]/10">
+                    {/* Card Actions Footer */}
+                    <div className="pt-5 mt-6 border-t border-[#273338]/08 flex items-center justify-between gap-3">
                       <Link
                         href={`/practitioners/${doc.id}`}
-                        className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-[#2B5748] hover:text-[#9CB080] transition-colors"
+                        className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-[#2B5748] hover:text-[#9CB080] transition-colors group/link"
                       >
-                        <span>View Profile &amp; Availability</span>
-                        <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                        <span>View Profile</span>
+                        <ArrowRight className="w-3.5 h-3.5 ml-1 transform group-hover/link:translate-x-1 transition-transform" />
+                      </Link>
+
+                      <Link
+                        href={`/book?practitionerId=${doc.id}`}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-4 py-2 text-xs font-bold uppercase tracking-wider !text-white text-white shadow-[0_4px_14px_rgba(43,87,72,0.35)] hover:shadow-[0_6px_20px_rgba(43,87,72,0.5)] transition-all duration-300 hover:scale-105"
+                        style={{ color: "#ffffff" }}
+                      >
+                        <CalendarDays className="w-3.5 h-3.5" />
+                        <span>Book Visit</span>
                       </Link>
                     </div>
                   </div>

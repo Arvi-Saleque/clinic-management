@@ -1050,3 +1050,24 @@ graph TD
 
 ### B. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 40. Doctor / Practitioner Cards Luxury Redesign
+
+### A. Architectural & UI Changes
+1. **Ultra-Lucrative Card Geometry & Lift System ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Upgraded `.about-page .team-card` and `.practitioners-page .practitioner-card-luxury` to `rounded-[32px]`, crisp subtle border `border border-[#273338]/10`, and dual-layer shadow `shadow-[0_12px_36px_-6px_rgba(27,38,33,0.07),0_4px_12px_rgba(0,0,0,0.03)]`.
+   - On hover, smooth `-translate-y-2` (8px lift) with glowing sage green border (`#9CB080/60`) and deep ambient shadow `shadow-[0_24px_50px_-10px_rgba(43,87,72,0.22)]`.
+2. **Interactive Photo Header with Floating Badges ([`src/app/(marketing)/about/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/about/page.tsx) & [`src/app/(marketing)/practitioners/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/practitioners/page.tsx))**:
+   - `rounded-[24px]` media container with smooth zoom animation (`group-hover:scale-108`).
+   - Floating specialty pill at top-left with animated glowing pulse dot (`#9CB080`).
+   - Verified Practitioner badge with `ShieldCheck` icon at top-right.
+   - Subtle bottom gradient vignette for depth.
+3. **High-End Typography & Action Footer**:
+   - Bold doctor name with smooth hover color transition to deep emerald (`#2B5748`).
+   - Pill badges for clinical specialties.
+   - Dual-action card footer: "View Profile" animated arrow link + glowing radiant emerald "Book Visit / Book Online" button (`CalendarDays` icon).
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
