@@ -927,3 +927,22 @@ graph TD
 ### C. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
 - **eslint**: `npx eslint` -> **PASSED (0 errors)**
+
+---
+
+## 34. Treatments Hero Refinement & Navbar Dropdown Removal
+
+### A. Architectural & UI Changes
+1. **Header Dropdown Removal ([`src/components/marketing/luxury-header.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/luxury-header.tsx))**:
+   - Removed hover dropdown and megamenu trigger from the `Treatments` navigation item.
+   - Removed `desktop-menu-wrapper` popup. `Treatments` is now a standard direct navigation link pointing directly to `/services`.
+2. **Treatments Hero Route Breadcrumbs ([`src/app/(marketing)/services/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/services/page.tsx))**:
+   - Added Dhaka Heights-style breadcrumb navigation (`HOME  ›  TREATMENTS`) at the top of the hero banner.
+   - Styled with uppercase tracking, sage green accents (`#9CB080`), and clickable link to Home.
+3. **Fixed Parallax Background Image ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Configured `.treatments-page .page-hero-banner` with `background-image: url('/marketing/hero_clinic.png')`, `background-attachment: fixed`, `background-position: center`, `background-size: cover`, and dark multi-stop luxury gradient overlay (`linear-gradient(180deg, rgba(16, 26, 23, 0.82) 0%, rgba(10, 18, 16, 0.88) 100%)`).
+   - Added responsive fallback `background-attachment: scroll` for mobile viewports.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+- **eslint**: `npx eslint` -> **PASSED (0 errors)**

@@ -20,7 +20,6 @@ export function LuxuryHeader({
 }: LuxuryHeaderProps) {
   const pathname = usePathname();
   const [headerClass, setHeaderClass] = React.useState("");
-  const [isMegaMenuOpen, setIsMegaMenuOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -60,11 +59,7 @@ export function LuxuryHeader({
             {/* Desktop Navigation */}
             <nav className="hidden lg:block">
               <ul className="nav-menu">
-                <li
-                  className={`has-megamenu ${pathname?.startsWith("/services") ? "active-link" : ""}`}
-                  onMouseEnter={() => setIsMegaMenuOpen(true)}
-                  onMouseLeave={() => setIsMegaMenuOpen(false)}
-                >
+                <li className={pathname?.startsWith("/services") ? "active-link" : ""}>
                   <Link href="/services">Treatments</Link>
                 </li>
                 <li className={pathname === "/about" ? "active-link" : ""}>
@@ -137,65 +132,6 @@ export function LuxuryHeader({
                 <span style={isMobileMenuOpen ? { opacity: 0 } : {}} />
                 <span style={isMobileMenuOpen ? { transform: "rotate(-45deg) translate(5px, -5px)" } : {}} />
               </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Megamenu Treatments Dropdown (Desktop) */}
-        <div
-          className={`desktop-menu-wrapper ${isMegaMenuOpen ? "active" : ""}`}
-          id="treatments-megamenu"
-          onMouseEnter={() => setIsMegaMenuOpen(true)}
-          onMouseLeave={() => setIsMegaMenuOpen(false)}
-        >
-          <div className="container">
-            <div className="megamenu-grid">
-              <div className="megamenu-col">
-                <span className="megamenu-heading">Cosmetic Artistry</span>
-                <ul className="megamenu-links">
-                  <li>
-                    <Link href="/services">Porcelain Veneers</Link>
-                  </li>
-                  <li>
-                    <Link href="/services">Laser Teeth Whitening</Link>
-                  </li>
-                  <li>
-                    <Link href="/services">Invisalign® Clear Aligners</Link>
-                  </li>
-                  <li>
-                    <Link href="/services">Digital Smile Design</Link>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="megamenu-col">
-                <span className="megamenu-heading">Restorative & Surgical</span>
-                <ul className="megamenu-links">
-                  <li>
-                    <Link href="/services">All-On Implants™ & Bridges</Link>
-                  </li>
-                  <li>
-                    <Link href="/services">Single Dental Implants</Link>
-                  </li>
-                  <li>
-                    <Link href="/services">Comfort-Focused Dentistry</Link>
-                  </li>
-                  <li>
-                    <Link href="/services">General & Preventative Care</Link>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="megamenu-col highlight-col">
-                <div className="megamenu-promo-card">
-                  <span className="promo-badge">Patient-Focused Care</span>
-                  <h4>Explore Treatment Options</h4>
-                  <p>Browse cosmetic, restorative, and general dental care, then book a consultation to discuss what may be suitable for you.</p>
-                  <Link href="/book" className="btn-stroke-sm">
-                    Book Consultation →
-                  </Link>
-                </div>
-              </div>
             </div>
           </div>
         </div>
