@@ -98,13 +98,7 @@ export function LuxuryFooter({
                 <Link href="/results">Smile Results &amp; Gallery</Link>
               </li>
               <li>
-                <Link href="/blog">Dental Blog &amp; Insights</Link>
-              </li>
-              <li>
-                <Link href="/locations">Our Practice Locations</Link>
-              </li>
-              <li>
-                <Link href="/academy">Clinical Education</Link>
+                <Link href="/contact">Contact &amp; Clinic Hours</Link>
               </li>
             </ul>
           </div>

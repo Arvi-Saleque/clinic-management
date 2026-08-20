@@ -999,3 +999,18 @@ graph TD
 
 ### B. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 37. Navigation Streamlining (Removed Blog & Locations Links)
+
+### A. Architectural & UI Changes
+1. **Header Desktop & Mobile Navigation ([`src/components/marketing/luxury-header.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/luxury-header.tsx))**:
+   - Removed `Blog` and `Locations` navigation items from the desktop header menu.
+   - Streamlined desktop menu to: `Treatments`, `About Us`, `Doctors`, `Results`, `Contact`.
+   - Removed `Blog`, `Locations`, and `Academy` from the mobile drawer navigation.
+2. **Footer Navigation ([`src/components/marketing/luxury-footer.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/luxury-footer.tsx))**:
+   - Cleaned up practice links to focus on `About Our Clinic`, `Our Dental Practitioners`, `Smile Results & Gallery`, and `Contact & Clinic Hours`.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**

@@ -71,12 +71,6 @@ export function LuxuryHeader({
                 <li className={pathname === "/results" ? "active-link" : ""}>
                   <Link href="/results">Results</Link>
                 </li>
-                <li className={pathname === "/blog" || pathname.startsWith("/blog/") ? "active-link" : ""}>
-                  <Link href="/blog">Blog</Link>
-                </li>
-                <li className={pathname === "/locations" ? "active-link" : ""}>
-                  <Link href="/locations">Locations</Link>
-                </li>
                 <li className={pathname === "/contact" ? "active-link" : ""}>
                   <Link href="/contact">Contact</Link>
                 </li>
@@ -178,32 +172,11 @@ export function LuxuryHeader({
                 Smile Results
               </Link>
               <Link
-                href="/blog"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block py-2.5 text-base font-semibold border-b border-white/10 text-white"
-              >
-                Dental Blog &amp; Insights
-              </Link>
-              <Link
-                href="/locations"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block py-2.5 text-base font-semibold border-b border-white/10 text-white"
-              >
-                Our Clinic Locations
-              </Link>
-              <Link
-                href="/academy"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block py-2.5 text-base font-semibold border-b border-white/10 text-white"
-              >
-                Clinical Education (Academy)
-              </Link>
-              <Link
                 href="/contact"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block py-2.5 text-base font-semibold border-b border-white/10 text-white"
               >
-                Contact &amp; Location
+                Contact Us
               </Link>
               <Link
                 href={account ? account.href : "/login"}
