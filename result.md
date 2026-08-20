@@ -1106,3 +1106,26 @@ graph TD
 
 ### B. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 43. Contact Page Full-Width Expansion, Interactive Map, Transit Guide & FAQ Accordion
+
+### A. Architectural & UI Changes
+1. **Full-Width Expansive Container ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Extended `.contact-page .container`, `.contact-details-section .container`, `.contact-map-section .container`, `.contact-faq-section .container`, and `.contact-cta .container` to `width: 100% !important; max-width: 100% !important; padding-left/right: clamp(24px, 5.5vw, 96px) !important;` for standardized 80px–100px desktop side margins.
+2. **Interactive Google Maps Embed & Transit Guide ([`src/app/(marketing)/contact/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/contact/page.tsx))**:
+   - Added responsive, full-width Google Maps iframe embed framed in a `rounded-[32px]` luxury container with subtle dark border and elevation shadow.
+   - Added 3-column Transit & Accessibility guide cards covering:
+     - 🚇 **By Underground / Train**: Regent's Park, Oxford Circus, Bond Street stations.
+     - 🚗 **Parking Facilities**: Q-Park Oxford Street and Cavendish Square.
+     - ♿ **Step-Free Accessibility**: Ground level access and treatment suite elevators.
+3. **Interactive Patient FAQ Accordion ([`src/components/marketing/contact-faq-accordion.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/contact-faq-accordion.tsx))**:
+   - Built an interactive client FAQ accordion addressing patient queries on initial visits, urgent appointments, dental anxiety accommodations, payment installment options, cancellation policies, and transit.
+4. **Standardized Luxury Bottom CTA**:
+   - Converted bottom CTA to shared frosted glassmorphic card design (`backdrop-blur-xl`, `bg-white/[0.06]`, `border border-[#9CB080]/25`, ambient emerald glow lighting).
+   - High-contrast pure white headline (`#ffffff !important`) with sage italic accent (`#B5C89B`).
+   - Glowing emerald consultation booking button + direct telephone inquiry button.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**

@@ -296,7 +296,12 @@
 .practitioners-page .practitioners-cta .container,
 .results-page .container,
 .results-page .gallery-section .container,
-.results-page .results-cta .container {
+.results-page .results-cta .container,
+.contact-page .container,
+.contact-page .contact-details-section .container,
+.contact-page .contact-map-section .container,
+.contact-page .contact-faq-section .container,
+.contact-page .contact-cta .container {
   width: 100% !important;
   max-width: 100% !important;
   padding-left: clamp(24px, 5.5vw, 96px) !important;
@@ -434,10 +439,11 @@
   font-size: 13.5px !important;
 }
 
-/* About, Practitioners & Results CTA Section Glassmorphism & High-Contrast Typography */
+/* About, Practitioners, Results & Contact CTA Section Glassmorphism & High-Contrast Typography */
 .about-page .about-cta-section,
 .practitioners-page .practitioners-cta,
-.results-page .results-cta {
+.results-page .results-cta,
+.contact-page .contact-cta {
   background: radial-gradient(circle at 50% 0%, rgba(156, 176, 128, 0.18), transparent 70%),
               linear-gradient(180deg, #182320 0%, #0F1715 100%) !important;
   padding-top: 100px !important;
@@ -448,7 +454,8 @@
 
 .about-page .about-cta-section > .container > div,
 .practitioners-page .practitioners-cta > .container > div,
-.results-page .results-cta > .container > div {
+.results-page .results-cta > .container > div,
+.contact-page .contact-cta > .container > div {
   background: rgba(255, 255, 255, 0.055) !important;
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(24px) !important;
@@ -462,7 +469,9 @@
 .practitioners-page .practitioners-cta h2,
 .practitioners-page .practitioners-cta h3,
 .results-page .results-cta h2,
-.results-page .results-cta h3 {
+.results-page .results-cta h3,
+.contact-page .contact-cta h2,
+.contact-page .contact-cta h3 {
   color: #ffffff !important;
   font-size: clamp(28px, 4vw, 44px) !important;
   font-weight: 300 !important;
@@ -473,7 +482,8 @@
 
 .about-page .about-cta-section p,
 .practitioners-page .practitioners-cta p,
-.results-page .results-cta p {
+.results-page .results-cta p,
+.contact-page .contact-cta p {
   color: rgba(255, 255, 255, 0.9) !important;
   font-size: 16px !important;
   line-height: 1.7 !important;
@@ -482,7 +492,8 @@
 
 .about-page .about-cta-section a,
 .practitioners-page .practitioners-cta a,
-.results-page .results-cta a {
+.results-page .results-cta a,
+.contact-page .contact-cta a {
   color: #ffffff !important;
   text-decoration: none !important;
 }
