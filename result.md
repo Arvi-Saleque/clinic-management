@@ -964,3 +964,38 @@ graph TD
 
 ### B. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 36. Universal Subpage Hero Standardization (Route Breadcrumbs + Fixed Parallax Background)
+
+### A. Architectural & UI Changes
+1. **Universal Fixed Background Parallax ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Extended the luxury fixed parallax background image (`/marketing/hero_clinic.png` with multi-stop dark gradient overlay and `background-attachment: fixed`) across **all marketing subpage heroes**:
+     - `.about-page .page-hero-banner`
+     - `.treatments-page .page-hero-banner`
+     - `.practitioners-page .page-hero-banner`
+     - `.results-page .page-hero-banner`
+     - `.blog-page .page-hero-banner`
+     - `.locations-page .page-hero-banner`
+     - `.contact-page .page-hero-banner`
+     - `.public-book-page .page-hero-banner`
+     - `.treatment-detail-page .treatment-hero`
+     - `.practitioner-detail-page .practitioner-hero`
+     - `.article-detail-page .article-header-section`
+   - Added responsive fallback `background-attachment: scroll` for mobile touch devices.
+
+2. **Dhaka Heights-Style Route Breadcrumbs Across All Subpages**:
+   - Added uppercase, tracked, sage green (`#9CB080`) breadcrumb route paths (`HOME  ›  [SECTION NAME]`) with subtle divider accents on:
+     - [`src/app/(marketing)/about/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/about/page.tsx) (`HOME  ›  ABOUT US`)
+     - [`src/app/(marketing)/practitioners/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/practitioners/page.tsx) (`HOME  ›  DOCTORS`)
+     - [`src/app/(marketing)/results/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/results/page.tsx) (`HOME  ›  RESULTS`)
+     - [`src/app/(marketing)/blog/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/blog/page.tsx) (`HOME  ›  BLOG`)
+     - [`src/app/(marketing)/locations/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/locations/page.tsx) (`HOME  ›  LOCATIONS`)
+     - [`src/app/(marketing)/contact/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/contact/page.tsx) (`HOME  ›  CONTACT`)
+     - [`src/app/(marketing)/book/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/book/page.tsx) (`HOME  ›  BOOK ONLINE`)
+     - [`src/app/(marketing)/services/[slug]/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/services/[slug]/page.tsx) (`HOME  ›  TREATMENTS  ›  [NAME]`)
+     - [`src/app/(marketing)/blog/[slug]/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/blog/[slug]/page.tsx) (`HOME  ›  BLOG  ›  [CATEGORY]`)
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**

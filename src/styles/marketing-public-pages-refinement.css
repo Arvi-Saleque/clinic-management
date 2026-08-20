@@ -48,8 +48,9 @@
   overflow: clip;
 }
 
-/* ---------- Shared inner-page hero language ---------- */
+/* ---------- Shared inner-page hero language with Fixed Background Parallax (Dhaka Heights Style) ---------- */
 .about-page .page-hero-banner,
+.treatments-page .page-hero-banner,
 .practitioners-page .page-hero-banner,
 .results-page .page-hero-banner,
 .blog-page .page-hero-banner,
@@ -59,17 +60,6 @@
 .treatment-detail-page .treatment-hero,
 .practitioner-detail-page .practitioner-hero,
 .article-detail-page .article-header-section {
-  position: relative;
-  isolation: isolate;
-  background:
-    radial-gradient(circle at 18% 20%, rgba(181, 200, 155, 0.11), transparent 31%),
-    radial-gradient(circle at 82% 5%, rgba(255, 255, 255, 0.055), transparent 34%),
-    linear-gradient(145deg, var(--public-dark-deep), var(--public-dark) 60%, #2b3a3d);
-  color: #f5f7f5;
-}
-
-/* Treatments Page Hero with Fixed Background Parallax (Dhaka Heights Style) */
-.treatments-page .page-hero-banner {
   position: relative;
   isolation: isolate;
   background-image:
@@ -83,7 +73,17 @@
 }
 
 @media (max-width: 768px) {
-  .treatments-page .page-hero-banner {
+  .about-page .page-hero-banner,
+  .treatments-page .page-hero-banner,
+  .practitioners-page .page-hero-banner,
+  .results-page .page-hero-banner,
+  .blog-page .page-hero-banner,
+  .locations-page .page-hero-banner,
+  .contact-page .page-hero-banner,
+  .public-book-page .page-hero-banner,
+  .treatment-detail-page .treatment-hero,
+  .practitioner-detail-page .practitioner-hero,
+  .article-detail-page .article-header-section {
     background-attachment: scroll;
   }
 }

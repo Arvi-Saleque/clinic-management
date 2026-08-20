@@ -15,19 +15,41 @@ export default async function PractitionersPage() {
     <div className="practitioners-page">
       <main>
         {/* Practitioners Hero Banner */}
-        <section className="page-hero-banner py-20 bg-[#273338] text-white">
+        <section className="page-hero-banner py-20 text-white">
           <div className="container text-center max-w-4xl mx-auto px-4">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/15 text-xs text-[#9CB080] font-medium mb-6">
+            {/* Breadcrumb Route (Dhaka Heights style) */}
+            <nav aria-label="Breadcrumb" className="mb-6 flex justify-center">
+              <ol className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-white/70 uppercase">
+                <li>
+                  <Link href="/" className="hover:text-white transition-colors duration-200">
+                    Home
+                  </Link>
+                </li>
+                <li className="text-[#9CB080]" aria-hidden="true">›</li>
+                <li className="text-[#9CB080] font-bold" aria-current="page">
+                  Doctors
+                </li>
+              </ol>
+            </nav>
+
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/15 text-xs text-[#9CB080] font-medium mb-6 shadow-sm">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Clinical Leadership &amp; Expertise</span>
             </div>
-            <h1 className="page-title text-4xl sm:text-5xl md:text-6xl font-light tracking-tight leading-tight">
+
+            <h1 className="page-title text-4xl sm:text-5xl md:text-6xl font-light tracking-tight leading-tight drop-shadow-md">
               Our Dental Practitioners. <br />
               <i className="font-serif text-[#9CB080]">Dedicated to Your Care.</i>
             </h1>
-            <p className="page-subtitle text-base sm:text-lg text-white/75 mt-6 max-w-2xl mx-auto leading-relaxed">
+
+            <p className="page-subtitle text-base sm:text-lg text-white/85 mt-6 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
               Meet the clinicians behind your care and explore their professional focus, approach, and available appointment options.
             </p>
+
+            {/* Subtle accent divider */}
+            <div className="mt-8 flex justify-center">
+              <div className="h-0.5 w-16 bg-[#9CB080]/80 rounded-full" />
+            </div>
           </div>
         </section>
 
