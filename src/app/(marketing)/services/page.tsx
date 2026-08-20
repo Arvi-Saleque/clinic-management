@@ -164,22 +164,44 @@ export default async function ServicesPage() {
         </section>
 
         {/* Treatments Bottom CTA */}
-        <section className="treatments-cta py-20 bg-[#273338] text-white">
-          <div className="container px-4 text-center max-w-3xl mx-auto">
-            <div className="p-8 sm:p-12 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-md">
-              <h3 className="text-2xl sm:text-3xl font-light text-white mb-4">
-                Not Sure Which Treatment Is Right for You?
-              </h3>
-              <p className="text-white/70 text-base mb-8 max-w-xl mx-auto">
-                Schedule a consultation with our clinical team to discuss your needs and the options that may be suitable for you.
+        <section className="treatments-cta relative py-24 bg-[#1B2623] text-white overflow-hidden">
+          {/* Ambient Glow & Texture */}
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(156,176,128,0.18),transparent_70%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(16,26,23,0.85)_0%,rgba(10,18,16,0.95)_100%)]" />
+
+          <div className="container relative z-10 px-4 text-center max-w-4xl mx-auto">
+            <div className="p-10 sm:p-14 md:p-16 rounded-[32px] bg-white/[0.06] border border-[#9CB080]/25 backdrop-blur-xl shadow-[0_30px_80px_-15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]">
+              {/* Eyebrow Pill */}
+              <div className="inline-flex items-center gap-2 bg-[#14201C]/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-[#9CB080]/30 text-xs text-[#B5C89B] font-semibold uppercase tracking-widest mb-6 shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-[#B5C89B]" />
+                <span>Personalized Guidance</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-white leading-tight tracking-tight mb-4 drop-shadow-md">
+                Not Sure Which Treatment <br className="hidden sm:inline" />
+                <i className="font-serif text-[#B5C89B]">Is Right for You?</i>
+              </h2>
+
+              <p className="text-base sm:text-lg text-white/90 mb-10 max-w-xl mx-auto leading-relaxed drop-shadow-sm font-normal">
+                Schedule an in-depth consultation with our clinical team to discuss your oral health goals, treatment options, and tailored care plan.
               </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Link href="/book" className="btn-blue">
-                  <CalendarDays className="w-4 h-4 mr-2 inline" />
-                  Book Consultation Online
+
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <Link
+                  href="/book"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider !text-white text-white shadow-[0_8px_24px_rgba(43,87,72,0.4)] hover:shadow-[0_12px_32px_rgba(43,87,72,0.6)] transition-all duration-300 hover:scale-105 border border-[#9CB080]/30"
+                  style={{ color: '#ffffff' }}
+                >
+                  <CalendarDays className="w-4 h-4" />
+                  <span>Book Consultation Online</span>
                 </Link>
-                <Link href="/contact" className="btn-stroke border-white/20 hover:border-white text-white">
-                  Speak with Our Team
+
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 hover:bg-white/20 px-8 py-4 text-xs sm:text-sm font-semibold uppercase tracking-wider !text-white text-white border border-white/25 hover:border-white/50 backdrop-blur-md transition-all duration-300 hover:scale-105"
+                  style={{ color: '#ffffff' }}
+                >
+                  <span>Speak with Our Team</span>
                 </Link>
               </div>
             </div>

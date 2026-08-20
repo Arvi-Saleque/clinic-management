@@ -404,7 +404,6 @@
   color: #ffffff !important;
 }
 
-.treatments-page .treatments-cta,
 .practitioners-page .practitioners-cta,
 .results-page .results-cta {
   background: var(--public-dark) !important;
@@ -412,7 +411,6 @@
   padding-bottom: 88px !important;
 }
 
-.treatments-page .treatments-cta > .container > div,
 .practitioners-page .practitioners-cta > .container > div,
 .results-page .results-cta > .container > div {
   background: rgba(255, 255, 255, 0.045) !important;
@@ -420,10 +418,50 @@
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.12);
 }
 
-.treatments-page .treatments-cta p,
 .practitioners-page .practitioners-cta p,
 .results-page .results-cta p {
   color: #cdd5d1 !important;
+}
+
+/* ---------- Treatments page CTA Section (Glassmorphism & High-Contrast Typography) ---------- */
+.treatments-page .treatments-cta {
+  background: radial-gradient(circle at 50% 0%, rgba(156, 176, 128, 0.18), transparent 70%),
+              linear-gradient(180deg, #182320 0%, #0F1715 100%) !important;
+  padding-top: 100px !important;
+  padding-bottom: 100px !important;
+  position: relative;
+  isolation: isolate;
+}
+
+.treatments-page .treatments-cta > .container > div {
+  background: rgba(255, 255, 255, 0.055) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(156, 176, 128, 0.25) !important;
+  border-radius: 32px !important;
+  box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+.treatments-page .treatments-cta h2,
+.treatments-page .treatments-cta h3 {
+  color: #ffffff !important;
+  font-size: clamp(28px, 4vw, 44px) !important;
+  font-weight: 300 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.25 !important;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+}
+
+.treatments-page .treatments-cta p {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+}
+
+.treatments-page .treatments-cta a {
+  color: #ffffff !important;
+  text-decoration: none !important;
 }
 
 /* ---------- Treatment detail ---------- */
