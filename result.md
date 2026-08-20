@@ -1087,3 +1087,22 @@ graph TD
 
 ### B. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 42. Results & Smile Gallery Page Full-Width Expansion & Luxury Case Elevation
+
+### A. Architectural & UI Changes
+1. **Full-Width Expansive Container ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Extended `.results-page .container`, `.results-page .gallery-section .container`, and `.results-page .results-cta .container` to `width: 100% !important; max-width: 100% !important; padding-left/right: clamp(24px, 5.5vw, 96px) !important;` for consistent 80px–100px desktop side margins.
+2. **Elevated Before/After Case Cards ([`src/app/(marketing)/results/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/results/page.tsx))**:
+   - Upgraded case card container to `rounded-[32px]`, `p-6 sm:p-8`, `border border-[#273338]/10`, `shadow-[0_12px_36px_-6px_rgba(27,38,33,0.07)]`, with smooth `-translate-y-2` (8px lift) on hover.
+   - Structured metadata badges for clinical concerns and solutions with custom color-coded indicators.
+   - Added direct "Consult on Treatment" action button and treatment duration metadata on each case.
+3. **Standardized Luxury Bottom CTA**:
+   - Converted bottom CTA to shared frosted glassmorphic card design (`backdrop-blur-xl`, `bg-white/[0.06]`, `border border-[#9CB080]/25`, ambient emerald glow lighting).
+   - High-contrast pure white headline (`#ffffff !important`) with sage italic accent (`#B5C89B`).
+   - Glowing emerald consultation booking button + frosted white contact button.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
