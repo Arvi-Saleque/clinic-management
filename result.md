@@ -1014,3 +1014,20 @@ graph TD
 
 ### B. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 38. About Us Full-Width Expansive Layouts (80px–100px Side Margins)
+
+### A. Architectural & UI Changes
+1. **Full-Width Section Layouts ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Expanded `.about-page .container` and all section containers (`.story-split-section`, `.tech-showcase-section`, `.team-section-wrapper`, `.about-cta-section`) to `width: 100% !important; max-width: 100% !important;`.
+   - Applied side gutters `padding-left: clamp(24px, 5.5vw, 96px)` and `padding-right: clamp(24px, 5.5vw, 96px)` ensuring generous, clean 80px–100px margins on desktop.
+2. **Expansive Grids & Component Sizing ([`src/app/(marketing)/about/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/about/page.tsx))**:
+   - Converted the story section to a 12-column grid (`lg:col-span-7` text, `lg:col-span-5` media) with a 3-column values list.
+   - Expanded the Digital Suite 4-card grid across the full container.
+   - Removed `max-w-5xl` constraint from team practitioner cards to span full width.
+   - Converted the bottom CTA to a luxury transparent frosted glassmorphism card with high-contrast typography.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
