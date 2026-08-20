@@ -103,40 +103,41 @@ export default async function ContactPage() {
                     <h2 className="text-2xl sm:text-3xl font-bold text-[#182320] mt-3">{clinicName}</h2>
                   </div>
 
-                  <div className="space-y-4 text-sm text-[#4E5B55]">
-                    <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-[#F8F9F8] border border-[#273338]/06">
+                  <div className="space-y-3.5 text-sm text-[#4E5B55]">
+                    {/* Address Row */}
+                    <div className="flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-[#F8F9F8] border border-[#273338]/06 overflow-hidden">
                       <div className="w-10 h-10 rounded-full bg-[#2B5748]/10 text-[#2B5748] flex items-center justify-center shrink-0 mt-0.5">
                         <MapPin className="w-5 h-5 text-[#2B5748]" />
                       </div>
-                      <div>
-                        <span className="font-bold text-[#182320] block text-xs uppercase tracking-wider">Practice Address</span>
-                        <span className="text-sm sm:text-base leading-relaxed text-[#273338]">{address}</span>
+                      <div className="min-w-0 flex-1">
+                        <span className="font-bold text-[#182320] block text-xs uppercase tracking-wider mb-0.5">Practice Address</span>
+                        <span className="text-sm sm:text-base leading-relaxed text-[#273338] break-words">{address}</span>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="flex items-center gap-3 p-4 rounded-2xl bg-[#F8F9F8] border border-[#273338]/06">
-                        <div className="w-10 h-10 rounded-full bg-[#2B5748]/10 text-[#2B5748] flex items-center justify-center shrink-0">
-                          <Phone className="w-5 h-5 text-[#2B5748]" />
-                        </div>
-                        <div>
-                          <span className="font-bold text-[#182320] block text-xs uppercase tracking-wider">Direct Phone</span>
-                          <a href={`tel:${phoneClean}`} className="text-sm font-semibold text-[#2B5748] hover:underline">
-                            {phone}
-                          </a>
-                        </div>
+                    {/* Phone Row */}
+                    <div className="flex items-center gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-[#F8F9F8] border border-[#273338]/06 overflow-hidden">
+                      <div className="w-10 h-10 rounded-full bg-[#2B5748]/10 text-[#2B5748] flex items-center justify-center shrink-0">
+                        <Phone className="w-5 h-5 text-[#2B5748]" />
                       </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="font-bold text-[#182320] block text-xs uppercase tracking-wider mb-0.5">Direct Telephone</span>
+                        <a href={`tel:${phoneClean}`} className="text-sm sm:text-base font-semibold text-[#2B5748] hover:underline break-words block">
+                          {phone}
+                        </a>
+                      </div>
+                    </div>
 
-                      <div className="flex items-center gap-3 p-4 rounded-2xl bg-[#F8F9F8] border border-[#273338]/06">
-                        <div className="w-10 h-10 rounded-full bg-[#2B5748]/10 text-[#2B5748] flex items-center justify-center shrink-0">
-                          <Mail className="w-5 h-5 text-[#2B5748]" />
-                        </div>
-                        <div>
-                          <span className="font-bold text-[#182320] block text-xs uppercase tracking-wider">Email Inquiry</span>
-                          <a href={`mailto:${email}`} className="text-sm font-semibold text-[#2B5748] hover:underline truncate block">
-                            {email}
-                          </a>
-                        </div>
+                    {/* Email Row */}
+                    <div className="flex items-center gap-3.5 p-4 sm:p-4.5 rounded-2xl bg-[#F8F9F8] border border-[#273338]/06 overflow-hidden">
+                      <div className="w-10 h-10 rounded-full bg-[#2B5748]/10 text-[#2B5748] flex items-center justify-center shrink-0">
+                        <Mail className="w-5 h-5 text-[#2B5748]" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="font-bold text-[#182320] block text-xs uppercase tracking-wider mb-0.5">Email Inquiry</span>
+                        <a href={`mailto:${email}`} className="text-sm sm:text-base font-semibold text-[#2B5748] hover:underline break-all block">
+                          {email}
+                        </a>
                       </div>
                     </div>
                   </div>

@@ -1129,3 +1129,15 @@ graph TD
 
 ### B. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 44. Contact Details Container Overflow & Spacing Refinement
+
+### A. Architectural & UI Changes
+1. **Resolved Text Overflow on Contact Pill Cards ([`src/app/(marketing)/contact/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/contact/page.tsx))**:
+   - Replaced cramped 2-column side-by-side grid (`sm:grid-cols-2`) with spacious, full-width stacked rows for Practice Address, Direct Telephone, and Email Inquiry.
+   - Added `overflow-hidden`, `min-w-0`, `flex-1`, and `break-all`/`break-words` utilities on email and phone text containers to ensure long email addresses (`contact@cliniccare.test` or custom domain addresses) never bleed or overflow outside card boundaries across all device viewports.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
