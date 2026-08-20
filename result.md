@@ -946,3 +946,21 @@ graph TD
 ### B. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
 - **eslint**: `npx eslint` -> **PASSED (0 errors)**
+
+---
+
+## 35. Treatments Bottom CTA Glassmorphism & Contrast Fix
+
+### A. Architectural & UI Changes
+1. **Glassmorphism Frosted Background ([`src/app/(marketing)/services/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/services/page.tsx))**:
+   - Replaced plain dark box with a rounded 32px frosted glass card (`backdrop-blur-xl`, `bg-white/[0.06]`, `border border-[#9CB080]/25`, and ambient radial luxury emerald lighting).
+   - Added `✨ Personalized Guidance` glassmorphic eyebrow badge.
+2. **Crystal Clear High-Contrast Typography ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Fixed text contrast bug where dark h3/p tags were invisible on dark background.
+   - Enforced pure bright white (`#ffffff !important`) headings with sage italic accent (`#B5C89B`), and legible `rgba(255, 255, 255, 0.9)` subtitle text with soft drop-shadow.
+3. **Luxury Dual CTAs**:
+   - Primary: Glowing emerald-gradient button (`Book Consultation Online`) with white text and icon.
+   - Secondary: Frosted stroke button (`Speak with Our Team`) with white text and clean hover scale.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
