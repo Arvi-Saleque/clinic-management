@@ -1071,3 +1071,19 @@ graph TD
 
 ### B. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 41. Doctors Page Full-Width Expansion & Luxury CTA Standardization
+
+### A. Architectural & UI Changes
+1. **Full-Width Expansive Container ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Extended `.practitioners-page .container`, `.practitioners-grid-section .container`, and `.practitioners-cta .container` to `width: 100% !important; max-width: 100% !important; padding-left/right: clamp(24px, 5.5vw, 96px) !important;` for consistent 80px–100px desktop side margins.
+   - Updated grid in [`src/app/(marketing)/practitioners/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/practitioners/page.tsx) to `grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-8 w-full` spreading doctors across the full expansive layout.
+2. **Standardized Luxury Bottom CTA**:
+   - Converted the bottom CTA to the shared frosted glassmorphic card design (`backdrop-blur-xl`, `bg-white/[0.06]`, `border border-[#9CB080]/25`, ambient emerald glow lighting).
+   - High-contrast pure white headline (`#ffffff !important`) with sage italic accent (`#B5C89B`).
+   - Glowing emerald consultation booking button + frosted white contact button.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**

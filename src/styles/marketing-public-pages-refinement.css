@@ -285,12 +285,15 @@
   box-shadow: var(--public-shadow) !important;
 }
 
-/* ---------- About page expansive full-width layouts (80px-100px margins) ---------- */
+/* ---------- Full-width expansive layouts (80px-100px margins) ---------- */
 .about-page .container,
 .about-page .story-split-section .container,
 .about-page .tech-showcase-section .container,
 .about-page .team-section-wrapper .container,
-.about-page .about-cta-section .container {
+.about-page .about-cta-section .container,
+.practitioners-page .container,
+.practitioners-page .practitioners-grid-section .container,
+.practitioners-page .practitioners-cta .container {
   width: 100% !important;
   max-width: 100% !important;
   padding-left: clamp(24px, 5.5vw, 96px) !important;
@@ -428,8 +431,9 @@
   font-size: 13.5px !important;
 }
 
-/* About CTA Section Glassmorphism & High-Contrast Typography */
-.about-page .about-cta-section {
+/* About & Practitioners CTA Section Glassmorphism & High-Contrast Typography */
+.about-page .about-cta-section,
+.practitioners-page .practitioners-cta {
   background: radial-gradient(circle at 50% 0%, rgba(156, 176, 128, 0.18), transparent 70%),
               linear-gradient(180deg, #182320 0%, #0F1715 100%) !important;
   padding-top: 100px !important;
@@ -438,7 +442,8 @@
   isolation: isolate;
 }
 
-.about-page .about-cta-section > .container > div {
+.about-page .about-cta-section > .container > div,
+.practitioners-page .practitioners-cta > .container > div {
   background: rgba(255, 255, 255, 0.055) !important;
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(24px) !important;
@@ -448,7 +453,9 @@
 }
 
 .about-page .about-cta-section h2,
-.about-page .about-cta-section h3 {
+.about-page .about-cta-section h3,
+.practitioners-page .practitioners-cta h2,
+.practitioners-page .practitioners-cta h3 {
   color: #ffffff !important;
   font-size: clamp(28px, 4vw, 44px) !important;
   font-weight: 300 !important;
@@ -457,14 +464,16 @@
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
 }
 
-.about-page .about-cta-section p {
+.about-page .about-cta-section p,
+.practitioners-page .practitioners-cta p {
   color: rgba(255, 255, 255, 0.9) !important;
   font-size: 16px !important;
   line-height: 1.7 !important;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
 
-.about-page .about-cta-section a {
+.about-page .about-cta-section a,
+.practitioners-page .practitioners-cta a {
   color: #ffffff !important;
   text-decoration: none !important;
 }
