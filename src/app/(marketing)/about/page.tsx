@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Sparkles, UserCheck } from "lucide-react";
+import { Activity, ArrowRight, CalendarDays, Layers, Scan, Sparkles, UserCheck } from "lucide-react";
 import { Card3D } from "@/components/marketing/luxury-card3d";
 import { listPublicPractitioners } from "@/lib/server/marketing";
 
@@ -11,20 +11,28 @@ export const metadata: Metadata = {
 
 const techStack = [
   {
+    icon: Scan,
+    badge: "Imaging & Precision",
     title: "3D Optical Intraoral Scanning",
     desc: "Creates detailed digital impressions to support treatment planning without relying on conventional impression material for every workflow.",
   },
   {
-    title: "Low-Dose 3D Cone Beam Imaging",
+    icon: Activity,
+    badge: "3D Diagnostics",
+    title: "Low-Dose Cone Beam Imaging",
     desc: "Provides three-dimensional diagnostic information that can support implant assessment and treatment planning when clinically appropriate.",
   },
   {
+    icon: Layers,
+    badge: "Medical Ceramics",
     title: "CAD/CAM Porcelain Restorations",
-    desc: "Supports digitally planned ceramic restorations with attention to fit, function, and natural appearance.",
+    desc: "Supports digitally planned ceramic restorations with meticulous attention to fit, structural integrity, and natural appearance.",
   },
   {
+    icon: Sparkles,
+    badge: "Aesthetic Simulation",
     title: "Digital Smile Planning",
-    desc: "Helps clinicians discuss tooth proportions, smile balance, and aesthetic goals during treatment planning.",
+    desc: "Helps clinicians discuss tooth proportions, smile balance, and aesthetic goals with patients during treatment planning.",
   },
 ];
 
@@ -141,29 +149,60 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        {/* 3D Digital Dental Technology Showcase */}
-        <section className="tech-showcase-section py-24 bg-[#273338] text-white">
-          <div className="container text-center">
-            <div className="title-box max-w-3xl mx-auto mb-14">
-              <span className="subtitle-italic text-[#9CB080] font-semibold text-sm">Next-Generation Technology</span>
-              <h2 className="h3 text-3xl sm:text-4xl md:text-5xl font-light text-white mt-2 mb-4 tracking-tight">
-                Our Digital Dentistry Suite
+        {/* 3D Digital Dental Technology Showcase with Fixed Parallax Background */}
+        <section className="tech-showcase-section relative py-28 text-white overflow-hidden">
+          {/* Ambient Glows */}
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(156,176,128,0.16),transparent_65%)]" />
+
+          <div className="container relative z-10 text-center">
+            <div className="title-box max-w-3xl mx-auto mb-16">
+              {/* Eyebrow badge */}
+              <div className="inline-flex items-center gap-2 bg-[#14201C]/85 backdrop-blur-md px-4 py-1.5 rounded-full border border-[#9CB080]/35 text-xs text-[#B5C89B] font-semibold uppercase tracking-widest mb-5 shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-[#B5C89B]" />
+                <span>Next-Generation Dental Suite</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-white leading-tight tracking-tight mb-4 drop-shadow-md">
+                Our Digital Dentistry <i className="font-serif text-[#B5C89B]">Technology Suite</i>
               </h2>
-              <p className="text-white/80 text-sm sm:text-base max-w-2xl mx-auto">
-                Modern digital diagnostic equipment for precise planning, patient comfort, and reliable clinical outcomes.
+              <p className="text-white/90 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed drop-shadow-sm font-normal">
+                State-of-the-art digital diagnostic equipment engineered for sub-millimeter precision, patient comfort, and reliable clinical outcomes.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left w-full">
-              {techStack.map((tech, idx) => (
-                <Card3D key={idx} className="tech-card-item p-7 rounded-3xl bg-white/[0.05] border border-white/12 backdrop-blur-md hover:border-[#9CB080]/40 transition-all duration-300 flex flex-col justify-between">
-                  <div>
-                    <div className="text-xs font-bold text-[#9CB080] uppercase tracking-wider mb-3">0{idx + 1}</div>
-                    <h4 className="text-lg font-medium text-white mb-2.5">{tech.title}</h4>
-                    <p className="text-xs sm:text-sm text-white/70 leading-relaxed">{tech.desc}</p>
-                  </div>
-                </Card3D>
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7 text-left w-full">
+              {techStack.map((tech, idx) => {
+                const IconComponent = tech.icon;
+                return (
+                  <Card3D
+                    key={idx}
+                    className="tech-card-item p-7 sm:p-8 rounded-[28px] bg-white/[0.06] border border-white/15 backdrop-blur-xl hover:border-[#9CB080]/50 hover:bg-white/[0.09] transition-all duration-300 flex flex-col justify-between shadow-[0_20px_40px_-15px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.15)] group"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#2B5748]/80 to-[#18362B]/90 border border-[#9CB080]/30 flex items-center justify-center text-[#B5C89B] group-hover:scale-110 group-hover:border-[#9CB080] transition-all duration-300 shadow-md">
+                          <IconComponent className="w-6 h-6 text-[#B5C89B]" />
+                        </div>
+                        <span className="text-xs font-bold tracking-widest text-[#9CB080]/80 uppercase font-mono">
+                          0{idx + 1}
+                        </span>
+                      </div>
+
+                      <div className="text-[11px] font-semibold text-[#B5C89B] uppercase tracking-wider mb-2">
+                        {tech.badge}
+                      </div>
+
+                      <h3 className="text-xl font-medium text-white mb-3 leading-snug group-hover:text-[#E8F0E2] transition-colors">
+                        {tech.title}
+                      </h3>
+
+                      <p className="text-sm text-white/80 leading-relaxed font-normal">
+                        {tech.desc}
+                      </p>
+                    </div>
+                  </Card3D>
+                );
+              })}
             </div>
           </div>
         </section>
