@@ -84,61 +84,78 @@ export default async function ServicesPage() {
                   const imgSrc = defaultImages[key];
 
                   return (
-                    <div
+                    <article
                       key={service.id}
-                      className="treatment-card-luxury bg-white rounded-3xl overflow-hidden border border-[#273338]/10 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                      className="treatment-card-luxury group relative flex flex-col justify-between rounded-[28px] bg-white border border-[#273338]/10 shadow-[0_10px_30px_-5px_rgba(27,38,33,0.06),0_20px_40px_-10px_rgba(27,38,33,0.08)] hover:shadow-[0_24px_50px_-10px_rgba(43,87,72,0.18)] hover:border-[#9CB080]/50 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden"
                     >
-                      <div>
-                        <div className="aspect-[16/10] overflow-hidden relative group">
+                      {/* Top Media & Floating Category Badge */}
+                      <div className="relative">
+                        <div className="aspect-[16/10] w-full overflow-hidden bg-[#1D2B26]">
                           <img
                             src={imgSrc}
                             alt={service.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
                           />
-                          {service.category && (
-                            <span className="absolute top-4 left-4 bg-[#273338]/85 backdrop-blur-md text-white text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#1F2421]/60 via-transparent to-black/20 pointer-events-none" />
+                        </div>
+
+                        {service.category && (
+                          <div className="absolute top-4 left-4 z-10">
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#14201C]/85 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#B5C89B] shadow-md backdrop-blur-md border border-white/20">
+                              <span className="size-1.5 rounded-full bg-[#B5C89B] animate-pulse" />
                               {service.category}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Content Area */}
+                      <div className="flex flex-1 flex-col justify-between p-6 sm:p-7">
+                        <div>
+                          <h3 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-[#1F2421] group-hover:text-[#2B5748] transition-colors duration-200">
+                            {service.name}
+                          </h3>
+
+                          <p className="mt-2.5 text-xs sm:text-sm text-[#52605B] leading-relaxed line-clamp-2">
+                            {service.description || "Comprehensive clinical treatment tailored to your health, function, and smile aesthetics."}
+                          </p>
+                        </div>
+
+                        {/* Specs & Highlight Chips */}
+                        <div className="mt-6 pt-4 border-t border-[#273338]/10 flex flex-wrap items-center gap-2.5">
+                          <span className="inline-flex items-center gap-1.5 rounded-xl bg-[#F4F6F3] px-3 py-1.5 text-xs font-semibold text-[#2B5748] border border-[#2B5748]/10">
+                            <Clock className="size-3.5 text-[#2B5748]" />
+                            {service.duration_minutes} mins
+                          </span>
+
+                          {service.price && (
+                            <span className="inline-flex items-center gap-1.5 rounded-xl bg-[#F4F6F3] px-3 py-1.5 text-xs font-bold text-[#2B5748] border border-[#2B5748]/10">
+                              <Tag className="size-3.5 text-[#2B5748]" />
+                              From £{Number(service.price).toLocaleString()}
                             </span>
                           )}
                         </div>
-
-                        <div className="p-6">
-                          <h3 className="text-xl font-medium text-[#273338] mb-2">{service.name}</h3>
-                          <p className="text-xs sm:text-sm text-[#414a4c] leading-relaxed line-clamp-3 mb-4">
-                            {service.description || "Comprehensive clinical treatment tailored to your health and smile aesthetics."}
-                          </p>
-
-                          <div className="flex items-center gap-4 text-xs font-semibold text-[#2B5748] pt-2 border-t border-[#273338]/10">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5" />
-                              {service.duration_minutes} mins
-                            </span>
-                            {service.price && (
-                              <span className="flex items-center gap-1">
-                                <Tag className="w-3.5 h-3.5" />
-                                From £{Number(service.price).toLocaleString()}
-                              </span>
-                            )}
-                          </div>
-                        </div>
                       </div>
 
-                      <div className="p-6 pt-0 flex items-center justify-between gap-3">
+                      {/* Footer Actions */}
+                      <div className="border-t border-[#273338]/8 bg-[#FAFBF9]/80 px-6 py-4.5 flex items-center justify-between gap-3">
                         <Link
                           href={`/services/${service.slug}`}
-                          className="text-xs font-semibold uppercase tracking-wider text-[#2B5748] hover:text-[#9CB080] inline-flex items-center transition-colors"
+                          className="group/btn inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#2B5748] hover:text-[#18362B] transition-all"
                         >
                           <span>Treatment Details</span>
-                          <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                          <ArrowRight className="size-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
                         </Link>
+
                         <Link
                           href={`/book?serviceId=${service.id}`}
-                          className="btn-blue text-[11px] py-2 px-4 uppercase tracking-wider"
+                          className="treatment-card-book-btn inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-5 py-2.5 text-xs font-bold uppercase tracking-wider !text-white text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                          style={{ color: '#ffffff' }}
                         >
-                          Book Now
+                          <span>Book Now</span>
                         </Link>
                       </div>
-                    </div>
+                    </article>
                   );
                 })}
               </div>
