@@ -295,36 +295,56 @@ export function InvoiceDetailDialog({
       });
 
       if (res.success) {
-        if (targetStatus === "paid" || targetStatus === "partially_paid") {
-          const amt = targetStatus === "paid" ? draftNetTotal : partialAmount;
-          if (amt > 0) {
+        if (targetStatus === "paid") {
+          if (draftNetTotal > 0) {
             setSuccessModalData({
               invoiceNumber: invoice.invoice_number,
               patientName: patientName,
-              amountPaid: amt,
+              amountPaid: draftNetTotal,
               paymentMethod: paymentMethod,
-              balanceRemaining:
-                targetStatus === "paid" ? 0 : Math.max(0, draftNetTotal - partialAmount),
-              isFullSettlement: targetStatus === "paid",
+              balanceRemaining: 0,
+              isFullSettlement: true,
               date: new Date(),
               invoiceId: invoice.id,
             });
             setSuccessModalOpen(true);
           }
-        } else if (targetStatus === "draft") {
+          onPaymentSuccess?.();
+          onOpenChange(false);
+        } else if (targetStatus === "partially_paid") {
+          const remBal = Math.max(0, draftNetTotal - partialAmount);
+          if (partialAmount > 0) {
+            setSuccessModalData({
+              invoiceNumber: invoice.invoice_number,
+              patientName: patientName,
+              amountPaid: partialAmount,
+              paymentMethod: paymentMethod,
+              balanceRemaining: remBal,
+              isFullSettlement: remBal <= 0.01,
+              date: new Date(),
+              invoiceId: invoice.id,
+            });
+            setSuccessModalOpen(true);
+          }
+          onPaymentSuccess?.();
+          // Seamlessly reload to Outstanding / Part-Paid view
+          await fetchDetail(invoice.id);
+        } else if (targetStatus === "issued") {
+          toast.success(`Invoice ${invoice.invoice_number} issued to Outstanding.`, {
+            position: "top-center",
+            duration: 4500,
+          });
+          onPaymentSuccess?.();
+          // Directly transition to the Outstanding modal view
+          await fetchDetail(invoice.id);
+        } else {
           toast.success("Draft invoice changes saved.", {
             position: "top-center",
             duration: 4000,
           });
-        } else if (targetStatus === "issued") {
-          toast.success(`Invoice ${invoice.invoice_number} issued as Outstanding.`, {
-            position: "top-center",
-            duration: 4500,
-          });
+          onPaymentSuccess?.();
+          onOpenChange(false);
         }
-
-        onPaymentSuccess?.();
-        onOpenChange(false);
       } else {
         toast.error(res.error || "Failed to update draft invoice.", { position: "top-center" });
       }
