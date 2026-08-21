@@ -47,6 +47,9 @@ export default defineConfig(async () => {
     server: {
       host: "0.0.0.0",
       allowedHosts: ["terminal.local"],
+      hmr: {
+        overlay: false,
+      },
       watch: {
         ignored: ["**/.next/**", "**/dist/**"],
         ...(isCodexSeatbeltSandbox ? { useFsEvents: false, usePolling: true } : {}),
