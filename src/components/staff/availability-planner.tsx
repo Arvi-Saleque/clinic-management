@@ -163,7 +163,7 @@ export function AvailabilityPlanner({
       {/* Weekly Routine Modal Dialog - Dentist/Admin Only */}
       {!isReadOnly && (
         <WeeklyRoutineDialog
-          key={isWeeklyModalOpen ? "weekly-open" : "weekly-closed"}
+          key={isWeeklyModalOpen ? `weekly-open-${focusedWeekday ?? "all"}` : "weekly-closed"}
           open={isWeeklyModalOpen}
           onOpenChange={setIsWeeklyModalOpen}
           practitionerId={practitionerId}
