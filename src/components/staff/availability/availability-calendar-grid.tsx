@@ -157,19 +157,19 @@ export function AvailabilityCalendarGrid({
                   ? "bg-gradient-to-br from-[#0B3B36] via-[#075e5a] to-[#04332f] text-white border-2 border-emerald-400 shadow-md shadow-emerald-950/25 ring-4 ring-emerald-500/20 scale-[1.02] z-10"
                   // 2. TODAY (When not selected)
                   : day.isToday
-                    ? "border-2 border-emerald-500/80 bg-emerald-50/60 dark:bg-emerald-950/40 shadow-xs ring-2 ring-emerald-500/20 hover:scale-[1.02]"
-                    // 3. ADJUSTED HOURS (Violet gradient)
-                    : isAdjusted && day.isCurrentMonth
-                      ? "bg-purple-50/70 dark:bg-purple-950/30 border-purple-200/90 dark:border-purple-800/60 hover:border-purple-400 hover:shadow-sm hover:scale-[1.01]"
-                      // 4. ON LEAVE (Warm Amber gradient)
-                      : isLeave && day.isCurrentMonth
-                        ? "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/90 dark:border-amber-800/60 hover:border-amber-400 hover:shadow-sm hover:scale-[1.01]"
-                        // 5. AVAILABLE (Clean Card with soft emerald hover)
+                    ? "border-2 border-emerald-500/80 bg-emerald-50/70 dark:bg-emerald-950/50 shadow-xs ring-2 ring-emerald-500/20 hover:scale-[1.02]"
+                    // 3. ON LEAVE (Vibrant warm Yellow/Amber shade matching green available)
+                    : isLeave && day.isCurrentMonth
+                      ? "bg-amber-50/90 dark:bg-amber-950/40 border-amber-300/90 dark:border-amber-700/60 hover:bg-amber-100/80 dark:hover:bg-amber-900/40 hover:border-amber-400 hover:shadow-xs hover:scale-[1.01]"
+                      // 4. ADJUSTED HOURS (Violet gradient)
+                      : isAdjusted && day.isCurrentMonth
+                        ? "bg-purple-50/70 dark:bg-purple-950/30 border-purple-200/90 dark:border-purple-800/60 hover:border-purple-400 hover:shadow-sm hover:scale-[1.01]"
+                        // 5. AVAILABLE (Clean green surface & soft emerald hover)
                         : isAvailable && day.isCurrentMonth
-                          ? "bg-card hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 border-border/70 hover:border-emerald-300 hover:shadow-sm hover:scale-[1.01]"
-                          // 6. DAY OFF (Clean neutral)
+                          ? "bg-card hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 border-border/70 hover:border-emerald-300 hover:shadow-sm hover:scale-[1.01]"
+                          // 6. DAY OFF (Clean modern slate-grey neutral)
                           : isOff && day.isCurrentMonth
-                            ? "bg-muted/15 border-dashed border-border/60 hover:bg-muted/30 hover:border-border text-muted-foreground"
+                            ? "bg-slate-50/60 dark:bg-slate-900/30 border border-dashed border-slate-300/80 dark:border-slate-800/80 hover:bg-slate-100/60 hover:border-slate-400 text-slate-700 dark:text-slate-300 hover:scale-[1.01]"
                             // 7. OUTSIDE CURRENT MONTH
                             : "opacity-30 hover:opacity-75 bg-muted/5 border-transparent text-muted-foreground/60",
               )}
@@ -185,13 +185,15 @@ export function AvailabilityCalendarGrid({
                         ? "text-xl sm:text-2xl text-white"
                         : day.isToday
                           ? "text-lg sm:text-xl font-black text-emerald-900 dark:text-emerald-200"
-                          : isAdjusted && day.isCurrentMonth
-                            ? "text-base sm:text-lg text-purple-950 dark:text-purple-200"
-                            : isLeave && day.isCurrentMonth
-                              ? "text-base sm:text-lg text-amber-950 dark:text-amber-200"
-                              : day.isCurrentMonth
-                                ? "text-base sm:text-lg text-foreground group-hover:text-emerald-900 dark:group-hover:text-emerald-200"
-                                : "text-sm sm:text-base text-muted-foreground/50",
+                          : isLeave && day.isCurrentMonth
+                            ? "text-base sm:text-lg font-black text-amber-950 dark:text-amber-200"
+                            : isAdjusted && day.isCurrentMonth
+                              ? "text-base sm:text-lg text-purple-950 dark:text-purple-200"
+                              : isOff && day.isCurrentMonth
+                                ? "text-base sm:text-lg font-black text-slate-800 dark:text-slate-200"
+                                : day.isCurrentMonth
+                                  ? "text-base sm:text-lg text-foreground group-hover:text-emerald-900 dark:group-hover:text-emerald-200"
+                                  : "text-sm sm:text-base text-muted-foreground/50",
                     )}
                   >
                     {day.dayNumber}
@@ -204,9 +206,11 @@ export function AvailabilityCalendarGrid({
                         "text-[10px] font-bold uppercase tracking-wider",
                         isSelected
                           ? "text-emerald-200"
-                          : day.isCurrentMonth
-                            ? "text-muted-foreground font-semibold"
-                            : "text-muted-foreground/50",
+                          : isLeave && day.isCurrentMonth
+                            ? "text-amber-800/80 dark:text-amber-300/80 font-bold"
+                            : day.isCurrentMonth
+                              ? "text-muted-foreground font-semibold"
+                              : "text-muted-foreground/50",
                       )}
                     >
                       {format(day.dayDate, "MMM")}
@@ -250,33 +254,33 @@ export function AvailabilityCalendarGrid({
                     </span>
                   </div>
                 ) : (
-                  /* Standard Status Indicator */
+                  /* Standard Status Indicator - ALL STATES HAVE BEAUTIFUL CONSISTENT PILL BADGES */
                   <div className="flex items-center gap-1.5 w-full">
                     {isAvailable && (
-                      <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 text-[10px] font-bold border border-emerald-200/60 dark:border-emerald-800/40">
+                      <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 text-[10px] font-extrabold border border-emerald-200/60 dark:border-emerald-800/40 shadow-2xs">
                         <span className="size-1.5 rounded-full bg-emerald-500 shadow-2xs shadow-emerald-500/50" />
-                        <span className="hidden xl:inline">Available</span>
-                      </div>
-                    )}
-
-                    {isAdjusted && (
-                      <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-purple-100/80 text-purple-900 dark:bg-purple-950/60 dark:text-purple-300 text-[10px] font-bold border border-purple-200/80 dark:border-purple-800/40">
-                        <span className="size-1.5 rounded-full bg-purple-600 shadow-2xs shadow-purple-500/50" />
-                        <span className="hidden xl:inline">Adjusted</span>
+                        <span>Available</span>
                       </div>
                     )}
 
                     {isLeave && (
-                      <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100/80 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300 text-[10px] font-bold border border-amber-200/80 dark:border-amber-800/40">
-                        <span className="size-1.5 rounded-full bg-amber-600 shadow-2xs shadow-amber-500/50" />
-                        <span className="hidden xl:inline">Leave</span>
+                      <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-950 dark:bg-amber-950/70 dark:text-amber-200 text-[10px] font-black border border-amber-300/90 dark:border-amber-700/60 shadow-2xs">
+                        <span className="size-1.5 rounded-full bg-amber-500 shadow-2xs shadow-amber-500/50 ring-1 ring-amber-500/30" />
+                        <span>On Leave</span>
+                      </div>
+                    )}
+
+                    {isAdjusted && (
+                      <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-purple-100/80 text-purple-900 dark:bg-purple-950/60 dark:text-purple-300 text-[10px] font-extrabold border border-purple-200/80 dark:border-purple-800/40 shadow-2xs">
+                        <span className="size-1.5 rounded-full bg-purple-600 shadow-2xs shadow-purple-500/50" />
+                        <span>Adjusted</span>
                       </div>
                     )}
 
                     {isOff && (
-                      <div className="inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground/60 pl-0.5">
-                        <span className="size-1.5 rounded-full bg-muted-foreground/30" />
-                        <span className="hidden xl:inline">Off</span>
+                      <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-700 dark:bg-slate-800/90 dark:text-slate-300 text-[10px] font-extrabold border border-slate-300/80 dark:border-slate-700/70 shadow-2xs">
+                        <span className="size-1.5 rounded-full bg-slate-400 dark:bg-slate-400" />
+                        <span>Day Off</span>
                       </div>
                     )}
                   </div>
@@ -298,6 +302,13 @@ export function AvailabilityCalendarGrid({
           </span>
         </div>
 
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-300/80 dark:border-amber-700/50 shadow-2xs">
+          <span className="size-2.5 rounded-full bg-amber-500 shadow-2xs shadow-amber-500/50 ring-2 ring-amber-500/30" />
+          <span className="text-[11px] font-black text-amber-950 dark:text-amber-200">
+            On leave
+          </span>
+        </div>
+
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50/80 dark:bg-purple-950/30 border border-purple-200/70 dark:border-purple-800/40 shadow-2xs">
           <span className="size-2.5 rounded-full bg-purple-600 shadow-2xs shadow-purple-500/50 ring-2 ring-purple-500/20" />
           <span className="text-[11px] font-bold text-purple-950 dark:text-purple-200">
@@ -305,16 +316,9 @@ export function AvailabilityCalendarGrid({
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/40 shadow-2xs">
-          <span className="size-2.5 rounded-full bg-amber-600 shadow-2xs shadow-amber-500/50 ring-2 ring-amber-500/20" />
-          <span className="text-[11px] font-bold text-amber-950 dark:text-amber-200">
-            On leave
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/30 border border-border/70 shadow-2xs">
-          <span className="size-2.5 rounded-full bg-muted-foreground/40 ring-2 ring-muted-foreground/10" />
-          <span className="text-[11px] font-bold text-muted-foreground">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-300/80 dark:border-slate-700/70 shadow-2xs">
+          <span className="size-2.5 rounded-full bg-slate-400 ring-2 ring-slate-400/20" />
+          <span className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300">
             Day off
           </span>
         </div>
