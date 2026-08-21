@@ -1,11 +1,13 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { format, differenceInCalendarDays, isToday, isTomorrow } from "date-fns";
 import {
   Calendar,
   CalendarCheck,
   CalendarPlus,
+  Clock,
   Clock3,
   ExternalLink,
   MapPin,
@@ -14,7 +16,6 @@ import {
   RefreshCw,
   Stethoscope,
   ArrowRight,
-  Smile,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -60,9 +61,9 @@ export interface PortalDashboardViewProps {
 
 function getGreeting(name: string) {
   const hour = new Date().getHours();
-  if (hour < 12) return { text: `Good morning, ${name}`, emoji: "🌿" };
-  if (hour < 17) return { text: `Good afternoon, ${name}`, emoji: "☀️" };
-  return { text: `Good evening, ${name}`, emoji: "🌙" };
+  if (hour < 12) return `Good morning, ${name}`;
+  if (hour < 17) return `Good afternoon, ${name}`;
+  return `Good evening, ${name}`;
 }
 
 function getRelativeTimeBadge(date: Date, index: number) {
@@ -99,7 +100,7 @@ function downloadIcsCalendar(appointment: AppointmentSummary) {
   const icsContent = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Smile Sanctuary Dental Clinic//Patient Portal//EN",
+    "PRODID:-//Clinic Care Dental//Patient Portal//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
@@ -109,7 +110,7 @@ function downloadIcsCalendar(appointment: AppointmentSummary) {
     `DTEND:${formatDateToICS(endDate)}`,
     `SUMMARY:${appointment.serviceName} - Dental Visit`,
     `DESCRIPTION:Dental visit with ${appointment.practitionerName}. Estimated duration: ${appointment.duration} minutes.`,
-    "LOCATION:Smile Sanctuary Dental Clinic, Suite 402, Level 4, Healthcare Plaza",
+    "LOCATION:Clinic Care — Main Branch, Healthcare Plaza",
     "STATUS:CONFIRMED",
     "END:VEVENT",
     "END:VCALENDAR",
@@ -138,7 +139,7 @@ function openGoogleCalendar(appointment: AppointmentSummary) {
   const details = encodeURIComponent(
     `Dental appointment with ${appointment.practitionerName}.\nEstimated duration: ${appointment.duration} mins.`,
   );
-  const location = encodeURIComponent("Smile Sanctuary Dental Clinic, Suite 402, Level 4, Healthcare Plaza");
+  const location = encodeURIComponent("Clinic Care — Main Branch, Healthcare Plaza");
   const dates = `${formatGoogleTime(startDate)}/${formatGoogleTime(endDate)}`;
 
   const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
@@ -171,7 +172,7 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
             Welcome to Our Care Family
           </Badge>
           <h1 className="font-serif text-4xl font-normal leading-tight text-white sm:text-5xl">
-            Welcome, {props.firstName} {greeting.emoji}
+            Welcome, {props.firstName}
           </h1>
           <p className="max-w-xl text-base leading-relaxed text-white/80">
             Complete your quick digital registration to book appointments, choose your practitioner, and access your private care details.
@@ -199,17 +200,17 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
               Patient Sanctuary
             </span>
             {props.patientReference && (
-              <span className="text-xs font-medium text-text-muted">
+              <span className="text-xs font-mono font-bold text-text-muted">
                 ID: {props.patientReference}
               </span>
             )}
           </div>
 
-          <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            {greeting.text} {greeting.emoji}
+          <h1 className="font-heading text-3xl font-black tracking-tight text-foreground sm:text-4xl">
+            {greeting}
           </h1>
 
-          <p className="text-sm text-text-secondary">
+          <p className="text-xs sm:text-sm text-text-secondary">
             {appointments.length > 1
               ? `You have ${appointments.length} upcoming visits scheduled.`
               : appointments.length === 1
@@ -221,21 +222,21 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
         <div className="flex items-center gap-3">
           <ButtonLink
             href="/portal/appointments/book"
-            className="gap-2 rounded-2xl bg-primary px-5 py-5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary-hover"
+            className="gap-2 rounded-2xl bg-[#0B3B36] hover:bg-[#0B3B36]/90 px-5 py-5 text-sm font-bold text-white shadow-md shadow-[#0B3B36]/20 transition-all hover:scale-[1.02]"
           >
-            <CalendarPlus className="size-4" /> Book an Appointment
+            <CalendarPlus className="size-4 stroke-[2.5]" /> Book an Appointment
           </ButtonLink>
           <ButtonLink
             href="/portal/appointments"
             variant="outline"
-            className="gap-2 rounded-2xl border-border bg-surface px-4 py-5 text-sm font-medium hover:bg-surface-elevated"
+            className="gap-2 rounded-2xl border-border bg-surface px-4 py-5 text-sm font-bold hover:bg-surface-elevated shadow-2xs"
           >
             <Calendar className="size-4" /> My visits
           </ButtonLink>
         </div>
       </section>
 
-      {/* ALL UPCOMING APPOINTMENTS SECTION */}
+      {/* ALL UPCOMING APPOINTMENTS OR CLEAN CLASSY HERO */}
       <section className="space-y-6">
         {appointments.length > 0 ? (
           <div className="space-y-6">
@@ -358,7 +359,7 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
                           </div>
                           <div className="min-w-0">
                             <p className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Location</p>
-                            <p className="truncate font-semibold text-foreground">Suite 402, Level 4</p>
+                            <p className="truncate font-semibold text-foreground">Clinic Care — Main Branch</p>
                             <p className="text-xs text-text-secondary">Healthcare Plaza</p>
                           </div>
                         </div>
@@ -406,34 +407,47 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
             })}
           </div>
         ) : (
-          /* Empty State: Serene, Clean and Minimal */
-          <div className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface p-8 text-center shadow-sm sm:p-12">
-            <div className="pointer-events-none absolute -right-20 -top-20 size-72 rounded-full bg-primary/5 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-20 -left-20 size-72 rounded-full bg-accent/5 blur-3xl" />
+          /* CLEAN, SOPHISTICATED & PURPOSEFUL DENTAL SANCTUARY HERO */
+          <div className="relative overflow-hidden rounded-[36px] border border-emerald-500/25 bg-gradient-to-br from-card via-card to-emerald-500/[0.06] p-8 sm:p-12 lg:p-14 shadow-xl backdrop-blur-xl text-center sm:text-left">
+            {/* Ambient background glow */}
+            <div className="pointer-events-none absolute -right-20 -top-20 size-80 rounded-full bg-emerald-500/10 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-20 -left-20 size-80 rounded-full bg-teal-500/10 blur-3xl" />
 
-            <div className="mx-auto max-w-md space-y-4">
-              <div className="mx-auto flex size-20 items-center justify-center rounded-3xl bg-primary-soft text-primary shadow-inner">
-                <Smile className="size-10 stroke-[1.75]" />
+            <div className="relative z-10 max-w-2xl space-y-5">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25 px-3.5 py-1 text-[11px] font-black uppercase tracking-wider shadow-2xs">
+                  Oral Wellness &amp; Prevention
+                </span>
+                <span className="text-xs font-bold text-muted-foreground">
+                  &bull; Recommended every 6 months
+                </span>
               </div>
 
-              <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-300">
-                All Caught Up
-              </Badge>
-
-              <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                No Upcoming Appointments
+              <h2 className="font-heading text-2xl sm:text-4xl font-black tracking-tight text-foreground leading-[1.15]">
+                Time for a Fresh, Healthy Smile Checkup?
               </h2>
 
-              <p className="text-sm leading-relaxed text-text-secondary">
-                You have no visits scheduled right now. When you&apos;re ready for your next checkup or cleaning, booking takes less than 2 minutes.
+              <p className="text-sm text-text-secondary leading-relaxed max-w-xl">
+                Regular preventive dental visits keep your enamel bright, detect micro-cavities early, and ensure optimal gum health with gentle, professional care.
               </p>
 
-              <div className="pt-2">
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 pt-3">
                 <ButtonLink
                   href="/portal/appointments/book"
-                  className="gap-2 rounded-2xl bg-primary px-6 py-6 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary-hover"
+                  className="gap-2.5 rounded-2xl bg-[#0B3B36] hover:bg-[#0B3B36]/90 px-6 py-6 text-sm font-black text-white shadow-lg shadow-[#0B3B36]/25 transition-all hover:scale-[1.02] cursor-pointer"
                 >
-                  <CalendarPlus className="size-4" /> Book an Appointment
+                  <CalendarPlus className="size-4.5 stroke-[2.5]" />
+                  <span>Book an Appointment</span>
+                </ButtonLink>
+
+                <ButtonLink
+                  href="/services"
+                  variant="outline"
+                  className="gap-2 rounded-2xl border-border/80 bg-card px-5 py-6 text-xs font-bold hover:bg-muted/40 transition shadow-2xs"
+                >
+                  <span>Explore Treatments</span>
+                  <ArrowRight className="size-3.5 text-muted-foreground" />
                 </ButtonLink>
               </div>
             </div>
@@ -491,8 +505,8 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
                   <CalendarCheck className="size-5" />
                 </span>
                 <div>
-                  <p className="text-sm font-semibold">Apple Calendar / Outlook (.ics)</p>
-                  <p className="text-xs text-text-muted">Download universal calendar file</p>
+                  <p className="text-sm font-semibold">Apple / Outlook Calendar (.ics)</p>
+                  <p className="text-xs text-text-muted">Download .ics file to import</p>
                 </div>
               </div>
               <ExternalLink className="size-4 text-text-muted" />
@@ -501,50 +515,40 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
         </DialogContent>
       </Dialog>
 
-      {/* DIRECTION & CLINIC INFO MODAL */}
+      {/* CLINIC DIRECTIONS MODAL */}
       <Dialog open={directionModalOpen} onOpenChange={setDirectionModalOpen}>
-        <DialogContent className="rounded-3xl sm:max-w-lg">
+        <DialogContent className="rounded-3xl sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-heading text-xl">
-              <MapPin className="size-5 text-primary" /> Clinic Location & Arrival
+              <Navigation className="size-5 text-primary" /> Clinic Location &amp; Directions
             </DialogTitle>
             <DialogDescription>
-              Everything you need for a smooth and stress-free arrival.
+              We are conveniently located in the Healthcare Plaza with free patient parking.
             </DialogDescription>
           </DialogHeader>
-
           <div className="space-y-4 pt-2">
-            <div className="rounded-2xl border border-border bg-background-subtle p-4">
-              <p className="text-xs font-bold uppercase tracking-wider text-primary">Clinic Address</p>
-              <p className="mt-1 text-sm font-semibold text-foreground">Smile Sanctuary Dental Clinic</p>
-              <p className="text-xs text-text-secondary">Suite 402, Level 4, Healthcare Plaza</p>
-              <p className="text-xs text-text-muted">Road 11, Banani, Dhaka 1213</p>
+            <div className="rounded-2xl border border-border bg-surface p-4 text-sm space-y-1.5">
+              <p className="font-semibold text-foreground">Clinic Care — Main Branch</p>
+              <p className="text-text-secondary text-xs">Suite 402, Level 4, Healthcare Plaza</p>
+              <p className="text-text-muted text-xs">Reception: +353 1 234 5678</p>
             </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-border p-3.5">
-                <p className="text-xs font-bold text-foreground">🚗 Complimentary Parking</p>
-                <p className="mt-1 text-xs text-text-secondary">
-                  Free valet parking available at Entrance B (Basement 1).
-                </p>
-              </div>
-              <div className="rounded-2xl border border-border p-3.5">
-                <p className="text-xs font-bold text-foreground">☕ Reception Lounge</p>
-                <p className="mt-1 text-xs text-text-secondary">
-                  Level 4 elevator opens directly to check-in.
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <a
-                href="https://maps.google.com/?q=Smile+Sanctuary+Dental+Clinic"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover"
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setDirectionModalOpen(false)}
+                className="rounded-2xl"
               >
-                <Navigation className="size-4" /> Open in Google Maps
-              </a>
+                Close
+              </Button>
+              <Button
+                onClick={() => {
+                  window.open("https://maps.google.com/?q=Healthcare+Plaza", "_blank");
+                  setDirectionModalOpen(false);
+                }}
+                className="gap-2 rounded-2xl bg-primary text-primary-foreground hover:bg-primary-hover"
+              >
+                <ExternalLink className="size-4" /> Open in Google Maps
+              </Button>
             </div>
           </div>
         </DialogContent>
