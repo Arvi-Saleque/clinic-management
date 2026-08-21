@@ -3,12 +3,15 @@
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Check,
+  ChevronRight,
+  ChevronsUpDown,
+  Search,
+  Stethoscope,
+  UserCheck,
+  X,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Practitioner {
   id: string;
@@ -25,8 +28,44 @@ export function PractitionerSchedulerSelector({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  const activePractitioner =
+    practitioners.find((p) => p.id === currentPractitionerId) || practitioners[0];
+
+  // Close dropdown on click outside
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      setTimeout(() => searchInputRef.current?.focus(), 50);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  // Handle escape key
+  React.useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape" && isOpen) {
+        setIsOpen(false);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
 
   const handleSelect = (practitionerId: string) => {
+    setIsOpen(false);
+    setSearchQuery("");
     const params = new URLSearchParams(searchParams.toString());
     params.set("practitioner", practitionerId);
     router.push(`/scheduler?${params.toString()}`);
@@ -34,20 +73,195 @@ export function PractitionerSchedulerSelector({
 
   if (practitioners.length <= 1) return null;
 
+  const currentName = activePractitioner?.profiles?.full_name || "Select Doctor";
+  const currentTitle = activePractitioner?.title || "Dental Clinician";
+
+  const filteredPractitioners = practitioners.filter((p) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    const name = (p.profiles?.full_name || "").toLowerCase();
+    const title = (p.title || "").toLowerCase();
+    return name.includes(q) || title.includes(q);
+  });
+
   return (
-    <div className="flex items-center gap-2">
-      <Select value={currentPractitionerId} onValueChange={(val) => val && handleSelect(val)}>
-        <SelectTrigger className="h-9 min-w-[200px] text-xs font-semibold rounded-xl bg-card border-border/80">
-          <SelectValue placeholder="Select Doctor" />
-        </SelectTrigger>
-        <SelectContent>
-          {practitioners.map((p) => (
-            <SelectItem key={p.id} value={p.id} className="text-xs">
-              {p.profiles?.full_name ?? "Practitioner"} {p.title ? `(${p.title})` : ""}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div ref={containerRef} className="relative z-40">
+      {/* 1. Classy Trigger Pill */}
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        className={cn(
+          "group flex items-center justify-between gap-3 rounded-2xl border bg-card/95 py-2 pl-3 pr-3.5 text-left shadow-xs backdrop-blur-xs transition-all duration-200 cursor-pointer select-none min-w-[240px] sm:min-w-[280px]",
+          isOpen
+            ? "border-primary ring-2 ring-primary/15 shadow-md"
+            : "border-border/80 hover:border-primary/40 hover:bg-muted/30"
+        )}
+      >
+        <div className="flex items-center gap-2.5 min-w-0">
+          {/* Stethoscope Icon Capsule */}
+          <div className="size-8.5 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+            <Stethoscope className="size-4" />
+          </div>
+
+          {/* Doctor Name & Title */}
+          <div className="min-w-0">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground leading-none block">
+              Doctor Schedule
+            </span>
+            <p className="mt-0.5 text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
+              {currentName}
+            </p>
+          </div>
+        </div>
+
+        {/* Chevrons Icon */}
+        <div className="shrink-0 pl-1 border-l border-border/60">
+          <ChevronsUpDown
+            className={cn(
+              "size-4 text-muted-foreground/80 transition-transform duration-200 group-hover:text-foreground",
+              isOpen && "rotate-180 text-primary"
+            )}
+          />
+        </div>
+      </button>
+
+      {/* 2. Modern Doctor Selector Popover Panel with Instant Search */}
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-2 w-[340px] sm:w-[400px] origin-top-right rounded-3xl border border-border/90 bg-card p-3 text-popover-foreground shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-150 ring-1 ring-black/5 dark:ring-white/10">
+          {/* Header & Instant Search Box */}
+          <div className="space-y-2.5 pb-2.5 border-b border-border/70">
+            <div className="flex items-center justify-between px-1 pt-0.5">
+              <div className="flex items-center gap-2">
+                <div className="size-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                  <UserCheck className="size-3.5" />
+                </div>
+                <span className="text-xs font-black uppercase tracking-wider text-foreground">
+                  Select Clinician
+                </span>
+              </div>
+              <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                {practitioners.length} Doctors
+              </span>
+            </div>
+
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search clinician by name or specialty..."
+                className="w-full h-9 rounded-xl border border-border/80 bg-background/80 pl-9 pr-8 text-xs font-medium placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 size-4 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                >
+                  <X className="size-2.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Clinicians List */}
+          <div
+            role="listbox"
+            className="my-2 max-h-[300px] overflow-y-auto space-y-1 pr-1 overscroll-contain focus:outline-none"
+          >
+            {filteredPractitioners.length === 0 ? (
+              <div className="py-8 text-center space-y-1">
+                <p className="text-xs font-bold text-muted-foreground">No clinician found</p>
+                <p className="text-[11px] text-muted-foreground/70">
+                  No doctor matched &quot;{searchQuery}&quot;
+                </p>
+              </div>
+            ) : (
+              filteredPractitioners.map((p) => {
+                const isSelected = p.id === currentPractitionerId;
+                const docName = p.profiles?.full_name || "Doctor";
+                const docTitle = p.title || "Dental Clinician";
+
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => handleSelect(p.id)}
+                    className={cn(
+                      "group w-full flex items-center justify-between gap-3 rounded-2xl p-2.5 text-left transition-all duration-150 cursor-pointer",
+                      isSelected
+                        ? "bg-primary/10 border border-primary/30 shadow-2xs"
+                        : "hover:bg-muted/50 border border-transparent hover:border-border/60"
+                    )}
+                  >
+                    {/* Left: Icon & Info */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={cn(
+                          "size-9 rounded-xl flex items-center justify-center shrink-0 border transition-transform group-hover:scale-105",
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                            : "bg-primary/10 text-primary border-primary/20"
+                        )}
+                      >
+                        <Stethoscope className="size-4" />
+                      </div>
+
+                      <div className="min-w-0">
+                        <p
+                          className={cn(
+                            "text-xs font-bold truncate leading-tight transition-colors",
+                            isSelected
+                              ? "text-primary"
+                              : "text-foreground group-hover:text-primary"
+                          )}
+                        >
+                          {docName}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground font-medium truncate mt-0.5">
+                          {docTitle}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Right: Selected or Action indicator */}
+                    <div className="shrink-0 flex items-center">
+                      {isSelected ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+                          <Check className="size-2.5 stroke-[3]" />
+                          Active
+                        </span>
+                      ) : (
+                        <div className="size-7 rounded-xl flex items-center justify-center text-muted-foreground/40 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                          <ChevronRight className="size-4" />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
+
+          {/* Footer Strip */}
+          <div className="pt-2 border-t border-border/70 flex items-center justify-between text-[10px] text-muted-foreground px-1">
+            <span className="flex items-center gap-1 font-medium">
+              <span className="size-1.5 rounded-full bg-primary" />
+              Switching updates diary &amp; booking schedule
+            </span>
+            <span className="font-mono text-[9px] bg-muted/80 px-1.5 py-0.5 rounded font-semibold text-muted-foreground">
+              ESC
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

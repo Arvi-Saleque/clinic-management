@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { addDays, format } from "date-fns";
+import { CalendarDays } from "lucide-react";
 
 import { ComingSoon } from "@/components/shared/coming-soon";
 import { AvailabilityPlanner } from "@/components/staff/availability-planner";
@@ -49,14 +50,20 @@ export default async function StaffSchedulerPage({
   return (
     <div className="space-y-6 w-full pb-12">
       {/* 1. Header & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-border/60 pb-5">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-primary border border-primary/20 shadow-2xs">
+              <CalendarDays className="size-3 text-primary" />
+              Clinical Diary &amp; Working Hours
+            </span>
+          </div>
+          <h1 className="font-heading text-2xl font-black tracking-tight text-foreground sm:text-3xl">
             Availability &amp; Diary
           </h1>
-          <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {isReceptionist
-              ? "View doctor working schedules and clinical availability."
+              ? "View doctor working schedules, appointment capacity, and clinical availability."
               : "Manage your working hours and availability."}
           </p>
         </div>
