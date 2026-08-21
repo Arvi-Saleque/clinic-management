@@ -255,20 +255,22 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Next Patient Hero (8 Cols) */}
         <div className="lg:col-span-8">
-          <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#062420] via-[#093530] to-[#0c443d] border border-emerald-900/60 p-6 sm:p-7 text-white shadow-md h-full flex flex-col justify-between">
-            {/* Subtle glow */}
-            <div className="pointer-events-none absolute -right-6 -bottom-10 size-64 rounded-full bg-emerald-400/10 blur-3xl" />
+          <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs hover:shadow-sm transition-all duration-300 h-full flex flex-col justify-between">
+            {/* Subtle luxury ambient accent glow */}
+            <div className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-primary/5 blur-3xl" />
+            <div className="pointer-events-none absolute -left-16 -bottom-16 size-56 rounded-full bg-primary/5 blur-3xl" />
+            <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-emerald-300/90 flex items-center gap-1.5">
-                  <UserCheck className="size-3.5" />
+            <div className="relative space-y-4">
+              <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-primary border border-primary/20 shadow-2xs">
+                  <UserCheck className="size-3.5 text-primary" />
                   Next Patient
                 </span>
                 {nextAppointment && (
                   <Badge
                     variant="outline"
-                    className="border-emerald-400/30 bg-emerald-950/60 text-emerald-200 text-[11px] font-semibold px-2.5 py-0.5"
+                    className="border-border bg-muted/40 text-foreground text-[11px] font-bold px-2.5 py-0.5"
                   >
                     {nextRelativeTime}
                   </Badge>
@@ -280,23 +282,24 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
                     <div className="flex items-center gap-4">
                       {/* Avatar */}
-                      <div className="size-14 sm:size-16 rounded-2xl border border-emerald-400/40 bg-emerald-950/80 flex items-center justify-center text-lg font-extrabold text-emerald-200 shadow-xs shrink-0">
+                      <div className="size-14 sm:size-16 rounded-2xl bg-primary/10 border border-primary/25 flex items-center justify-center text-lg font-black text-primary shadow-xs shrink-0">
                         {nextPatient ? `${nextPatient.first_name[0]}${nextPatient.last_name[0]}` : "PT"}
                       </div>
                       <div>
                         {nextPatient ? (
                           <Link
                             href={`/patients/${nextPatient.id}`}
-                            className="font-heading text-xl sm:text-2xl font-extrabold text-white hover:text-emerald-300 transition-colors underline decoration-emerald-500/50 underline-offset-4"
+                            className="font-heading text-xl sm:text-2xl font-black text-foreground hover:text-primary transition-colors block"
                           >
                             {nextPatientName}
                           </Link>
                         ) : (
-                          <h2 className="font-heading text-xl sm:text-2xl font-extrabold text-white">
+                          <h2 className="font-heading text-xl sm:text-2xl font-black text-foreground">
                             {nextPatientName}
                           </h2>
                         )}
-                        <p className="text-xs text-emerald-200/80 mt-0.5 font-mono">
+                        <p className="text-xs text-muted-foreground mt-0.5 font-mono flex items-center gap-1">
+                          <Phone className="size-3 text-primary" />
                           {nextPatient?.phone || "No phone registered"}
                         </p>
                       </div>
@@ -304,30 +307,30 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
 
                     {/* Time & Duration */}
                     <div className="text-left sm:text-right">
-                      <div className="font-mono text-xl sm:text-2xl font-extrabold text-white">
+                      <div className="font-mono text-xl sm:text-2xl font-black text-foreground">
                         {format(new Date(nextAppointment.starts_at), "h:mm a")}
                       </div>
-                      <div className="text-xs text-emerald-300/80 mt-0.5">
+                      <div className="text-xs text-muted-foreground font-semibold mt-0.5">
                         {nextAppointment.services?.duration_minutes || 30} min visit
                       </div>
                     </div>
                   </div>
 
                   {/* Details Strip */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-emerald-800/60 text-xs">
-                    <div className="flex items-center gap-2 text-emerald-100">
-                      <Stethoscope className="size-4 text-emerald-400 shrink-0" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-border/60 text-xs">
+                    <div className="flex items-center gap-2 text-foreground rounded-xl border border-border/70 bg-muted/20 p-2.5">
+                      <Stethoscope className="size-4 text-primary shrink-0" />
                       <span className="truncate">
-                        <strong className="font-semibold text-white">
+                        <strong className="font-semibold text-foreground">
                           {nextAppointment.services?.name || "Dental Treatment"}
                         </strong>
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-emerald-100">
-                      <User className="size-4 text-emerald-400 shrink-0" />
+                    <div className="flex items-center gap-2 text-foreground rounded-xl border border-border/70 bg-muted/20 p-2.5">
+                      <User className="size-4 text-primary shrink-0" />
                       <span className="truncate">
                         Doctor:{" "}
-                        <strong className="font-semibold text-white">
+                        <strong className="font-semibold text-foreground">
                           {nextAppointment.practitioners?.profiles?.full_name || "Assigned Dentist"}
                         </strong>
                       </span>
@@ -336,8 +339,8 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                 </div>
               ) : (
                 <div className="py-6 text-center space-y-2">
-                  <p className="text-sm font-bold text-white">No more upcoming appointments today</p>
-                  <p className="text-xs text-emerald-200/70 max-w-sm mx-auto">
+                  <p className="text-sm font-bold text-foreground">No more upcoming appointments today</p>
+                  <p className="text-xs text-muted-foreground max-w-sm mx-auto">
                     All scheduled visits for today are complete or no bookings are queued.
                   </p>
                 </div>
@@ -346,7 +349,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
 
             {/* Operational Actions Footer */}
             {nextAppointment && (
-              <div className="pt-4 mt-4 border-t border-emerald-800/60 flex flex-wrap items-center justify-between gap-3">
+              <div className="pt-4 mt-4 border-t border-border/60 flex flex-wrap items-center justify-between gap-3 relative">
                 <div className="flex items-center gap-2">
                   {nextAppointment.status !== "checked_in" ? (
                     <Button
@@ -354,7 +357,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                       size="sm"
                       disabled={processingId === nextAppointment.id}
                       onClick={() => handleCheckIn(nextAppointment.id)}
-                      className="h-8.5 rounded-xl px-4 text-xs font-bold bg-white text-[#062420] hover:bg-emerald-50 shadow-xs gap-1.5"
+                      className="h-9 rounded-xl px-4 text-xs font-bold shadow-xs gap-1.5"
                     >
                       {processingId === nextAppointment.id ? (
                         <Loader2 className="size-3.5 animate-spin" />
@@ -364,7 +367,8 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                       Check In Patient
                     </Button>
                   ) : (
-                    <Badge className="bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 text-xs py-1 px-3">
+                    <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs py-1 px-3 font-bold">
+                      <span className="size-1.5 rounded-full bg-amber-500 animate-pulse mr-1.5 inline-block" />
                       Arrived &amp; Waiting
                     </Badge>
                   )}
@@ -374,7 +378,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                     variant="outline"
                     size="sm"
                     onClick={() => setRescheduleTarget(nextAppointment)}
-                    className="h-8.5 rounded-xl px-3 text-xs font-medium border-emerald-600/50 bg-emerald-950/40 text-emerald-100 hover:bg-emerald-900/60 hover:text-white"
+                    className="h-9 rounded-xl px-3.5 text-xs font-semibold border-border hover:bg-muted/50"
                   >
                     Reschedule
                   </Button>
@@ -383,13 +387,13 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                 {nextPatient && (
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => router.push(`/patients/${nextPatient.id}`)}
-                    className="h-8.5 text-xs text-emerald-300 hover:text-white hover:bg-emerald-900/50 gap-1 px-2.5"
+                    className="h-9 text-xs border-border hover:bg-muted/50 gap-1.5 px-3.5 font-semibold text-foreground"
                   >
                     View Account
-                    <ExternalLink className="size-3" />
+                    <ExternalLink className="size-3 text-muted-foreground" />
                   </Button>
                 )}
               </div>

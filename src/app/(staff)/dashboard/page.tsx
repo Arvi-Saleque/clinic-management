@@ -98,178 +98,182 @@ export default async function StaffDashboardPage({
       {/* ============================================================= */}
       <div className="xl:col-span-8 space-y-6 min-w-0">
         {/* 1. HERO BANNER: NEXT APPOINTMENT */}
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#062420] via-[#093530] to-[#0B3B36] border border-emerald-500/20 p-6 sm:p-7 text-white shadow-xl">
-          {/* Subtle ambient lighting / watermark */}
-          <div className="pointer-events-none absolute -right-6 -bottom-10 size-80 rounded-full bg-emerald-400/10 blur-3xl" />
-          <div className="pointer-events-none absolute -left-10 -top-10 size-60 rounded-full bg-teal-500/10 blur-2xl" />
-          <div className="pointer-events-none absolute right-8 top-1/2 -translate-y-1/2 opacity-[0.05] hidden sm:block">
-            <svg viewBox="0 0 200 200" className="size-64 fill-white">
-              <path d="M100 20C70 20 50 40 50 70C50 100 65 140 80 180C85 195 95 195 100 175C105 195 115 195 120 180C135 140 150 100 150 70C150 40 130 20 100 20Z" />
-            </svg>
-          </div>
+        {nextAppointment ? (
+          <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs hover:shadow-sm transition-all duration-300">
+            {/* Subtle luxury ambient accent glow */}
+            <div className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-primary/5 blur-3xl" />
+            <div className="pointer-events-none absolute -left-16 -bottom-16 size-56 rounded-full bg-primary/5 blur-3xl" />
+            <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-          <div className="relative space-y-5">
-            {/* Top Badge Strip */}
-            <div className="flex items-center justify-between gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-emerald-300 border border-white/10 backdrop-blur-md shadow-2xs">
-                <Sparkles className="size-3 text-emerald-400" />
-                Next Appointment
-              </span>
+            <div className="relative space-y-5">
+              {/* Top Badge Strip */}
+              <div className="flex items-center justify-between gap-3 border-b border-border/60 pb-3.5">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-primary border border-primary/20 shadow-2xs">
+                    <Sparkles className="size-3 text-primary" />
+                    Next Appointment
+                  </span>
+                  {nextAppointment.status === "checked_in" && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-bold text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                      <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+                      Checked In
+                    </span>
+                  )}
+                </div>
 
-              {nextAppointment && (
-                <span className="text-[11px] font-bold text-emerald-200/70 font-mono">
-                  {format(new Date(nextAppointment.starts_at), "EEEE, dd MMMM")}
-                </span>
-              )}
-            </div>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground font-mono">
+                  <CalendarDays className="size-3.5 text-primary/70" />
+                  <span>{format(new Date(nextAppointment.starts_at), "EEEE, d MMMM yyyy")}</span>
+                </div>
+              </div>
 
-            {nextAppointment ? (
-              <div className="space-y-5">
-                {/* Patient Header Block */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    {/* Patient Avatar Capsule */}
-                    <div className="size-16 sm:size-18 rounded-2xl border-2 border-emerald-400/30 bg-emerald-950/90 flex items-center justify-center text-lg sm:text-xl font-black text-emerald-200 shadow-md shrink-0 backdrop-blur-xs">
-                      {nextPatient ? `${nextPatient.first_name[0]}${nextPatient.last_name[0]}` : "PT"}
+              {/* Patient Header Block */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  {/* Patient Avatar Capsule */}
+                  <div className="size-15 sm:size-16 rounded-2xl bg-primary/10 border border-primary/25 flex items-center justify-center text-lg sm:text-xl font-black text-primary shadow-xs shrink-0">
+                    {nextPatient ? `${nextPatient.first_name[0]}${nextPatient.last_name[0]}` : "PT"}
+                  </div>
+
+                  {/* Name + Badges */}
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <h2 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+                        {nextPatientName}
+                      </h2>
+                      <span className="rounded-full bg-muted text-muted-foreground border border-border/80 px-2.5 py-0.5 text-[11px] font-bold shadow-2xs">
+                        {isNewPatient ? "New patient" : "Returning patient"}
+                      </span>
                     </div>
 
-                    {/* Name + Badge */}
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2.5">
-                        <h2 className="font-heading text-2xl sm:text-3xl font-black text-white tracking-tight">
-                          {nextPatientName}
-                        </h2>
-                        <span className="rounded-full bg-white/10 text-emerald-200 border border-white/15 px-2.5 py-0.5 text-[11px] font-bold backdrop-blur-xs shadow-2xs">
-                          {isNewPatient ? "New patient" : "Returning patient"}
+                    <div className="flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground font-mono">
+                      {nextPatient?.phone && (
+                        <span className="flex items-center gap-1">
+                          <Phone className="size-3 text-primary" />
+                          {nextPatient.phone}
                         </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-emerald-200/80 font-mono">
-                        {nextPatient?.phone && (
-                          <span className="flex items-center gap-1">
-                            <Phone className="size-3 text-emerald-400" />
-                            {nextPatient.phone}
+                      )}
+                      {nextPatient?.id && (
+                        <>
+                          <span className="text-border">&bull;</span>
+                          <span className="rounded-md bg-muted/60 px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground border border-border/50">
+                            PT-{nextPatient.id.slice(0, 4).toUpperCase()}
                           </span>
-                        )}
-                        {nextPatient?.id && (
-                          <>
-                            <span>&bull;</span>
-                            <span className="text-emerald-300/70">PT-{nextPatient.id.slice(0, 4).toUpperCase()}</span>
-                          </>
-                        )}
-                      </div>
+                        </>
+                      )}
                     </div>
                   </div>
-                </div>
-
-                {/* 4-Metric Glass Strip */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                  {/* Metric 1: Time */}
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3.5 backdrop-blur-md shadow-2xs hover:bg-white/[0.09] transition-all space-y-1">
-                    <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-300/80">
-                      <Clock className="size-3.5 text-emerald-400" />
-                      <span>Time</span>
-                    </div>
-                    <p className="font-heading text-lg font-black text-white tracking-tight">
-                      {format(new Date(nextAppointment.starts_at), "hh:mm a")}
-                    </p>
-                    <p className="text-[11px] font-bold text-emerald-300/90 truncate">
-                      {nextRelativeTime}
-                    </p>
-                  </div>
-
-                  {/* Metric 2: Service */}
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3.5 backdrop-blur-md shadow-2xs hover:bg-white/[0.09] transition-all space-y-1">
-                    <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-300/80">
-                      <Stethoscope className="size-3.5 text-emerald-400" />
-                      <span>Service</span>
-                    </div>
-                    <p className="font-bold text-sm text-white truncate">
-                      {nextAppointment.services?.name ?? "Dental Consultation"}
-                    </p>
-                    <p className="text-[11px] text-emerald-200/60 truncate font-medium">
-                      {nextAppointment.notes || "Standard care"}
-                    </p>
-                  </div>
-
-                  {/* Metric 3: Duration */}
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3.5 backdrop-blur-md shadow-2xs hover:bg-white/[0.09] transition-all space-y-1">
-                    <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-300/80">
-                      <Clock3 className="size-3.5 text-emerald-400" />
-                      <span>Duration</span>
-                    </div>
-                    <p className="font-heading text-lg font-black text-white tracking-tight">
-                      {nextAppointment.services?.duration_minutes ?? 30} min
-                    </p>
-                    <p className="text-[11px] text-emerald-200/60 truncate font-medium">
-                      Standard slot
-                    </p>
-                  </div>
-
-                  {/* Metric 4: Location */}
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3.5 backdrop-blur-md shadow-2xs hover:bg-white/[0.09] transition-all space-y-1">
-                    <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-300/80">
-                      <Building2 className="size-3.5 text-emerald-400" />
-                      <span>Location</span>
-                    </div>
-                    <p className="font-bold text-sm text-white truncate">
-                      {nextAppointment.branches?.name || "Main Branch"}
-                    </p>
-                    <p className="text-[11px] text-emerald-200/60 truncate font-medium">
-                      Operatory room
-                    </p>
-                  </div>
-                </div>
-
-                {/* Bottom Action CTAs */}
-                <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
-                  <ButtonLink
-                    href="/appointments"
-                    variant="ghost"
-                    className="h-10 px-4 rounded-xl border border-white/20 bg-white/10 text-xs font-bold text-white hover:bg-white/20 backdrop-blur-md gap-1.5 shadow-2xs transition-all hover:scale-[1.02]"
-                  >
-                    <span>View appointment</span>
-                    <ExternalLink className="size-3.5" />
-                  </ButtonLink>
-
-                  <ConsultationActionButton
-                    appointmentId={nextAppointment.id}
-                    status={nextAppointment.status}
-                    size="sm"
-                    className="h-10 px-5 rounded-xl bg-[#14b8a6] hover:bg-[#14b8a6]/90 text-[#062420] font-black text-xs shadow-md shadow-[#14b8a6]/20 transition-all hover:scale-[1.02]"
-                  />
                 </div>
               </div>
-            ) : (
-              <div className="py-8 text-center space-y-3">
-                <div className="size-12 rounded-2xl bg-white/10 flex items-center justify-center mx-auto text-emerald-300 border border-white/15">
-                  <CheckCircle2 className="size-6" />
+
+              {/* 4-Metric Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                {/* Metric 1: Time */}
+                <div className="rounded-2xl border border-border/70 bg-muted/20 hover:bg-muted/30 p-3.5 transition-all space-y-1 shadow-2xs">
+                  <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                    <Clock className="size-3.5 text-primary" />
+                    <span>Time</span>
+                  </div>
+                  <p className="font-heading text-lg font-black text-foreground tracking-tight">
+                    {format(new Date(nextAppointment.starts_at), "h:mm a")}
+                  </p>
+                  <p className="text-[11px] font-bold text-primary truncate">
+                    {nextRelativeTime}
+                  </p>
                 </div>
-                <p className="font-heading text-lg font-extrabold text-white">
-                  No more appointments scheduled for today
-                </p>
-                <p className="text-xs text-emerald-200/70 max-w-sm mx-auto">
-                  You are all caught up for the day. Check your schedule or book incoming patients.
-                </p>
-                <div className="pt-2">
-                  <ButtonLink
-                    href="/scheduler"
-                    variant="ghost"
-                    className="h-9 px-4 rounded-xl border border-white/20 bg-white/10 text-xs font-bold text-white hover:bg-white/20 backdrop-blur-md"
-                  >
-                    Open Full Scheduler
-                  </ButtonLink>
+
+                {/* Metric 2: Service */}
+                <div className="rounded-2xl border border-border/70 bg-muted/20 hover:bg-muted/30 p-3.5 transition-all space-y-1 shadow-2xs">
+                  <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                    <Stethoscope className="size-3.5 text-primary" />
+                    <span>Service</span>
+                  </div>
+                  <p className="font-bold text-sm text-foreground truncate">
+                    {nextAppointment.services?.name ?? "Dental Consultation"}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground truncate font-medium">
+                    {nextAppointment.notes || "Standard care"}
+                  </p>
+                </div>
+
+                {/* Metric 3: Duration */}
+                <div className="rounded-2xl border border-border/70 bg-muted/20 hover:bg-muted/30 p-3.5 transition-all space-y-1 shadow-2xs">
+                  <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                    <Clock3 className="size-3.5 text-primary" />
+                    <span>Duration</span>
+                  </div>
+                  <p className="font-heading text-lg font-black text-foreground tracking-tight">
+                    {nextAppointment.services?.duration_minutes ?? 30} min
+                  </p>
+                  <p className="text-[11px] text-muted-foreground truncate font-medium">
+                    Standard slot
+                  </p>
+                </div>
+
+                {/* Metric 4: Location */}
+                <div className="rounded-2xl border border-border/70 bg-muted/20 hover:bg-muted/30 p-3.5 transition-all space-y-1 shadow-2xs">
+                  <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                    <Building2 className="size-3.5 text-primary" />
+                    <span>Location</span>
+                  </div>
+                  <p className="font-bold text-sm text-foreground truncate">
+                    {nextAppointment.branches?.name || "Main Branch"}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground truncate font-medium">
+                    Operatory room
+                  </p>
                 </div>
               </div>
-            )}
-          </div>
-        </section>
+
+              {/* Bottom Action CTAs */}
+              <div className="flex flex-wrap items-center justify-end gap-3 pt-2 border-t border-border/50">
+                <ButtonLink
+                  href="/appointments"
+                  variant="outline"
+                  className="h-10 px-4 rounded-xl border-border text-xs font-bold text-foreground hover:bg-muted/60 gap-1.5 shadow-2xs transition-all"
+                >
+                  <span>View appointment</span>
+                  <ExternalLink className="size-3.5 text-muted-foreground" />
+                </ButtonLink>
+
+                <ConsultationActionButton
+                  appointmentId={nextAppointment.id}
+                  status={nextAppointment.status}
+                  size="sm"
+                  className="h-10 px-5 rounded-xl text-xs font-extrabold shadow-xs transition-all"
+                />
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className="rounded-3xl border border-dashed border-border/80 bg-card p-8 sm:p-10 text-center space-y-3 shadow-xs">
+            <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto border border-primary/20">
+              <CheckCircle2 className="size-6" />
+            </div>
+            <p className="font-heading text-lg font-extrabold text-foreground">
+              No more appointments scheduled for today
+            </p>
+            <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+              You are all caught up for the day. Check your schedule or book incoming patients.
+            </p>
+            <div className="pt-2">
+              <ButtonLink
+                href="/scheduler"
+                variant="outline"
+                className="h-9 px-4 rounded-xl text-xs font-bold border-border"
+              >
+                Open Full Scheduler
+              </ButtonLink>
+            </div>
+          </section>
+        )}
 
         {/* 2. CARD: TODAY'S UPCOMING APPOINTMENTS */}
         <section className="rounded-3xl border border-border/80 bg-card p-6 space-y-4 shadow-xs">
           {/* Header */}
           <div className="flex items-center justify-between gap-3 border-b border-border/60 pb-4">
             <div className="flex items-center gap-3">
-              <div className="size-9 rounded-2xl bg-[#0B3B36]/10 text-[#0B3B36] dark:bg-emerald-950/60 dark:text-emerald-300 flex items-center justify-center border border-emerald-500/20 shrink-0 shadow-2xs">
+              <div className="size-9 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shrink-0 shadow-2xs">
                 <Calendar className="size-4.5" />
               </div>
               <div>
