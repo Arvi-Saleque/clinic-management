@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { PortalDashboardView } from "@/components/portal/portal-dashboard-view";
+import { AppointmentSuccessToast } from "@/components/portal/appointment-success-toast";
 import { getProfile } from "@/lib/auth/session";
 import { getPatientPortalDashboard } from "@/lib/server/patient-portal";
 
@@ -9,22 +10,33 @@ export const metadata: Metadata = {
   description: "Personal dental care overview, upcoming visits, and appointments.",
 };
 
-export default async function PortalDashboardPage() {
-  const [profile, data] = await Promise.all([getProfile(), getPatientPortalDashboard()]);
+export default async function PortalDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ success?: string }>;
+}) {
+  const [{ success }, profile, data] = await Promise.all([
+    searchParams ? searchParams : Promise.resolve({ success: undefined }),
+    getProfile(),
+    getPatientPortalDashboard(),
+  ]);
   const firstName = profile?.full_name ? profile.full_name.split(" ")[0] : "there";
 
   if (!data.patient) {
     return (
-      <PortalDashboardView
-        firstName={firstName}
-        patientReference={null}
-        registered={false}
-        upcomingAppointments={[]}
-        allergies={[]}
-        conditions={[]}
-        medications={[]}
-        notifications={[]}
-      />
+      <>
+        <AppointmentSuccessToast success={success} />
+        <PortalDashboardView
+          firstName={firstName}
+          patientReference={null}
+          registered={false}
+          upcomingAppointments={[]}
+          allergies={[]}
+          conditions={[]}
+          medications={[]}
+          notifications={[]}
+        />
+      </>
     );
   }
 
@@ -52,19 +64,22 @@ export default async function PortalDashboardPage() {
   });
 
   return (
-    <PortalDashboardView
-      firstName={data.patient.first_name || firstName}
-      patientReference={data.patient.patient_reference}
-      registered
-      upcomingAppointments={upcoming.map(mapAppointment)}
-      allergies={data.patient.medical_history?.allergies ?? []}
-      conditions={data.patient.medical_history?.chronic_conditions ?? []}
-      medications={data.patient.medical_history?.current_medications ?? []}
-      notifications={data.notifications.map((notification) => ({
-        id: notification.id,
-        type: notification.type,
-        created_at: notification.created_at,
-      }))}
-    />
+    <>
+      <AppointmentSuccessToast success={success} />
+      <PortalDashboardView
+        firstName={data.patient.first_name || firstName}
+        patientReference={data.patient.patient_reference}
+        registered
+        upcomingAppointments={upcoming.map(mapAppointment)}
+        allergies={data.patient.medical_history?.allergies ?? []}
+        conditions={data.patient.medical_history?.chronic_conditions ?? []}
+        medications={data.patient.medical_history?.current_medications ?? []}
+        notifications={data.notifications.map((notification) => ({
+          id: notification.id,
+          type: notification.type,
+          created_at: notification.created_at,
+        }))}
+      />
+    </>
   );
 }

@@ -37,7 +37,9 @@ export async function bookOwnAppointmentAction(input: {
 
   if (error) return { error: error.message };
 
-  redirect("/portal/appointments?success=booked");
+  revalidatePath("/portal/dashboard");
+  revalidatePath("/portal/appointments");
+  redirect("/portal/dashboard?success=booked");
 }
 
 export async function cancelOwnAppointmentAction(
@@ -75,5 +77,5 @@ export async function rescheduleOwnAppointmentAction(
   if (error) return { error: error.message };
   revalidatePath("/portal/dashboard");
   revalidatePath("/portal/appointments");
-  redirect("/portal/appointments?success=rescheduled");
+  redirect("/portal/dashboard?success=rescheduled");
 }

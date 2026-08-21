@@ -158,19 +158,20 @@ export function AppointmentSuccessToast({ success }: { success?: string }) {
             ) : (
               <>
                 <ButtonLink
-                  href="/portal/dashboard"
+                  href="/portal/appointments"
                   variant="outline"
-                  className="w-full sm:w-auto rounded-2xl h-10 px-5 text-xs font-semibold gap-1.5 border-border"
+                  className="w-full sm:w-auto rounded-2xl h-10 px-5 text-xs font-semibold border-border"
+                  onClick={() => setOpen(false)}
+                >
+                  View My Visits
+                </ButtonLink>
+                <ButtonLink
+                  href="/portal/dashboard"
+                  className="w-full sm:w-auto rounded-2xl h-10 px-5 text-xs font-bold bg-primary hover:bg-primary-hover text-primary-foreground shadow-md shadow-primary/20 gap-1.5"
                   onClick={() => setOpen(false)}
                 >
                   <LayoutDashboard className="size-3.5" /> Overview
                 </ButtonLink>
-                <Button
-                  className="w-full sm:w-auto rounded-2xl h-10 px-5 text-xs font-bold bg-primary hover:bg-primary-hover text-primary-foreground shadow-md shadow-primary/20"
-                  onClick={() => setOpen(false)}
-                >
-                  View My Visits
-                </Button>
               </>
             )}
           </div>
