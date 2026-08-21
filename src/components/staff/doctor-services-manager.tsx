@@ -43,6 +43,9 @@ import {
 import { CategoryManagerDialog } from "@/components/staff/category-manager-dialog";
 import { ServiceIcon } from "@/components/staff/service-icons";
 
+import { TablePagination } from "@/components/shared/table-pagination";
+import { useTablePagination } from "@/lib/hooks/use-table-pagination";
+
 export function DoctorServicesManager({ context }: { context: DoctorServicesContext }) {
   const router = useRouter();
   const [services, setServices] = React.useState<DoctorServiceConfig[]>(context.services);
@@ -60,7 +63,7 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
     listCategoriesAction().then(setCategories).catch(() => {});
   }, []);
 
-  // Delete modal state
+  // Delete State
   const [deletingService, setDeletingService] = React.useState<DoctorServiceConfig | null>(null);
   const [deleteStep, setDeleteStep] = React.useState<1 | 2>(1);
   const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
@@ -84,6 +87,11 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
         (s.description && s.description.toLowerCase().includes(q)),
     );
   }, [offeredServices, searchQuery]);
+
+  // Standard Modern Pagination
+  const pagination = useTablePagination(filteredOfferedServices, {
+    initialPageSize: 10,
+  });
 
   // Switch active practitioner (for Owner / Admin)
   const handlePractitionerSwitch = (newPractitionerId: string) => {
@@ -123,9 +131,7 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
       if (res.success) {
         setServices((prev) =>
           prev.map((s) =>
-            s.service_id === deletingService.service_id
-              ? { ...s, is_offered: false, override_duration_minutes: null, override_price: null }
-              : s,
+            s.service_id === deletingService.service_id ? { ...s, is_offered: false } : s,
           ),
         );
         toast.success(`Removed "${deletingService.name}" from your offered services`);
@@ -178,31 +184,32 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
               Clinical Portfolio
             </span>
             <span>&middot;</span>
-            <span>Procedure Catalog &amp; Fees</span>
+            <span>Treatment Directory</span>
           </div>
-          <h1 className="font-heading text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+          <h1 className="font-heading text-2xl sm:text-3xl font-black tracking-tight text-foreground">
             Services &amp; Treatments
           </h1>
-          <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-            Manage your treatments, appointment duration and fees.
+          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+            Manage your clinical procedures, procedure durations, custom fees, and booking visibility.
           </p>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-          {context.canSelectPractitioner && (
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Practitioner Switcher for Admin/Owner */}
+          {context.canSelectPractitioner && context.allPractitioners && context.allPractitioners.length > 1 && (
             <Select
               value={selectedPractitionerId}
               onValueChange={(val) => {
                 if (val) handlePractitionerSwitch(val);
               }}
             >
-              <SelectTrigger className="h-10 w-48 rounded-2xl text-xs font-bold bg-card/90 border-border/80 shadow-2xs">
+              <SelectTrigger className="h-10 rounded-2xl border-border/80 bg-card text-xs font-bold px-3.5 shadow-2xs">
                 <SelectValue placeholder="Select Doctor" />
               </SelectTrigger>
               <SelectContent>
                 {context.allPractitioners.map((p) => (
-                  <SelectItem key={p.id} value={p.id} className="text-xs">
+                  <SelectItem key={p.id} value={p.id} className="text-xs font-semibold">
                     {p.title ? `${p.title} ` : ""}{p.full_name}
                   </SelectItem>
                 ))}
@@ -211,70 +218,72 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
           )}
 
           <Button
+            type="button"
             variant="outline"
             onClick={() => setIsCategoryModalOpen(true)}
-            className="h-10 gap-2 rounded-2xl px-4 text-xs font-bold border-border/80 bg-card hover:bg-muted/40 text-foreground shadow-2xs transition-all cursor-pointer"
+            className="h-10 gap-2 rounded-2xl border-border/80 bg-card px-4 text-xs font-bold text-foreground shadow-2xs hover:bg-muted/40 cursor-pointer"
           >
             <Tag className="size-3.5 text-primary" />
-            Manage Sections
+            <span>Manage Sections</span>
           </Button>
 
           <ButtonLink
             href={newServiceUrl}
-            className="h-10 gap-2 rounded-2xl px-4.5 text-xs font-black bg-[#0B3B36] hover:bg-[#075e5a] text-white shadow-md shadow-[#0B3B36]/25 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            className="h-10 gap-2 rounded-2xl bg-[#0B3B36] hover:bg-[#0B3B36]/90 px-5 text-xs font-bold text-white shadow-md shadow-[#0B3B36]/20 transition-all hover:scale-[1.02]"
           >
-            <Plus className="size-4" />
-            Add Service
+            <Plus className="size-4 stroke-[2.5]" />
+            <span>Add Procedure</span>
           </ButtonLink>
         </div>
       </div>
 
       {/* ============================================================= */}
-      {/* 2. CLINICAL SERVICES TABLE CONTAINER                          */}
+      {/* 2. SERVICES TABLE CONTAINER                                   */}
       {/* ============================================================= */}
       {offeredServices.length === 0 ? (
         /* Empty State */
-        <Card className="flex min-h-64 flex-col items-center justify-center rounded-3xl border border-dashed border-border/80 p-8 text-center bg-card/80">
-          <div className="flex size-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200">
+        <Card className="flex min-h-[320px] flex-col items-center justify-center rounded-3xl border border-dashed border-border/80 p-8 text-center bg-card/90 shadow-sm">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
             <Stethoscope className="size-7" />
           </div>
-          <h3 className="mt-4 font-heading text-base font-extrabold text-foreground">
-            No services configured yet
+          <h3 className="mt-4 font-heading text-lg font-extrabold text-foreground">
+            No Treatments Offered Yet
           </h3>
-          <p className="mt-1 max-w-xs text-xs text-muted-foreground">
-            Add the procedures you provide to make them available for online patient booking.
+          <p className="mt-1 max-w-sm text-xs text-muted-foreground">
+            You haven&apos;t added any clinical services to your portfolio. Add treatments to make them available for appointments and online booking.
           </p>
           <ButtonLink
             href={newServiceUrl}
-            className="mt-4 h-10 gap-2 rounded-2xl px-5 text-xs font-black bg-[#0B3B36] hover:bg-[#075e5a] text-white shadow-md shadow-[#0B3B36]/25"
+            className="mt-5 h-10 gap-2 rounded-2xl bg-[#0B3B36] hover:bg-[#0B3B36]/90 px-5 text-xs font-bold text-white shadow-md shadow-[#0B3B36]/20"
           >
             <Plus className="size-4" />
-            Add First Service
+            Add First Treatment
           </ButtonLink>
         </Card>
       ) : (
         <div className="overflow-hidden rounded-3xl border border-border/80 bg-card/95 backdrop-blur-xs shadow-xs">
-          {/* Table Header Toolbar (Search + Showing Count) */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 px-5 sm:px-6 py-3.5 bg-card/90">
-            <div className="relative w-full max-w-sm">
-              <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground/70" />
+          {/* Top Search & Count Bar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-border/60 p-4 sm:px-6">
+            <div className="relative w-full sm:w-80">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search services..."
-                className="h-9.5 rounded-xl pl-9.5 pr-4 text-xs bg-muted/20 border-border/70 shadow-2xs focus-visible:ring-1"
+                placeholder="Search treatments or categories..."
+                className="h-9.5 rounded-2xl pl-9 text-xs bg-muted/25 border-border/70 focus-visible:bg-card shadow-2xs font-medium"
               />
             </div>
-            <div className="text-xs text-muted-foreground font-semibold">
-              Showing <strong className="text-foreground">{filteredOfferedServices.length}</strong> of {offeredServices.length} {offeredServices.length === 1 ? "service" : "services"}
+            <div className="flex items-center gap-2 text-xs text-muted-foreground self-end sm:self-center font-semibold">
+              <span>
+                Total <strong className="text-foreground">{filteredOfferedServices.length}</strong> {filteredOfferedServices.length === 1 ? "treatment" : "treatments"}
+              </span>
             </div>
           </div>
 
           {filteredOfferedServices.length === 0 ? (
-            <div className="flex min-h-48 flex-col items-center justify-center p-8 text-center">
-              <p className="text-xs font-bold text-foreground">
-                No services match &ldquo;{searchQuery}&rdquo;
-              </p>
+            <div className="p-12 text-center">
+              <p className="text-xs font-bold text-foreground">No treatments match your search filter</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Try searching with a different term</p>
               <Button
                 variant="outline"
                 size="sm"
@@ -299,7 +308,7 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
 
                 {/* Table Rows */}
                 <div className="divide-y divide-border/40">
-                  {filteredOfferedServices.map((svc) => {
+                  {pagination.paginatedItems.map((svc) => {
                     const editUrl = selectedPractitionerId
                       ? `/clinical/services/${svc.service_id}/edit?practitioner=${selectedPractitionerId}`
                       : `/clinical/services/${svc.service_id}/edit`;
@@ -381,7 +390,7 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
 
               {/* Mobile / Tablet Compact Rows (< 1024px) */}
               <div className="divide-y divide-border/50 lg:hidden">
-                {filteredOfferedServices.map((svc) => {
+                {pagination.paginatedItems.map((svc) => {
                   const editUrl = selectedPractitionerId
                     ? `/clinical/services/${svc.service_id}/edit?practitioner=${selectedPractitionerId}`
                     : `/clinical/services/${svc.service_id}/edit`;
@@ -431,6 +440,17 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
                   );
                 })}
               </div>
+
+              {/* Standard Modern Pagination */}
+              <TablePagination
+                currentPage={pagination.currentPage}
+                totalPages={pagination.totalPages}
+                totalItems={pagination.totalItems}
+                pageSize={pagination.pageSize}
+                onPageChange={pagination.onPageChange}
+                onPageSizeChange={pagination.onPageSizeChange}
+                itemLabel="treatments"
+              />
             </>
           )}
         </div>

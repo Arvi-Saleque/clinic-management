@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RecordPaymentDialog } from "@/components/staff/record-payment-dialog";
 import { InvoiceDetailDialog } from "@/components/staff/invoice-detail-dialog";
+import { TablePagination } from "@/components/shared/table-pagination";
+import { useTablePagination } from "@/lib/hooks/use-table-pagination";
 import { cn, formatCurrency } from "@/lib/utils";
 
 export interface BillingInvoiceItem {
@@ -117,6 +119,11 @@ export function ReceptionistBillingWorkspace({
       return matchesSearch && matchesStatus;
     });
   }, [invoices, query, statusFilter]);
+
+  // Standard Modern Pagination
+  const pagination = useTablePagination(filteredInvoices, {
+    initialPageSize: 10,
+  });
 
   // Filtered patient info
   const filteredPatient = React.useMemo(() => {
@@ -317,7 +324,7 @@ export function ReceptionistBillingWorkspace({
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {filteredInvoices.map((invoice) => {
+                {pagination.paginatedItems.map((invoice) => {
                   const patientName = invoice.patients
                     ? `${invoice.patients.first_name} ${invoice.patients.last_name}`
                     : "—";
@@ -332,7 +339,7 @@ export function ReceptionistBillingWorkspace({
                         <button
                           type="button"
                           onClick={() => setActiveDetailId(invoice.id)}
-                          className="text-primary hover:underline font-extrabold"
+                          className="text-primary hover:underline font-extrabold cursor-pointer"
                         >
                           {invoice.invoice_number}
                         </button>
@@ -412,7 +419,7 @@ export function ReceptionistBillingWorkspace({
                               type="button"
                               size="sm"
                               onClick={() => setActivePaymentTarget(invoice)}
-                              className="h-8 rounded-xl px-2.5 text-[11px] font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white gap-1 shadow-2xs"
+                              className="h-8 rounded-xl px-2.5 text-[11px] font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white gap-1 shadow-2xs cursor-pointer"
                             >
                               <CreditCard className="size-3" />
                               Pay
@@ -425,7 +432,7 @@ export function ReceptionistBillingWorkspace({
                             variant="outline"
                             size="sm"
                             onClick={() => setActiveDetailId(invoice.id)}
-                            className="h-8 rounded-xl px-2.5 text-[11px] font-semibold border-border/80 hover:bg-muted/50"
+                            className="h-8 rounded-xl px-2.5 text-[11px] font-semibold border-border/80 hover:bg-muted/50 cursor-pointer"
                           >
                             <Eye className="size-3 text-muted-foreground" />
                             View
@@ -440,12 +447,16 @@ export function ReceptionistBillingWorkspace({
           </div>
         )}
 
-        {/* Footer */}
-        <div className="border-t border-border/60 bg-muted/10 px-5 py-3 text-xs text-muted-foreground flex justify-between items-center">
-          <span>
-            Showing <strong className="text-foreground">{filteredInvoices.length}</strong> of {invoices.length} invoices
-          </span>
-        </div>
+        {/* Standard Modern Pagination */}
+        <TablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.totalItems}
+          pageSize={pagination.pageSize}
+          onPageChange={pagination.onPageChange}
+          onPageSizeChange={pagination.onPageSizeChange}
+          itemLabel="invoices"
+        />
       </section>
 
       {/* Invoice Detail Dialog Modal */}

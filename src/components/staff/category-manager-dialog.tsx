@@ -22,6 +22,9 @@ import {
   deleteCategoryAction,
 } from "@/lib/server/doctor-services";
 
+import { TablePagination } from "@/components/shared/table-pagination";
+import { useTablePagination } from "@/lib/hooks/use-table-pagination";
+
 interface CategoryManagerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -50,6 +53,11 @@ export function CategoryManagerDialog({
   // Deleting state
   const [deletingCat, setDeletingCat] = React.useState<CategoryItem | null>(null);
   const [isDeleting, setIsDeleting] = React.useState(false);
+
+  // Pagination for category list
+  const pagination = useTablePagination(categories, {
+    initialPageSize: 5,
+  });
 
   // Add Category Handler
   const handleAddSubmit = async (e: React.FormEvent) => {
@@ -255,52 +263,68 @@ export function CategoryManagerDialog({
             )}
 
             {/* Category List */}
-            <div className="max-h-72 overflow-y-auto divide-y divide-border/60 rounded-2xl border border-border/80 bg-card/90">
-              {categories.length === 0 ? (
-                <div className="p-6 text-center text-xs text-muted-foreground font-medium">
-                  No sections created yet.
-                </div>
-              ) : (
-                categories.map((cat) => (
-                  <div
-                    key={cat.name}
-                    className="flex items-center justify-between p-3.5 transition-colors hover:bg-muted/20"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                      <span className="font-heading text-xs font-black text-foreground truncate">
-                        {cat.name}
-                      </span>
-                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-black bg-emerald-50 text-emerald-900 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 shrink-0">
-                        {cat.serviceCount} {cat.serviceCount === 1 ? "service" : "services"}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1 shrink-0">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => {
-                          setEditingCat(cat);
-                          setEditCatName(cat.name);
-                          setIsAdding(false);
-                        }}
-                        title={`Rename "${cat.name}"`}
-                        className="size-8 rounded-xl text-muted-foreground hover:bg-emerald-50 hover:text-emerald-900 cursor-pointer"
-                      >
-                        <Pencil className="size-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => setDeletingCat(cat)}
-                        title={`Delete "${cat.name}"`}
-                        className="size-8 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive cursor-pointer"
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    </div>
+            <div className="overflow-hidden rounded-2xl border border-border/80 bg-card/90">
+              <div className="max-h-64 overflow-y-auto divide-y divide-border/60">
+                {categories.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-muted-foreground font-medium">
+                    No sections created yet.
                   </div>
-                ))
+                ) : (
+                  pagination.paginatedItems.map((cat) => (
+                    <div
+                      key={cat.name}
+                      className="flex items-center justify-between p-3.5 transition-colors hover:bg-muted/20"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                        <span className="font-heading text-xs font-black text-foreground truncate">
+                          {cat.name}
+                        </span>
+                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-black bg-emerald-50 text-emerald-900 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 shrink-0">
+                          {cat.serviceCount} {cat.serviceCount === 1 ? "service" : "services"}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => {
+                            setEditingCat(cat);
+                            setEditCatName(cat.name);
+                            setIsAdding(false);
+                          }}
+                          title={`Rename "${cat.name}"`}
+                          className="size-8 rounded-xl text-muted-foreground hover:bg-emerald-50 hover:text-emerald-900 cursor-pointer"
+                        >
+                          <Pencil className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => setDeletingCat(cat)}
+                          title={`Delete "${cat.name}"`}
+                          className="size-8 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {categories.length > 5 && (
+                <TablePagination
+                  currentPage={pagination.currentPage}
+                  totalPages={pagination.totalPages}
+                  totalItems={pagination.totalItems}
+                  pageSize={pagination.pageSize}
+                  onPageChange={pagination.onPageChange}
+                  onPageSizeChange={pagination.onPageSizeChange}
+                  pageSizeOptions={[5, 10]}
+                  itemLabel="sections"
+                  compact
+                />
               )}
             </div>
           </div>

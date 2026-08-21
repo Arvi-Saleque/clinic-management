@@ -6,6 +6,7 @@ import { AppointmentSuccessToast } from "@/components/portal/appointment-success
 import { ButtonLink } from "@/components/ui/button";
 import { listOwnAppointments, listOwnPrescriptions } from "@/lib/server/directory";
 import { cn } from "@/lib/utils";
+import { PortalHistoryList, type PortalAppointmentHistoryItem } from "@/components/portal/portal-history-list";
 
 export const metadata: Metadata = { title: "My visits" };
 
@@ -71,6 +72,19 @@ export default async function PortalAppointmentsPage({
     return null;
   };
 
+  const formattedHistory: PortalAppointmentHistoryItem[] = history.map((appointment) => ({
+    id: appointment.id,
+    starts_at: appointment.starts_at,
+    ends_at: appointment.ends_at,
+    status: appointment.status,
+    notes: appointment.notes,
+    practitionerName: appointment.practitioners?.profiles?.full_name ?? "Clinic practitioner",
+    serviceName: appointment.services?.name ?? "Dental visit",
+    price: appointment.services?.price ?? 0,
+    duration: appointment.services?.duration_minutes,
+    prescription: findPrescriptionForAppointment(appointment),
+  }));
+
   const renderCard = (appointment: (typeof appointments)[number]) => {
     const rx = findPrescriptionForAppointment(appointment);
     return (
@@ -98,32 +112,33 @@ export default async function PortalAppointmentsPage({
       <section className="relative overflow-hidden rounded-[32px] border border-border/80 bg-surface/85 backdrop-blur-xl p-6 sm:p-8 shadow-sm transition-all sm:flex sm:items-end sm:justify-between sm:gap-6">
         {/* Soft Ambient Glow */}
         <div className="pointer-events-none absolute -right-20 -top-20 size-60 rounded-full bg-primary/10 blur-3xl" />
-        <div className="pointer-events-none absolute -left-20 -bottom-20 size-60 rounded-full bg-emerald-500/5 blur-3xl" />
-
-        <div className="relative z-10 space-y-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary-soft/80 px-3 py-0.5 text-xs font-semibold text-primary backdrop-blur-md">
-            Care Timeline
-          </span>
+        
+        <div className="space-y-2 relative z-10 max-w-xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/60 px-3 py-1 text-xs font-semibold text-primary">
+            <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+            Patient Care Hub
+          </div>
           <h1 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-            My visits
+            My appointments
           </h1>
-          <p className="max-w-xl text-sm leading-relaxed text-text-secondary">
-            Review your upcoming care, access past visit records and prescriptions, or book an appointment.
+          <p className="text-sm text-text-muted leading-relaxed">
+            Manage your scheduled clinic visits, track consultation notes, and review prescribed medications.
           </p>
         </div>
 
-        <div className="relative z-10 mt-5 sm:mt-0 shrink-0">
+        <div className="mt-6 sm:mt-0 relative z-10 shrink-0">
           <ButtonLink
             href="/portal/appointments/book"
             size="lg"
-            className="gap-2 rounded-2xl bg-primary hover:bg-primary-hover text-primary-foreground shadow-md shadow-primary/20 font-bold text-sm h-11 px-6"
+            className="w-full sm:w-auto rounded-2xl px-6 h-12 font-bold text-sm shadow-md shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
-            <Plus className="size-4" /> Book an appointment
+            <Plus className="size-4 mr-2" />
+            Book a Visit
           </ButtonLink>
         </div>
       </section>
 
-      {/* ── METRIC STATS STRIP ── */}
+      {/* ── STATS OVERVIEW CARDS ── */}
       <section className="grid gap-4 sm:grid-cols-3">
         {[
           {
@@ -202,20 +217,20 @@ export default async function PortalAppointmentsPage({
       </section>
 
       {/* ── VISIT HISTORY & PRESCRIPTIONS ── */}
-      {history.length > 0 && (
+      {formattedHistory.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="flex size-9 items-center justify-center rounded-xl bg-primary-soft text-primary">
               <History className="size-4.5" />
             </div>
             <div>
-              <h2 className="font-heading text-xl font-bold text-foreground">Visit history & prescriptions</h2>
+              <h2 className="font-heading text-xl font-bold text-foreground">Visit history &amp; prescriptions</h2>
               <p className="text-xs text-text-muted">
                 Completed and past visits &mdash; click &ldquo;View Prescription&rdquo; to review prescribed medicines
               </p>
             </div>
           </div>
-          <div className="space-y-4">{history.map(renderCard)}</div>
+          <PortalHistoryList history={formattedHistory} />
         </section>
       )}
     </div>

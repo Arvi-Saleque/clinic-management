@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConsultationActionButton } from "@/components/clinical/consultation-action-button";
 import { updateAppointmentStatus, type AppointmentStatus } from "@/lib/server/appointments";
+import { TablePagination } from "@/components/shared/table-pagination";
+import { useTablePagination } from "@/lib/hooks/use-table-pagination";
 
 interface Appointment {
   id: string;
@@ -49,6 +51,10 @@ const NEXT_ACTIONS: Record<string, { label: string; status: AppointmentStatus }[
 export function AppointmentList({ appointments }: { appointments: Appointment[] }) {
   const [pendingId, setPendingId] = React.useState<string | null>(null);
 
+  const pagination = useTablePagination(appointments, {
+    initialPageSize: 10,
+  });
+
   async function handleStatusChange(id: string, status: AppointmentStatus) {
     setPendingId(id);
     const reason = status === "cancelled" ? "Cancelled by staff" : undefined;
@@ -67,8 +73,9 @@ export function AppointmentList({ appointments }: { appointments: Appointment[] 
   }
 
   return (
-    <ul className="divide-y divide-border rounded-xl border border-border">
-      {appointments.map((appt) => {
+    <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <ul className="divide-y divide-border">
+        {pagination.paginatedItems.map((appt) => {
         const actions = NEXT_ACTIONS[appt.status] ?? [];
         return (
           <li key={appt.id} className="flex items-center justify-between gap-4 p-4">
@@ -142,5 +149,18 @@ export function AppointmentList({ appointments }: { appointments: Appointment[] 
         );
       })}
     </ul>
+
+    {appointments.length > 10 && (
+      <TablePagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalItems={pagination.totalItems}
+        pageSize={pagination.pageSize}
+        onPageChange={pagination.onPageChange}
+        onPageSizeChange={pagination.onPageSizeChange}
+        itemLabel="appointments"
+      />
+    )}
+  </div>
   );
 }
