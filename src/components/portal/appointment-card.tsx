@@ -671,7 +671,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
                             </div>
                             <div className="flex items-center gap-2 text-text-muted">
                               <CalendarClock className="size-3.5 text-primary shrink-0" />
-                              <span>{format(date, "EEEE, MMMM d, yyyy")} &middot; {format(date, "HH:mm")}</span>
+                              <span>{format(date, "EEEE, MMMM d, yyyy")} &middot; {format(date, "h:mm a")}</span>
                             </div>
                             <div className="flex items-center gap-2 text-text-muted">
                               <Stethoscope className="size-3.5 text-primary shrink-0" />
@@ -739,7 +739,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
                               <XCircle className="size-4 shrink-0" /> Permanent Cancellation Notice
                             </div>
                             <p className="text-text-secondary text-[11px] leading-relaxed">
-                              Your reserved chair on <strong className="text-foreground">{format(date, "EEEE, MMMM d, yyyy")} at {format(date, "HH:mm")}</strong> for <strong className="text-foreground">{props.serviceName}</strong> with <strong className="text-foreground">{props.practitionerName}</strong> will be permanently released to other patients.
+                              Your reserved chair on <strong className="text-foreground">{format(date, "EEEE, MMMM d, yyyy")} at {format(date, "h:mm a")}</strong> for <strong className="text-foreground">{props.serviceName}</strong> with <strong className="text-foreground">{props.practitionerName}</strong> will be permanently released to other patients.
                             </p>
                           </div>
 

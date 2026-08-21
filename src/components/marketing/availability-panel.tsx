@@ -170,7 +170,7 @@ export function AvailabilityPanel({
                     isEmbedded ? "py-2.5 text-sm" : "py-2 text-xs",
                   )}
                 >
-                  {format(new Date(slot.slot_start), "HH:mm")}
+                  {format(new Date(slot.slot_start), "h:mm a")}
                 </button>
               ))}
             </div>

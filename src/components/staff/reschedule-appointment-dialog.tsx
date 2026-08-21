@@ -192,7 +192,7 @@ export function RescheduleAppointmentDialog({
             ) : (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto p-0.5">
                 {slots.map((slot) => {
-                  const startTime = format(new Date(slot.slot_start), "HH:mm");
+                  const startTime = format(new Date(slot.slot_start), "h:mm a");
                   const isSelected = selectedSlot?.slot_start === slot.slot_start;
 
                   return (

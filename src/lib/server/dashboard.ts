@@ -161,20 +161,20 @@ export async function getDashboardStats() {
   const upcoming = schedule.filter((a) => ["confirmed", "pending"].includes(a.status));
   const cancelledNoShow = schedule.filter((a) => ["cancelled", "no_show"].includes(a.status));
 
-  // Determine next appointment for hero banner
+  // Determine next appointment for hero banner (checked-in or upcoming only)
   const now = new Date();
   const nextAppointment =
     inProgress[0] ??
     upcoming.find((a) => new Date(a.starts_at) >= now) ??
     upcoming[0] ??
-    schedule[0] ??
     null;
 
-  // Upcoming appointments list (excluding already completed, cancelled, and the current hero next appointment)
+  // Upcoming appointments list (excluding already completed, cancelled, no_show, and the current hero next appointment)
   const upcomingAppointmentsList = schedule.filter(
     (a) =>
       a.status !== "completed" &&
       a.status !== "cancelled" &&
+      a.status !== "no_show" &&
       (!nextAppointment || a.id !== nextAppointment.id),
   );
 

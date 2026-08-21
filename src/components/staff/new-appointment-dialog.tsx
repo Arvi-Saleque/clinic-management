@@ -248,7 +248,7 @@ export function NewAppointmentDialog({
                       disabled={!selectedPatient || booking}
                       onClick={() => handleBook(slot)}
                     >
-                      {format(new Date(slot.slot_start), "HH:mm")}
+                      {format(new Date(slot.slot_start), "h:mm a")}
                     </Button>
                   ))}
                 </div>

@@ -858,7 +858,7 @@ export function BookingWizard({
                                   : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]",
                               )}
                             />
-                            {format(new Date(slot.slot_start), "HH:mm")}
+                            {format(new Date(slot.slot_start), "h:mm a")}
                           </span>
                         </button>
                       );
@@ -931,7 +931,7 @@ export function BookingWizard({
                                   >
                                     <span className="flex items-center gap-1.5">
                                       <span className="size-1.5 rounded-full bg-emerald-500" />
-                                      {format(new Date(slot.slot_start), "HH:mm")}
+                                      {format(new Date(slot.slot_start), "h:mm a")}
                                     </span>
                                   </button>
                                 ))}
@@ -984,7 +984,7 @@ export function BookingWizard({
                   <div className="rounded-2xl border border-border/70 bg-surface p-4 space-y-1 shadow-xs">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Time Window</span>
                     <p className="font-heading text-base font-bold text-primary">
-                      {format(new Date(selectedSlot.slot_start), "HH:mm")} &ndash; {format(new Date(selectedSlot.slot_end), "HH:mm")}
+                      {format(new Date(selectedSlot.slot_start), "h:mm a")} &ndash; {format(new Date(selectedSlot.slot_end), "h:mm a")}
                     </p>
                     <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Slot Reserved</p>
                   </div>

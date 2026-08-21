@@ -267,7 +267,7 @@ export function ReceptionistPatientProfileView({
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
                       <span className="font-mono font-bold text-foreground">
-                        {format(new Date(nextAppointment.starts_at), "HH:mm")}
+                        {format(new Date(nextAppointment.starts_at), "h:mm a")}
                       </span>
                       <span>·</span>
                       <span>{nextAppointment.duration_minutes} minutes</span>
@@ -390,7 +390,7 @@ export function ReceptionistPatientProfileView({
                           {format(new Date(appt.starts_at), "dd MMM yyyy")}
                         </p>
                         <p className="text-[10px] text-muted-foreground font-mono">
-                          {format(new Date(appt.starts_at), "HH:mm")}
+                          {format(new Date(appt.starts_at), "h:mm a")}
                         </p>
                       </div>
 

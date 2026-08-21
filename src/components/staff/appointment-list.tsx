@@ -86,9 +86,9 @@ export function AppointmentList({ appointments }: { appointments: Appointment[] 
         return (
           <li key={appt.id} className="flex items-center justify-between gap-4 p-4">
             <div className="flex items-center gap-4">
-              <div className="flex w-16 shrink-0 items-center gap-1 text-sm font-medium">
+              <div className="flex w-20 shrink-0 items-center gap-1 text-xs font-semibold tabular-nums">
                 <Clock className="size-3.5 text-muted-foreground" />
-                {format(new Date(appt.starts_at), "HH:mm")}
+                {format(new Date(appt.starts_at), "h:mm a")}
               </div>
               <div>
                 <p className="font-medium">

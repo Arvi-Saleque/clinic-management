@@ -518,8 +518,8 @@ export function AppointmentsWorkspace({
 
             <ul className="divide-y divide-border/60">
               {filteredAppointments.map((appointment) => {
-                const startFormatted = format(new Date(appointment.starts_at), "HH:mm");
-                const endFormatted = format(new Date(appointment.ends_at), "HH:mm");
+                const startFormatted = format(new Date(appointment.starts_at), "h:mm a");
+                const endFormatted = format(new Date(appointment.ends_at), "h:mm a");
                 const patientName = appointment.patients
                   ? `${appointment.patients.first_name} ${appointment.patients.last_name}`
                   : "Walk-in / Unassigned Patient";
