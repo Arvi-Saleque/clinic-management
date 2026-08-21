@@ -170,7 +170,7 @@ export function InvoiceDetailDialog({
           setEditableItems(mappedItems);
           setDiscountValue(Number(res.invoice.discount_amount) || 0);
           setDiscountType("fixed");
-          setSettlementStatus("paid");
+          setSettlementStatus("issued");
           setPartialAmount(0);
           setPaymentMethod("card");
         }
@@ -1004,10 +1004,10 @@ export function InvoiceDetailDialog({
                       {settlementStatus === "draft"
                         ? "Save Draft"
                         : settlementStatus === "paid"
-                          ? `Settle (€${draftNetTotal.toFixed(2)})`
+                          ? `Settle & Pay in Full (€${draftNetTotal.toFixed(2)})`
                           : settlementStatus === "issued"
-                            ? `Issue (€${draftNetTotal.toFixed(2)})`
-                            : `Deposit (€${partialAmount.toFixed(2)})`}
+                            ? `Issue to Outstanding (€${draftNetTotal.toFixed(2)})`
+                            : `Record Deposit & Issue (€${partialAmount.toFixed(2)})`}
                     </Button>
                   )}
                 </div>

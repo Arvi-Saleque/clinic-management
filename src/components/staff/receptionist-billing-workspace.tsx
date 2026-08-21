@@ -21,7 +21,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RecordPaymentDialog } from "@/components/staff/record-payment-dialog";
 import { InvoiceDetailDialog } from "@/components/staff/invoice-detail-dialog";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { useTablePagination } from "@/lib/hooks/use-table-pagination";
@@ -86,7 +85,6 @@ export function ReceptionistBillingWorkspace({
 
   // Dialog targets
   const [activeDetailId, setActiveDetailId] = React.useState<string | null>(null);
-  const [activePaymentTarget, setActivePaymentTarget] = React.useState<BillingInvoiceItem | null>(null);
 
   // Operational KPI metrics (UK clinic focus)
   const metrics = React.useMemo(() => {
@@ -104,9 +102,7 @@ export function ReceptionistBillingWorkspace({
       all: invoices.length,
       draft: invoices.filter((i) => i.status === "draft").length,
       partially_paid: invoices.filter((i) => i.status === "partially_paid").length,
-      outstanding: invoices.filter(
-        (i) => (i.status === "issued" || i.status === "partially_paid") && i.balance > 0,
-      ).length,
+      outstanding: invoices.filter((i) => i.status === "issued").length,
       paid: invoices.filter((i) => i.status === "paid").length,
     };
   }, [invoices]);
@@ -136,8 +132,7 @@ export function ReceptionistBillingWorkspace({
       } else if (statusFilter === "partially_paid") {
         matchesStatus = inv.status === "partially_paid";
       } else if (statusFilter === "outstanding") {
-        matchesStatus =
-          (inv.status === "issued" || inv.status === "partially_paid") && inv.balance > 0;
+        matchesStatus = inv.status === "issued";
       } else if (statusFilter === "paid") {
         matchesStatus = inv.status === "paid";
       }
@@ -466,7 +461,7 @@ export function ReceptionistBillingWorkspace({
                             <Button
                               type="button"
                               size="sm"
-                              onClick={() => setActivePaymentTarget(invoice)}
+                              onClick={() => setActiveDetailId(invoice.id)}
                               className="h-8.5 rounded-xl px-3 text-xs font-black bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white gap-1.5 shadow-xs cursor-pointer"
                             >
                               <CreditCard className="size-3.5" />
@@ -507,34 +502,13 @@ export function ReceptionistBillingWorkspace({
         />
       </section>
 
-      {/* Invoice Detail Dialog Modal */}
+      {/* Invoice Detail Dialog Modal (Handles both View and Pay) */}
       {activeDetailId && (
         <InvoiceDetailDialog
           invoiceId={activeDetailId}
           open={!!activeDetailId}
           onOpenChange={(isOpen) => !isOpen && setActiveDetailId(null)}
           onPaymentSuccess={() => {
-            router.refresh();
-          }}
-        />
-      )}
-
-      {/* Direct Payment Action Dialog */}
-      {activePaymentTarget && (
-        <RecordPaymentDialog
-          invoiceId={activePaymentTarget.id}
-          invoiceNumber={activePaymentTarget.invoice_number}
-          patientName={
-            activePaymentTarget.patients
-              ? `${activePaymentTarget.patients.first_name} ${activePaymentTarget.patients.last_name}`
-              : "Patient"
-          }
-          totalAmount={activePaymentTarget.total}
-          balanceAmount={activePaymentTarget.balance}
-          open={!!activePaymentTarget}
-          onOpenChange={(isOpen) => !isOpen && setActivePaymentTarget(null)}
-          onSuccess={() => {
-            setActivePaymentTarget(null);
             router.refresh();
           }}
         />
