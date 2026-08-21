@@ -101,7 +101,7 @@ export default async function ServiceDetailPage({
                   {service.price && (
                     <span className="flex items-center gap-1.5">
                       <Tag className="w-4 h-4" />
-                      From £{Number(service.price).toLocaleString()}
+                      From €{Number(service.price).toLocaleString()}
                     </span>
                   )}
                 </div>

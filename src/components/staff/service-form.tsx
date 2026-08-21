@@ -604,11 +604,11 @@ export function ServiceForm({ mode, context }: ServiceFormProps) {
                   {/* My Fee */}
                   <div className="space-y-2">
                     <Label htmlFor="service-fee" className="text-xs font-bold text-foreground">
-                      My Fee (৳) <span className="text-destructive">*</span>
+                      My Fee (€) <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
                       <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">
-                        ৳
+                        €
                       </span>
                       <Input
                         id="service-fee"
@@ -699,7 +699,7 @@ export function ServiceForm({ mode, context }: ServiceFormProps) {
                 <div className="flex items-center justify-between border-t border-border/50 pt-3">
                   <span className="text-muted-foreground font-medium">My Fee</span>
                   <span className="font-black text-foreground text-base tabular-nums">
-                    ৳ {parseFloat(fee || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    € {parseFloat(fee || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
 

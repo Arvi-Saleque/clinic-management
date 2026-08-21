@@ -131,7 +131,7 @@ export default async function ServicesPage() {
                           {service.price && (
                             <span className="inline-flex items-center gap-1.5 rounded-xl bg-[#F4F6F3] px-3 py-1.5 text-xs font-bold text-[#2B5748] border border-[#2B5748]/10">
                               <Tag className="size-3.5 text-[#2B5748]" />
-                              From £{Number(service.price).toLocaleString()}
+                              From €{Number(service.price).toLocaleString()}
                             </span>
                           )}
                         </div>

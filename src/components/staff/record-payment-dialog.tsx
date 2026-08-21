@@ -144,7 +144,7 @@ export function RecordPaymentDialog({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label htmlFor="payment-amount" className="text-xs font-semibold">
-                Payment Amount (£) *
+                Payment Amount (€) *
               </Label>
               {balanceAmount > 0 && (
                 <button

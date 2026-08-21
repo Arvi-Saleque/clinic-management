@@ -78,7 +78,7 @@ export function ServicesGrid({ services }: { services: ServiceCardData[] }) {
                         <span className="text-text-secondary">
                           From{" "}
                           <span className="font-semibold text-foreground">
-                            &#2547;{Number(service.price).toLocaleString()}
+                            €{Number(service.price).toLocaleString()}
                           </span>{" "}
                           &middot; {service.duration_minutes} min
                         </span>

@@ -349,7 +349,7 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
 
                         {/* Fee */}
                         <div className="text-sm font-black text-foreground tabular-nums">
-                          ৳{svc.effective_price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                          €{svc.effective_price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                         </div>
 
                         {/* Actions */}
@@ -424,7 +424,7 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
                           <span>{svc.effective_duration_minutes} min</span>
                         </div>
                         <div className="font-black text-foreground tabular-nums">
-                          ৳{svc.effective_price.toLocaleString()}
+                          €{svc.effective_price.toLocaleString()}
                         </div>
                       </div>
                     </div>

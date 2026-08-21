@@ -6,12 +6,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Standard UK clinic currency formatter (defaults to GBP £).
+ * Standard clinic currency formatter (defaults to EUR €).
  */
 export function formatCurrency(
   amount: number | string,
-  currency: string = "GBP",
-  locale: string = "en-GB",
+  currency: string = "EUR",
+  locale: string = "en-IE",
 ): string {
   const num = typeof amount === "number" ? amount : Number(amount) || 0;
   return new Intl.NumberFormat(locale, {
