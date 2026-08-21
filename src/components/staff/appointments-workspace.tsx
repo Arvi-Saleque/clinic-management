@@ -70,7 +70,10 @@ interface Service {
 
 function statusLabel(status: string) {
   if (status === "checked_in") return "Checked in";
-  if (status === "no_show") return "Did not attend";
+  if (status === "no_show") return "No show";
+  if (status === "confirmed") return "Confirmed";
+  if (status === "completed") return "Completed";
+  if (status === "cancelled") return "Cancelled";
   return status.charAt(0).toUpperCase() + status.slice(1).replaceAll("_", " ");
 }
 
@@ -194,7 +197,7 @@ export function AppointmentsWorkspace({
           status === "checked_in"
             ? "Patient checked in"
             : status === "no_show"
-              ? "Marked as did not attend"
+              ? "Marked as no show"
               : status === "cancelled"
                 ? "Appointment cancelled"
                 : "Appointment updated";
@@ -492,86 +495,96 @@ export function AppointmentsWorkspace({
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-border/60">
-            {filteredAppointments.map((appointment) => {
-              const startFormatted = format(new Date(appointment.starts_at), "HH:mm");
-              const endFormatted = format(new Date(appointment.ends_at), "HH:mm");
-              const patientName = appointment.patients
-                ? `${appointment.patients.first_name} ${appointment.patients.last_name}`
-                : "Walk-in / Unassigned Patient";
-              const initials = patientInitials(appointment);
+          <>
+            {/* Table Header for Desktop */}
+            <div className="hidden lg:grid lg:grid-cols-[170px_1fr_240px_140px_190px] gap-4 px-5 py-3 border-b border-border/70 bg-muted/25 text-[10px] font-black uppercase tracking-wider text-muted-foreground items-center">
+              <div>TIME</div>
+              <div>PATIENT</div>
+              <div>TREATMENT / SERVICE</div>
+              <div>STATUS</div>
+              <div className="text-right pr-2">ACTIONS</div>
+            </div>
 
-              const isConfirmed = appointment.status === "confirmed";
-              const isCheckedIn = appointment.status === "checked_in";
-              const isCompleted = appointment.status === "completed";
-              const isCancelled =
-                appointment.status === "cancelled" || appointment.status === "no_show";
+            <ul className="divide-y divide-border/60">
+              {filteredAppointments.map((appointment) => {
+                const startFormatted = format(new Date(appointment.starts_at), "HH:mm");
+                const endFormatted = format(new Date(appointment.ends_at), "HH:mm");
+                const patientName = appointment.patients
+                  ? `${appointment.patients.first_name} ${appointment.patients.last_name}`
+                  : "Walk-in / Unassigned Patient";
+                const initials = patientInitials(appointment);
 
-              return (
-                <li
-                  key={appointment.id}
-                  className="flex flex-col gap-4 p-4 transition-colors hover:bg-muted/10 lg:flex-row lg:items-center lg:justify-between"
-                >
-                  {/* 1. Time Block */}
-                  <div className="flex items-center gap-3 lg:w-44 shrink-0">
-                    <div className="flex size-9 items-center justify-center rounded-xl bg-muted/40 text-muted-foreground shrink-0">
-                      <Clock3 className="size-4" />
-                    </div>
-                    <div>
-                      <p className="font-heading text-sm font-bold tracking-tight text-foreground">
-                        {startFormatted} – {endFormatted}
-                      </p>
-                      <p className="text-[11px] font-medium text-muted-foreground">
-                        {appointment.services?.duration_minutes ?? 30} mins
-                      </p>
-                    </div>
-                  </div>
+                const isConfirmed = appointment.status === "confirmed";
+                const isCheckedIn = appointment.status === "checked_in";
+                const isCompleted = appointment.status === "completed";
+                const isCancelled =
+                  appointment.status === "cancelled" || appointment.status === "no_show";
 
-                  {/* 2. Patient Profile Block */}
-                  <div className="flex items-center gap-3 lg:flex-1 min-w-0">
-                    <div className="flex size-9 items-center justify-center rounded-full bg-[#0B3B36]/10 text-xs font-bold text-[#0B3B36] dark:bg-[#0B3B36]/25 dark:text-emerald-300 shrink-0">
-                      {initials}
+                return (
+                  <li
+                    key={appointment.id}
+                    className="grid grid-cols-1 gap-3 p-4 transition-colors hover:bg-muted/10 lg:grid-cols-[170px_1fr_240px_140px_190px] lg:gap-4 lg:items-center lg:px-5 lg:py-3.5"
+                  >
+                    {/* 1. Time Block */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-9 items-center justify-center rounded-xl bg-muted/40 text-muted-foreground shrink-0">
+                        <Clock3 className="size-4" />
+                      </div>
+                      <div>
+                        <p className="font-heading text-sm font-bold tracking-tight text-foreground">
+                          {startFormatted} – {endFormatted}
+                        </p>
+                        <p className="text-[11px] font-medium text-muted-foreground">
+                          {appointment.services?.duration_minutes ?? 30} mins
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-heading text-sm font-bold text-foreground truncate">
-                        {patientName}
+
+                    {/* 2. Patient Profile Block */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex size-9 items-center justify-center rounded-full bg-[#0B3B36]/10 text-xs font-bold text-[#0B3B36] dark:bg-[#0B3B36]/25 dark:text-emerald-300 shrink-0">
+                        {initials}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-heading text-sm font-bold text-foreground truncate">
+                          {patientName}
+                        </p>
+                        {appointment.patients?.phone && (
+                          <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                            <Phone className="size-2.5 shrink-0" />
+                            <span>{appointment.patients.phone}</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 3. Treatment / Service */}
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-foreground truncate">
+                        {appointment.services?.name ?? "General Dental Care"}
                       </p>
-                      {appointment.patients?.phone && (
-                        <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                          <Phone className="size-2.5 shrink-0" />
-                          <span>{appointment.patients.phone}</span>
+                      {appointment.notes && (
+                        <p className="text-[11px] text-muted-foreground truncate max-w-[220px]">
+                          &ldquo;{appointment.notes}&rdquo;
                         </p>
                       )}
                     </div>
-                  </div>
 
-                  {/* 3. Treatment / Service */}
-                  <div className="lg:w-56 shrink-0">
-                    <p className="text-xs font-semibold text-foreground truncate">
-                      {appointment.services?.name ?? "General Dental Care"}
-                    </p>
-                    {appointment.notes && (
-                      <p className="text-[11px] text-muted-foreground truncate max-w-[200px]">
-                        &ldquo;{appointment.notes}&rdquo;
-                      </p>
-                    )}
-                  </div>
+                    {/* 4. Status Badge */}
+                    <div>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
+                          statusBadgeClass(appointment.status),
+                        )}
+                      >
+                        {statusLabel(appointment.status)}
+                      </Badge>
+                    </div>
 
-                  {/* 4. Status Badge */}
-                  <div className="lg:w-32 shrink-0">
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
-                        statusBadgeClass(appointment.status),
-                      )}
-                    >
-                      {statusLabel(appointment.status)}
-                    </Badge>
-                  </div>
-
-                  {/* 5. Actions */}
-                  <div className="flex items-center justify-between gap-2 lg:justify-end">
+                    {/* 5. Actions */}
+                    <div className="flex items-center justify-start gap-2 lg:justify-end min-h-[36px]">
                     {/* Receptionist View: Front-Desk Operational Actions */}
                     {isReceptionist ? (
                       <>
@@ -620,13 +633,13 @@ export function AppointmentsWorkspace({
                                 Reschedule visit
                               </DropdownMenuItem>
 
-                              {/* DNA / Did Not Attend */}
+                              {/* No show */}
                               <DropdownMenuItem
                                 onClick={() => handleStatusChange(appointment.id, "no_show")}
                                 className="text-xs font-medium gap-2"
                               >
                                 <UserX className="size-3.5 text-amber-600" />
-                                Did not attend
+                                No show
                               </DropdownMenuItem>
 
                               <DropdownMenuSeparator />
@@ -713,7 +726,7 @@ export function AppointmentsWorkspace({
                                   className="text-xs font-medium gap-2"
                                 >
                                   <UserX className="size-3.5 text-amber-600" />
-                                  Did not attend
+                                  No show
                                 </DropdownMenuItem>
                               )}
                               {(isConfirmed || isCheckedIn) && (
@@ -737,7 +750,8 @@ export function AppointmentsWorkspace({
                 </li>
               );
             })}
-          </ul>
+            </ul>
+          </>
         )}
 
         {/* Table Footer */}

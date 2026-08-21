@@ -120,7 +120,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
       } else {
         toast.success(
           status === "no_show"
-            ? "Marked as Did Not Attend"
+            ? "Marked as no show"
             : "Appointment cancelled",
         );
         router.refresh();
@@ -690,7 +690,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                                 className="text-amber-700 dark:text-amber-400"
                               >
                                 <Clock3 className="size-3.5 mr-2" />
-                                Did Not Attend (DNA)
+                                No show
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => handleStatusChange(appt.id, "cancelled")}

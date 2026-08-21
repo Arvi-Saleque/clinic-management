@@ -135,8 +135,12 @@ export function AppointmentCard(props: AppointmentCardProps) {
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2.5">
                 <h2 className="font-heading text-xl font-bold text-foreground">{props.serviceName}</h2>
-                <Badge variant="outline" className={cn("capitalize text-xs font-semibold px-2.5 py-0.5 shadow-2xs", STATUS_STYLE[props.status])}>
-                  {props.status.replace("_", " ")}
+                <Badge variant="outline" className={cn("text-xs font-semibold px-2.5 py-0.5 shadow-2xs", STATUS_STYLE[props.status])}>
+                  {props.status === "no_show"
+                    ? "No show"
+                    : props.status === "checked_in"
+                      ? "Checked in"
+                      : props.status.charAt(0).toUpperCase() + props.status.slice(1).replaceAll("_", " ")}
                 </Badge>
               </div>
 

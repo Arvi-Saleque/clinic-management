@@ -101,8 +101,12 @@ export function AppointmentList({ appointments }: { appointments: Appointment[] 
             </div>
 
             <div className="flex items-center gap-2">
-              <Badge variant={STATUS_VARIANT[appt.status] ?? "outline"} className="capitalize">
-                {appt.status.replace("_", " ")}
+              <Badge variant={STATUS_VARIANT[appt.status] ?? "outline"}>
+                {appt.status === "no_show"
+                  ? "No show"
+                  : appt.status === "checked_in"
+                    ? "Checked in"
+                    : appt.status.charAt(0).toUpperCase() + appt.status.slice(1).replaceAll("_", " ")}
               </Badge>
 
               {appt.originating_encounter_id && (

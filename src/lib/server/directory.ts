@@ -330,6 +330,36 @@ export async function listPatients(query?: string) {
   const supabase = await createClient();
   const normalized = query?.trim() ?? "";
   const searchingByReference = /^pt-/i.test(normalized);
+
+  // If user is a dentist/clinician, only show patients that made an appointment with this doctor
+  let practitionerId: string | null = null;
+  let assignedPatientIds: string[] | null = null;
+
+  if (profile.role === "dentist") {
+    const { data: practitioner } = await supabase
+      .from("practitioners")
+      .select("id")
+      .eq("profile_id", profile.id)
+      .maybeSingle();
+
+    if (practitioner) {
+      practitionerId = practitioner.id;
+      const { data: docAppointments } = await supabase
+        .from("appointments")
+        .select("patient_id")
+        .eq("practitioner_id", practitioner.id);
+
+      assignedPatientIds = Array.from(
+        new Set((docAppointments ?? []).map((a) => a.patient_id).filter(Boolean)),
+      );
+
+      // If doctor has no booked patients yet, return empty list
+      if (assignedPatientIds.length === 0) {
+        return [];
+      }
+    }
+  }
+
   let request = supabase
     .from("patients")
     .select("id, first_name, last_name, phone, dob, created_at")
@@ -338,6 +368,11 @@ export async function listPatients(query?: string) {
 
   if (profile.organization_id) {
     request = request.eq("organization_id", profile.organization_id);
+  }
+
+  // Doctor side filtering: only patients that booked an appointment with this doctor
+  if (assignedPatientIds !== null) {
+    request = request.in("id", assignedPatientIds);
   }
 
   if (normalized && !searchingByReference) {
@@ -350,28 +385,58 @@ export async function listPatients(query?: string) {
   let patients = data ?? [];
   if (searchingByReference) {
     const wanted = normalized.replace(/[^a-z0-9]/gi, "").replace(/^pt/i, "").toLowerCase();
-    patients = patients.filter((patient) => patient.id.replace(/-/g, "").toLowerCase().startsWith(wanted));
+    patients = patients.filter((patient) =>
+      patient.id.replace(/-/g, "").toLowerCase().startsWith(wanted),
+    );
   }
   if (patients.length === 0) return [];
 
-  const { data: appointments } = await supabase
+  // Query appointments - for dentist, filter by this practitioner
+  let appointmentsQuery = supabase
     .from("appointments")
-    .select("id, patient_id, starts_at, status, notes, services:service_id(name)")
+    .select("id, patient_id, practitioner_id, starts_at, status, notes, services:service_id(name)")
     .in("patient_id", patients.map((patient) => patient.id))
     .order("starts_at", { ascending: false });
 
+  if (practitionerId) {
+    appointmentsQuery = appointmentsQuery.eq("practitioner_id", practitionerId);
+  }
+
+  const { data: appointments } = await appointmentsQuery;
+
   const now = new Date();
   return patients.map((patient) => {
-    const patientAppointments = (appointments ?? []).filter((appointment) => appointment.patient_id === patient.id);
-    const latestVisit = patientAppointments.find((appointment) => new Date(appointment.starts_at) <= now);
+    const patientAppointments = (appointments ?? []).filter(
+      (appointment) => appointment.patient_id === patient.id,
+    );
+
+    // Latest appointment of this patient with the doctor
+    const rawLatestVisit = patientAppointments.length > 0 ? patientAppointments[0] : null;
+    const latestVisit = rawLatestVisit
+      ? {
+          ...rawLatestVisit,
+          status: rawLatestVisit.status === "pending" ? "confirmed" : rawLatestVisit.status,
+        }
+      : null;
+
     const followUp = [...patientAppointments]
       .reverse()
-      .find((appointment) => new Date(appointment.starts_at) > now && !["cancelled", "no_show"].includes(appointment.status));
+      .find(
+        (appointment) =>
+          new Date(appointment.starts_at) > now &&
+          !["cancelled", "no_show"].includes(appointment.status),
+      );
+
     return {
       ...patient,
       patient_reference: `PT-${patient.id.replace(/-/g, "").slice(0, 8).toUpperCase()}`,
-      latest_visit: latestVisit ?? null,
-      follow_up: followUp ?? null,
+      latest_visit: latestVisit,
+      follow_up: followUp
+        ? {
+            ...followUp,
+            status: followUp.status === "pending" ? "confirmed" : followUp.status,
+          }
+        : null,
     };
   });
 }

@@ -28,11 +28,20 @@ import { cn } from "@/lib/utils";
 const STATUS_STYLE: Record<string, string> = {
   completed: "border-emerald-200 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800",
   confirmed: "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:text-blue-300",
+  pending: "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:text-blue-300",
   checked_in: "border-violet-500/20 bg-violet-500/10 text-violet-700 dark:text-violet-300",
-  pending: "border-amber-200 bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
   cancelled: "border-destructive/20 bg-destructive/10 text-destructive",
   no_show: "border-destructive/20 bg-destructive/10 text-destructive",
 };
+
+function formatAppointmentStatusLabel(status: string) {
+  if (status === "no_show") return "No show";
+  if (status === "checked_in") return "Checked in";
+  if (status === "confirmed" || status === "pending") return "Confirmed";
+  if (status === "completed") return "Completed";
+  if (status === "cancelled") return "Cancelled";
+  return status.charAt(0).toUpperCase() + status.slice(1).replaceAll("_", " ");
+}
 
 export interface PatientRecordItem {
   id: string;
@@ -299,11 +308,19 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
                     </TableCell>
                     <TableCell>
                       {latest ? (
-                        <Badge variant="outline" className={cn("capitalize font-bold text-[11px] rounded-lg", STATUS_STYLE[latest.status])}>
-                          {latest.status === "completed" ? "Work completed" : latest.status.replace("_", " ")}
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "font-bold text-[11px] rounded-lg",
+                            STATUS_STYLE[latest.status] ?? "border-border bg-muted/40 text-foreground",
+                          )}
+                        >
+                          {formatAppointmentStatusLabel(latest.status)}
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="text-[11px] rounded-lg">Not started</Badge>
+                        <Badge variant="outline" className="text-[11px] rounded-lg text-muted-foreground">
+                          No Appointment
+                        </Badge>
                       )}
                     </TableCell>
                     <TableCell>

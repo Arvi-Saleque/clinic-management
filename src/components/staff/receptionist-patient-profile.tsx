@@ -61,7 +61,7 @@ function statusBadgeClass(status: string) {
 
 function formatStatusLabel(status: string) {
   if (status === "checked_in") return "Checked In";
-  if (status === "no_show") return "Did Not Attend";
+  if (status === "no_show") return "No show";
   return status.charAt(0).toUpperCase() + status.slice(1).replaceAll("_", " ");
 }
 
