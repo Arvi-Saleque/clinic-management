@@ -3,7 +3,6 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowRight,
   Banknote,
   Check,
   Clock3,
@@ -13,7 +12,7 @@ import {
   Loader2,
   Percent,
   Receipt,
-  Sparkles,
+  User,
   Wallet,
   X,
 } from "lucide-react";
@@ -22,15 +21,19 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { createInstantEncounterInvoiceAction } from "@/lib/server/invoices";
 import { cn, formatCurrency } from "@/lib/utils";
+import {
+  PaymentSuccessDialog,
+  PaymentSuccessData,
+} from "@/components/staff/payment-success-dialog";
+import { printInvoiceStatement } from "@/lib/utils/print-invoice";
 
 export interface InstantBillingContext {
   patientId: string;
@@ -84,6 +87,10 @@ export function InstantBillingDialog({
   const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>("card");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
+  // Success Pop-Up State
+  const [successModalOpen, setSuccessModalOpen] = React.useState(false);
+  const [successModalData, setSuccessModalData] = React.useState<PaymentSuccessData | null>(null);
+
   // Sync with context updates
   React.useEffect(() => {
     if (open) {
@@ -96,7 +103,7 @@ export function InstantBillingDialog({
     }
   }, [open, context]);
 
-  // Clean practitioner name formatting (avoid "Dr. Dr. Nadia Islam")
+  // Clean practitioner name formatting
   const doctorNameFormatted = React.useMemo(() => {
     if (!context.practitionerName) return "Practitioner";
     const raw = context.practitionerName.trim();
@@ -120,6 +127,45 @@ export function InstantBillingDialog({
   const applyQuickDiscount = (val: number, type: "fixed" | "percentage") => {
     setDiscountType(type);
     setDiscountValue(val);
+  };
+
+  const handlePrintReceipt = () => {
+    if (!successModalData) return;
+    printInvoiceStatement({
+      invoiceNumber: successModalData.invoiceNumber,
+      issueDate: new Date().toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+      status: successModalData.isFullSettlement ? "paid" : "partially_paid",
+      patientName: successModalData.patientName,
+      patientRef: context.patientReference,
+      subtotal: unitPrice,
+      discountAmount: calculatedDiscount,
+      total: netTotal,
+      totalPaid: successModalData.amountPaid,
+      balance: successModalData.balanceRemaining,
+      items: [
+        {
+          description: procedureName.trim() || "Clinical Consultation & Treatment",
+          quantity: 1,
+          unitPrice: unitPrice,
+          lineTotal: unitPrice,
+        },
+      ],
+      payments: [
+        {
+          date: new Date().toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }),
+          method: successModalData.paymentMethod,
+          amount: successModalData.amountPaid,
+        },
+      ],
+    });
   };
 
   const handleSubmit = async (targetStatus: BillingStatus) => {
@@ -164,452 +210,526 @@ export function InstantBillingDialog({
             : undefined,
       });
 
-      if (res.success) {
-        if (targetStatus === "draft") {
-          toast.success("Bill saved as Draft (#1 on Billing list for reception checkout).");
-        } else if (targetStatus === "paid") {
-          toast.success(`Invoice ${res.invoiceNumber} paid in full (€${netTotal.toFixed(2)}).`);
-        } else if (targetStatus === "issued") {
-          toast.success(`Invoice ${res.invoiceNumber} issued as Outstanding.`);
+      if (res.success && res.invoiceNumber) {
+        if (targetStatus === "paid" || targetStatus === "partially_paid") {
+          const paidAmt = targetStatus === "paid" ? netTotal : partialPaidAmount;
+          const balRem = targetStatus === "paid" ? 0 : remainingBalance;
+
+          setSuccessModalData({
+            invoiceNumber: res.invoiceNumber,
+            patientName: context.patientName,
+            amountPaid: paidAmt,
+            paymentMethod: paymentMethod,
+            balanceRemaining: balRem,
+            isFullSettlement: balRem <= 0.01,
+            date: new Date(),
+            invoiceId: res.invoiceId,
+          });
+          setSuccessModalOpen(true);
+        } else if (targetStatus === "draft") {
+          toast.success("Bill saved as Draft (#1 on Billing list for reception checkout).", {
+            position: "top-center",
+          });
         } else {
-          toast.success(`Invoice ${res.invoiceNumber} created with partial deposit.`);
+          toast.success(`Invoice ${res.invoiceNumber} issued as Outstanding.`, {
+            position: "top-center",
+          });
         }
 
         onOpenChange(false);
         onCompleted?.();
         router.refresh();
       } else {
-        toast.error(res.error ?? "Failed to create invoice.");
+        toast.error(res.error ?? "Failed to create invoice.", { position: "top-center" });
       }
     } catch {
-      toast.error("Failed to generate billing invoice.");
+      toast.error("Failed to generate billing invoice.", { position: "top-center" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] rounded-3xl p-0 overflow-hidden border border-border/70 shadow-2xl bg-card">
-        {/* ── Top Header Banner (Modern Glass Sanctuary) ── */}
-        <div className="relative bg-gradient-to-r from-[#062420] via-[#0B3B36] to-[#0E4741] px-6 py-5 text-white overflow-hidden">
-          <div className="pointer-events-none absolute -right-10 -top-10 size-44 rounded-full bg-emerald-400/15 blur-2xl" />
-          <div className="pointer-events-none absolute left-1/3 -bottom-10 size-32 rounded-full bg-teal-400/10 blur-xl" />
-
-          <div className="flex items-center justify-between relative z-10">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/20 border border-emerald-400/30 px-2.5 py-0.5 text-[10px] font-bold text-emerald-200 uppercase tracking-wide">
-                <Sparkles className="size-2.5 text-emerald-300" />
-                <span>Consultation Complete</span>
-              </div>
-              <h2 className="text-lg font-black font-heading text-white tracking-tight">
-                Consultation Billing
-              </h2>
-            </div>
-
-            {/* Patient Badge */}
-            <div className="flex flex-col items-end gap-0.5 shrink-0">
-              <span className="rounded-lg bg-white/10 px-2.5 py-0.5 font-mono text-xs font-bold text-emerald-200 border border-white/15">
-                {context.patientReference}
-              </span>
-              <span className="text-xs font-semibold text-emerald-100 truncate max-w-[170px]">
-                {context.patientName}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Modal Body ── */}
-        <div className="p-5 sm:p-6 space-y-4 max-h-[72vh] overflow-y-auto">
-          {/* 1. Treatment & Fee Card */}
-          <div className="rounded-2xl border border-border/70 bg-muted/20 p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                Treatment &amp; Procedure
-              </Label>
-              <span className="text-[11px] font-bold text-primary dark:text-emerald-400">
-                {doctorNameFormatted}
-              </span>
-            </div>
-
-            <Input
-              value={procedureName}
-              onChange={(e) => setProcedureName(e.target.value)}
-              placeholder="Procedure description..."
-              className="h-9.5 text-xs font-bold rounded-xl bg-card border-border/80"
-            />
-
-            {/* Fee & Discount Row */}
-            <div className="grid grid-cols-2 gap-3 pt-0.5">
-              {/* Standard Fee */}
-              <div className="space-y-1">
-                <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                  Standard Fee (€)
-                </Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                    €
-                  </span>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={unitPrice || ""}
-                    onChange={(e) => setUnitPrice(Math.max(0, Number(e.target.value)))}
-                    className="h-9.5 pl-7 text-xs font-bold rounded-xl bg-card border-border/80 font-mono"
-                  />
-                </div>
-              </div>
-
-              {/* Discount Input */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                    Discount
-                  </Label>
-                  <div className="flex items-center rounded-md bg-muted/50 p-0.5 border border-border/60">
-                    <button
-                      type="button"
-                      onClick={() => setDiscountType("percentage")}
-                      className={cn(
-                        "rounded px-1.5 py-0.2 text-[9px] font-bold transition-all cursor-pointer",
-                        discountType === "percentage"
-                          ? "bg-card text-foreground shadow-2xs"
-                          : "text-muted-foreground hover:text-foreground",
-                      )}
-                    >
-                      %
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDiscountType("fixed")}
-                      className={cn(
-                        "rounded px-1.5 py-0.2 text-[9px] font-bold transition-all cursor-pointer",
-                        discountType === "fixed"
-                          ? "bg-card text-foreground shadow-2xs"
-                          : "text-muted-foreground hover:text-foreground",
-                      )}
-                    >
-                      €
-                    </button>
-                  </div>
-                </div>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                    {discountType === "fixed" ? "€" : "%"}
-                  </span>
-                  <Input
-                    type="number"
-                    min="0"
-                    max={discountType === "percentage" ? 100 : unitPrice}
-                    step="1"
-                    value={discountValue || ""}
-                    onChange={(e) => setDiscountValue(Math.max(0, Number(e.target.value)))}
-                    placeholder="0"
-                    className="h-9.5 pl-7 text-xs font-bold rounded-xl bg-card border-border/80 font-mono"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Discount Pill Buttons */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-              <span className="text-[10px] font-semibold text-muted-foreground mr-1">Presets:</span>
-              {[
-                { label: "0%", val: 0, type: "percentage" as const },
-                { label: "-5%", val: 5, type: "percentage" as const },
-                { label: "-10%", val: 10, type: "percentage" as const },
-                { label: "-20%", val: 20, type: "percentage" as const },
-                { label: "-€10", val: 10, type: "fixed" as const },
-                { label: "-€25", val: 25, type: "fixed" as const },
-              ].map((chip) => {
-                const isSelected = discountValue === chip.val && discountType === chip.type;
-                return (
-                  <button
-                    key={chip.label}
-                    type="button"
-                    onClick={() => applyQuickDiscount(chip.val, chip.type)}
-                    className={cn(
-                      "rounded-lg px-2 py-0.5 text-[10px] font-bold transition-all border cursor-pointer",
-                      isSelected
-                        ? "bg-emerald-500/15 text-emerald-800 border-emerald-400 dark:bg-emerald-950/60 dark:text-emerald-300 shadow-2xs"
-                        : "bg-card text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted/40",
-                    )}
-                  >
-                    {chip.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Net Total Highlight Bar */}
-            <div className="flex items-center justify-between border-t border-border/60 pt-3 mt-1 bg-card/60 -mx-4 -mb-4 p-4 rounded-b-2xl">
-              <div>
-                <span className="text-xs font-bold text-foreground">Net Payable</span>
-                {calculatedDiscount > 0 && (
-                  <span className="ml-2 inline-block rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 border border-emerald-200/50">
-                    -€{calculatedDiscount.toFixed(2)}{" "}
-                    {discountType === "percentage" ? `(${discountValue}% off)` : ""}
-                  </span>
-                )}
-              </div>
-              <div>
-                <span className="text-xl font-black font-mono text-[#0B3B36] dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300/60 px-3.5 py-1 rounded-xl inline-block shadow-2xs">
-                  €{netTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent
+          showCloseButton={false}
+          className="sm:max-w-[640px] rounded-3xl p-0 overflow-hidden border border-border/80 shadow-2xl bg-card print:hidden"
+        >
+          <div className="flex flex-col">
+            {/* ── 1. Clean Modern Standard Header (Matching Billing View Modal) ── */}
+            <div className="px-7 py-4.5 border-b border-border/80 bg-card flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/15 shadow-2xs">
+                  <Receipt className="size-4.5" />
                 </span>
+                <div>
+                  <h2 className="font-heading text-base font-black text-foreground tracking-tight flex items-center gap-2">
+                    Consultation Billing
+                  </h2>
+                  <p className="text-xs font-medium text-muted-foreground mt-0.5">
+                    Clinical sign-off &bull; {doctorNameFormatted}
+                  </p>
+                </div>
+              </div>
+
+              {/* Patient Badge + Clean Circular Close (X) Button */}
+              <div className="flex items-center gap-3">
+                <Badge
+                  variant="outline"
+                  className="rounded-full px-3 py-1 text-xs font-black capitalize border shadow-2xs bg-emerald-50 text-emerald-900 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 font-mono"
+                >
+                  {context.patientReference}
+                </Badge>
+
+                <button
+                  type="button"
+                  onClick={() => onOpenChange(false)}
+                  className="size-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 border border-border/80 transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                  title="Close dialog"
+                >
+                  <X className="size-4 stroke-[2.5]" />
+                </button>
               </div>
             </div>
-          </div>
 
-          {/* 2. 4 Multi-Colored Payment Status Choices */}
-          <div className="space-y-2">
-            <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-              Payment Settlement
-            </Label>
-
-            <div className="grid grid-cols-2 gap-2.5">
-              {/* 1. PAID (Emerald / Green Theme) */}
-              <button
-                type="button"
-                onClick={() => setStatus("paid")}
-                className={cn(
-                  "flex items-center gap-3 rounded-2xl border p-3 text-left transition-all cursor-pointer relative overflow-hidden",
-                  status === "paid"
-                    ? "border-emerald-500 bg-emerald-500/10 dark:bg-emerald-950/40 shadow-xs ring-1.5 ring-emerald-500"
-                    : "border-emerald-200/50 bg-emerald-50/25 dark:border-emerald-900/30 dark:bg-emerald-950/10 hover:border-emerald-400",
-                )}
-              >
-                <div
-                  className={cn(
-                    "size-8 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-                    status === "paid"
-                      ? "bg-emerald-600 text-white shadow-xs"
-                      : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-                  )}
-                >
-                  <Check className="size-4 stroke-[2.5]" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-extrabold text-foreground">Paid</span>
-                    <span className="rounded px-1.5 py-0.2 text-[9px] font-black bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">
-                      100% Settled
-                    </span>
+            {/* ── 2. Modal Body (Matching Billing View Layout) ── */}
+            <div className="p-6 sm:p-7 space-y-5 max-h-[72vh] overflow-y-auto custom-scrollbar">
+              {/* Patient Banner */}
+              <div className="rounded-2xl border border-border/70 bg-card p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <User className="size-4" />
+                  </span>
+                  <div>
+                    <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                      Patient
+                    </Label>
+                    <p className="text-sm font-bold text-foreground">{context.patientName}</p>
                   </div>
-                  <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                    Chairside full payment
-                  </p>
                 </div>
-              </button>
+                <div className="text-right">
+                  <span className="font-mono text-xs text-muted-foreground font-bold">
+                    {context.patientReference}
+                  </span>
+                </div>
+              </div>
 
-              {/* 2. ISSUED (Amber / Warm Ochre Theme) */}
-              <button
-                type="button"
-                onClick={() => setStatus("issued")}
-                className={cn(
-                  "flex items-center gap-3 rounded-2xl border p-3 text-left transition-all cursor-pointer relative overflow-hidden",
-                  status === "issued"
-                    ? "border-amber-500 bg-amber-500/10 dark:bg-amber-950/40 shadow-xs ring-1.5 ring-amber-500"
-                    : "border-amber-200/50 bg-amber-50/25 dark:border-amber-900/30 dark:bg-amber-950/10 hover:border-amber-400",
-                )}
-              >
-                <div
-                  className={cn(
-                    "size-8 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-                    status === "issued"
-                      ? "bg-amber-600 text-white shadow-xs"
-                      : "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-                  )}
-                >
-                  <Clock3 className="size-4 stroke-[2.5]" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-extrabold text-foreground">Issued</span>
-                    <span className="rounded px-1.5 py-0.2 text-[9px] font-black bg-amber-500/15 text-amber-800 dark:text-amber-300">
-                      Outstanding
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                    Unpaid balance due
-                  </p>
-                </div>
-              </button>
-
-              {/* 3. PART PAID (Blue / Cyan Theme) */}
-              <button
-                type="button"
-                onClick={() => setStatus("partially_paid")}
-                className={cn(
-                  "flex items-center gap-3 rounded-2xl border p-3 text-left transition-all cursor-pointer relative overflow-hidden",
-                  status === "partially_paid"
-                    ? "border-blue-500 bg-blue-500/10 dark:bg-blue-950/40 shadow-xs ring-1.5 ring-blue-500"
-                    : "border-blue-200/50 bg-blue-50/25 dark:border-blue-900/30 dark:bg-blue-950/10 hover:border-blue-400",
-                )}
-              >
-                <div
-                  className={cn(
-                    "size-8 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-                    status === "partially_paid"
-                      ? "bg-blue-600 text-white shadow-xs"
-                      : "bg-blue-500/15 text-blue-700 dark:text-blue-300",
-                  )}
-                >
-                  <Wallet className="size-4 stroke-[2.5]" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-extrabold text-foreground">Part Paid</span>
-                    <span className="rounded px-1.5 py-0.2 text-[9px] font-black bg-blue-500/15 text-blue-800 dark:text-blue-300">
-                      Deposit
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                    Partial deposit collected
-                  </p>
-                </div>
-              </button>
-
-              {/* 4. DRAFT (Purple / Slate Theme) */}
-              <button
-                type="button"
-                onClick={() => setStatus("draft")}
-                className={cn(
-                  "flex items-center gap-3 rounded-2xl border p-3 text-left transition-all cursor-pointer relative overflow-hidden",
-                  status === "draft"
-                    ? "border-purple-500 bg-purple-500/10 dark:bg-purple-950/40 shadow-xs ring-1.5 ring-purple-500"
-                    : "border-purple-200/50 bg-purple-50/25 dark:border-purple-900/30 dark:bg-purple-950/10 hover:border-purple-400",
-                )}
-              >
-                <div
-                  className={cn(
-                    "size-8 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-                    status === "draft"
-                      ? "bg-purple-600 text-white shadow-xs"
-                      : "bg-purple-500/15 text-purple-700 dark:text-purple-300",
-                  )}
-                >
-                  <FileEdit className="size-4 stroke-[2.5]" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-extrabold text-foreground">Draft</span>
-                    <span className="rounded px-1.5 py-0.2 text-[9px] font-black bg-purple-500/15 text-purple-800 dark:text-purple-300">
-                      Front Desk
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                    Reception to finalize
-                  </p>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* 3. Payment Method Section (Only when Paid or Part Paid) */}
-          {(status === "paid" || status === "partially_paid") && (
-            <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/30 dark:bg-emerald-950/20 p-3.5 space-y-2.5 animate-in fade-in-50 duration-200">
-              <div className="flex items-center justify-between">
+              {/* Itemised Treatments & Procedure Section */}
+              <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                  Payment Method
+                  Itemised Treatments &amp; Services
                 </Label>
-                {status === "partially_paid" && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-bold text-muted-foreground">Deposit Paid (€):</span>
+
+                <div className="rounded-2xl border border-border/70 bg-card p-4.5 space-y-3.5 shadow-2xs">
+                  <div className="space-y-1">
+                    <Label className="text-xs font-semibold text-foreground">
+                      Description of Clinical Service
+                    </Label>
                     <Input
-                      type="number"
-                      min="1"
-                      max={netTotal}
-                      step="1"
-                      value={partialPaidAmount || ""}
-                      onChange={(e) =>
-                        setPartialPaidAmount(
-                          Math.min(netTotal, Math.max(0, Number(e.target.value))),
-                        )
-                      }
-                      className="h-7 w-20 rounded-lg bg-card text-xs font-bold font-mono px-2"
-                      placeholder="0"
+                      value={procedureName}
+                      onChange={(e) => setProcedureName(e.target.value)}
+                      placeholder="Procedure description..."
+                      className="h-10 text-xs font-bold rounded-xl bg-muted/20 border-border/80"
                     />
                   </div>
-                )}
+
+                  {/* Fee & Discount Inputs */}
+                  <div className="grid grid-cols-2 gap-3.5 pt-0.5">
+                    {/* Standard Fee */}
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-semibold text-foreground">
+                        Standard Fee (€)
+                      </Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
+                          €
+                        </span>
+                        <Input
+                          type="number"
+                          min="0"
+                          step="1"
+                          value={unitPrice || ""}
+                          onChange={(e) => setUnitPrice(Math.max(0, Number(e.target.value)))}
+                          className="h-10 pl-7 text-xs font-bold rounded-xl bg-muted/20 border-border/80 font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Discount Input */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-[11px] font-semibold text-foreground">
+                          Clinician Discount
+                        </Label>
+                        <div className="flex items-center rounded-lg bg-muted/50 p-0.5 border border-border/60">
+                          <button
+                            type="button"
+                            onClick={() => setDiscountType("percentage")}
+                            className={cn(
+                              "rounded px-1.5 py-0.2 text-[9px] font-bold transition-all cursor-pointer",
+                              discountType === "percentage"
+                                ? "bg-card text-foreground shadow-2xs"
+                                : "text-muted-foreground hover:text-foreground",
+                            )}
+                          >
+                            %
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDiscountType("fixed")}
+                            className={cn(
+                              "rounded px-1.5 py-0.2 text-[9px] font-bold transition-all cursor-pointer",
+                              discountType === "fixed"
+                                ? "bg-card text-foreground shadow-2xs"
+                                : "text-muted-foreground hover:text-foreground",
+                            )}
+                          >
+                            €
+                          </button>
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
+                          {discountType === "fixed" ? "€" : "%"}
+                        </span>
+                        <Input
+                          type="number"
+                          min="0"
+                          max={discountType === "percentage" ? 100 : unitPrice}
+                          step="1"
+                          value={discountValue || ""}
+                          onChange={(e) => setDiscountValue(Math.max(0, Number(e.target.value)))}
+                          placeholder="0"
+                          className="h-10 pl-7 text-xs font-bold rounded-xl bg-muted/20 border-border/80 font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Discount Presets */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                    <span className="text-[10px] font-semibold text-muted-foreground mr-1">
+                      Presets:
+                    </span>
+                    {[
+                      { label: "0%", val: 0, type: "percentage" as const },
+                      { label: "-5%", val: 5, type: "percentage" as const },
+                      { label: "-10%", val: 10, type: "percentage" as const },
+                      { label: "-20%", val: 20, type: "percentage" as const },
+                      { label: "-€10", val: 10, type: "fixed" as const },
+                      { label: "-€25", val: 25, type: "fixed" as const },
+                    ].map((chip) => {
+                      const isSelected = discountValue === chip.val && discountType === chip.type;
+                      return (
+                        <button
+                          key={chip.label}
+                          type="button"
+                          onClick={() => applyQuickDiscount(chip.val, chip.type)}
+                          className={cn(
+                            "rounded-lg px-2.5 py-1 text-[10px] font-bold transition-all border cursor-pointer",
+                            isSelected
+                              ? "bg-emerald-500/15 text-emerald-800 border-emerald-400 dark:bg-emerald-950/60 dark:text-emerald-300 shadow-2xs"
+                              : "bg-card text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted/40",
+                          )}
+                        >
+                          {chip.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
-              {/* Segmented Method Selector */}
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { id: "card" as const, label: "Card / POS", icon: CreditCard },
-                  { id: "cash" as const, label: "Cash", icon: Banknote },
-                  { id: "bank_transfer" as const, label: "Bank Transfer", icon: Landmark },
-                ].map((m) => (
+              {/* Financial Calculation Summary (Right Aligned Card matching Billing View) */}
+              <div className="flex justify-end">
+                <div className="w-full sm:w-80 rounded-2xl border border-border/70 bg-card p-4 space-y-2 text-xs shadow-2xs">
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Subtotal:</span>
+                    <span className="font-mono font-semibold">{formatCurrency(unitPrice)}</span>
+                  </div>
+                  {calculatedDiscount > 0 && (
+                    <div className="flex justify-between text-emerald-700 dark:text-emerald-400 font-semibold">
+                      <span>
+                        Clinician Discount {discountType === "percentage" ? `(${discountValue}%)` : ""}:
+                      </span>
+                      <span className="font-mono">-{formatCurrency(calculatedDiscount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-foreground font-black text-sm border-t border-border/60 pt-2">
+                    <span>Total Billed:</span>
+                    <span className="font-mono">{formatCurrency(netTotal)}</span>
+                  </div>
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-xs font-bold text-foreground">Net Payable:</span>
+                    <span className="font-mono font-black text-base text-emerald-900 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 px-3 py-1 rounded-xl shadow-2xs">
+                      {formatCurrency(netTotal)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Settlement Choices */}
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                  Payment Settlement
+                </Label>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  {/* Paid (Green Theme) */}
                   <button
-                    key={m.id}
                     type="button"
-                    onClick={() => setPaymentMethod(m.id)}
+                    onClick={() => setStatus("paid")}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 rounded-xl py-2 px-2.5 text-xs font-bold transition-all border cursor-pointer",
-                      paymentMethod === m.id
-                        ? "bg-[#0B3B36] text-white border-[#0B3B36] shadow-xs"
-                        : "bg-card text-foreground border-border/80 hover:bg-muted/40",
+                      "flex items-center gap-3 rounded-2xl border p-3 text-left transition-all cursor-pointer relative overflow-hidden",
+                      status === "paid"
+                        ? "border-emerald-500 bg-emerald-500/10 dark:bg-emerald-950/40 shadow-xs ring-1.5 ring-emerald-500"
+                        : "border-emerald-200/50 bg-emerald-50/25 dark:border-emerald-900/30 dark:bg-emerald-950/10 hover:border-emerald-400",
                     )}
                   >
-                    <m.icon className="size-3.5" />
-                    <span>{m.label}</span>
+                    <div
+                      className={cn(
+                        "size-8 rounded-xl flex items-center justify-center shrink-0 transition-colors",
+                        status === "paid"
+                          ? "bg-emerald-600 text-white shadow-xs"
+                          : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+                      )}
+                    >
+                      <Check className="size-4 stroke-[2.5]" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-extrabold text-foreground">Paid</span>
+                        <span className="rounded px-1.5 py-0.2 text-[9px] font-black bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">
+                          100% Settled
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                        Chairside full payment
+                      </p>
+                    </div>
                   </button>
-                ))}
+
+                  {/* Issued (Amber Theme) */}
+                  <button
+                    type="button"
+                    onClick={() => setStatus("issued")}
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl border p-3 text-left transition-all cursor-pointer relative overflow-hidden",
+                      status === "issued"
+                        ? "border-amber-500 bg-amber-500/10 dark:bg-amber-950/40 shadow-xs ring-1.5 ring-amber-500"
+                        : "border-amber-200/50 bg-amber-50/25 dark:border-amber-900/30 dark:bg-amber-950/10 hover:border-amber-400",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "size-8 rounded-xl flex items-center justify-center shrink-0 transition-colors",
+                        status === "issued"
+                          ? "bg-amber-600 text-white shadow-xs"
+                          : "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+                      )}
+                    >
+                      <Clock3 className="size-4 stroke-[2.5]" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-extrabold text-foreground">Issued</span>
+                        <span className="rounded px-1.5 py-0.2 text-[9px] font-black bg-amber-500/15 text-amber-800 dark:text-amber-300">
+                          Outstanding
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                        Unpaid balance due
+                      </p>
+                    </div>
+                  </button>
+
+                  {/* Part Paid (Cyan Theme) */}
+                  <button
+                    type="button"
+                    onClick={() => setStatus("partially_paid")}
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl border p-3 text-left transition-all cursor-pointer relative overflow-hidden",
+                      status === "partially_paid"
+                        ? "border-cyan-500 bg-cyan-500/10 dark:bg-cyan-950/40 shadow-xs ring-1.5 ring-cyan-500"
+                        : "border-cyan-200/50 bg-cyan-50/25 dark:border-cyan-900/30 dark:bg-cyan-950/10 hover:border-cyan-400",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "size-8 rounded-xl flex items-center justify-center shrink-0 transition-colors",
+                        status === "partially_paid"
+                          ? "bg-cyan-600 text-white shadow-xs"
+                          : "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300",
+                      )}
+                    >
+                      <Wallet className="size-4 stroke-[2.5]" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-extrabold text-foreground">Part Paid</span>
+                        <span className="rounded px-1.5 py-0.2 text-[9px] font-black bg-cyan-500/15 text-cyan-800 dark:text-cyan-300">
+                          Deposit
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                        Partial deposit collected
+                      </p>
+                    </div>
+                  </button>
+
+                  {/* Draft (Purple Theme) */}
+                  <button
+                    type="button"
+                    onClick={() => setStatus("draft")}
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl border p-3 text-left transition-all cursor-pointer relative overflow-hidden",
+                      status === "draft"
+                        ? "border-purple-500 bg-purple-500/10 dark:bg-purple-950/40 shadow-xs ring-1.5 ring-purple-500"
+                        : "border-purple-200/50 bg-purple-50/25 dark:border-purple-900/30 dark:bg-purple-950/10 hover:border-purple-400",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "size-8 rounded-xl flex items-center justify-center shrink-0 transition-colors",
+                        status === "draft"
+                          ? "bg-purple-600 text-white shadow-xs"
+                          : "bg-purple-500/15 text-purple-700 dark:text-purple-300",
+                      )}
+                    >
+                      <FileEdit className="size-4 stroke-[2.5]" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-extrabold text-foreground">Draft</span>
+                        <span className="rounded px-1.5 py-0.2 text-[9px] font-black bg-purple-500/15 text-purple-800 dark:text-purple-300">
+                          Front Desk
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                        Reception to finalize
+                      </p>
+                    </div>
+                  </button>
+                </div>
               </div>
 
-              {status === "partially_paid" && (
-                <div className="flex items-center justify-between pt-1 text-[11px] font-semibold text-muted-foreground border-t border-border/40">
-                  <span>Balance remaining to bill:</span>
-                  <span className="font-mono font-bold text-amber-700 dark:text-amber-400">
-                    €{remainingBalance.toFixed(2)}
-                  </span>
+              {/* Payment Method Section (Only when Paid or Part Paid) */}
+              {(status === "paid" || status === "partially_paid") && (
+                <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/30 dark:bg-emerald-950/20 p-4 space-y-3 animate-in fade-in-50 duration-200">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                      Payment Method
+                    </Label>
+                    {status === "partially_paid" && (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold text-muted-foreground">
+                          Deposit Paid (€):
+                        </span>
+                        <Input
+                          type="number"
+                          min="1"
+                          max={netTotal}
+                          step="1"
+                          value={partialPaidAmount || ""}
+                          onChange={(e) =>
+                            setPartialPaidAmount(
+                              Math.min(netTotal, Math.max(0, Number(e.target.value))),
+                            )
+                          }
+                          className="h-8 w-24 rounded-lg bg-card text-xs font-bold font-mono px-2"
+                          placeholder="0"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Segmented Method Selector */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: "card" as const, label: "Card / POS", icon: CreditCard },
+                      { id: "cash" as const, label: "Cash", icon: Banknote },
+                      { id: "bank_transfer" as const, label: "Bank Transfer", icon: Landmark },
+                    ].map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setPaymentMethod(m.id)}
+                        className={cn(
+                          "flex items-center justify-center gap-1.5 rounded-xl py-2.5 px-3 text-xs font-bold transition-all border cursor-pointer",
+                          paymentMethod === m.id
+                            ? "bg-[#0B3B36] text-white border-[#0B3B36] shadow-xs"
+                            : "bg-card text-foreground border-border/80 hover:bg-muted/40",
+                        )}
+                      >
+                        <m.icon className="size-3.5" />
+                        <span>{m.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {status === "partially_paid" && (
+                    <div className="flex items-center justify-between pt-1.5 text-xs font-semibold text-muted-foreground border-t border-border/40">
+                      <span>Remaining Balance:</span>
+                      <span className="font-mono font-bold text-amber-700 dark:text-amber-400">
+                        {formatCurrency(remainingBalance)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
 
-        {/* ── Modal Footer ── */}
-        <DialogFooter className="p-4 sm:px-6 border-t border-border/60 bg-muted/15 flex flex-col sm:flex-row items-center justify-between gap-2">
-          {/* Skip Button -> Saves as Draft automatically */}
-          <Button
-            type="button"
-            variant="ghost"
-            disabled={isSubmitting}
-            onClick={() => handleSubmit("draft")}
-            className="w-full sm:w-auto h-10 px-4 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl cursor-pointer"
-          >
-            {isSubmitting ? (
-              <Loader2 className="size-3.5 animate-spin mr-1.5" />
-            ) : (
-              <FileEdit className="size-3.5 mr-1.5 text-purple-600 dark:text-purple-400" />
-            )}
-            Skip to Reception (Draft)
-          </Button>
+            {/* ── 3. Modal Footer Actions (Generous Padding & Standard Symmetry) ── */}
+            <DialogFooter className="px-8 pt-5 pb-8 sm:pb-9 border-t border-border/70 bg-muted/20 flex flex-row items-center justify-between gap-4">
+              {/* Skip to Reception (Draft) */}
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={() => handleSubmit("draft")}
+                className="h-11 px-5 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl border-border/80 transition-all cursor-pointer shadow-2xs"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="size-3.5 animate-spin mr-1.5" />
+                ) : (
+                  <FileEdit className="size-3.5 mr-1.5 text-purple-600 dark:text-purple-400" />
+                )}
+                Skip to Reception (Draft)
+              </Button>
 
-          {/* Confirm & Create Button */}
-          <Button
-            type="button"
-            disabled={isSubmitting}
-            onClick={() => handleSubmit(status)}
-            className="w-full sm:w-auto h-10 px-6 text-xs font-black bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white rounded-xl shadow-md shadow-[#0B3B36]/20 cursor-pointer"
-          >
-            {isSubmitting ? (
-              <Loader2 className="size-4 animate-spin mr-2" />
-            ) : (
-              <Check className="size-4 mr-1.5 stroke-[2.5]" />
-            )}
-            {status === "draft"
-              ? "Save as Draft"
-              : status === "paid"
-                ? `Confirm & Settle (€${netTotal.toFixed(2)})`
-                : status === "issued"
-                  ? `Confirm & Issue (€${netTotal.toFixed(2)})`
-                  : `Confirm Deposit (€${partialPaidAmount.toFixed(2)})`}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+              {/* Confirm & Settle Button */}
+              <Button
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => handleSubmit(status)}
+                className="h-11 px-6 text-xs font-black bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white rounded-xl shadow-md shadow-[#0B3B36]/20 cursor-pointer"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="size-4 animate-spin mr-2" />
+                ) : (
+                  <Check className="size-4 mr-1.5 stroke-[2.5]" />
+                )}
+                {status === "draft"
+                  ? "Save as Draft"
+                  : status === "paid"
+                    ? `Confirm & Settle (€${netTotal.toFixed(2)})`
+                    : status === "issued"
+                      ? `Issue Outstanding (€${netTotal.toFixed(2)})`
+                      : `Confirm Deposit (€${partialPaidAmount.toFixed(2)})`}
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Standard Payment Success Modal */}
+      <PaymentSuccessDialog
+        open={successModalOpen}
+        onOpenChange={setSuccessModalOpen}
+        data={successModalData}
+        onPrint={handlePrintReceipt}
+      />
+    </>
   );
 }
