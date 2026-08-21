@@ -37,13 +37,13 @@ import { getInvoiceDetail } from "@/lib/server/directory";
 import {
   recordDirectPaymentAction,
   updateDraftInvoiceAction,
-  voidInvoiceAction,
 } from "@/lib/server/invoices";
 import { cn, formatCurrency } from "@/lib/utils";
 import {
   PaymentSuccessDialog,
   PaymentSuccessData,
 } from "@/components/staff/payment-success-dialog";
+import { printInvoiceStatement } from "@/lib/utils/print-invoice";
 
 interface InvoiceDetailDialogProps {
   invoiceId: string | null;
@@ -67,17 +67,15 @@ interface EditableItem {
 function formatStatusHeaderBadge(status: string) {
   switch (status) {
     case "paid":
-      return "bg-emerald-400/25 text-emerald-100 border-emerald-300/60 shadow-emerald-900/30";
+      return "bg-emerald-50 text-emerald-900 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300";
     case "partially_paid":
-      return "bg-cyan-400/25 text-cyan-100 border-cyan-300/60 shadow-cyan-900/30";
+      return "bg-cyan-50 text-cyan-900 border-cyan-300 dark:bg-cyan-950/60 dark:text-cyan-300";
     case "issued":
-      return "bg-amber-400/25 text-amber-100 border-amber-300/60 shadow-amber-900/30";
+      return "bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300";
     case "draft":
-      return "bg-purple-400/25 text-purple-100 border-purple-300/60 shadow-purple-900/30";
-    case "void":
-      return "bg-red-400/25 text-red-100 border-red-300/60 shadow-red-900/30";
+      return "bg-purple-50 text-purple-900 border-purple-300 dark:bg-purple-950/60 dark:text-purple-300";
     default:
-      return "bg-white/15 text-white border-white/30";
+      return "bg-muted text-foreground border-border";
   }
 }
 
@@ -245,7 +243,36 @@ export function InvoiceDetailDialog({
   };
 
   function handlePrint() {
-    window.print();
+    if (!invoice) return;
+    printInvoiceStatement({
+      invoiceNumber: invoice.invoice_number,
+      issueDate: format(new Date(`${invoice.issue_date}T00:00:00`), "dd MMMM yyyy"),
+      dueDate: invoice.due_date
+        ? format(new Date(`${invoice.due_date}T00:00:00`), "dd MMMM yyyy")
+        : null,
+      status: invoice.status,
+      patientName: patientName,
+      patientPhone: invoice.patients?.phone,
+      patientRef: invoice.patients?.id
+        ? `PT-${invoice.patients.id.replace(/-/g, "").slice(0, 8).toUpperCase()}`
+        : null,
+      subtotal: Number(invoice.subtotal),
+      discountAmount: Number(invoice.discount_amount),
+      total: Number(invoice.total),
+      totalPaid: totalPaid,
+      balance: balance,
+      items: items.map((i) => ({
+        description: i.description,
+        quantity: i.quantity,
+        unitPrice: Number(i.unit_price),
+        lineTotal: Number(i.line_total),
+      })),
+      payments: payments.map((p) => ({
+        date: format(new Date(p.paid_at), "dd MMMM yyyy"),
+        method: p.method,
+        amount: Number(p.amount),
+      })),
+    });
   }
 
   // Handle Save / Finalize Draft
@@ -359,36 +386,6 @@ export function InvoiceDetailDialog({
     }
   }
 
-  // Handle Void Invoice
-  const [isVoiding, setIsVoiding] = React.useState(false);
-  async function handleVoidInvoice() {
-    if (!invoice) return;
-    if (
-      !confirm(
-        `Are you sure you want to void invoice ${invoice.invoice_number}? This will cancel remaining balance and preserve an immutable audit record.`,
-      )
-    ) {
-      return;
-    }
-    setIsVoiding(true);
-    try {
-      const res = await voidInvoiceAction({ invoiceId: invoice.id });
-      if (res.success) {
-        toast.success(`Invoice ${invoice.invoice_number} has been voided.`, {
-          position: "top-center",
-        });
-        onPaymentSuccess?.();
-        onOpenChange(false);
-      } else {
-        toast.error(res.error || "Failed to void invoice.", { position: "top-center" });
-      }
-    } catch {
-      toast.error("Failed to void invoice.", { position: "top-center" });
-    } finally {
-      setIsVoiding(false);
-    }
-  }
-
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -402,48 +399,44 @@ export function InvoiceDetailDialog({
             </div>
           ) : (
             <div className="flex flex-col">
-              {/* ── 1. Top Header Banner ── */}
-              <div className="relative bg-gradient-to-r from-[#041D1A] via-[#093530] to-[#0D443D] px-7 py-4.5 text-white overflow-hidden">
-                <div className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-emerald-400/15 blur-2xl" />
-
-                <div className="flex items-center justify-between relative z-10">
-                  <div className="flex items-center gap-3">
-                    <span className="flex size-9 items-center justify-center rounded-xl bg-white/10 text-emerald-300 border border-white/15 shadow-inner">
-                      <Receipt className="size-4.5" />
-                    </span>
-                    <div>
-                      <h2 className="font-heading text-base font-black text-white font-mono tracking-tight flex items-center gap-2">
-                        {invoice.invoice_number}
-                      </h2>
-                      <p className="text-[11px] font-medium text-emerald-100/80">
-                        Issued {format(new Date(`${invoice.issue_date}T00:00:00`), "dd MMMM yyyy")}
-                        {invoice.due_date &&
-                          ` · Due ${format(new Date(`${invoice.due_date}T00:00:00`), "dd MMM yyyy")}`}
-                      </p>
-                    </div>
+              {/* ── 1. Clean Modern Standard Header (No Dark Green BG) ── */}
+              <div className="px-7 py-4.5 border-b border-border/80 bg-card flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/15 shadow-2xs">
+                    <Receipt className="size-4.5" />
+                  </span>
+                  <div>
+                    <h2 className="font-heading text-base font-black text-foreground font-mono tracking-tight flex items-center gap-2">
+                      {invoice.invoice_number}
+                    </h2>
+                    <p className="text-xs font-medium text-muted-foreground mt-0.5">
+                      Issued {format(new Date(`${invoice.issue_date}T00:00:00`), "dd MMMM yyyy")}
+                      {invoice.due_date &&
+                        ` · Due ${format(new Date(`${invoice.due_date}T00:00:00`), "dd MMM yyyy")}`}
+                    </p>
                   </div>
+                </div>
 
-                  {/* Status Badge + Dedicated Circular Cross (X) Close Button */}
-                  <div className="flex items-center gap-3">
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "rounded-full px-3 py-1 text-xs font-black capitalize border shadow-xs backdrop-blur-md",
-                        formatStatusHeaderBadge(invoice.status),
-                      )}
-                    >
-                      {formatStatusLabel(invoice.status)}
-                    </Badge>
+                {/* Status Badge + Clean Circular Close (X) Button */}
+                <div className="flex items-center gap-3">
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "rounded-full px-3 py-1 text-xs font-black capitalize border shadow-2xs",
+                      formatStatusHeaderBadge(invoice.status),
+                    )}
+                  >
+                    {formatStatusLabel(invoice.status)}
+                  </Badge>
 
-                    <button
-                      type="button"
-                      onClick={() => onOpenChange(false)}
-                      className="size-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white/90 hover:text-white border border-white/15 transition-all cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-                      title="Close dialog"
-                    >
-                      <X className="size-4 stroke-[2.5]" />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onOpenChange(false)}
+                    className="size-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/80 border border-border/80 transition-all cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                    title="Close dialog"
+                  >
+                    <X className="size-4 stroke-[2.5]" />
+                  </button>
                 </div>
               </div>
 
@@ -955,31 +948,16 @@ export function InvoiceDetailDialog({
               </div>
 
               {/* ── 3. Modal Footer Actions (Generous Padding & Standard Symmetry) ── */}
-              <DialogFooter className="px-8 pt-5 pb-8 sm:pb-9 border-t border-border/70 bg-muted/20 flex flex-row items-center justify-between gap-3 sm:gap-4">
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handlePrint}
-                    className="h-11 px-4 sm:px-5 rounded-xl text-xs font-bold gap-2 border-border/80 hover:bg-muted/50 transition-all cursor-pointer shadow-2xs"
-                  >
-                    <Printer className="size-4 text-muted-foreground" />
-                    <span>Print Statement</span>
-                  </Button>
-
-                  {invoice.status !== "void" && (invoice.status === "draft" || balance > 0) && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={isVoiding}
-                      onClick={handleVoidInvoice}
-                      className="h-11 px-3.5 rounded-xl text-xs font-bold text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border-red-200 dark:border-red-900/50 transition-all cursor-pointer"
-                      title="Void this invoice"
-                    >
-                      {isVoiding ? <Loader2 className="size-3.5 animate-spin" /> : "Void"}
-                    </Button>
-                  )}
-                </div>
+              <DialogFooter className="px-8 pt-5 pb-8 sm:pb-9 border-t border-border/70 bg-muted/20 flex flex-row items-center justify-between gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePrint}
+                  className="h-11 px-5 rounded-xl text-xs font-bold gap-2.5 border-border/80 hover:bg-muted/50 transition-all cursor-pointer shadow-2xs"
+                >
+                  <Printer className="size-4 text-muted-foreground" />
+                  <span>Print Statement</span>
+                </Button>
 
                 <div className="flex items-center gap-3">
                   <Button
@@ -1019,180 +997,7 @@ export function InvoiceDetailDialog({
         </DialogContent>
       </Dialog>
 
-      {/* ── 4. OFFICIAL UK DENTAL CLINIC PRINTABLE INVOICE / STATEMENT TEMPLATE ── */}
-      {invoice && (
-        <div className="hidden print:block fixed inset-0 bg-white text-slate-900 p-10 z-[999999] font-sans leading-normal">
-          {/* Practice Header & Brand */}
-          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-6">
-            <div>
-              <h1 className="text-2xl font-black tracking-tight text-slate-900 uppercase">
-                Elysian Dental Care &amp; Implant Clinic
-              </h1>
-              <p className="text-xs font-semibold text-slate-600 mt-0.5">
-                Private &amp; Specialist Dental Practice &bull; CQC Registered Provider
-              </p>
-              <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
-                48 Harley Street, Marylebone, London W1G 9PJ, United Kingdom<br />
-                Tel: +44 (0) 20 7946 0912 &bull; Email: accounts@elysiandental.co.uk<br />
-                Web: www.elysiandental.co.uk &bull; CQC Reg: 1-104928371
-              </p>
-            </div>
-
-            <div className="text-right">
-              <div className="inline-block border-2 border-slate-900 px-4 py-1.5 rounded-lg mb-2">
-                <span className="text-xs font-black uppercase tracking-widest text-slate-900 block">
-                  TAX INVOICE &bull; STATEMENT
-                </span>
-              </div>
-              <p className="font-mono font-bold text-sm text-slate-900">{invoice.invoice_number}</p>
-              <p className="text-[11px] text-slate-600 mt-1">
-                Issue Date: <strong>{format(new Date(`${invoice.issue_date}T00:00:00`), "dd MMMM yyyy")}</strong>
-              </p>
-              {invoice.due_date && (
-                <p className="text-[11px] text-slate-600">
-                  Due Date: <strong>{format(new Date(`${invoice.due_date}T00:00:00`), "dd MMMM yyyy")}</strong>
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Patient Details & Status Banner */}
-          <div className="grid grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 text-xs">
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">
-                Billed To Patient:
-              </span>
-              <p className="text-sm font-bold text-slate-900">{patientName}</p>
-              {invoice.patients?.id && (
-                <p className="font-mono text-slate-500 text-[11px] mt-1">
-                  Patient Ref: PT-{invoice.patients.id.replace(/-/g, "").slice(0, 8).toUpperCase()}
-                </p>
-              )}
-            </div>
-
-            <div className="text-right flex flex-col justify-between items-end">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block">
-                Settlement Status:
-              </span>
-              <div className="mt-1">
-                <span className={cn(
-                  "inline-block px-3 py-1 text-xs font-black rounded-lg uppercase tracking-wider border",
-                  balance <= 0
-                    ? "bg-emerald-100 text-emerald-900 border-emerald-300"
-                    : "bg-amber-100 text-amber-900 border-amber-300",
-                )}>
-                  {balance <= 0 ? "PAID IN FULL" : `OUTSTANDING BALANCE: €${balance.toFixed(2)}`}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Itemised Treatments Table */}
-          <div className="mb-6">
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 mb-2">
-              Itemised Clinical Treatments &amp; Dental Services
-            </h3>
-            <table className="w-full text-xs text-left border border-slate-300 rounded-lg overflow-hidden">
-              <thead className="bg-slate-100 border-b border-slate-300 text-[10px] font-black uppercase tracking-wider text-slate-700">
-                <tr>
-                  <th className="p-3">Description of Clinical Service</th>
-                  <th className="p-3 text-center w-16">Qty</th>
-                  <th className="p-3 text-right w-28">Unit Rate</th>
-                  <th className="p-3 text-right w-28">Amount</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {items.map((item) => (
-                  <tr key={item.id}>
-                    <td className="p-3 font-semibold text-slate-900">{item.description}</td>
-                    <td className="p-3 text-center text-slate-700">{item.quantity}</td>
-                    <td className="p-3 text-right font-mono text-slate-700">{formatCurrency(item.unit_price)}</td>
-                    <td className="p-3 text-right font-mono font-bold text-slate-900">{formatCurrency(item.line_total)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Financial Calculation Summary */}
-          <div className="flex justify-end mb-6">
-            <div className="w-72 bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs space-y-1.5">
-              <div className="flex justify-between text-slate-600">
-                <span>Subtotal:</span>
-                <span className="font-mono font-semibold">{formatCurrency(invoice.subtotal)}</span>
-              </div>
-              {Number(invoice.discount_amount) > 0 && (
-                <div className="flex justify-between text-emerald-700 font-semibold">
-                  <span>Clinician Discount:</span>
-                  <span className="font-mono">-{formatCurrency(invoice.discount_amount)}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-slate-500 text-[11px]">
-                <span>UK VAT (Exempt - Healthcare):</span>
-                <span className="font-mono">£0.00 / €0.00</span>
-              </div>
-              <div className="flex justify-between font-black text-slate-900 border-t border-slate-300 pt-1 text-sm">
-                <span>Total Amount Due:</span>
-                <span className="font-mono">{formatCurrency(invoice.total)}</span>
-              </div>
-              <div className="flex justify-between text-emerald-800 font-bold">
-                <span>Total Paid to Date:</span>
-                <span className="font-mono">{formatCurrency(totalPaid)}</span>
-              </div>
-              <div className="flex justify-between font-black text-slate-900 border-t-2 border-slate-900 pt-1.5 text-sm">
-                <span>Remaining Balance Due:</span>
-                <span className="font-mono">{formatCurrency(balance)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Payment Schedule (if any payments recorded) */}
-          {payments.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 mb-2">
-                Receipts &amp; Payments Schedule
-              </h3>
-              <table className="w-full text-xs text-left border border-slate-300 rounded-lg overflow-hidden">
-                <thead className="bg-slate-100 border-b border-slate-300 text-[10px] font-black uppercase tracking-wider text-slate-700">
-                  <tr>
-                    <th className="p-2.5">Date Received</th>
-                    <th className="p-2.5">Payment Method</th>
-                    <th className="p-2.5 text-right">Amount Received</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {payments.map((p) => (
-                    <tr key={p.id}>
-                      <td className="p-2.5 font-mono text-slate-700">{format(new Date(p.paid_at), "dd MMMM yyyy")}</td>
-                      <td className="p-2.5 font-semibold text-slate-900">{formatPaymentMethodLabel(p.method)}</td>
-                      <td className="p-2.5 text-right font-mono font-bold text-emerald-800">{formatCurrency(p.amount)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Official UK Regulatory Terms & BACS Remittance Advice */}
-          <div className="border-t-2 border-slate-300 pt-4 mt-8 text-[10px] text-slate-500 leading-relaxed grid grid-cols-2 gap-4">
-            <div>
-              <p className="font-bold text-slate-700 uppercase mb-1">UK BACS Direct Bank Remittance:</p>
-              <p>Bank: <strong>Barclays Bank UK PLC</strong></p>
-              <p>Sort Code: <strong>20-04-15</strong> &bull; Account No: <strong>83920194</strong></p>
-              <p>Payment Reference: <strong>{invoice.invoice_number}</strong></p>
-            </div>
-            <div>
-              <p className="font-bold text-slate-700 uppercase mb-1">Clinical Governance &amp; Compliance:</p>
-              <p>
-                Medical and dental services are exempt from UK Value Added Tax under VAT Notice 701/57.<br />
-                All dental surgeons and hygienists are fully registered with the General Dental Council (GDC).
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── 5. Standard Payment Success Confirmation Modal ── */}
+      {/* ── 4. Standard Payment Success Confirmation Modal ── */}
       <PaymentSuccessDialog
         open={successModalOpen}
         onOpenChange={setSuccessModalOpen}

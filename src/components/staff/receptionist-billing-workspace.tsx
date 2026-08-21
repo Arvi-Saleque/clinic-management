@@ -66,7 +66,6 @@ function formatStatusBadgeLabel(status: string) {
   if (status === "issued") return "Outstanding";
   if (status === "partially_paid") return "Part Paid";
   if (status === "paid") return "Paid in Full";
-  if (status === "void") return "Void";
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
@@ -81,7 +80,7 @@ export function ReceptionistBillingWorkspace({
 
   const [query, setQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<
-    "all" | "draft" | "partially_paid" | "outstanding" | "paid" | "void"
+    "all" | "draft" | "partially_paid" | "outstanding" | "paid"
   >("all");
   const [sortOrder, setSortOrder] = React.useState<"earliest" | "latest">("earliest");
 
@@ -91,7 +90,7 @@ export function ReceptionistBillingWorkspace({
 
   // Operational KPI metrics (UK clinic focus)
   const metrics = React.useMemo(() => {
-    const totalDue = invoices.reduce((sum, inv) => sum + (inv.status !== "void" ? inv.balance : 0), 0);
+    const totalDue = invoices.reduce((sum, inv) => sum + inv.balance, 0);
     const dueCount = invoices.filter(
       (inv) => ["issued", "partially_paid"].includes(inv.status) && inv.balance > 0,
     ).length;
@@ -109,7 +108,6 @@ export function ReceptionistBillingWorkspace({
         (i) => (i.status === "issued" || i.status === "partially_paid") && i.balance > 0,
       ).length,
       paid: invoices.filter((i) => i.status === "paid").length,
-      void: invoices.filter((i) => i.status === "void").length,
     };
   }, [invoices]);
 
@@ -142,8 +140,6 @@ export function ReceptionistBillingWorkspace({
           (inv.status === "issued" || inv.status === "partially_paid") && inv.balance > 0;
       } else if (statusFilter === "paid") {
         matchesStatus = inv.status === "paid";
-      } else if (statusFilter === "void") {
-        matchesStatus = inv.status === "void";
       }
 
       return matchesSearch && matchesStatus;
@@ -263,7 +259,6 @@ export function ReceptionistBillingWorkspace({
               { id: "partially_paid" as const, label: "Part Paid", count: tabCounts.partially_paid },
               { id: "outstanding" as const, label: "Outstanding", count: tabCounts.outstanding },
               { id: "paid" as const, label: "Paid", count: tabCounts.paid },
-              { id: "void" as const, label: "Void", count: tabCounts.void },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -280,9 +275,7 @@ export function ReceptionistBillingWorkspace({
                           ? "bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 shadow-2xs"
                           : tab.id === "paid"
                             ? "bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-200 shadow-2xs"
-                            : tab.id === "void"
-                              ? "bg-red-100 text-red-900 border border-red-300 dark:bg-red-950/80 dark:text-red-200 shadow-2xs"
-                              : "bg-card text-foreground border border-border/80 shadow-2xs"
+                            : "bg-card text-foreground border border-border/80 shadow-2xs"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
