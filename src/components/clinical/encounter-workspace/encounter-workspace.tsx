@@ -158,6 +158,7 @@ export function EncounterWorkspace({ context }: EncounterWorkspaceProps) {
                 patient={context.patient}
                 appointment={context.appointment}
                 followUpScheduling={context.follow_up_scheduling}
+                followUpAppointments={context.follow_up_appointments}
                 onDirtyChange={setIsDraftDirty}
                 onValidationFail={handleValidationFail}
               />

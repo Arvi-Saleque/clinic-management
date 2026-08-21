@@ -50,18 +50,37 @@ export default async function PortalDashboardPage({
     )
     .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
 
-  const mapAppointment = (appointment: (typeof appointments)[number]) => ({
-    id: appointment.id,
-    starts_at: appointment.starts_at,
-    ends_at: appointment.ends_at ?? null,
-    status: appointment.status,
-    serviceName: appointment.services?.name ?? "Comprehensive Dental Care",
-    price: appointment.services?.price ?? 0,
-    duration: appointment.services?.duration_minutes ?? 45,
-    practitionerName:
-      appointment.practitioners?.profiles?.full_name ?? "Lead Dental Specialist",
-    notes: appointment.notes ?? null,
-  });
+  const mapAppointment = (appointment: (typeof appointments)[number]) => {
+    let customPrice = appointment.services?.price ? Number(appointment.services.price) : 0;
+    let customDuration = appointment.services?.duration_minutes ?? 45;
+    if (appointment.notes) {
+      const feeMatch = appointment.notes.match(/(?:\[FEE:([\d.]+)\]|Fee:\s*€\s*([\d.]+))/i);
+      if (feeMatch) {
+        customPrice = parseFloat(feeMatch[1] || feeMatch[2]);
+      }
+      const durMatch = appointment.notes.match(/(?:\[DUR:(\d+)\]|Duration:\s*(\d+)m)/i);
+      if (durMatch) {
+        customDuration = parseInt(durMatch[1] || durMatch[2], 10);
+      }
+    }
+
+    const cleanNotes = appointment.notes
+      ? appointment.notes.replace(/\[FEE:[\d.]+\]/gi, "").replace(/\[DUR:\d+\]/gi, "").trim()
+      : null;
+
+    return {
+      id: appointment.id,
+      starts_at: appointment.starts_at,
+      ends_at: appointment.ends_at ?? null,
+      status: appointment.status,
+      serviceName: appointment.services?.name ?? "Comprehensive Dental Care",
+      price: customPrice,
+      duration: customDuration,
+      practitionerName:
+        appointment.practitioners?.profiles?.full_name ?? "Lead Dental Specialist",
+      notes: cleanNotes || null,
+    };
+  };
 
   return (
     <>

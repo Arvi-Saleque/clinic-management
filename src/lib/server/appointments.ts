@@ -607,11 +607,12 @@ export async function createStaffAppointment(input: {
   branchId: string;
   patientId: string;
   startsAt: string;
+  durationMinutes?: number;
   bookingSource: "staff" | "phone";
   notes?: string | null;
   originatingEncounterId?: string | null;
 }): Promise<CreateAppointmentResult> {
-  await requireStaff();
+  const profile = await requireStaff();
 
   const trimmedOriginatingEncounterId = input.originatingEncounterId?.trim() || null;
   if (trimmedOriginatingEncounterId && !UUID_REGEX.test(trimmedOriginatingEncounterId)) {
@@ -620,20 +621,90 @@ export async function createStaffAppointment(input: {
 
   const supabase = await createClient();
 
-  const { data, error } = await supabase.rpc("book_appointment", {
-    p_practitioner_id: input.practitionerId,
-    p_service_id: input.serviceId,
-    p_branch_id: input.branchId,
-    p_patient_id: input.patientId,
-    p_starts_at: input.startsAt,
-    p_booking_source: input.bookingSource,
-    p_notes: input.notes ?? undefined,
-    p_originating_encounter_id: trimmedOriginatingEncounterId ?? undefined,
-  });
+  // 1. Resolve duration and organization
+  let duration = input.durationMinutes;
+  let organizationId = profile.organization_id;
 
-  if (error) return { id: null, error: sanitizeBookingError(error.message) };
+  if (!duration) {
+    const { data: svc } = await supabase
+      .from("services")
+      .select("duration_minutes, organization_id")
+      .eq("id", input.serviceId)
+      .maybeSingle();
+
+    duration = svc?.duration_minutes || 30;
+    if (svc?.organization_id) {
+      organizationId = svc.organization_id;
+    }
+  }
+
+  // 2. Compute exact starts_at & ends_at timestamps
+  const startsDate = new Date(input.startsAt);
+  if (isNaN(startsDate.getTime())) {
+    return { id: null, error: "Invalid appointment start date/time format." };
+  }
+  const endsDate = new Date(startsDate.getTime() + (duration || 30) * 60000);
+  const startsAtISO = startsDate.toISOString();
+  const endsAtISO = endsDate.toISOString();
+
+  // 3. Resolve practitioner and organization if needed
+  if (!organizationId) {
+    const { data: pract } = await supabase
+      .from("practitioners")
+      .select("branch_id, branches(organization_id)")
+      .eq("id", input.practitionerId)
+      .maybeSingle();
+    const branchOrg = (pract?.branches as any)?.organization_id;
+    if (branchOrg) organizationId = branchOrg;
+  }
+
+  if (!organizationId) {
+    return { id: null, error: "Unable to resolve clinic organization." };
+  }
+
+  // 4. Check for overlapping non-cancelled appointments for this practitioner
+  const { data: conflicts } = await supabase
+    .from("appointments")
+    .select("id, starts_at, ends_at")
+    .eq("practitioner_id", input.practitionerId)
+    .not("status", "in", '("cancelled","no_show")')
+    .lt("starts_at", endsAtISO)
+    .gt("ends_at", startsAtISO);
+
+  if (conflicts && conflicts.length > 0) {
+    return { id: null, error: "This time slot overlaps with another booked appointment for this doctor." };
+  }
+
+  // 5. Insert directly into appointments
+  const { data: newApt, error: insertError } = await supabase
+    .from("appointments")
+    .insert({
+      organization_id: organizationId,
+      branch_id: input.branchId,
+      patient_id: input.patientId,
+      practitioner_id: input.practitionerId,
+      service_id: input.serviceId,
+      starts_at: startsAtISO,
+      ends_at: endsAtISO,
+      status: "confirmed",
+      booking_source: input.bookingSource,
+      created_by_profile_id: profile.id,
+      notes: input.notes?.trim() || null,
+      originating_encounter_id: trimmedOriginatingEncounterId,
+    })
+    .select("id")
+    .single();
+
+  if (insertError) {
+    if (insertError.message.includes("appointments_no_overlap")) {
+      return { id: null, error: "This time slot overlaps with another booked appointment for this doctor." };
+    }
+    return { id: null, error: sanitizeBookingError(insertError.message) };
+  }
+
   revalidatePath("/scheduler");
-  return { id: data as string, error: null };
+  revalidatePath("/appointments");
+  return { id: newApt.id, error: null };
 }
 
 export type AppointmentStatus =

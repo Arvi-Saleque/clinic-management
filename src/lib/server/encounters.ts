@@ -490,6 +490,19 @@ export async function getEncounterWorkspaceContext(
         } | null;
         const branch = apptRow.branches as unknown as { name: string } | null;
 
+        let apptCustomPrice: number | null = null;
+        let apptCustomDuration: number | null = null;
+        if (apptRow.notes) {
+          const feeMatch = apptRow.notes.match(/(?:\[FEE:([\d.]+)\]|Fee:\s*€\s*([\d.]+))/i);
+          if (feeMatch) {
+            apptCustomPrice = parseFloat(feeMatch[1] || feeMatch[2]);
+          }
+          const durMatch = apptRow.notes.match(/(?:\[DUR:(\d+)\]|Duration:\s*(\d+)m)/i);
+          if (durMatch) {
+            apptCustomDuration = parseInt(durMatch[1] || durMatch[2], 10);
+          }
+        }
+
         appointmentContext = {
           id: apptRow.id,
           starts_at: apptRow.starts_at,
@@ -498,8 +511,8 @@ export async function getEncounterWorkspaceContext(
           booking_source: apptRow.booking_source,
           notes: apptRow.notes,
           service_name: service?.name ?? null,
-          service_duration: service?.duration_minutes ?? null,
-          service_price: service?.price ? Number(service.price) : null,
+          service_duration: apptCustomDuration !== null ? apptCustomDuration : (service?.duration_minutes ?? null),
+          service_price: apptCustomPrice !== null ? apptCustomPrice : (service?.price !== null && service?.price !== undefined ? Number(service.price) : null),
           practitioner_name: practitioner?.profiles?.full_name ?? null,
           branch_name: branch?.name ?? null,
         };
@@ -796,6 +809,19 @@ export async function getEncounterWorkspaceContext(
       } | null;
       const branch = row.branches as unknown as { name: string } | null;
 
+      let customPrice: number | null = null;
+      let customDuration: number | null = null;
+      if (row.notes) {
+        const feeMatch = row.notes.match(/(?:\[FEE:([\d.]+)\]|Fee:\s*€\s*([\d.]+))/i);
+        if (feeMatch) {
+          customPrice = parseFloat(feeMatch[1] || feeMatch[2]);
+        }
+        const durMatch = row.notes.match(/(?:\[DUR:(\d+)\]|Duration:\s*(\d+)m)/i);
+        if (durMatch) {
+          customDuration = parseInt(durMatch[1] || durMatch[2], 10);
+        }
+      }
+
       return {
         id: row.id,
         starts_at: row.starts_at,
@@ -803,9 +829,9 @@ export async function getEncounterWorkspaceContext(
         status: row.status,
         booking_source: row.booking_source,
         notes: row.notes,
-        service_name: service?.name ?? null,
-        service_duration: service?.duration_minutes ?? null,
-        service_price: service?.price ? Number(service.price) : null,
+        service_name: service?.name ? `${service.name} - Follow-up` : "Follow-up Visit",
+        service_duration: customDuration !== null ? customDuration : (service?.duration_minutes ?? null),
+        service_price: customPrice !== null ? customPrice : (service?.price !== null && service?.price !== undefined ? Number(service.price) : null),
         practitioner_name: practitioner?.profiles?.full_name ?? null,
         branch_name: branch?.name ?? null,
       };

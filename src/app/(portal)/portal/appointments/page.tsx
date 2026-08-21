@@ -72,16 +72,44 @@ export default async function PortalAppointmentsPage({
     return null;
   };
 
+  const resolvePrice = (appointment: (typeof appointments)[number]) => {
+    if (appointment.notes) {
+      const feeMatch = appointment.notes.match(/(?:\[FEE:([\d.]+)\]|Fee:\s*€\s*([\d.]+))/i);
+      if (feeMatch) {
+        const parsed = parseFloat(feeMatch[1] || feeMatch[2]);
+        if (!isNaN(parsed)) return parsed;
+      }
+    }
+    return appointment.services?.price ? Number(appointment.services.price) : 0;
+  };
+
+  const resolveDuration = (appointment: (typeof appointments)[number]) => {
+    if (appointment.notes) {
+      const durMatch = appointment.notes.match(/(?:\[DUR:(\d+)\]|Duration:\s*(\d+)m)/i);
+      if (durMatch) {
+        const parsed = parseInt(durMatch[1] || durMatch[2], 10);
+        if (!isNaN(parsed)) return parsed;
+      }
+    }
+    return appointment.services?.duration_minutes ?? 45;
+  };
+
+  const cleanNotes = (notes?: string | null) => {
+    if (!notes) return null;
+    const cleaned = notes.replace(/\[FEE:[\d.]+\]/gi, "").replace(/\[DUR:\d+\]/gi, "").trim();
+    return cleaned || null;
+  };
+
   const formattedHistory: PortalAppointmentHistoryItem[] = history.map((appointment) => ({
     id: appointment.id,
     starts_at: appointment.starts_at,
     ends_at: appointment.ends_at,
     status: appointment.status,
-    notes: appointment.notes,
+    notes: cleanNotes(appointment.notes),
     practitionerName: appointment.practitioners?.profiles?.full_name ?? "Clinic practitioner",
     serviceName: appointment.services?.name ?? "Dental visit",
-    price: appointment.services?.price ?? 0,
-    duration: appointment.services?.duration_minutes,
+    price: resolvePrice(appointment),
+    duration: resolveDuration(appointment),
     prescription: findPrescriptionForAppointment(appointment),
   }));
 
@@ -94,11 +122,11 @@ export default async function PortalAppointmentsPage({
         starts_at={appointment.starts_at}
         ends_at={appointment.ends_at}
         status={appointment.status}
-        notes={appointment.notes}
+        notes={cleanNotes(appointment.notes)}
         practitionerName={appointment.practitioners?.profiles?.full_name ?? "Clinic practitioner"}
         serviceName={appointment.services?.name ?? "Dental visit"}
-        price={appointment.services?.price ?? 0}
-        duration={appointment.services?.duration_minutes}
+        price={resolvePrice(appointment)}
+        duration={resolveDuration(appointment)}
         prescription={rx}
       />
     );
