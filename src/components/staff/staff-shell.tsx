@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
+  Calendar,
   CalendarCheck2,
   CalendarDays,
   ChevronRight,
@@ -102,6 +103,23 @@ export function StaffShell({ profile, children }: { profile: Profile; children: 
   const [search, setSearch] = React.useState("");
   const visibleNav = getNavForRole(profile.role);
 
+  // Formatted current date
+  const [todayFormatted, setTodayFormatted] = React.useState("");
+  React.useEffect(() => {
+    try {
+      const now = new Date();
+      setTodayFormatted(
+        now.toLocaleDateString("en-GB", {
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+        }),
+      );
+    } catch {
+      // Fallback
+    }
+  }, []);
+
   const initials = profile.full_name
     .split(" ")
     .slice(0, 2)
@@ -114,6 +132,21 @@ export function StaffShell({ profile, children }: { profile: Profile; children: 
     const query = search.trim();
     router.push(query ? `/patients?q=${encodeURIComponent(query)}` : "/patients");
   }
+
+  // Keyboard shortcut listener for Command/Ctrl + K
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        const searchInput = document.getElementById("staff-top-search");
+        if (searchInput) {
+          searchInput.focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const navContent = (onNavigate?: () => void) => (
     <nav aria-label="Staff clinical workspace" className="space-y-1">
@@ -289,51 +322,86 @@ export function StaffShell({ profile, children }: { profile: Profile; children: 
         {/* Soft, Light Glass Wash for Crisp Text Contrast */}
         <div className="pointer-events-none fixed inset-0 z-0 bg-background/40 dark:bg-background/65 backdrop-blur-[0.5px] lg:left-[288px]" />
 
-        {/* TOP BAR */}
-        <header className="sticky top-0 z-30 flex h-[72px] items-center gap-2.5 sm:gap-3 border-b border-border/70 bg-background/70 px-4 sm:px-6 lg:px-8 backdrop-blur-xl">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="mr-1 lg:hidden rounded-xl"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open navigation"
-          >
-            <Menu className="size-5" />
-          </Button>
+        {/* ── TOP BAR (MODERN, CLASSY & STANDARD) ── */}
+        <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between gap-3 border-b border-border/70 bg-background/80 px-4 sm:px-6 lg:px-8 backdrop-blur-xl shadow-2xs">
+          {/* Left: Page Title & Clinical Context */}
+          <div className="flex items-center gap-3 min-w-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mr-0.5 lg:hidden rounded-xl"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open navigation"
+            >
+              <Menu className="size-5" />
+            </Button>
 
-          <div className="hidden min-w-36 md:block">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Clinical Workspace</p>
-            <p className="text-sm font-extrabold tracking-tight text-foreground truncate">{getPageLabel(pathname)}</p>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-[0.16em] text-primary flex items-center gap-1">
+                  <Stethoscope className="size-3" />
+                  Clinical Workspace
+                </span>
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 text-[10px] font-black uppercase tracking-wider">
+                  <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Live
+                </span>
+              </div>
+              <h1 className="text-sm sm:text-base font-heading font-black tracking-tight text-foreground truncate mt-0.5">
+                {getPageLabel(pathname)}
+              </h1>
+            </div>
           </div>
 
+          {/* Center: Sleek, Classy Command Search */}
           <form
             onSubmit={submitSearch}
-            className="mx-auto flex min-w-0 flex-1 max-w-[560px] items-center rounded-2xl border border-border/80 bg-surface/80 px-3 sm:px-3.5 backdrop-blur-md shadow-xs transition focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/10"
+            className="hidden md:flex min-w-0 flex-1 max-w-[420px] items-center rounded-2xl border border-border/80 bg-card/75 px-3 py-1 backdrop-blur-md shadow-2xs transition-all focus-within:border-primary/50 focus-within:bg-card focus-within:ring-3 focus-within:ring-primary/10"
           >
-            <Search className="size-4 shrink-0 text-muted-foreground" />
+            <Search className="size-3.5 shrink-0 text-muted-foreground" />
             <input
+              id="staff-top-search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              className="h-10 min-w-0 flex-1 bg-transparent px-2 text-xs sm:text-sm outline-none placeholder:text-muted-foreground"
-              placeholder="Search patient name, phone or ID…"
-              aria-label="Search patients"
+              className="h-8 min-w-0 flex-1 bg-transparent px-2.5 text-xs outline-none placeholder:text-muted-foreground font-medium"
+              placeholder="Search patients, procedures, schedule…"
+              aria-label="Quick search"
             />
-            <span className="hidden items-center gap-1 rounded-md border border-border/60 bg-muted/40 px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground sm:flex">
-              <Command className="size-3" /> K
+            <span className="flex items-center gap-1 rounded-lg border border-border/60 bg-muted/40 px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground font-mono">
+              <Command className="size-2.5" /> K
             </span>
           </form>
 
-          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="icon" aria-label="Notifications" className="relative rounded-xl">
+          {/* Right: Date Capsule, Notifications, Theme & Schedule Action */}
+          <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
+            {/* Live Date Pill */}
+            {todayFormatted && (
+              <div className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-card/80 border border-border/70 text-xs font-bold text-muted-foreground shadow-2xs font-mono">
+                <Calendar className="size-3.5 text-primary" />
+                <span>{todayFormatted}</span>
+              </div>
+            )}
+
+            {/* Notifications */}
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Notifications"
+              className="relative rounded-2xl size-9 text-muted-foreground hover:text-foreground border border-transparent hover:border-border/60 hover:bg-card/70 transition shadow-2xs"
+            >
               <Bell className="size-4" />
               <span className="absolute right-2 top-2 size-2 rounded-full border-2 border-background bg-emerald-500" />
             </Button>
+
+            {/* Theme Toggle */}
             <ThemeToggle />
+
+            {/* Schedule CTA */}
             <ButtonLink
               href="/scheduler"
-              className="gap-2 rounded-2xl bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-xs shadow-md shadow-primary/20 h-10 px-4 hidden sm:inline-flex"
+              className="gap-2 rounded-2xl bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white font-bold text-xs shadow-md shadow-[#0B3B36]/20 h-10 px-4 hidden sm:inline-flex transition-all hover:scale-[1.02]"
             >
-              <Plus className="size-4" />
+              <Plus className="size-4 stroke-[2.5]" />
               <span>Schedule Visit</span>
             </ButtonLink>
           </div>
