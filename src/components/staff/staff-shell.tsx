@@ -2,19 +2,16 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   Bell,
+  Building2,
   Calendar,
   CalendarCheck2,
   CalendarDays,
-  ChevronRight,
-  Command,
   LayoutDashboard,
   Menu,
-  Plus,
   Receipt,
-  Search,
   ShieldCheck,
   Sparkles,
   Stethoscope,
@@ -24,7 +21,7 @@ import {
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { SignOutButton } from "@/components/shared/sign-out-button";
-import { Button, ButtonLink } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { formatRoleLabel } from "@/lib/constants/roles";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/lib/auth/session";
@@ -63,15 +60,6 @@ const OWNER_ADMIN_NAV: NavItem[] = [
   { href: "/clinical/services", label: "Services & Treatments", shortLabel: "Services", icon: Stethoscope },
 ];
 
-const ALL_NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", shortLabel: "Dashboard", icon: LayoutDashboard },
-  { href: "/appointments", label: "Appointments", shortLabel: "Appointments", icon: CalendarCheck2 },
-  { href: "/patients", label: "Patients", shortLabel: "Patients", icon: Users },
-  { href: "/scheduler", label: "Clinical Diary", shortLabel: "Clinical Diary", icon: CalendarDays },
-  { href: "/billing/invoices", label: "Billing & Payments", shortLabel: "Billing", icon: Receipt },
-  { href: "/clinical/services", label: "Services & Treatments", shortLabel: "Services", icon: Stethoscope },
-];
-
 function getNavForRole(role: string): NavItem[] {
   switch (role) {
     case "receptionist":
@@ -85,10 +73,106 @@ function getNavForRole(role: string): NavItem[] {
   }
 }
 
-function getPageLabel(pathname: string) {
-  const match = [...ALL_NAV_ITEMS].reverse().find((item) => pathname.startsWith(item.href));
-  if (pathname.includes("/new")) return `New ${match?.shortLabel.toLowerCase() ?? "record"}`;
-  return match?.shortLabel ?? "Clinic workspace";
+interface SectionMeta {
+  eyebrow: string;
+  title: string;
+  badge: string;
+}
+
+function getSectionMeta(pathname: string, role: string): SectionMeta {
+  if (pathname === "/dashboard") {
+    return {
+      eyebrow: role === "receptionist" ? "Front Desk" : "Doctor Workspace",
+      title: "Clinical Dashboard",
+      badge: "Operatory Live",
+    };
+  }
+
+  if (pathname === "/patients") {
+    return {
+      eyebrow: "Patient Registry",
+      title: "Patients Directory",
+      badge: "Active Records",
+    };
+  }
+
+  if (pathname.startsWith("/patients/") && pathname.endsWith("/edit")) {
+    return {
+      eyebrow: "Patient Registry",
+      title: "Edit Patient Profile",
+      badge: "Editing Record",
+    };
+  }
+
+  if (pathname.startsWith("/patients/")) {
+    return {
+      eyebrow: "Medical Chart",
+      title: "Patient Medical Record",
+      badge: "Clinical Chart",
+    };
+  }
+
+  if (pathname === "/scheduler") {
+    return {
+      eyebrow: "Chairside Calendar",
+      title: "Clinical Diary",
+      badge: "Real-time Schedule",
+    };
+  }
+
+  if (pathname === "/appointments") {
+    return {
+      eyebrow: "Patient Queue",
+      title: "Appointments & Visits",
+      badge: "Live Queue",
+    };
+  }
+
+  if (pathname === "/clinical/services/new") {
+    return {
+      eyebrow: "Centralized Catalog",
+      title: "Add Clinic Procedure",
+      badge: "New Treatment",
+    };
+  }
+
+  if (pathname.startsWith("/clinical/services") && pathname.includes("/edit")) {
+    return {
+      eyebrow: "Centralized Catalog",
+      title: "Edit Procedure",
+      badge: "Catalog Override",
+    };
+  }
+
+  if (pathname.startsWith("/clinical/services")) {
+    return {
+      eyebrow: "Centralized Catalog",
+      title: "Services & Treatments",
+      badge: "Catalog Management",
+    };
+  }
+
+  if (pathname.startsWith("/billing")) {
+    return {
+      eyebrow: "Financial Overview",
+      title: "Billing & Invoices",
+      badge: "EUR (€) Statements",
+    };
+  }
+
+  if (pathname.startsWith("/clinical/encounters")) {
+    return {
+      eyebrow: "Chairside Treatment",
+      title: "Consultation Encounter",
+      badge: "In Progress",
+    };
+  }
+
+  return {
+    eyebrow: "Clinical Workspace",
+    title: "Clinic Workspace",
+    badge: "Active",
+  };
 }
 
 function isActive(pathname: string, href: string) {
@@ -98,17 +182,16 @@ function isActive(pathname: string, href: string) {
 
 export function StaffShell({ profile, children }: { profile: Profile; children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [search, setSearch] = React.useState("");
   const visibleNav = getNavForRole(profile.role);
+  const sectionMeta = getSectionMeta(pathname, profile.role);
 
-  // Formatted current date
-  const [todayFormatted, setTodayFormatted] = React.useState("");
+  // Formatted date string (e.g. "Fri, 21 Aug")
+  const [todayDateFormatted, setTodayDateFormatted] = React.useState("");
   React.useEffect(() => {
     try {
       const now = new Date();
-      setTodayFormatted(
+      setTodayDateFormatted(
         now.toLocaleDateString("en-GB", {
           weekday: "short",
           day: "numeric",
@@ -126,27 +209,6 @@ export function StaffShell({ profile, children }: { profile: Profile; children: 
     .map((name) => name[0])
     .join("")
     .toUpperCase();
-
-  function submitSearch(event: React.FormEvent) {
-    event.preventDefault();
-    const query = search.trim();
-    router.push(query ? `/patients?q=${encodeURIComponent(query)}` : "/patients");
-  }
-
-  // Keyboard shortcut listener for Command/Ctrl + K
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        const searchInput = document.getElementById("staff-top-search");
-        if (searchInput) {
-          searchInput.focus();
-        }
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
 
   const navContent = (onNavigate?: () => void) => (
     <nav aria-label="Staff clinical workspace" className="space-y-1">
@@ -322,9 +384,9 @@ export function StaffShell({ profile, children }: { profile: Profile; children: 
         {/* Soft, Light Glass Wash for Crisp Text Contrast */}
         <div className="pointer-events-none fixed inset-0 z-0 bg-background/40 dark:bg-background/65 backdrop-blur-[0.5px] lg:left-[288px]" />
 
-        {/* ── TOP BAR (MODERN, CLASSY & STANDARD) ── */}
-        <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between gap-3 border-b border-border/70 bg-background/80 px-4 sm:px-6 lg:px-8 backdrop-blur-xl shadow-2xs">
-          {/* Left: Page Title & Clinical Context */}
+        {/* ── TOP BAR (MINIMALIST, CLASSY & CLEAN) ── */}
+        <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between gap-4 border-b border-border/70 bg-background/80 px-4 sm:px-6 lg:px-8 backdrop-blur-xl shadow-2xs">
+          {/* Left: Dynamic Section Title & Context */}
           <div className="flex items-center gap-3 min-w-0">
             <Button
               variant="ghost"
@@ -340,48 +402,38 @@ export function StaffShell({ profile, children }: { profile: Profile; children: 
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-black uppercase tracking-[0.16em] text-primary flex items-center gap-1">
                   <Stethoscope className="size-3" />
-                  Clinical Workspace
+                  {sectionMeta.eyebrow}
                 </span>
                 <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 text-[10px] font-black uppercase tracking-wider">
                   <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Live
+                  {sectionMeta.badge}
                 </span>
               </div>
               <h1 className="text-sm sm:text-base font-heading font-black tracking-tight text-foreground truncate mt-0.5">
-                {getPageLabel(pathname)}
+                {sectionMeta.title}
               </h1>
             </div>
           </div>
 
-          {/* Center: Sleek, Classy Command Search */}
-          <form
-            onSubmit={submitSearch}
-            className="hidden md:flex min-w-0 flex-1 max-w-[420px] items-center rounded-2xl border border-border/80 bg-card/75 px-3 py-1 backdrop-blur-md shadow-2xs transition-all focus-within:border-primary/50 focus-within:bg-card focus-within:ring-3 focus-within:ring-primary/10"
-          >
-            <Search className="size-3.5 shrink-0 text-muted-foreground" />
-            <input
-              id="staff-top-search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              className="h-8 min-w-0 flex-1 bg-transparent px-2.5 text-xs outline-none placeholder:text-muted-foreground font-medium"
-              placeholder="Search patients, procedures, schedule…"
-              aria-label="Quick search"
-            />
-            <span className="flex items-center gap-1 rounded-lg border border-border/60 bg-muted/40 px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground font-mono">
-              <Command className="size-2.5" /> K
-            </span>
-          </form>
-
-          {/* Right: Date Capsule, Notifications, Theme & Schedule Action */}
-          <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
-            {/* Live Date Pill */}
-            {todayFormatted && (
-              <div className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-card/80 border border-border/70 text-xs font-bold text-muted-foreground shadow-2xs font-mono">
-                <Calendar className="size-3.5 text-primary" />
-                <span>{todayFormatted}</span>
-              </div>
+          {/* Center: Live Clinic & Date Atmosphere Capsule */}
+          <div className="hidden md:flex items-center gap-2.5 rounded-2xl border border-border/75 bg-card/75 px-3.5 py-1.5 backdrop-blur-md shadow-2xs">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+              <Building2 className="size-3.5 text-primary" />
+              <span>Main Clinic Branch</span>
+            </div>
+            {todayDateFormatted && (
+              <>
+                <span className="text-border/80">&bull;</span>
+                <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground font-mono">
+                  <Calendar className="size-3 text-muted-foreground" />
+                  <span>{todayDateFormatted}</span>
+                </div>
+              </>
             )}
+          </div>
 
+          {/* Right: Notifications, Theme Toggle & Doctor Profile */}
+          <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
             {/* Notifications */}
             <Button
               variant="ghost"
@@ -396,21 +448,27 @@ export function StaffShell({ profile, children }: { profile: Profile; children: 
             {/* Theme Toggle */}
             <ThemeToggle />
 
-            {/* Schedule CTA */}
-            <ButtonLink
-              href="/scheduler"
-              className="gap-2 rounded-2xl bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white font-bold text-xs shadow-md shadow-[#0B3B36]/20 h-10 px-4 hidden sm:inline-flex transition-all hover:scale-[1.02]"
-            >
-              <Plus className="size-4 stroke-[2.5]" />
-              <span>Schedule Visit</span>
-            </ButtonLink>
+            {/* Doctor Profile Chip */}
+            <div className="hidden sm:flex items-center gap-2.5 rounded-2xl border border-border/70 bg-card/70 p-1.5 pl-2 shadow-2xs backdrop-blur-md">
+              <div className="size-7 rounded-xl bg-[#0B3B36]/10 text-[#0B3B36] dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-500/20 font-black text-xs flex items-center justify-center shadow-2xs">
+                {initials}
+              </div>
+              <div className="pr-1 text-left">
+                <p className="text-[11px] font-extrabold text-foreground leading-tight truncate max-w-[120px]">
+                  {profile.full_name}
+                </p>
+                <p className="text-[9px] font-mono font-bold text-primary leading-tight">
+                  {formatRoleLabel(profile.role)}
+                </p>
+              </div>
+            </div>
           </div>
         </header>
 
         <main className="relative z-10 mx-auto w-full max-w-[1560px] p-4 sm:p-6 lg:p-8">
           <div className="mb-4 flex items-center gap-2 rounded-2xl border border-primary/15 bg-primary/5 px-3.5 py-2 text-xs text-primary lg:hidden shadow-2xs">
             <Sparkles className="size-3.5" />
-            <span className="font-bold">{getPageLabel(pathname)}</span>
+            <span className="font-bold">{sectionMeta.title}</span>
           </div>
           {children}
         </main>
