@@ -17,9 +17,5 @@ export default async function NewServicePage({
   const params = await searchParams;
   const context = await getNewServiceContext(params.practitioner);
 
-  return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <ServiceForm mode="create" context={context} />
-    </div>
-  );
+  return <ServiceForm mode="create" context={context} />;
 }

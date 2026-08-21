@@ -26,9 +26,5 @@ export default async function EditServicePage({
     notFound();
   }
 
-  return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <ServiceForm mode="edit" context={context} />
-    </div>
-  );
+  return <ServiceForm mode="edit" context={context} />;
 }
