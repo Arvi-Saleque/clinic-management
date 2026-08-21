@@ -61,17 +61,17 @@ function SummaryRow({
   badge?: ReactNode;
 }) {
   return (
-    <div className="border-b border-border/60 px-4 py-4 last:border-b-0 sm:px-5">
-      <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft/70 text-primary">
+    <div className="border-b border-border/60 px-5 py-4 last:border-b-0">
+      <div className="flex items-start gap-3.5">
+        <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60">
           <Icon className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+            <h3 className="text-sm font-extrabold text-foreground">{title}</h3>
             {badge}
           </div>
-          <p className={value?.trim() ? "mt-1.5 whitespace-pre-wrap text-sm leading-6 text-foreground/90" : "mt-1.5 text-xs italic text-muted-foreground"}>
+          <p className={value?.trim() ? "mt-1.5 whitespace-pre-wrap text-xs sm:text-sm leading-relaxed text-foreground" : "mt-1.5 text-xs italic text-muted-foreground"}>
             {value?.trim() || "Not documented."}
           </p>
         </div>
@@ -97,48 +97,48 @@ export function ClinicalDocumentationSummary({
     followUpAppointments.every((appointment) => RETRYABLE_FOLLOW_UP_STATUSES.has(appointment.status));
 
   return (
-    <div className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-border/70 bg-surface shadow-[0_12px_34px_-30px_rgba(4,34,31,0.45)]">
-        <SummaryRow icon={FileHeart} title="Chief Complaint" value={encounter.chief_complaint} />
-        <SummaryRow icon={FileText} title="Clinical Diagnosis" value={encounter.diagnosis} />
-        <SummaryRow icon={ClipboardList} title="Performed Treatment & Procedures" value={encounter.performed_treatment} />
+    <div className="space-y-5">
+      <div className="overflow-hidden rounded-3xl border border-border/80 bg-card/95 backdrop-blur-xs shadow-xs">
+        <SummaryRow icon={FileHeart} title="1. Presenting Complaint (PC)" value={encounter.chief_complaint} />
+        <SummaryRow icon={FileText} title="2. Clinical Findings & Diagnosis (Dx)" value={encounter.diagnosis} />
+        <SummaryRow icon={ClipboardList} title="3. Treatment Provided (Tx)" value={encounter.performed_treatment} />
         <SummaryRow
           icon={MessageSquare}
-          title="Patient Advice & Instructions"
+          title="4. Post-Operative Advice & Instructions (POA)"
           value={encounter.patient_notes}
           badge={
-            <Badge variant="outline" className="border-emerald-500/20 bg-emerald-500/8 text-[10px] font-medium text-emerald-700">
-              <Eye className="mr-1 size-3" /> Patient visible
+            <Badge variant="outline" className="border-teal-200/60 bg-teal-50 text-teal-800 dark:bg-teal-950/40 dark:text-teal-300 text-[10px] font-bold">
+              <Eye className="mr-1 size-3" /> Patient Portal Visible
             </Badge>
           }
         />
         <SummaryRow
           icon={Lock}
-          title="Private Clinician Notes"
+          title="5. Private Clinician Notes"
           value={privateNotes}
-          badge={<Badge variant="secondary" className="text-[10px] font-medium">Internal only</Badge>}
+          badge={<Badge variant="secondary" className="text-[10px] font-bold">Internal Practice Only</Badge>}
         />
       </div>
 
-      <div className="rounded-2xl border border-border/70 bg-surface p-4 shadow-[0_12px_34px_-30px_rgba(4,34,31,0.45)] sm:p-5">
+      <div className="rounded-3xl border border-border/80 bg-card/95 backdrop-blur-xs p-5 sm:p-6 shadow-xs">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex items-start gap-3">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft/70 text-primary">
-              <CalendarClock className="size-4" />
+          <div className="flex items-start gap-3.5">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60">
+              <CalendarClock className="size-4.5" />
             </span>
             <div>
-              <h3 className="text-sm font-semibold text-foreground">Follow-up & Recall Plan</h3>
+              <h3 className="text-sm font-extrabold text-foreground">6. Follow-up &amp; Recall Plan</h3>
               {encounter.follow_up_recommended ? (
                 <>
-                  <p className="mt-1 text-sm leading-6 text-foreground/90">
-                    {encounter.follow_up_reason || "Follow-up recommended."}
+                  <p className="mt-1 text-xs sm:text-sm leading-relaxed text-foreground font-medium">
+                    {encounter.follow_up_reason || "Clinical review recommended."}
                   </p>
                   {followUpDateFormatted && (
-                    <p className="mt-1 text-xs text-muted-foreground">Target date: <span className="font-semibold text-foreground">{followUpDateFormatted}</span></p>
+                    <p className="mt-1 text-xs text-muted-foreground">Target Review Date: <span className="font-bold text-foreground">{followUpDateFormatted}</span></p>
                   )}
                 </>
               ) : (
-                <p className="mt-1 text-xs text-muted-foreground">No follow-up currently recommended.</p>
+                <p className="mt-1 text-xs text-muted-foreground">No routine follow-up currently required.</p>
               )}
             </div>
           </div>
@@ -154,19 +154,19 @@ export function ClinicalDocumentationSummary({
         </div>
 
         {!isEditable && encounter.follow_up_recommended && canScheduleFollowUp && !followUpScheduling && (
-          <p className="mt-3 text-xs font-medium text-amber-600 dark:text-amber-400">
+          <p className="mt-3 text-xs font-semibold text-amber-700 dark:text-amber-400">
             Follow-up scheduling is currently unavailable for this practitioner.
           </p>
         )}
 
         {followUpAppointments.length > 0 && (
-          <details className="group mt-4 border-t border-border/60 pt-3">
-            <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-semibold text-foreground marker:hidden">
+          <details className="group mt-4 border-t border-border/60 pt-3.5">
+            <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-bold text-foreground marker:hidden">
               <span className="flex items-center gap-1.5">
                 <CalendarDays className="size-3.5 text-primary" />
                 Linked follow-up appointments ({followUpAppointments.length})
               </span>
-              <span className="text-[11px] font-medium text-primary">View</span>
+              <span className="text-[11px] font-bold text-primary hover:underline">View</span>
             </summary>
             <div className="mt-3 space-y-2">
               {followUpAppointments.map((appt) => {
@@ -174,17 +174,17 @@ export function ClinicalDocumentationSummary({
                 const schedulerDate = format(new Date(appt.starts_at), "yyyy-MM-dd");
 
                 return (
-                  <div key={appt.id} className="flex flex-col gap-2 rounded-xl border border-border/70 bg-muted/20 p-3 text-xs sm:flex-row sm:items-center sm:justify-between">
+                  <div key={appt.id} className="flex flex-col gap-2 rounded-2xl border border-border/70 bg-muted/20 p-3.5 text-xs sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold text-foreground">{startsAtFormatted}</span>
+                        <span className="font-bold text-foreground">{startsAtFormatted}</span>
                         {renderStatusBadge(appt.status)}
                       </div>
-                      <p className="mt-1 text-muted-foreground">
+                      <p className="mt-1 text-muted-foreground font-medium">
                         {appt.service_name ?? "Dental Procedure"} · {appt.practitioner_name ?? "Clinician"}
                       </p>
                     </div>
-                    <ButtonLink href={`/scheduler?date=${schedulerDate}`} variant="outline" size="sm" className="h-7 gap-1 self-start text-xs sm:self-center">
+                    <ButtonLink href={`/scheduler?date=${schedulerDate}`} variant="outline" size="sm" className="h-8 rounded-xl gap-1.5 self-start text-xs font-bold sm:self-center border-border/80">
                       View in Scheduler <ExternalLink className="size-3" />
                     </ButtonLink>
                   </div>

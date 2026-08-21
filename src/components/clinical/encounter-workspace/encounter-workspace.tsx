@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   ClipboardList,
   History,
@@ -13,7 +13,7 @@ import { OdontogramChart } from "@/components/shared/odontogram-chart";
 import type { EncounterWorkspaceContext } from "@/types/clinical";
 import { AppointmentContextCard } from "./appointment-context-card";
 import { ClinicalDocumentationSummary } from "./clinical-documentation-summary";
-import { EncounterDraftForm } from "./encounter-draft-form";
+import { EncounterDraftForm, type EncounterDraftFormRef } from "./encounter-draft-form";
 import { EncounterHeader } from "./encounter-header";
 import { EncounterPrescriptionModule } from "./encounter-prescription-module";
 import { MedicalAlertsCard } from "./medical-alerts-card";
@@ -34,33 +34,79 @@ type WorkspaceSection =
 const workspaceTabs: Array<{
   value: WorkspaceSection;
   label: string;
+  badgeCount?: (ctx: EncounterWorkspaceContext) => number | null;
   icon: typeof ClipboardList;
 }> = [
-  { value: "documentation", label: "Clinical Documentation", icon: ClipboardList },
-  { value: "odontogram", label: "Dental Chart", icon: Smile },
-  { value: "prescriptions", label: "Prescriptions", icon: Pill },
-  { value: "patient", label: "Patient Context", icon: UserRound },
-  { value: "history", label: "History", icon: History },
+  {
+    value: "documentation",
+    label: "Clinical Notes & Treatment",
+    icon: ClipboardList,
+  },
+  {
+    value: "odontogram",
+    label: "Dental Charting",
+    icon: Smile,
+  },
+  {
+    value: "prescriptions",
+    label: "Prescriptions & Medications",
+    badgeCount: (ctx) => (ctx.prescriptions?.length ? ctx.prescriptions.length : null),
+    icon: Pill,
+  },
+  {
+    value: "patient",
+    label: "Medical History & Alerts",
+    badgeCount: (ctx) => {
+      const allergyCount = ctx.medical_history?.allergies?.length ?? 0;
+      const condCount = ctx.medical_history?.chronic_conditions?.length ?? 0;
+      const total = allergyCount + condCount;
+      return total > 0 ? total : null;
+    },
+    icon: UserRound,
+  },
+  {
+    value: "history",
+    label: "Visit History & Encounters",
+    badgeCount: (ctx) => (ctx.previous_encounters?.length ? ctx.previous_encounters.length : null),
+    icon: History,
+  },
 ];
 
 export function EncounterWorkspace({ context }: EncounterWorkspaceProps) {
   const [isDraftDirty, setIsDraftDirty] = useState(false);
   const [activeSection, setActiveSection] = useState<WorkspaceSection>("documentation");
+  const draftFormRef = useRef<EncounterDraftFormRef>(null);
+
+  // Universal Complete Trigger that can be called from ANY tab/page
+  const handleUniversalComplete = () => {
+    if (draftFormRef.current) {
+      draftFormRef.current.triggerComplete();
+    }
+  };
+
+  const handleValidationFail = () => {
+    setActiveSection("documentation");
+  };
 
   return (
-    <div className="w-full space-y-5 pb-12">
-      {/* Top Patient Header */}
-      <EncounterHeader context={context} isDirty={isDraftDirty} />
+    <div className="w-full space-y-6 pb-16">
+      {/* Top Patient Header with Universal Complete Button */}
+      <EncounterHeader
+        context={context}
+        isDirty={isDraftDirty}
+        onCompleteConsultation={handleUniversalComplete}
+      />
 
-      {/* Tab Navigation Pill Bar */}
+      {/* Tab Navigation Pill Bar with UK Clinical Dental Terminology */}
       <nav
-        aria-label="Consultation sections"
-        className="overflow-x-auto rounded-2xl border border-border/80 bg-card p-1.5 shadow-2xs"
+        aria-label="Consultation clinical sections"
+        className="overflow-x-auto rounded-2xl border border-border/80 bg-card/95 backdrop-blur-xs p-1.5 shadow-2xs"
       >
         <div className="flex min-w-max items-center gap-1.5" role="tablist">
           {workspaceTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeSection === tab.value;
+            const count = tab.badgeCount ? tab.badgeCount(context) : null;
 
             return (
               <button
@@ -70,33 +116,50 @@ export function EncounterWorkspace({ context }: EncounterWorkspaceProps) {
                 aria-selected={isActive}
                 onClick={() => setActiveSection(tab.value)}
                 className={cn(
-                  "flex h-9 items-center gap-2 rounded-xl px-4 text-xs font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25",
+                  "flex h-9.5 items-center gap-2 rounded-xl px-4 text-xs font-bold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 cursor-pointer",
                   isActive
-                    ? "bg-[#0B3B36] text-white shadow-xs"
+                    ? "bg-[#0B3B36] text-white shadow-sm"
                     : "text-muted-foreground hover:bg-muted/40 hover:text-foreground",
                 )}
               >
                 <Icon className="size-3.5" />
                 <span>{tab.label}</span>
+                {count !== null && (
+                  <span
+                    className={cn(
+                      "ml-0.5 rounded-full px-1.5 py-0.2 text-[10px] font-black",
+                      isActive
+                        ? "bg-white/20 text-white"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {count}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
       </nav>
 
-      {/* Panels stay mounted so draft / prescription state is never lost when switching tabs. */}
+      {/* ── SECTION PANELS ── */}
+      {/* Panels stay mounted in DOM so draft & prescription state is never lost when switching tabs */}
+
+      {/* 1. Clinical Notes & Treatment */}
       <section hidden={activeSection !== "documentation"} role="tabpanel">
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-12 items-start">
           {/* Left Column (8 cols): Clinical Documentation Form */}
           <div className="xl:col-span-8 min-w-0">
             {context.is_editable ? (
               <EncounterDraftForm
+                ref={draftFormRef}
                 encounter={context.encounter}
                 privateNotes={context.private_notes}
                 patient={context.patient}
                 appointment={context.appointment}
                 followUpScheduling={context.follow_up_scheduling}
                 onDirtyChange={setIsDraftDirty}
+                onValidationFail={handleValidationFail}
               />
             ) : (
               <ClinicalDocumentationSummary
@@ -121,6 +184,7 @@ export function EncounterWorkspace({ context }: EncounterWorkspaceProps) {
         </div>
       </section>
 
+      {/* 2. Dental Charting (Odontogram) */}
       <section hidden={activeSection !== "odontogram"} role="tabpanel">
         <OdontogramChart
           encounterId={context.encounter.id}
@@ -130,6 +194,7 @@ export function EncounterWorkspace({ context }: EncounterWorkspaceProps) {
         />
       </section>
 
+      {/* 3. Prescriptions & Medications */}
       <section hidden={activeSection !== "prescriptions"} role="tabpanel">
         <EncounterPrescriptionModule
           encounterId={context.encounter.id}
@@ -138,8 +203,9 @@ export function EncounterWorkspace({ context }: EncounterWorkspaceProps) {
         />
       </section>
 
+      {/* 4. Medical History & Alerts */}
       <section hidden={activeSection !== "patient"} role="tabpanel">
-        <div className="grid gap-5 lg:grid-cols-2 items-start">
+        <div className="grid gap-6 lg:grid-cols-2 items-start">
           <MedicalAlertsCard medicalHistory={context.medical_history} />
           <PatientContextCard
             patient={context.patient}
@@ -148,6 +214,7 @@ export function EncounterWorkspace({ context }: EncounterWorkspaceProps) {
         </div>
       </section>
 
+      {/* 5. Visit History & Encounters */}
       <section hidden={activeSection !== "history"} role="tabpanel">
         <PreviousEncounters encounters={context.previous_encounters} />
       </section>
