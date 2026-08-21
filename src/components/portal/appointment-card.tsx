@@ -12,6 +12,7 @@ import {
   Check,
   CheckCircle2,
   ChevronLeft,
+  ClipboardList,
   Clock,
   Clock3,
   ExternalLink,
@@ -28,6 +29,7 @@ import {
   ShieldCheck,
   Sparkles,
   Stethoscope,
+  User,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -56,6 +58,15 @@ export interface PrescriptionItem {
   created_at?: string | null;
 }
 
+export interface PrescriptionRecord {
+  id: string;
+  issued_at: string;
+  status: string;
+  notes: string | null;
+  practitionerName?: string;
+  prescription_items: PrescriptionItem[];
+}
+
 export interface EncounterDetails {
   id?: string;
   chief_complaint?: string | null;
@@ -77,6 +88,7 @@ export interface PrescriptionSummary {
   notes: string | null;
   practitionerName?: string;
   prescription_items: PrescriptionItem[];
+  prescriptions?: PrescriptionRecord[];
   encounter?: EncounterDetails | null;
 }
 
@@ -111,9 +123,30 @@ export function AppointmentCard(props: AppointmentCardProps) {
 
   const canChange = ["pending", "confirmed"].includes(props.status) && new Date(props.starts_at) > new Date();
 
-  const hasPrescriptionItems = Boolean(
-    props.prescription?.prescription_items && props.prescription.prescription_items.length > 0,
-  );
+  const rxList: PrescriptionRecord[] = React.useMemo(() => {
+    if (props.prescription?.prescriptions && props.prescription.prescriptions.length > 0) {
+      return props.prescription.prescriptions;
+    }
+    if (
+      props.prescription &&
+      props.prescription.prescription_items &&
+      props.prescription.prescription_items.length > 0
+    ) {
+      return [
+        {
+          id: props.prescription.id,
+          issued_at: props.prescription.issued_at,
+          status: props.prescription.status,
+          notes: props.prescription.notes,
+          practitionerName: props.prescription.practitionerName || props.practitionerName,
+          prescription_items: props.prescription.prescription_items,
+        },
+      ];
+    }
+    return [];
+  }, [props.prescription, props.practitionerName]);
+
+  const hasPrescriptionItems = rxList.some((rx) => rx.prescription_items && rx.prescription_items.length > 0);
   const hasClinicalNotes = Boolean(
     props.prescription?.encounter?.diagnosis ||
       props.prescription?.encounter?.performed_treatment ||
@@ -122,7 +155,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
       props.prescription?.encounter?.follow_up_recommended ||
       props.prescription?.notes,
   );
-  const hasPrescription = Boolean(props.prescription && (hasPrescriptionItems || hasClinicalNotes));
+  const hasPrescription = Boolean(props.prescription && (hasPrescriptionItems || hasClinicalNotes || rxList.length > 0));
 
   // Reset dialog state when opening/closing
   function handleOpenCancelDialog(open: boolean) {
@@ -177,25 +210,26 @@ export function AppointmentCard(props: AppointmentCardProps) {
                     ? "No show"
                     : props.status === "checked_in"
                       ? "Checked in"
-                      : props.status.charAt(0).toUpperCase() + props.status.slice(1).replaceAll("_", " ")}
+                      : props.status === "in_progress"
+                        ? "In consultation"
+                        : props.status.charAt(0).toUpperCase() + props.status.slice(1)}
                 </Badge>
               </div>
 
-              {/* Meta Chips */}
-              <div className="flex flex-wrap gap-2 text-xs">
-                <span className="inline-flex items-center gap-1.5 rounded-xl border border-border/70 bg-background-subtle/80 px-3 py-1.5 font-medium text-foreground">
+              <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs text-text-secondary font-medium">
+                <span className="flex items-center gap-1.5">
                   <Clock3 className="size-3.5 text-primary" />
                   {format(date, "h:mm a")}
-                  {props.ends_at ? ` – ${format(new Date(props.ends_at), "h:mm a")}` : ""}
+                  {props.duration ? ` · ${props.duration} mins` : ""}
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-xl border border-border/70 bg-background-subtle/80 px-3 py-1.5 font-medium text-foreground">
-                  <Stethoscope className="size-3.5 text-primary" />
-                  {props.practitionerName}
+                <span className="text-border">|</span>
+                <span className="flex items-center gap-1.5 font-semibold text-foreground">
+                  Dr. {props.practitionerName}
                 </span>
-                {props.duration && (
-                  <span className="inline-flex items-center gap-1.5 rounded-xl border border-border/70 bg-background-subtle/80 px-3 py-1.5 text-text-muted">
-                    <CalendarClock className="size-3.5 text-primary" />
-                    {props.duration} minutes
+                {props.prescription && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-primary bg-primary-soft/80 border border-primary/20 px-2 py-0.5 rounded-md">
+                    <Pill className="size-3" />
+                    Prescription Issued
                   </span>
                 )}
               </div>
@@ -230,7 +264,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
                       />
                     }
                   >
-                    <Pill className="size-4 text-primary" /> Prescription Details
+                    <Pill className="size-4 text-primary" /> Prescription &amp; Clinical Notes
                   </DialogTrigger>
                   <DialogContent className="rounded-[32px] sm:max-w-2xl border border-border/80 bg-surface/95 backdrop-blur-xl p-0 overflow-hidden shadow-2xl">
                     {/* Header Banner */}
@@ -242,7 +276,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
                           </div>
                           <div>
                             <DialogTitle className="font-heading text-xl sm:text-2xl font-extrabold text-foreground">
-                              Prescription Details
+                              Prescription &amp; Consultation Record
                             </DialogTitle>
                             <DialogDescription className="text-xs text-text-secondary mt-0.5">
                               Issued by <strong className="text-foreground">{props.prescription.practitionerName || props.practitionerName}</strong> on{" "}
@@ -261,7 +295,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
                                 : "border-border/80 bg-muted/30 text-text-muted",
                             )}
                           >
-                            {props.prescription.status === "active" ? "Active Prescription" : "Historical Record"}
+                            {props.prescription.status === "active" ? "Active Record" : "Historical Record"}
                           </Badge>
                         </div>
                       </div>
@@ -270,102 +304,115 @@ export function AppointmentCard(props: AppointmentCardProps) {
                     {/* Scrollable Content Body */}
                     <div className="space-y-6 p-6 sm:p-7 max-h-[68vh] overflow-y-auto pr-2">
                       {/* ========================================================= */}
-                      {/* SECTION 1: PRESCRIPTIONS & MEDICATIONS                    */}
+                      {/* SECTION 1: PRESCRIPTIONS ISSUED THIS CONSULTATION         */}
                       {/* ========================================================= */}
-                      <section className="space-y-3.5">
-                        <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
-                          <h3 className="text-xs font-extrabold uppercase tracking-wider text-foreground flex items-center gap-2">
-                            <Pill className="size-4 text-primary" /> Prescriptions &amp; Medications
-                          </h3>
+                      <section className="space-y-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                              <FileText className="size-4" />
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-extrabold text-foreground">
+                                Prescriptions Issued This Consultation
+                              </h3>
+                              <p className="text-[11px] text-text-muted">
+                                Authoritative record of prescriptions issued during this clinical encounter.
+                              </p>
+                            </div>
+                          </div>
+
                           <Badge
                             variant="outline"
-                            className="text-[10px] font-bold border-primary/30 text-primary bg-primary-soft/50 rounded-lg px-2 py-0.5"
+                            className="text-[10px] font-bold border-primary/30 text-primary bg-primary-soft/50 rounded-lg px-2.5 py-1"
                           >
-                            {hasPrescriptionItems
-                              ? `${props.prescription.prescription_items.length} Prescribed Item${props.prescription.prescription_items.length > 1 ? "s" : ""}`
-                              : "No Pharmacological Rx"}
+                            {rxList.length} {rxList.length === 1 ? "Prescription" : "Prescriptions"}
                           </Badge>
                         </div>
 
-                        {hasPrescriptionItems ? (
-                          <div className="space-y-3">
-                            {props.prescription.prescription_items.map((item, idx) => (
+                        {rxList.length > 0 ? (
+                          <div className="space-y-4">
+                            {rxList.map((rx, rxIndex) => (
                               <div
-                                key={item.id || idx}
-                                className="rounded-2xl border border-border/80 bg-background-subtle/80 p-4 sm:p-4.5 shadow-2xs space-y-3 transition-all hover:border-primary/40"
+                                key={rx.id || rxIndex}
+                                className="rounded-2xl border border-border/80 bg-background-subtle/80 p-4 sm:p-5 space-y-3.5 shadow-2xs transition-all hover:border-primary/40"
                               >
-                                <div className="flex items-start gap-3">
-                                  <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-hover text-xs font-black text-primary-foreground shadow-2xs">
-                                    {idx + 1}
-                                  </span>
-                                  <div className="min-w-0 flex-1 space-y-2.5">
-                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                      <p className="font-extrabold text-foreground text-sm sm:text-base tracking-tight">
-                                        {item.medicine_name}
-                                      </p>
-                                      <Badge variant="outline" className="text-[10px] font-semibold border-primary/20 bg-primary-soft/40 text-primary">
-                                        Medicine #{idx + 1}
-                                      </Badge>
-                                    </div>
-
-                                    {/* Structured Dosage, Frequency, Duration Chips */}
-                                    <div className="flex flex-wrap gap-2 text-xs">
-                                      {item.dosage && (
-                                        <span className="inline-flex items-center gap-1.5 rounded-xl border border-border/80 bg-surface/90 px-3 py-1 text-xs font-semibold text-foreground">
-                                          <Sparkles className="size-3 text-primary" />
-                                          Dosage: {item.dosage}
-                                        </span>
-                                      )}
-                                      {item.frequency && (
-                                        <span className="inline-flex items-center gap-1.5 rounded-xl border border-border/80 bg-surface/90 px-3 py-1 text-xs font-semibold text-foreground">
-                                          <Clock className="size-3 text-primary" />
-                                          Schedule: {item.frequency}
-                                        </span>
-                                      )}
-                                      {item.duration && (
-                                        <span className="inline-flex items-center gap-1.5 rounded-xl border border-border/80 bg-surface/90 px-3 py-1 text-xs font-semibold text-foreground">
-                                          <Calendar className="size-3 text-primary" />
-                                          Course: {item.duration}
-                                        </span>
-                                      )}
-                                    </div>
-
-                                    {item.instructions && (
-                                      <div className="rounded-xl border border-border/60 bg-surface/90 p-3 text-xs leading-relaxed text-text-secondary">
-                                        <strong className="text-foreground font-semibold">Special Instructions: </strong>
-                                        {item.instructions}
-                                      </div>
-                                    )}
+                                {/* Rx Header */}
+                                <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-border/60">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
+                                      <Pill className="size-3.5 text-primary" />
+                                      Prescription #{rxIndex + 1}
+                                    </span>
+                                    <span className="text-[11px] text-text-muted">
+                                      · Issued {format(new Date(rx.issued_at), "MMM d, yyyy 'at' h:mm a")}
+                                    </span>
                                   </div>
+
+                                  {(rx.practitionerName || props.practitionerName) && (
+                                    <div className="flex items-center gap-1.5 text-xs text-text-secondary font-medium">
+                                      <User className="size-3 text-primary" />
+                                      <span>Dr. {rx.practitionerName || props.practitionerName}</span>
+                                    </div>
+                                  )}
                                 </div>
+
+                                {/* Items Table */}
+                                {rx.prescription_items && rx.prescription_items.length > 0 ? (
+                                  <div className="overflow-x-auto rounded-xl border border-border/60 bg-surface/90">
+                                    <table className="w-full text-xs">
+                                      <thead>
+                                        <tr className="border-b border-border/50 bg-background-subtle/50 text-text-muted text-left text-[11px]">
+                                          <th className="py-2.5 px-3 font-bold uppercase tracking-wider">Medicine</th>
+                                          <th className="py-2.5 px-3 font-bold uppercase tracking-wider">Dosage</th>
+                                          <th className="py-2.5 px-3 font-bold uppercase tracking-wider">Frequency</th>
+                                          <th className="py-2.5 px-3 font-bold uppercase tracking-wider">Duration</th>
+                                          <th className="py-2.5 px-3 font-bold uppercase tracking-wider">Instructions</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-border/40">
+                                        {rx.prescription_items.map((item, itemIdx) => (
+                                          <tr key={item.id || itemIdx} className="hover:bg-background-subtle/30 transition-colors">
+                                            <td className="py-2.5 px-3 font-bold text-foreground">{item.medicine_name}</td>
+                                            <td className="py-2.5 px-3 text-text-secondary font-medium">{item.dosage || "—"}</td>
+                                            <td className="py-2.5 px-3 text-text-secondary font-medium">{item.frequency || "—"}</td>
+                                            <td className="py-2.5 px-3 text-text-secondary font-medium">{item.duration || "—"}</td>
+                                            <td className="py-2.5 px-3 text-text-secondary">{item.instructions || "—"}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                ) : (
+                                  <div className="text-xs text-text-muted italic py-2 text-center">
+                                    No individual medicines listed under this prescription record.
+                                  </div>
+                                )}
+
+                                {/* Prescription Notes */}
+                                {rx.notes && (
+                                  <div className="rounded-xl bg-primary-soft/30 border border-primary/20 p-3 text-xs text-text-secondary space-y-1">
+                                    <p className="font-bold text-[11px] text-foreground flex items-center gap-1.5">
+                                      <FileText className="size-3 text-primary" /> Doctor&apos;s Remarks:
+                                    </p>
+                                    <p className="italic leading-relaxed pl-4 whitespace-pre-wrap">&ldquo;{rx.notes}&rdquo;</p>
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
                         ) : (
-                          <div className="rounded-2xl border border-dashed border-border/80 bg-background-subtle/50 p-4 text-center text-xs text-text-muted">
+                          <div className="rounded-2xl border border-dashed border-border/80 bg-background-subtle/50 p-5 text-center text-xs text-text-muted">
                             <Pill className="size-5 mx-auto mb-1.5 text-text-muted/60" />
                             No pharmacological medications were prescribed for this procedure.
                           </div>
                         )}
 
-                        {/* Doctor's General Notes on Prescription */}
-                        {props.prescription.notes && (
-                          <div className="rounded-2xl border border-primary/20 bg-primary-soft/30 p-4 space-y-1 text-xs">
-                            <div className="font-bold text-foreground flex items-center gap-1.5">
-                              <FileText className="size-3.5 text-primary" />
-                              Doctor&apos;s Prescription Remarks:
-                            </div>
-                            <p className="italic text-text-secondary leading-relaxed pl-5 whitespace-pre-wrap">
-                              &ldquo;{props.prescription.notes}&rdquo;
-                            </p>
-                          </div>
-                        )}
-
                         {/* Medication Safety Box */}
-                        <div className="flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs text-amber-800 dark:text-amber-300">
+                        <div className="flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-800 dark:text-amber-300 shadow-2xs">
                           <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                           <div className="space-y-0.5">
-                            <p className="font-bold">Medication Safety Guidelines</p>
+                            <p className="font-bold text-xs">Medication Safety Guidelines</p>
                             <p className="text-[11px] leading-relaxed text-amber-700 dark:text-amber-400">
                               Please take all prescribed medications strictly as directed. Complete antibiotic courses in full even if symptoms subside. Contact the clinic immediately if you experience adverse side effects or allergic reactions.
                             </p>
@@ -376,7 +423,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
                       {/* ========================================================= */}
                       {/* SECTION 2: CLINICAL NOTES & TREATMENT                     */}
                       {/* ========================================================= */}
-                      <section className="space-y-3.5 pt-2 border-t border-border/60">
+                      <section className="space-y-3.5 pt-4 border-t border-border/60">
                         <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
                           <h3 className="text-xs font-extrabold uppercase tracking-wider text-foreground flex items-center gap-2">
                             <Stethoscope className="size-4 text-primary" /> Clinical Notes &amp; Treatment

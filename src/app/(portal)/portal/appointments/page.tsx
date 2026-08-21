@@ -41,39 +41,58 @@ export default async function PortalAppointmentsPage({
   const findPrescriptionForAppointment = (
     appointment: (typeof appointments)[number],
   ): PrescriptionSummary | null => {
-    // 1. Direct appointment_id match on prescriptions
-    const directRx = prescriptions.find(
-      (rx) => (rx as unknown as { appointment_id?: string }).appointment_id === appointment.id,
-    );
-
-    // 2. Direct appointment_id match on clinical encounters
+    // 1. Direct appointment_id match on clinical encounters
     const directEnc = encounters.find((enc) => enc.appointment_id === appointment.id);
+
+    // 2. Direct appointment_id match on prescriptions or encounter_id match
+    const directRxs = prescriptions.filter(
+      (rx) =>
+        (rx as unknown as { appointment_id?: string }).appointment_id === appointment.id ||
+        (directEnc && (rx as unknown as { encounter_id?: string }).encounter_id === directEnc.id),
+    );
 
     // 3. Fallback date match (same calendar day)
     const apptDateStr = new Date(appointment.starts_at).toISOString().slice(0, 10);
-    const dateRx = !directRx ? prescriptions.find((rx) => rx.issued_at?.slice(0, 10) === apptDateStr) : null;
+    const dateRxs = directRxs.length === 0 ? prescriptions.filter((rx) => rx.issued_at?.slice(0, 10) === apptDateStr) : [];
     const dateEnc = !directEnc ? encounters.find((enc) => enc.started_at?.slice(0, 10) === apptDateStr) : null;
 
-    const matchedRx = directRx || dateRx;
+    const matchedRxs = directRxs.length > 0 ? directRxs : dateRxs;
     const matchedEnc = directEnc || dateEnc;
 
-    if (!matchedRx && !matchedEnc) {
+    if (matchedRxs.length === 0 && !matchedEnc) {
       return null;
     }
 
-    const rxEnc = (matchedRx as unknown as { clinical_encounters?: Record<string, unknown> })?.clinical_encounters || matchedEnc;
+    const firstRx = matchedRxs[0];
+    const rxEnc = (firstRx as unknown as { clinical_encounters?: Record<string, unknown> })?.clinical_encounters || matchedEnc;
 
-    return {
-      id: matchedRx?.id || matchedEnc?.id || appointment.id,
-      issued_at: matchedRx?.issued_at || matchedEnc?.completed_at || matchedEnc?.started_at || appointment.starts_at,
-      status: matchedRx?.status || (matchedEnc?.status === "completed" ? "active" : "historical"),
-      notes: matchedRx?.notes ?? null,
+    const formattedPrescriptions = matchedRxs.map((rx) => ({
+      id: rx.id,
+      issued_at: rx.issued_at,
+      status: rx.status,
+      notes: rx.notes ?? null,
       practitionerName:
-        matchedRx?.practitioners?.profiles?.full_name ??
+        rx.practitioners?.profiles?.full_name ??
         (matchedEnc?.practitioners as unknown as { profiles?: { full_name?: string } })?.profiles?.full_name ??
         appointment.practitioners?.profiles?.full_name ??
         undefined,
-      prescription_items: matchedRx?.prescription_items ?? [],
+      prescription_items: rx.prescription_items ?? [],
+    }));
+
+    const allItems = matchedRxs.flatMap((rx) => rx.prescription_items ?? []);
+
+    return {
+      id: firstRx?.id || matchedEnc?.id || appointment.id,
+      issued_at: firstRx?.issued_at || matchedEnc?.completed_at || matchedEnc?.started_at || appointment.starts_at,
+      status: firstRx?.status || (matchedEnc?.status === "completed" ? "active" : "historical"),
+      notes: firstRx?.notes ?? null,
+      practitionerName:
+        firstRx?.practitioners?.profiles?.full_name ??
+        (matchedEnc?.practitioners as unknown as { profiles?: { full_name?: string } })?.profiles?.full_name ??
+        appointment.practitioners?.profiles?.full_name ??
+        undefined,
+      prescription_items: allItems,
+      prescriptions: formattedPrescriptions,
       encounter: rxEnc
         ? {
             id: (rxEnc as { id?: string }).id,
