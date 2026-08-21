@@ -123,15 +123,28 @@ export default async function BlogDetailPage({
     <div className="article-detail-page">
       <main>
         {/* Article Banner */}
-        <section className="article-header-section py-20 bg-[#273338] text-white">
+        <section className="article-header-section py-20 text-white">
           <div className="container max-w-4xl mx-auto px-4">
-            <div className="flex items-center gap-2 text-xs text-white/60 mb-6">
-              <Link href="/" className="hover:text-white transition-colors">Home</Link>
-              <span>/</span>
-              <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
-              <span>/</span>
-              <span className="text-[#9CB080] truncate">{article.category}</span>
-            </div>
+            {/* Breadcrumb Route (Dhaka Heights style) */}
+            <nav aria-label="Breadcrumb" className="mb-6">
+              <ol className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-white/70 uppercase">
+                <li>
+                  <Link href="/" className="hover:text-white transition-colors duration-200">
+                    Home
+                  </Link>
+                </li>
+                <li className="text-[#9CB080]" aria-hidden="true">›</li>
+                <li>
+                  <Link href="/blog" className="hover:text-white transition-colors duration-200">
+                    Blog
+                  </Link>
+                </li>
+                <li className="text-[#9CB080]" aria-hidden="true">›</li>
+                <li className="text-[#9CB080] font-bold" aria-current="page">
+                  {article.category}
+                </li>
+              </ol>
+            </nav>
 
             <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-1 rounded-full text-xs text-[#9CB080] font-semibold mb-4">
               <span>{article.category}</span>

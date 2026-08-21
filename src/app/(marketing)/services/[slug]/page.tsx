@@ -54,16 +54,28 @@ export default async function ServiceDetailPage({
     <div className="treatment-detail-page">
       <main>
         {/* Detail Hero Section */}
-        <section className="treatment-hero py-20 bg-[#273338] text-white">
+        <section className="treatment-hero py-20 text-white">
           <div className="container max-w-6xl mx-auto px-4">
-            {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-xs text-white/60 mb-8">
-              <Link href="/" className="hover:text-white transition-colors">Home</Link>
-              <span>/</span>
-              <Link href="/services" className="hover:text-white transition-colors">Treatments</Link>
-              <span>/</span>
-              <span className="text-[#9CB080]">{service.name}</span>
-            </div>
+            {/* Breadcrumb Route (Dhaka Heights style) */}
+            <nav aria-label="Breadcrumb" className="mb-8">
+              <ol className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-white/70 uppercase">
+                <li>
+                  <Link href="/" className="hover:text-white transition-colors duration-200">
+                    Home
+                  </Link>
+                </li>
+                <li className="text-[#9CB080]" aria-hidden="true">›</li>
+                <li>
+                  <Link href="/services" className="hover:text-white transition-colors duration-200">
+                    Treatments
+                  </Link>
+                </li>
+                <li className="text-[#9CB080]" aria-hidden="true">›</li>
+                <li className="text-[#9CB080] font-bold" aria-current="page">
+                  {service.name}
+                </li>
+              </ol>
+            </nav>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="hero-text-col">

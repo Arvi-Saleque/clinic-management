@@ -927,3 +927,217 @@ graph TD
 ### C. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
 - **eslint**: `npx eslint` -> **PASSED (0 errors)**
+
+---
+
+## 34. Treatments Hero Refinement & Navbar Dropdown Removal
+
+### A. Architectural & UI Changes
+1. **Header Dropdown Removal ([`src/components/marketing/luxury-header.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/luxury-header.tsx))**:
+   - Removed hover dropdown and megamenu trigger from the `Treatments` navigation item.
+   - Removed `desktop-menu-wrapper` popup. `Treatments` is now a standard direct navigation link pointing directly to `/services`.
+2. **Treatments Hero Route Breadcrumbs ([`src/app/(marketing)/services/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/services/page.tsx))**:
+   - Added Dhaka Heights-style breadcrumb navigation (`HOME  ›  TREATMENTS`) at the top of the hero banner.
+   - Styled with uppercase tracking, sage green accents (`#9CB080`), and clickable link to Home.
+3. **Fixed Parallax Background Image ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Configured `.treatments-page .page-hero-banner` with `background-image: url('/marketing/hero_clinic.png')`, `background-attachment: fixed`, `background-position: center`, `background-size: cover`, and dark multi-stop luxury gradient overlay (`linear-gradient(180deg, rgba(16, 26, 23, 0.82) 0%, rgba(10, 18, 16, 0.88) 100%)`).
+   - Added responsive fallback `background-attachment: scroll` for mobile viewports.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+- **eslint**: `npx eslint` -> **PASSED (0 errors)**
+
+---
+
+## 35. Treatments Bottom CTA Glassmorphism & Contrast Fix
+
+### A. Architectural & UI Changes
+1. **Glassmorphism Frosted Background ([`src/app/(marketing)/services/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/services/page.tsx))**:
+   - Replaced plain dark box with a rounded 32px frosted glass card (`backdrop-blur-xl`, `bg-white/[0.06]`, `border border-[#9CB080]/25`, and ambient radial luxury emerald lighting).
+   - Added `✨ Personalized Guidance` glassmorphic eyebrow badge.
+2. **Crystal Clear High-Contrast Typography ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Fixed text contrast bug where dark h3/p tags were invisible on dark background.
+   - Enforced pure bright white (`#ffffff !important`) headings with sage italic accent (`#B5C89B`), and legible `rgba(255, 255, 255, 0.9)` subtitle text with soft drop-shadow.
+3. **Luxury Dual CTAs**:
+   - Primary: Glowing emerald-gradient button (`Book Consultation Online`) with white text and icon.
+   - Secondary: Frosted stroke button (`Speak with Our Team`) with white text and clean hover scale.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 36. Universal Subpage Hero Standardization (Route Breadcrumbs + Fixed Parallax Background)
+
+### A. Architectural & UI Changes
+1. **Universal Fixed Background Parallax ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Extended the luxury fixed parallax background image (`/marketing/hero_clinic.png` with multi-stop dark gradient overlay and `background-attachment: fixed`) across **all marketing subpage heroes**:
+     - `.about-page .page-hero-banner`
+     - `.treatments-page .page-hero-banner`
+     - `.practitioners-page .page-hero-banner`
+     - `.results-page .page-hero-banner`
+     - `.blog-page .page-hero-banner`
+     - `.locations-page .page-hero-banner`
+     - `.contact-page .page-hero-banner`
+     - `.public-book-page .page-hero-banner`
+     - `.treatment-detail-page .treatment-hero`
+     - `.practitioner-detail-page .practitioner-hero`
+     - `.article-detail-page .article-header-section`
+   - Added responsive fallback `background-attachment: scroll` for mobile touch devices.
+
+2. **Dhaka Heights-Style Route Breadcrumbs Across All Subpages**:
+   - Added uppercase, tracked, sage green (`#9CB080`) breadcrumb route paths (`HOME  ›  [SECTION NAME]`) with subtle divider accents on:
+     - [`src/app/(marketing)/about/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/about/page.tsx) (`HOME  ›  ABOUT US`)
+     - [`src/app/(marketing)/practitioners/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/practitioners/page.tsx) (`HOME  ›  DOCTORS`)
+     - [`src/app/(marketing)/results/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/results/page.tsx) (`HOME  ›  RESULTS`)
+     - [`src/app/(marketing)/blog/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/blog/page.tsx) (`HOME  ›  BLOG`)
+     - [`src/app/(marketing)/locations/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/locations/page.tsx) (`HOME  ›  LOCATIONS`)
+     - [`src/app/(marketing)/contact/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/contact/page.tsx) (`HOME  ›  CONTACT`)
+     - [`src/app/(marketing)/book/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/book/page.tsx) (`HOME  ›  BOOK ONLINE`)
+     - [`src/app/(marketing)/services/[slug]/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/services/[slug]/page.tsx) (`HOME  ›  TREATMENTS  ›  [NAME]`)
+     - [`src/app/(marketing)/blog/[slug]/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/blog/[slug]/page.tsx) (`HOME  ›  BLOG  ›  [CATEGORY]`)
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 37. Navigation Streamlining (Removed Blog & Locations Links)
+
+### A. Architectural & UI Changes
+1. **Header Desktop & Mobile Navigation ([`src/components/marketing/luxury-header.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/luxury-header.tsx))**:
+   - Removed `Blog` and `Locations` navigation items from the desktop header menu.
+   - Streamlined desktop menu to: `Treatments`, `About Us`, `Doctors`, `Results`, `Contact`.
+   - Removed `Blog`, `Locations`, and `Academy` from the mobile drawer navigation.
+2. **Footer Navigation ([`src/components/marketing/luxury-footer.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/luxury-footer.tsx))**:
+   - Cleaned up practice links to focus on `About Our Clinic`, `Our Dental Practitioners`, `Smile Results & Gallery`, and `Contact & Clinic Hours`.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 38. About Us Full-Width Expansive Layouts (80px–100px Side Margins)
+
+### A. Architectural & UI Changes
+1. **Full-Width Section Layouts ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Expanded `.about-page .container` and all section containers (`.story-split-section`, `.tech-showcase-section`, `.team-section-wrapper`, `.about-cta-section`) to `width: 100% !important; max-width: 100% !important;`.
+   - Applied side gutters `padding-left: clamp(24px, 5.5vw, 96px)` and `padding-right: clamp(24px, 5.5vw, 96px)` ensuring generous, clean 80px–100px margins on desktop.
+2. **Expansive Grids & Component Sizing ([`src/app/(marketing)/about/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/about/page.tsx))**:
+   - Converted the story section to a 12-column grid (`lg:col-span-7` text, `lg:col-span-5` media) with a 3-column values list.
+   - Expanded the Digital Suite 4-card grid across the full container.
+   - Removed `max-w-5xl` constraint from team practitioner cards to span full width.
+   - Converted the bottom CTA to a luxury transparent frosted glassmorphism card with high-contrast typography.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 39. Digital Dentistry Suite Fixed Parallax Background & Glassmorphic Elevation
+
+### A. Architectural & UI Changes
+1. **Fixed Parallax Background Image ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Replaced plain flat charcoal background on `.about-page .tech-showcase-section` with fixed parallax clinic background (`/marketing/hero_clinic.png`), `background-attachment: fixed`, `background-position: center`, and dark multi-stop luxury gradient overlay (`linear-gradient(180deg, rgba(16, 26, 23, 0.88) 0%, rgba(10, 18, 16, 0.94) 100%)`).
+   - Added responsive fallback `background-attachment: scroll` for mobile devices.
+2. **Crystal Clear High-Contrast Typography**:
+   - Fixed text contrast bug where dark h2 color rule was overriding section headings.
+   - Enforced pure crisp white (`#ffffff !important`) headings with sage italic accent (`#B5C89B`) and luminous drop shadows (`text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5)`).
+   - Upgraded card titles to pure white (`#ffffff !important`) and subtitles to legible `rgba(255, 255, 255, 0.82)`.
+3. **Luxury 3D Glassmorphism Cards ([`src/app/(marketing)/about/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/about/page.tsx))**:
+   - Added dedicated Lucide icons (`Scan`, `Activity`, `Layers`, `Sparkles`) in emerald gradient icon badges.
+   - Implemented frosted glass card container (`backdrop-blur-xl`, `bg-white/[0.06]`, `border border-white/15`), glowing hover border (`#9CB080`), and smooth lift animation (`-translate-y-1.5`).
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 40. Doctor / Practitioner Cards Luxury Redesign
+
+### A. Architectural & UI Changes
+1. **Ultra-Lucrative Card Geometry & Lift System ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Upgraded `.about-page .team-card` and `.practitioners-page .practitioner-card-luxury` to `rounded-[32px]`, crisp subtle border `border border-[#273338]/10`, and dual-layer shadow `shadow-[0_12px_36px_-6px_rgba(27,38,33,0.07),0_4px_12px_rgba(0,0,0,0.03)]`.
+   - On hover, smooth `-translate-y-2` (8px lift) with glowing sage green border (`#9CB080/60`) and deep ambient shadow `shadow-[0_24px_50px_-10px_rgba(43,87,72,0.22)]`.
+2. **Interactive Photo Header with Floating Badges ([`src/app/(marketing)/about/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/about/page.tsx) & [`src/app/(marketing)/practitioners/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/practitioners/page.tsx))**:
+   - `rounded-[24px]` media container with smooth zoom animation (`group-hover:scale-108`).
+   - Floating specialty pill at top-left with animated glowing pulse dot (`#9CB080`).
+   - Verified Practitioner badge with `ShieldCheck` icon at top-right.
+   - Subtle bottom gradient vignette for depth.
+3. **High-End Typography & Action Footer**:
+   - Bold doctor name with smooth hover color transition to deep emerald (`#2B5748`).
+   - Pill badges for clinical specialties.
+   - Dual-action card footer: "View Profile" animated arrow link + glowing radiant emerald "Book Visit / Book Online" button (`CalendarDays` icon).
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 41. Doctors Page Full-Width Expansion & Luxury CTA Standardization
+
+### A. Architectural & UI Changes
+1. **Full-Width Expansive Container ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Extended `.practitioners-page .container`, `.practitioners-grid-section .container`, and `.practitioners-cta .container` to `width: 100% !important; max-width: 100% !important; padding-left/right: clamp(24px, 5.5vw, 96px) !important;` for consistent 80px–100px desktop side margins.
+   - Updated grid in [`src/app/(marketing)/practitioners/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/practitioners/page.tsx) to `grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-8 w-full` spreading doctors across the full expansive layout.
+2. **Standardized Luxury Bottom CTA**:
+   - Converted the bottom CTA to the shared frosted glassmorphic card design (`backdrop-blur-xl`, `bg-white/[0.06]`, `border border-[#9CB080]/25`, ambient emerald glow lighting).
+   - High-contrast pure white headline (`#ffffff !important`) with sage italic accent (`#B5C89B`).
+   - Glowing emerald consultation booking button + frosted white contact button.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 42. Results & Smile Gallery Page Full-Width Expansion & Luxury Case Elevation
+
+### A. Architectural & UI Changes
+1. **Full-Width Expansive Container ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Extended `.results-page .container`, `.results-page .gallery-section .container`, and `.results-page .results-cta .container` to `width: 100% !important; max-width: 100% !important; padding-left/right: clamp(24px, 5.5vw, 96px) !important;` for consistent 80px–100px desktop side margins.
+2. **Elevated Before/After Case Cards ([`src/app/(marketing)/results/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/results/page.tsx))**:
+   - Upgraded case card container to `rounded-[32px]`, `p-6 sm:p-8`, `border border-[#273338]/10`, `shadow-[0_12px_36px_-6px_rgba(27,38,33,0.07)]`, with smooth `-translate-y-2` (8px lift) on hover.
+   - Structured metadata badges for clinical concerns and solutions with custom color-coded indicators.
+   - Added direct "Consult on Treatment" action button and treatment duration metadata on each case.
+3. **Standardized Luxury Bottom CTA**:
+   - Converted bottom CTA to shared frosted glassmorphic card design (`backdrop-blur-xl`, `bg-white/[0.06]`, `border border-[#9CB080]/25`, ambient emerald glow lighting).
+   - High-contrast pure white headline (`#ffffff !important`) with sage italic accent (`#B5C89B`).
+   - Glowing emerald consultation booking button + frosted white contact button.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 43. Contact Page Full-Width Expansion, Interactive Map, Transit Guide & FAQ Accordion
+
+### A. Architectural & UI Changes
+1. **Full-Width Expansive Container ([`src/styles/marketing-public-pages-refinement.css`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/styles/marketing-public-pages-refinement.css))**:
+   - Extended `.contact-page .container`, `.contact-details-section .container`, `.contact-map-section .container`, `.contact-faq-section .container`, and `.contact-cta .container` to `width: 100% !important; max-width: 100% !important; padding-left/right: clamp(24px, 5.5vw, 96px) !important;` for standardized 80px–100px desktop side margins.
+2. **Interactive Google Maps Embed & Transit Guide ([`src/app/(marketing)/contact/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/contact/page.tsx))**:
+   - Added responsive, full-width Google Maps iframe embed framed in a `rounded-[32px]` luxury container with subtle dark border and elevation shadow.
+   - Added 3-column Transit & Accessibility guide cards covering:
+     - 🚇 **By Underground / Train**: Regent's Park, Oxford Circus, Bond Street stations.
+     - 🚗 **Parking Facilities**: Q-Park Oxford Street and Cavendish Square.
+     - ♿ **Step-Free Accessibility**: Ground level access and treatment suite elevators.
+3. **Interactive Patient FAQ Accordion ([`src/components/marketing/contact-faq-accordion.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/contact-faq-accordion.tsx))**:
+   - Built an interactive client FAQ accordion addressing patient queries on initial visits, urgent appointments, dental anxiety accommodations, payment installment options, cancellation policies, and transit.
+4. **Standardized Luxury Bottom CTA**:
+   - Converted bottom CTA to shared frosted glassmorphic card design (`backdrop-blur-xl`, `bg-white/[0.06]`, `border border-[#9CB080]/25`, ambient emerald glow lighting).
+   - High-contrast pure white headline (`#ffffff !important`) with sage italic accent (`#B5C89B`).
+   - Glowing emerald consultation booking button + direct telephone inquiry button.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 44. Contact Details Container Overflow & Spacing Refinement
+
+### A. Architectural & UI Changes
+1. **Resolved Text Overflow on Contact Pill Cards ([`src/app/(marketing)/contact/page.tsx`](file:///d:/work/Clients/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/contact/page.tsx))**:
+   - Replaced cramped 2-column side-by-side grid (`sm:grid-cols-2`) with spacious, full-width stacked rows for Practice Address, Direct Telephone, and Email Inquiry.
+   - Added `overflow-hidden`, `min-w-0`, `flex-1`, and `break-all`/`break-words` utilities on email and phone text containers to ensure long email addresses (`contact@cliniccare.test` or custom domain addresses) never bleed or overflow outside card boundaries across all device viewports.
+
+### B. Quality Verification
+- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**

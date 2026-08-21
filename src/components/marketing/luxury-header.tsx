@@ -20,7 +20,6 @@ export function LuxuryHeader({
 }: LuxuryHeaderProps) {
   const pathname = usePathname();
   const [headerClass, setHeaderClass] = React.useState("");
-  const [isMegaMenuOpen, setIsMegaMenuOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -60,11 +59,7 @@ export function LuxuryHeader({
             {/* Desktop Navigation */}
             <nav className="hidden lg:block">
               <ul className="nav-menu">
-                <li
-                  className={`has-megamenu ${pathname?.startsWith("/services") ? "active-link" : ""}`}
-                  onMouseEnter={() => setIsMegaMenuOpen(true)}
-                  onMouseLeave={() => setIsMegaMenuOpen(false)}
-                >
+                <li className={pathname?.startsWith("/services") ? "active-link" : ""}>
                   <Link href="/services">Treatments</Link>
                 </li>
                 <li className={pathname === "/about" ? "active-link" : ""}>
@@ -75,12 +70,6 @@ export function LuxuryHeader({
                 </li>
                 <li className={pathname === "/results" ? "active-link" : ""}>
                   <Link href="/results">Results</Link>
-                </li>
-                <li className={pathname === "/blog" || pathname.startsWith("/blog/") ? "active-link" : ""}>
-                  <Link href="/blog">Blog</Link>
-                </li>
-                <li className={pathname === "/locations" ? "active-link" : ""}>
-                  <Link href="/locations">Locations</Link>
                 </li>
                 <li className={pathname === "/contact" ? "active-link" : ""}>
                   <Link href="/contact">Contact</Link>
@@ -140,65 +129,6 @@ export function LuxuryHeader({
             </div>
           </div>
         </div>
-
-        {/* Megamenu Treatments Dropdown (Desktop) */}
-        <div
-          className={`desktop-menu-wrapper ${isMegaMenuOpen ? "active" : ""}`}
-          id="treatments-megamenu"
-          onMouseEnter={() => setIsMegaMenuOpen(true)}
-          onMouseLeave={() => setIsMegaMenuOpen(false)}
-        >
-          <div className="container">
-            <div className="megamenu-grid">
-              <div className="megamenu-col">
-                <span className="megamenu-heading">Cosmetic Artistry</span>
-                <ul className="megamenu-links">
-                  <li>
-                    <Link href="/services">Porcelain Veneers</Link>
-                  </li>
-                  <li>
-                    <Link href="/services">Laser Teeth Whitening</Link>
-                  </li>
-                  <li>
-                    <Link href="/services">Invisalign® Clear Aligners</Link>
-                  </li>
-                  <li>
-                    <Link href="/services">Digital Smile Design</Link>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="megamenu-col">
-                <span className="megamenu-heading">Restorative & Surgical</span>
-                <ul className="megamenu-links">
-                  <li>
-                    <Link href="/services">All-On Implants™ & Bridges</Link>
-                  </li>
-                  <li>
-                    <Link href="/services">Single Dental Implants</Link>
-                  </li>
-                  <li>
-                    <Link href="/services">Comfort-Focused Dentistry</Link>
-                  </li>
-                  <li>
-                    <Link href="/services">General & Preventative Care</Link>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="megamenu-col highlight-col">
-                <div className="megamenu-promo-card">
-                  <span className="promo-badge">Patient-Focused Care</span>
-                  <h4>Explore Treatment Options</h4>
-                  <p>Browse cosmetic, restorative, and general dental care, then book a consultation to discuss what may be suitable for you.</p>
-                  <Link href="/book" className="btn-stroke-sm">
-                    Book Consultation →
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </header>
 
       {/* Mobile Drawer Menu */}
@@ -242,32 +172,11 @@ export function LuxuryHeader({
                 Smile Results
               </Link>
               <Link
-                href="/blog"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block py-2.5 text-base font-semibold border-b border-white/10 text-white"
-              >
-                Dental Blog &amp; Insights
-              </Link>
-              <Link
-                href="/locations"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block py-2.5 text-base font-semibold border-b border-white/10 text-white"
-              >
-                Our Clinic Locations
-              </Link>
-              <Link
-                href="/academy"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block py-2.5 text-base font-semibold border-b border-white/10 text-white"
-              >
-                Clinical Education (Academy)
-              </Link>
-              <Link
                 href="/contact"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block py-2.5 text-base font-semibold border-b border-white/10 text-white"
               >
-                Contact &amp; Location
+                Contact Us
               </Link>
               <Link
                 href={account ? account.href : "/login"}
