@@ -318,7 +318,7 @@ export async function listOwnPrescriptions() {
   const { data: prescriptions, error: rxError } = await supabase
     .from("prescriptions")
     .select(
-      "id, appointment_id, encounter_id, issued_at, status, notes, practitioners:practitioner_id(profiles:profile_id(full_name)), prescription_items(id, medicine_name, dosage, frequency, duration, instructions)",
+      "id, appointment_id, encounter_id, issued_at, status, notes, practitioners:practitioner_id(profiles:profile_id(full_name)), prescription_items(id, medicine_name, dosage, frequency, duration, instructions, created_at)",
     )
     .eq("patient_id", patient.id)
     .order("issued_at", { ascending: false });
@@ -333,7 +333,20 @@ export async function listOwnPrescriptions() {
 
   const encountersMap = new Map<
     string,
-    { chief_complaint: string | null; diagnosis: string | null; performed_treatment: string | null; patient_notes: string | null }
+    {
+      id: string;
+      appointment_id: string | null;
+      chief_complaint: string | null;
+      diagnosis: string | null;
+      performed_treatment: string | null;
+      patient_notes: string | null;
+      follow_up_recommended: boolean | null;
+      follow_up_date: string | null;
+      follow_up_reason: string | null;
+      started_at: string | null;
+      completed_at: string | null;
+      status: string | null;
+    }
   >();
 
   if (encounterIds.length > 0 || appointmentIds.length > 0) {
@@ -347,7 +360,7 @@ export async function listOwnPrescriptions() {
 
     const { data: encs } = await supabase
       .from("clinical_encounters")
-      .select("id, appointment_id, chief_complaint, diagnosis, performed_treatment, patient_notes")
+      .select("id, appointment_id, chief_complaint, diagnosis, performed_treatment, patient_notes, follow_up_recommended, follow_up_date, follow_up_reason, started_at, completed_at, status")
       .or(conditions.join(","));
 
     if (encs) {
@@ -368,6 +381,30 @@ export async function listOwnPrescriptions() {
       clinical_encounters: enc ?? null,
     };
   });
+}
+
+export async function listOwnClinicalEncounters() {
+  const user = await getUser();
+  if (!user) return [];
+
+  const supabase = await createClient();
+  const { data: patient } = await supabase
+    .from("patients")
+    .select("id")
+    .eq("profile_id", user.id)
+    .maybeSingle();
+  if (!patient) return [];
+
+  const { data: encounters, error } = await supabase
+    .from("clinical_encounters")
+    .select(
+      "id, appointment_id, status, chief_complaint, diagnosis, performed_treatment, patient_notes, follow_up_recommended, follow_up_date, follow_up_reason, started_at, completed_at, practitioners:practitioner_id(profiles:profile_id(full_name))",
+    )
+    .eq("patient_id", patient.id)
+    .order("started_at", { ascending: false });
+
+  if (error || !encounters) return [];
+  return encounters;
 }
 
 export async function listPatients(query?: string) {

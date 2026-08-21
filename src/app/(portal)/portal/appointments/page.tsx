@@ -4,7 +4,7 @@ import { CalendarCheck, CheckCircle2, History, Plus, XCircle } from "lucide-reac
 import { AppointmentCard, type PrescriptionSummary } from "@/components/portal/appointment-card";
 import { AppointmentSuccessToast } from "@/components/portal/appointment-success-toast";
 import { ButtonLink } from "@/components/ui/button";
-import { listOwnAppointments, listOwnPrescriptions } from "@/lib/server/directory";
+import { listOwnAppointments, listOwnPrescriptions, listOwnClinicalEncounters } from "@/lib/server/directory";
 import { cn } from "@/lib/utils";
 import { PortalHistoryList, type PortalAppointmentHistoryItem } from "@/components/portal/portal-history-list";
 
@@ -15,10 +15,11 @@ export default async function PortalAppointmentsPage({
 }: {
   searchParams?: Promise<{ success?: string }>;
 }) {
-  const [{ success }, appointments, prescriptions] = await Promise.all([
+  const [{ success }, appointments, prescriptions, encounters] = await Promise.all([
     searchParams ? searchParams : Promise.resolve({ success: undefined }),
     listOwnAppointments(),
     listOwnPrescriptions(),
+    listOwnClinicalEncounters(),
   ]);
 
   const now = new Date();
@@ -36,44 +37,59 @@ export default async function PortalAppointmentsPage({
   const completed = appointments.filter((appointment) => appointment.status === "completed").length;
   const cancelled = appointments.filter((appointment) => appointment.status === "cancelled").length;
 
-  // Match prescription to appointment
+  // Match prescription and clinical encounter to appointment
   const findPrescriptionForAppointment = (
     appointment: (typeof appointments)[number],
   ): PrescriptionSummary | null => {
-    // 1. Direct appointment_id match
-    const directMatch = prescriptions.find(
+    // 1. Direct appointment_id match on prescriptions
+    const directRx = prescriptions.find(
       (rx) => (rx as unknown as { appointment_id?: string }).appointment_id === appointment.id,
     );
-    if (directMatch) {
-      const rxEnc = (directMatch as unknown as { clinical_encounters?: { chief_complaint?: string; diagnosis?: string; performed_treatment?: string; patient_notes?: string } | null }).clinical_encounters;
-      return {
-        id: directMatch.id,
-        issued_at: directMatch.issued_at,
-        status: directMatch.status,
-        notes: directMatch.notes,
-        practitionerName: directMatch.practitioners?.profiles?.full_name ?? undefined,
-        prescription_items: directMatch.prescription_items ?? [],
-        encounter: rxEnc ?? null,
-      };
-    }
 
-    // 2. Date match fallback (same calendar day)
+    // 2. Direct appointment_id match on clinical encounters
+    const directEnc = encounters.find((enc) => enc.appointment_id === appointment.id);
+
+    // 3. Fallback date match (same calendar day)
     const apptDateStr = new Date(appointment.starts_at).toISOString().slice(0, 10);
-    const dateMatch = prescriptions.find((rx) => rx.issued_at?.slice(0, 10) === apptDateStr);
-    if (dateMatch) {
-      const rxEnc = (dateMatch as unknown as { clinical_encounters?: { chief_complaint?: string; diagnosis?: string; performed_treatment?: string; patient_notes?: string } | null }).clinical_encounters;
-      return {
-        id: dateMatch.id,
-        issued_at: dateMatch.issued_at,
-        status: dateMatch.status,
-        notes: dateMatch.notes,
-        practitionerName: dateMatch.practitioners?.profiles?.full_name ?? undefined,
-        prescription_items: dateMatch.prescription_items ?? [],
-        encounter: rxEnc ?? null,
-      };
+    const dateRx = !directRx ? prescriptions.find((rx) => rx.issued_at?.slice(0, 10) === apptDateStr) : null;
+    const dateEnc = !directEnc ? encounters.find((enc) => enc.started_at?.slice(0, 10) === apptDateStr) : null;
+
+    const matchedRx = directRx || dateRx;
+    const matchedEnc = directEnc || dateEnc;
+
+    if (!matchedRx && !matchedEnc) {
+      return null;
     }
 
-    return null;
+    const rxEnc = (matchedRx as unknown as { clinical_encounters?: Record<string, unknown> })?.clinical_encounters || matchedEnc;
+
+    return {
+      id: matchedRx?.id || matchedEnc?.id || appointment.id,
+      issued_at: matchedRx?.issued_at || matchedEnc?.completed_at || matchedEnc?.started_at || appointment.starts_at,
+      status: matchedRx?.status || (matchedEnc?.status === "completed" ? "active" : "historical"),
+      notes: matchedRx?.notes ?? null,
+      practitionerName:
+        matchedRx?.practitioners?.profiles?.full_name ??
+        (matchedEnc?.practitioners as unknown as { profiles?: { full_name?: string } })?.profiles?.full_name ??
+        appointment.practitioners?.profiles?.full_name ??
+        undefined,
+      prescription_items: matchedRx?.prescription_items ?? [],
+      encounter: rxEnc
+        ? {
+            id: (rxEnc as { id?: string }).id,
+            chief_complaint: (rxEnc as { chief_complaint?: string }).chief_complaint ?? null,
+            diagnosis: (rxEnc as { diagnosis?: string }).diagnosis ?? null,
+            performed_treatment: (rxEnc as { performed_treatment?: string }).performed_treatment ?? null,
+            patient_notes: (rxEnc as { patient_notes?: string }).patient_notes ?? null,
+            follow_up_recommended: (rxEnc as { follow_up_recommended?: boolean }).follow_up_recommended ?? null,
+            follow_up_date: (rxEnc as { follow_up_date?: string }).follow_up_date ?? null,
+            follow_up_reason: (rxEnc as { follow_up_reason?: string }).follow_up_reason ?? null,
+            started_at: (rxEnc as { started_at?: string }).started_at ?? null,
+            completed_at: (rxEnc as { completed_at?: string }).completed_at ?? null,
+            status: (rxEnc as { status?: string }).status ?? null,
+          }
+        : null,
+    };
   };
 
   const resolvePrice = (appointment: (typeof appointments)[number]) => {
