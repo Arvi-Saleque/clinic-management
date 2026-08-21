@@ -91,7 +91,7 @@ export async function getDoctorServicesContext(requestedPractitionerId?: string)
 
   const supabase = await createClient();
 
-  // 1. Fetch all active clinic services in organization
+  // 1. Fetch all active centralized clinic services in organization
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let servicesData: any[] | null = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -101,16 +101,15 @@ export async function getDoctorServicesContext(requestedPractitionerId?: string)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const resWithIcon = await (supabase as any)
       .from("services")
-      .select("id, name, slug, category_id, description, duration_minutes, price, icon_key, service_categories:category_id(id, name, description)")
+      .select("id, name, slug, description, duration_minutes, price, icon_key, show_on_website")
       .eq("is_active", true)
       .order("name");
 
     if (resWithIcon.error && resWithIcon.error.message?.includes("icon_key")) {
-      // Fallback if icon_key migration not yet applied
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const resFallback = await (supabase as any)
         .from("services")
-        .select("id, name, slug, category_id, description, duration_minutes, price, service_categories:category_id(id, name, description)")
+        .select("id, name, slug, description, duration_minutes, price, show_on_website")
         .eq("is_active", true)
         .order("name");
       servicesData = resFallback.data;
@@ -123,7 +122,7 @@ export async function getDoctorServicesContext(requestedPractitionerId?: string)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const resFallback = await (supabase as any)
       .from("services")
-      .select("id, name, slug, category_id, description, duration_minutes, price, service_categories:category_id(id, name, description)")
+      .select("id, name, slug, description, duration_minutes, price, show_on_website")
       .eq("is_active", true)
       .order("name");
     servicesData = resFallback.data;
@@ -140,7 +139,7 @@ export async function getDoctorServicesContext(requestedPractitionerId?: string)
     };
   }
 
-  // 2. Fetch practitioner's configured services
+  // 2. Fetch practitioner's configured services (Turned ON services)
   const { data: overridesData, error: overridesError } = await supabase
     .from("practitioner_services")
     .select("service_id, override_duration_minutes, override_price")
@@ -154,22 +153,19 @@ export async function getDoctorServicesContext(requestedPractitionerId?: string)
     (overridesData ?? []).map((row) => [row.service_id, row]),
   );
 
-  // 3. Merge services with practitioner configurations
+  // 3. Merge centralized services with this practitioner's offerings
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mergedServices: DoctorServiceConfig[] = servicesData.map((svc: any) => {
     const override = overridesMap.get(svc.id);
     const isOffered = !!override;
     const overrideDuration = override?.override_duration_minutes ?? null;
     const overridePrice = override?.override_price != null ? Number(override.override_price) : null;
-    const catName = svc.service_categories?.name ?? "General Dentistry";
-    const iconKey = svc.icon_key ?? getServiceDefaultIcon(svc.name, catName);
+    const iconKey = svc.icon_key ?? getServiceDefaultIcon(svc.name, "General");
 
     return {
       service_id: svc.id,
       name: svc.name,
       slug: svc.slug,
-      category_id: svc.category_id ?? null,
-      category: catName,
       icon_key: iconKey,
       description: svc.description,
       clinic_duration_minutes: svc.duration_minutes,
@@ -206,29 +202,19 @@ export async function updateDoctorServiceAction(
       return { success: false, error: "Unauthorized: No valid practitioner profile found." };
     }
 
-    const supabase = await createClient();
+    const admin = createAdminClient();
 
     if (!data.isOffered) {
-      // Doctor is disabling this service
-      const { error } = await supabase
+      // Doctor is turning OFF this service
+      const { error: delError } = await admin
         .from("practitioner_services")
         .delete()
         .eq("practitioner_id", practitioner.id)
         .eq("service_id", data.serviceId);
 
-      if (error) {
-        // If RLS blocks dentist write on client, fallback to admin client after verified authorization
-        const admin = createAdminClient();
-        const { error: adminError } = await admin
-          .from("practitioner_services")
-          .delete()
-          .eq("practitioner_id", practitioner.id)
-          .eq("service_id", data.serviceId);
-
-        if (adminError) return { success: false, error: adminError.message };
-      }
+      if (delError) return { success: false, error: delError.message };
     } else {
-      // Doctor is enabling/updating this service
+      // Doctor is turning ON this service with required duration & fee
       const payload = {
         practitioner_id: practitioner.id,
         service_id: data.serviceId,
@@ -236,18 +222,11 @@ export async function updateDoctorServiceAction(
         override_price: data.overridePrice ?? null,
       };
 
-      const { error } = await supabase
+      const { error: upsertError } = await admin
         .from("practitioner_services")
         .upsert(payload, { onConflict: "practitioner_id,service_id" });
 
-      if (error) {
-        const admin = createAdminClient();
-        const { error: adminError } = await admin
-          .from("practitioner_services")
-          .upsert(payload, { onConflict: "practitioner_id,service_id" });
-
-        if (adminError) return { success: false, error: adminError.message };
-      }
+      if (upsertError) return { success: false, error: upsertError.message };
     }
 
     revalidatePath("/clinical/services");
@@ -366,57 +345,12 @@ export async function createDoctorServiceAction(
       .replace(/^-+|-+$/g, "");
     const uniqueSlug = `${baseSlug || "service"}-${Date.now().toString(36)}`;
 
-    // 3. Resolve category_id in service_categories
-    let categoryId: string | null = null;
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: existingCat } = await (admin as any)
-        .from("service_categories")
-        .select("id")
-        .eq("organization_id", organizationId)
-        .ilike("name", data.category.trim())
-        .maybeSingle();
-
-      if (existingCat?.id) {
-        categoryId = existingCat.id;
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: createdCat } = await (admin as any)
-          .from("service_categories")
-          .insert({
-            organization_id: organizationId,
-            name: data.category.trim(),
-          })
-          .select("id")
-          .maybeSingle();
-        if (createdCat?.id) categoryId = createdCat.id;
-      }
-    } catch {
-      // Fallback
-    }
-
-    if (!categoryId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: defaultCat } = await (admin as any)
-        .from("service_categories")
-        .select("id")
-        .eq("organization_id", organizationId)
-        .ilike("name", "General Dentistry")
-        .maybeSingle();
-      if (defaultCat?.id) categoryId = defaultCat.id;
-    }
-
-    if (!categoryId) {
-      return { success: false, error: "Please select a valid category." };
-    }
-
-    // 4. Create service record in organization catalog
+    // 3. Create centralized service record in organization catalog (NO category)
     const insertData: Record<string, unknown> = {
       organization_id: organizationId,
       branch_id: practitioner.branch_id,
       name: data.name.trim(),
       slug: uniqueSlug,
-      category_id: categoryId,
       icon_key: data.iconKey || "tooth",
       description: data.description?.trim() || null,
       duration_minutes: data.durationMinutes,
@@ -448,7 +382,7 @@ export async function createDoctorServiceAction(
       return { success: false, error: serviceError?.message ?? "Failed to create service" };
     }
 
-    // 5. Link into practitioner_services
+    // 4. Link into practitioner_services ONLY for the creating doctor (turned ON for this doctor, OFF for all other doctors)
     const { error: linkError } = await admin
       .from("practitioner_services")
       .insert({
@@ -465,7 +399,7 @@ export async function createDoctorServiceAction(
     revalidatePath("/clinical/services");
     revalidatePath("/scheduler");
 
-    const resolvedIcon = data.iconKey || getServiceDefaultIcon(newService.name, data.category.trim());
+    const resolvedIcon = data.iconKey || getServiceDefaultIcon(newService.name, "General");
 
     return {
       success: true,
@@ -474,8 +408,6 @@ export async function createDoctorServiceAction(
         service_id: newService.id,
         name: newService.name,
         slug: newService.slug,
-        category_id: categoryId,
-        category: data.category.trim(),
         icon_key: resolvedIcon,
         description: newService.description,
         clinic_duration_minutes: newService.duration_minutes,
@@ -505,7 +437,7 @@ export async function deleteDoctorServiceAction(
 
     const admin = createAdminClient();
 
-    // Safely remove the doctor-offering relationship without destroying global service/historical records
+    // Safely remove the doctor-offering relationship (turns OFF for this doctor)
     const { error: delError } = await admin
       .from("practitioner_services")
       .delete()
@@ -555,287 +487,14 @@ export async function checkUpcomingAppointmentsAction(
   }
 }
 
-/**
- * Fetches all categories with accurate service counts for the clinician's organization
- */
-export async function listCategoriesAction(): Promise<CategoryItem[]> {
-  try {
-    const profile = await requireClinician();
-    const supabase = await createClient();
-    const admin = createAdminClient();
-    const orgId = profile.organization_id || "";
-
-    // 1. Fetch active services in clinician's organization
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: servicesData } = await (supabase as any)
-      .from("services")
-      .select("id, category_id")
-      .eq("organization_id", orgId)
-      .eq("is_active", true);
-
-    const countsMap = new Map<string, number>();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (servicesData ?? []).forEach((s: any) => {
-      if (s.category_id) {
-        countsMap.set(s.category_id, (countsMap.get(s.category_id) ?? 0) + 1);
-      }
-    });
-
-    // 2. Fetch categories from service_categories for this organization
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: dbCategories } = await (admin as any)
-      .from("service_categories")
-      .select("id, name, description")
-      .eq("organization_id", orgId)
-      .order("name");
-
-    const categoryList: CategoryItem[] = [];
-    const seenNames = new Set<string>();
-
-    (dbCategories ?? []).forEach((c: { id: string; name: string; description?: string | null }) => {
-      seenNames.add(c.name.toLowerCase());
-      const count = countsMap.get(c.id) ?? 0;
-      categoryList.push({
-        id: c.id,
-        name: c.name,
-        description: c.description,
-        serviceCount: count,
-      });
-    });
-
-    const defaultCategories = [
-      "Children",
-      "Cosmetic",
-      "Emergency",
-      "Endodontics",
-      "General",
-      "General Dentistry",
-      "Hygiene",
-      "Orthodontics",
-      "Prosthodontics",
-      "Restorative",
-      "Surgical",
-    ];
-
-    defaultCategories.forEach((catName) => {
-      if (!seenNames.has(catName.toLowerCase())) {
-        seenNames.add(catName.toLowerCase());
-        categoryList.push({
-          name: catName,
-          serviceCount: 0,
-        });
-      }
-    });
-
-    return categoryList.sort((a, b) => a.name.localeCompare(b.name));
-  } catch (err) {
-    console.error("Failed to list categories:", err);
-    return [
-      { name: "General Dentistry", serviceCount: 0 },
-      { name: "Cosmetic Dentistry", serviceCount: 0 },
-      { name: "Orthodontics", serviceCount: 0 },
-      { name: "Restorative", serviceCount: 0 },
-      { name: "Surgical", serviceCount: 0 },
-    ];
-  }
-}
-
-/**
- * Creates a new category within the clinician's organization
- */
-export async function createCategoryAction(
-  name: string,
-  description?: string,
-): Promise<{ success: boolean; error: string | null; category?: CategoryItem }> {
-  try {
-    const cleanName = name.trim();
-    if (!cleanName || cleanName.length < 2) {
-      return { success: false, error: "Category name must be at least 2 characters" };
-    }
-
-    const profile = await requireClinician();
-    const admin = createAdminClient();
-    const orgId = profile.organization_id || "";
-
-    // Check duplicate within organization
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existing } = await (admin as any)
-      .from("service_categories")
-      .select("id, name")
-      .eq("organization_id", orgId)
-      .ilike("name", cleanName)
-      .maybeSingle();
-
-    if (existing) {
-      return { success: false, error: `Category "${cleanName}" already exists in your clinic.` };
-    }
-
-    // Insert into service_categories table
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: newCat, error } = await (admin as any)
-      .from("service_categories")
-      .insert({
-        organization_id: orgId,
-        name: cleanName,
-        description: description?.trim() || null,
-      })
-      .select()
-      .maybeSingle();
-
-    if (error && !error.message.includes("does not exist") && !error.message.includes("unique")) {
-      return { success: false, error: error.message };
-    }
-
-    revalidatePath("/clinical/services");
-    revalidatePath("/clinical/services/new");
-
-    return {
-      success: true,
-      error: null,
-      category: {
-        id: newCat?.id,
-        name: cleanName,
-        description: description?.trim() || null,
-        serviceCount: 0,
-      },
-    };
-  } catch (err: unknown) {
-    console.error("Failed to create category:", err);
-    return { success: false, error: err instanceof Error ? err.message : "Failed to create category" };
-  }
-}
-
-/**
- * Renames an existing category across all services in the clinician's organization
- */
-export async function renameCategoryAction(
-  oldName: string,
-  newName: string,
-  description?: string,
-): Promise<{ success: boolean; error: string | null }> {
-  try {
-    const cleanOld = oldName.trim();
-    const cleanNew = newName.trim();
-
-    if (!cleanNew || cleanNew.length < 2) {
-      return { success: false, error: "New category name must be at least 2 characters" };
-    }
-
-    const profile = await requireClinician();
-    const admin = createAdminClient();
-    const orgId = profile.organization_id || "";
-
-    // 1. Update in service_categories table for this org
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (admin as any)
-        .from("service_categories")
-        .update({
-          name: cleanNew,
-          description: description?.trim() || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("organization_id", orgId)
-        .eq("name", cleanOld);
-    } catch {
-      // Ignored if table doesn't exist
-    }
-
-    revalidatePath("/clinical/services");
-    revalidatePath("/clinical/services/new");
-    revalidatePath("/services");
-
-    return { success: true, error: null };
-  } catch (err: unknown) {
-    console.error("Failed to rename category:", err);
-    return { success: false, error: err instanceof Error ? err.message : "Failed to rename category" };
-  }
-}
-
-/**
- * Deletes a category if 0 services in this organization use it
- */
-export async function deleteCategoryAction(
-  categoryName: string,
-): Promise<{ success: boolean; error: string | null; serviceCount?: number }> {
-  try {
-    const cleanName = categoryName.trim();
-    const profile = await requireClinician();
-    const admin = createAdminClient();
-    const orgId = profile.organization_id || "";
-
-    // Find category row in this org if exists
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: catRecord } = await (admin as any)
-      .from("service_categories")
-      .select("id, name")
-      .eq("organization_id", orgId)
-      .eq("name", cleanName)
-      .maybeSingle();
-
-    // Check active services in this org
-    let count = 0;
-    if (catRecord?.id) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { count: fkCount } = await (admin as any)
-        .from("services")
-        .select("*", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("is_active", true)
-        .eq("category_id", catRecord.id);
-      count = fkCount ?? 0;
-    }
-
-    if (count > 0) {
-      return {
-        success: false,
-        error: `This category contains ${count} service${count === 1 ? "" : "s"}. Reassign those services before deleting it.`,
-        serviceCount: count,
-      };
-    }
-
-    // If 0 services, safely delete from service_categories
-    try {
-      if (catRecord?.id) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (admin as any)
-          .from("service_categories")
-          .delete()
-          .eq("id", catRecord.id)
-          .eq("organization_id", orgId);
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (admin as any)
-          .from("service_categories")
-          .delete()
-          .eq("name", cleanName)
-          .eq("organization_id", orgId);
-      }
-    } catch {
-      // Ignored if table doesn't exist
-    }
-
-    revalidatePath("/clinical/services");
-    revalidatePath("/clinical/services/new");
-
-    return { success: true, error: null, serviceCount: 0 };
-  } catch (err: unknown) {
-    console.error("Failed to delete category:", err);
-    return { success: false, error: err instanceof Error ? err.message : "Failed to delete category" };
-  }
-}
-
 export async function getNewServiceContext(requestedPractitionerId?: string): Promise<ServiceFormContext> {
   const { profile, practitioner, allPractitioners, canSelectPractitioner } =
     await resolveAuthorizedPractitioner(requestedPractitionerId);
-
-  const categories = await listCategoriesAction();
 
   return {
     practitioner,
     allPractitioners,
     canSelectPractitioner,
-    categories,
     userRole: profile.role,
   };
 }
@@ -849,7 +508,7 @@ export async function getSingleServiceContext(
 
   const supabase = await createClient();
 
-  // 1. Fetch the service
+  // 1. Fetch the centralized service
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let rawSvc: any = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -859,7 +518,7 @@ export async function getSingleServiceContext(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const resWithIcon = await (supabase as any)
       .from("services")
-      .select("id, name, slug, category_id, icon_key, description, duration_minutes, price, show_on_website, service_categories:category_id(id, name, description)")
+      .select("id, name, slug, icon_key, description, duration_minutes, price, show_on_website")
       .eq("id", serviceId)
       .single();
 
@@ -867,7 +526,7 @@ export async function getSingleServiceContext(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const resFallback = await (supabase as any)
         .from("services")
-        .select("id, name, slug, category_id, description, duration_minutes, price, show_on_website, service_categories:category_id(id, name, description)")
+        .select("id, name, slug, description, duration_minutes, price, show_on_website")
         .eq("id", serviceId)
         .single();
       rawSvc = resFallback.data;
@@ -880,7 +539,7 @@ export async function getSingleServiceContext(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const resFallback = await (supabase as any)
       .from("services")
-      .select("id, name, slug, category_id, description, duration_minutes, price, show_on_website, service_categories:category_id(id, name, description)")
+      .select("id, name, slug, description, duration_minutes, price, show_on_website")
       .eq("id", serviceId)
       .single();
     rawSvc = resFallback.data;
@@ -891,13 +550,11 @@ export async function getSingleServiceContext(
     id: string;
     name: string;
     slug: string;
-    category_id?: string | null;
     icon_key?: string | null;
     description: string | null;
     duration_minutes: number;
     price: number;
     show_on_website: boolean;
-    service_categories?: { id: string; name: string; description?: string | null } | null;
   } | null;
 
   if (svcError || !svc) {
@@ -905,7 +562,6 @@ export async function getSingleServiceContext(
       practitioner,
       allPractitioners,
       canSelectPractitioner,
-      categories: [],
       serviceNotFound: true,
       userRole: profile.role,
     };
@@ -931,22 +587,16 @@ export async function getSingleServiceContext(
     }
   }
 
-  // 3. Fetch all categories
-  const categories = await listCategoriesAction();
-  const catName = svc.service_categories?.name ?? "General Dentistry";
-  const iconKey = svc.icon_key ?? getServiceDefaultIcon(svc.name, catName);
+  const iconKey = svc.icon_key ?? getServiceDefaultIcon(svc.name, "General");
 
   return {
     practitioner,
     allPractitioners,
     canSelectPractitioner,
-    categories,
     service: {
       service_id: svc.id,
       name: svc.name,
       slug: svc.slug,
-      category_id: svc.category_id ?? null,
-      category: catName,
       icon_key: iconKey,
       description: svc.description,
       clinic_duration_minutes: svc.duration_minutes,
@@ -992,61 +642,6 @@ export async function saveServiceFormAction(
       return { success: false, error: "Organization context not found." };
     }
 
-    // Resolve or establish category_id in service_categories
-    let finalCategoryId: string | null = null;
-    if (data.categoryId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: catById } = await (admin as any)
-        .from("service_categories")
-        .select("id")
-        .eq("id", data.categoryId)
-        .eq("organization_id", organizationId)
-        .maybeSingle();
-      if (catById?.id) finalCategoryId = catById.id;
-    }
-
-    if (!finalCategoryId && data.category) {
-      const cleanName = data.category.trim();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: catByName } = await (admin as any)
-        .from("service_categories")
-        .select("id")
-        .eq("organization_id", organizationId)
-        .ilike("name", cleanName)
-        .maybeSingle();
-
-      if (catByName?.id) {
-        finalCategoryId = catByName.id;
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: newCat } = await (admin as any)
-          .from("service_categories")
-          .insert({
-            organization_id: organizationId,
-            name: cleanName,
-          })
-          .select("id")
-          .maybeSingle();
-        if (newCat?.id) finalCategoryId = newCat.id;
-      }
-    }
-
-    if (!finalCategoryId) {
-      // Fallback to General Dentistry
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: defaultCat } = await (admin as any)
-        .from("service_categories")
-        .select("id")
-        .eq("organization_id", organizationId)
-        .ilike("name", "General Dentistry")
-        .maybeSingle();
-      if (defaultCat?.id) finalCategoryId = defaultCat.id;
-    }
-
-    if (!finalCategoryId) {
-      return { success: false, error: "Please select a valid service category." };
-    }
-
     if (data.serviceId) {
       // -------------------------------------------------------------
       // EDIT MODE
@@ -1067,10 +662,9 @@ export async function saveServiceFormAction(
         return { success: false, error: overrideError.message };
       }
 
-      // 2. Update service details (NO legacy category column!)
+      // 2. Update centralized service details
       const updateData: Record<string, unknown> = {
         name: data.name.trim(),
-        category_id: finalCategoryId,
         icon_key: data.iconKey || "tooth",
         description: data.description?.trim() || null,
         duration_minutes: data.durationMinutes,
@@ -1120,7 +714,6 @@ export async function saveServiceFormAction(
         branch_id: practitioner.branch_id,
         name: data.name.trim(),
         slug: uniqueSlug,
-        category_id: finalCategoryId,
         icon_key: data.iconKey || "tooth",
         description: data.description?.trim() || null,
         duration_minutes: data.durationMinutes,
@@ -1152,6 +745,7 @@ export async function saveServiceFormAction(
         return { success: false, error: serviceError?.message ?? "Failed to create service" };
       }
 
+      // Link to creating practitioner only (turned ON for this doctor, OFF for others)
       const { error: linkError } = await admin
         .from("practitioner_services")
         .insert({
@@ -1177,8 +771,16 @@ export async function saveServiceFormAction(
   }
 }
 
-// Canonical named action exports
-export const listServiceCategories = listCategoriesAction;
-export const createServiceCategory = createCategoryAction;
-export const updateServiceCategory = renameCategoryAction;
-export const deleteServiceCategory = deleteCategoryAction;
+// Deprecated category stubs for backward compatibility
+export async function listCategoriesAction(): Promise<CategoryItem[]> {
+  return [];
+}
+export async function createCategoryAction(): Promise<{ success: boolean; error: string | null }> {
+  return { success: false, error: "Categories have been deprecated." };
+}
+export async function renameCategoryAction(): Promise<{ success: boolean; error: string | null }> {
+  return { success: false, error: "Categories have been deprecated." };
+}
+export async function deleteCategoryAction(): Promise<{ success: boolean; error: string | null }> {
+  return { success: false, error: "Categories have been deprecated." };
+}

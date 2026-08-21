@@ -8,7 +8,7 @@ export interface ClinicService {
   duration_minutes: number;
   price: number;
   category_id?: string | null;
-  category: string | null;
+  category?: string | null;
   icon_key?: string | null;
   is_active: boolean;
   show_on_website: boolean;
@@ -20,7 +20,7 @@ export interface DoctorServiceConfig {
   name: string;
   slug: string;
   category_id?: string | null;
-  category: string | null;
+  category?: string | null;
   icon_key?: string | null;
   description: string | null;
   clinic_duration_minutes: number;
@@ -84,7 +84,7 @@ export interface ServiceFormContext {
     full_name: string;
   }[];
   canSelectPractitioner: boolean;
-  categories: CategoryItem[];
+  categories?: CategoryItem[];
   service?: DoctorServiceConfig & { show_on_website?: boolean };
   userRole?: string;
 }

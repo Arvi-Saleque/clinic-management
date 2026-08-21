@@ -1,22 +1,40 @@
 import { z } from "zod";
 
-export const updateDoctorServiceSchema = z.object({
-  serviceId: z.string().uuid("Invalid service ID"),
-  isOffered: z.boolean(),
-  overrideDurationMinutes: z
-    .number()
-    .int("Duration must be an integer")
-    .min(5, "Duration must be at least 5 minutes")
-    .max(480, "Duration cannot exceed 480 minutes (8 hours)")
-    .nullable()
-    .optional(),
-  overridePrice: z
-    .number()
-    .min(0, "Price cannot be negative")
-    .max(1000000, "Price exceeds maximum allowable limit")
-    .nullable()
-    .optional(),
-});
+export const updateDoctorServiceSchema = z
+  .object({
+    serviceId: z.string().uuid("Invalid service ID"),
+    isOffered: z.boolean(),
+    overrideDurationMinutes: z
+      .number()
+      .int("Duration must be an integer")
+      .min(5, "Duration must be at least 5 minutes")
+      .max(480, "Duration cannot exceed 480 minutes (8 hours)")
+      .nullable()
+      .optional(),
+    overridePrice: z
+      .number()
+      .min(0, "Price cannot be negative")
+      .max(1000000, "Price exceeds maximum allowable limit")
+      .nullable()
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.isOffered) {
+        return (
+          data.overrideDurationMinutes != null &&
+          data.overrideDurationMinutes > 0 &&
+          data.overridePrice != null &&
+          data.overridePrice >= 0
+        );
+      }
+      return true;
+    },
+    {
+      message: "Please provide both duration (minutes) and fee when offering this service",
+      path: ["overrideDurationMinutes"],
+    },
+  );
 
 export const bulkUpdateDoctorServicesSchema = z.object({
   practitionerId: z.string().uuid().optional(),
@@ -26,7 +44,6 @@ export const bulkUpdateDoctorServicesSchema = z.object({
 export const createDoctorServiceSchema = z.object({
   practitionerId: z.string().uuid().optional(),
   name: z.string().min(2, "Service name must be at least 2 characters").max(100, "Service name is too long"),
-  category: z.string().min(1, "Category is required").default("General Dental"),
   iconKey: z.string().max(50).optional().nullable().default("tooth"),
   description: z.string().max(500, "Description is too long").optional().nullable(),
   durationMinutes: z
@@ -43,8 +60,6 @@ export const createDoctorServiceSchema = z.object({
 export const serviceFormSchema = z.object({
   serviceId: z.string().uuid().optional(),
   name: z.string().min(2, "Service name must be at least 2 characters").max(100, "Service name is too long"),
-  category: z.string().min(1, "Category is required").default("General Dentistry"),
-  categoryId: z.string().uuid().optional().nullable(),
   iconKey: z.string().max(50).optional().nullable().default("tooth"),
   description: z.string().max(500, "Short description is too long").optional().nullable(),
   durationMinutes: z
@@ -60,20 +75,8 @@ export const serviceFormSchema = z.object({
   practitionerId: z.string().uuid().optional(),
 });
 
-export const createCategorySchema = z.object({
-  name: z.string().min(2, "Category name must be at least 2 characters").max(50, "Category name is too long"),
-  description: z.string().max(300, "Description is too long").optional().nullable(),
-});
-
-export const renameCategorySchema = z.object({
-  oldName: z.string().min(1, "Old category name is required"),
-  newName: z.string().min(2, "New category name must be at least 2 characters").max(50, "New category name is too long"),
-  description: z.string().max(300, "Description is too long").optional().nullable(),
-});
-
 export type UpdateDoctorServiceInput = z.infer<typeof updateDoctorServiceSchema>;
 export type BulkUpdateDoctorServicesInput = z.infer<typeof bulkUpdateDoctorServicesSchema>;
 export type CreateDoctorServiceInput = z.infer<typeof createDoctorServiceSchema>;
 export type ServiceFormInput = z.infer<typeof serviceFormSchema>;
-export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
-export type RenameCategoryInput = z.infer<typeof renameCategorySchema>;
+
