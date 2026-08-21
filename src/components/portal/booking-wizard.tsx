@@ -57,84 +57,6 @@ interface OtherDoctorAvailability {
   slots: SlotResult[];
 }
 
-const SERVICE_THEMES = [
-  {
-    card: "bg-emerald-500/[0.05] hover:bg-emerald-500/[0.10] border-emerald-500/25 hover:border-emerald-500/50 dark:bg-emerald-950/20",
-    badge: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-    iconBg: "bg-emerald-600 text-white shadow-md shadow-emerald-600/20",
-    accent: "bg-emerald-500",
-    textHover: "group-hover:text-emerald-700 dark:group-hover:text-emerald-300",
-    arrow: "text-emerald-600 dark:text-emerald-400",
-  },
-  {
-    card: "bg-teal-500/[0.05] hover:bg-teal-500/[0.10] border-teal-500/25 hover:border-teal-500/50 dark:bg-teal-950/20",
-    badge: "border-teal-500/30 bg-teal-500/15 text-teal-700 dark:text-teal-300",
-    iconBg: "bg-teal-600 text-white shadow-md shadow-teal-600/20",
-    accent: "bg-teal-500",
-    textHover: "group-hover:text-teal-700 dark:group-hover:text-teal-300",
-    arrow: "text-teal-600 dark:text-teal-400",
-  },
-  {
-    card: "bg-sky-500/[0.05] hover:bg-sky-500/[0.10] border-sky-500/25 hover:border-sky-500/50 dark:bg-sky-950/20",
-    badge: "border-sky-500/30 bg-sky-500/15 text-sky-700 dark:text-sky-300",
-    iconBg: "bg-sky-600 text-white shadow-md shadow-sky-600/20",
-    accent: "bg-sky-500",
-    textHover: "group-hover:text-sky-700 dark:group-hover:text-sky-300",
-    arrow: "text-sky-600 dark:text-sky-400",
-  },
-  {
-    card: "bg-indigo-500/[0.05] hover:bg-indigo-500/[0.10] border-indigo-500/25 hover:border-indigo-500/50 dark:bg-indigo-950/20",
-    badge: "border-indigo-500/30 bg-indigo-500/15 text-indigo-700 dark:text-indigo-300",
-    iconBg: "bg-indigo-600 text-white shadow-md shadow-indigo-600/20",
-    accent: "bg-indigo-500",
-    textHover: "group-hover:text-indigo-700 dark:group-hover:text-indigo-300",
-    arrow: "text-indigo-600 dark:text-indigo-400",
-  },
-  {
-    card: "bg-amber-500/[0.05] hover:bg-amber-500/[0.10] border-amber-500/25 hover:border-amber-500/50 dark:bg-amber-950/20",
-    badge: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-300",
-    iconBg: "bg-amber-600 text-white shadow-md shadow-amber-600/20",
-    accent: "bg-amber-500",
-    textHover: "group-hover:text-amber-700 dark:group-hover:text-amber-300",
-    arrow: "text-amber-600 dark:text-amber-400",
-  },
-  {
-    card: "bg-rose-500/[0.05] hover:bg-rose-500/[0.10] border-rose-500/25 hover:border-rose-500/50 dark:bg-rose-950/20",
-    badge: "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-300",
-    iconBg: "bg-rose-600 text-white shadow-md shadow-rose-600/20",
-    accent: "bg-rose-500",
-    textHover: "group-hover:text-rose-700 dark:group-hover:text-rose-300",
-    arrow: "text-rose-600 dark:text-rose-400",
-  },
-];
-
-const DOCTOR_THEMES = [
-  {
-    card: "bg-emerald-500/[0.06] hover:bg-emerald-500/[0.12] border-emerald-500/30 hover:border-emerald-500/55 dark:bg-emerald-950/25",
-    badge: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-    iconBg: "bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-md shadow-emerald-500/20",
-    arrow: "text-emerald-600 dark:text-emerald-400",
-  },
-  {
-    card: "bg-teal-500/[0.06] hover:bg-teal-500/[0.12] border-teal-500/30 hover:border-teal-500/55 dark:bg-teal-950/25",
-    badge: "border-teal-500/30 bg-teal-500/15 text-teal-700 dark:text-teal-300",
-    iconBg: "bg-gradient-to-br from-teal-500 to-teal-700 text-white shadow-md shadow-teal-500/20",
-    arrow: "text-teal-600 dark:text-teal-400",
-  },
-  {
-    card: "bg-sky-500/[0.06] hover:bg-sky-500/[0.12] border-sky-500/30 hover:border-sky-500/55 dark:bg-sky-950/25",
-    badge: "border-sky-500/30 bg-sky-500/15 text-sky-700 dark:text-sky-300",
-    iconBg: "bg-gradient-to-br from-sky-500 to-sky-700 text-white shadow-md shadow-sky-500/20",
-    arrow: "text-sky-600 dark:text-sky-400",
-  },
-  {
-    card: "bg-indigo-500/[0.06] hover:bg-indigo-500/[0.12] border-indigo-500/30 hover:border-indigo-500/55 dark:bg-indigo-950/25",
-    badge: "border-indigo-500/30 bg-indigo-500/15 text-indigo-700 dark:text-indigo-300",
-    iconBg: "bg-gradient-to-br from-indigo-500 to-indigo-700 text-white shadow-md shadow-indigo-500/20",
-    arrow: "text-indigo-600 dark:text-indigo-400",
-  },
-];
-
 export function BookingWizard({
   services,
   reschedule,
@@ -388,11 +310,11 @@ export function BookingWizard({
       const result = reschedule
         ? await rescheduleOwnAppointmentAction(reschedule.id, selectedSlot.slot_start)
         : await bookOwnAppointmentAction({
-            practitionerId: practitioner.id,
-            serviceId: service.id,
-            branchId: practitioner.branch_id,
-            startsAt: selectedSlot.slot_start,
-          });
+          practitionerId: practitioner.id,
+          serviceId: service.id,
+          branchId: practitioner.branch_id,
+          startsAt: selectedSlot.slot_start,
+        });
 
       if (result?.error) {
         toast.error(result.error);
@@ -430,10 +352,7 @@ export function BookingWizard({
       <div className="pointer-events-none absolute -bottom-32 -left-32 size-96 rounded-full bg-accent/10 blur-3xl" />
 
       {/* ── OUTER CARD HEADER (CENTER-ALIGNED) ── */}
-      <div className="relative z-10 flex flex-col items-center text-center space-y-3 max-w-2xl mx-auto pt-2 pb-1">
-        <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/80 px-4 py-1 text-xs font-semibold text-primary backdrop-blur-md shadow-xs">
-          {reschedule ? "Appointment Management" : "Clinical Sanctuary Scheduling"}
-        </div>
+      <div className="relative z-10 flex flex-col items-center text-center space-y-2 max-w-2xl mx-auto pt-2 pb-1">
         <h1 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
           {reschedule ? "Reschedule Appointment" : "Book an Appointment"}
         </h1>
@@ -504,47 +423,42 @@ export function BookingWizard({
 
         {/* Stepper Inner Content Area */}
         <div className="p-6 sm:p-8 lg:p-9 space-y-8">
-        {/* ── STEP 1: SERVICE SELECTION ── */}
-        {/* ── STEP 1: SERVICE SELECTION ── */}
-        {step === "service" && (
-          <div className="space-y-6">
-            <div className="space-y-1">
-              <h2 className="font-heading text-xl font-bold text-foreground">
-                Select a Dental Procedure
-              </h2>
-              <p className="text-xs text-text-secondary">
-                Choose the clinical treatment or consultation you need today.
-              </p>
-            </div>
+          {/* ── STEP 1: SERVICE SELECTION ── */}
+          {/* ── STEP 1: SERVICE SELECTION ── */}
+          {step === "service" && (
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <h2 className="font-heading text-xl font-bold text-foreground">
+                  Select a Dental Procedure
+                </h2>
+                <p className="text-xs text-text-secondary">
+                  Choose the clinical treatment or consultation you need today.
+                </p>
+              </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {services.map((s, idx) => {
-                const theme = SERVICE_THEMES[idx % SERVICE_THEMES.length];
-                return (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {services.map((s, idx) => (
                   <button
                     key={s.id}
                     type="button"
                     onClick={() => handleSelectService(s)}
-                    className={cn(
-                      "group relative flex flex-col justify-between overflow-hidden rounded-3xl p-6 text-left shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-xl backdrop-blur-md border",
-                      theme.card,
-                    )}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-surface/90 backdrop-blur-md p-6 text-left shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:bg-primary-soft/30 hover:shadow-xl"
                   >
                     {/* Accent line on hover */}
-                    <div className={cn("absolute left-0 top-0 bottom-0 w-1.5 opacity-0 transition-opacity group-hover:opacity-100", theme.accent)} />
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary opacity-0 transition-opacity group-hover:opacity-100" />
 
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <div className={cn("flex size-11 items-center justify-center rounded-2xl font-bold shadow-xs group-hover:scale-105 transition-transform", theme.iconBg)}>
+                        <div className="flex size-11 items-center justify-center rounded-2xl bg-primary-soft text-primary font-bold shadow-xs group-hover:scale-105 transition-transform">
                           <Stethoscope className="size-5" />
                         </div>
-                        <span className={cn("rounded-full border px-2.5 py-1 text-[11px] font-semibold", theme.badge)}>
+                        <span className="rounded-full border border-border/80 bg-background-subtle/80 px-2.5 py-1 text-[11px] font-semibold text-text-muted">
                           Procedure 0{idx + 1}
                         </span>
                       </div>
 
                       <div>
-                        <h3 className={cn("font-heading text-lg font-bold text-foreground transition-colors", theme.textHover)}>
+                        <h3 className="font-heading text-lg font-bold text-foreground group-hover:text-primary transition-colors">
                           {s.name}
                         </h3>
                         <p className="text-xs text-text-muted mt-0.5">
@@ -565,92 +479,86 @@ export function BookingWizard({
                         </span>
                       </div>
 
-                      <span className={cn("flex items-center gap-1 text-xs font-semibold group-hover:translate-x-1 transition-transform", theme.arrow)}>
+                      <span className="flex items-center gap-1 text-xs font-semibold text-primary group-hover:translate-x-1 transition-transform">
                         Select <ArrowRight className="size-3.5" />
                       </span>
                     </div>
                   </button>
-                );
-              })}
+                ))}
 
-              {services.length === 0 && (
-                <div className="col-span-2 rounded-3xl border border-dashed border-border p-8 text-center text-text-muted">
-                  No services are currently available to book online.
+                {services.length === 0 && (
+                  <div className="col-span-2 rounded-3xl border border-dashed border-border p-8 text-center text-text-muted">
+                    No services are currently available to book online.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── STEP 2: DOCTOR SELECTION ── */}
+          {step === "practitioner" && (
+            <div className="space-y-6">
+              {/* Selected Service Banner */}
+              {service && (
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary-soft/40 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold shadow-xs">
+                      <Stethoscope className="size-5" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Selected Service</span>
+                      <p className="font-semibold text-foreground text-sm">{service.name}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-semibold text-text-muted">
+                      {service.duration_minutes} mins &middot; €{service.price.toLocaleString()}
+                    </span>
+                    <Button variant="outline" size="sm" onClick={() => setStep("service")} className="rounded-xl text-xs">
+                      Change
+                    </Button>
+                  </div>
                 </div>
               )}
-            </div>
-          </div>
-        )}
 
-        {/* ── STEP 2: DOCTOR SELECTION ── */}
-        {step === "practitioner" && (
-          <div className="space-y-6">
-            {/* Selected Service Banner */}
-            {service && (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary-soft/40 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold shadow-xs">
-                    <Stethoscope className="size-5" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Selected Service</span>
-                    <p className="font-semibold text-foreground text-sm">{service.name}</p>
-                  </div>
+              <div className="space-y-1">
+                <h2 className="font-heading text-xl font-bold text-foreground">
+                  Choose Your Dental Doctor
+                </h2>
+                <p className="text-xs text-text-secondary">
+                  Doctors actively offering this procedure at our clinic.
+                </p>
+              </div>
+
+              {loadingPractitioners ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center text-text-muted gap-2">
+                  <Loader2 className="size-7 animate-spin text-primary" />
+                  <p className="text-sm">Loading available doctors...</p>
                 </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-semibold text-text-muted">
-                    {service.duration_minutes} mins &middot; €{service.price.toLocaleString()}
-                  </span>
-                  <Button variant="outline" size="sm" onClick={() => setStep("service")} className="rounded-xl text-xs">
-                    Change
+              ) : offeredPractitioners.length === 0 ? (
+                <div className="rounded-3xl border border-dashed border-border p-8 text-center space-y-3">
+                  <p className="font-semibold text-foreground">No doctors currently offer this service.</p>
+                  <p className="text-xs text-text-muted">Please choose another service or contact the clinic.</p>
+                  <Button variant="outline" size="sm" onClick={() => setStep("service")} className="rounded-xl mt-2">
+                    <ChevronLeft className="size-4 mr-1" /> Change Service
                   </Button>
                 </div>
-              </div>
-            )}
-
-            <div className="space-y-1">
-              <h2 className="font-heading text-xl font-bold text-foreground">
-                Choose Your Dental Doctor
-              </h2>
-              <p className="text-xs text-text-secondary">
-                Doctors actively offering this procedure at our clinic.
-              </p>
-            </div>
-
-            {loadingPractitioners ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center text-text-muted gap-2">
-                <Loader2 className="size-7 animate-spin text-primary" />
-                <p className="text-sm">Loading available doctors...</p>
-              </div>
-            ) : offeredPractitioners.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-border p-8 text-center space-y-3">
-                <p className="font-semibold text-foreground">No doctors currently offer this service.</p>
-                <p className="text-xs text-text-muted">Please choose another service or contact the clinic.</p>
-                <Button variant="outline" size="sm" onClick={() => setStep("service")} className="rounded-xl mt-2">
-                  <ChevronLeft className="size-4 mr-1" /> Change Service
-                </Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {offeredPractitioners.map((p, idx) => {
-                  const theme = DOCTOR_THEMES[idx % DOCTOR_THEMES.length];
-                  return (
+              ) : (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {offeredPractitioners.map((p) => (
                     <button
                       key={p.id}
                       type="button"
                       onClick={() => handleSelectPractitioner(p)}
-                      className={cn(
-                        "group relative flex flex-col justify-between overflow-hidden rounded-3xl p-6 text-left shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-xl backdrop-blur-md border",
-                        theme.card,
-                      )}
+                      className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-surface/90 backdrop-blur-md p-6 text-left shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:bg-primary-soft/30 hover:shadow-xl"
                     >
                       <div className="space-y-3.5">
                         <div className="flex items-center justify-between">
-                          <div className={cn("flex size-12 items-center justify-center rounded-2xl font-bold shadow-md group-hover:scale-105 transition-transform", theme.iconBg)}>
+                          <div className="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-hover text-primary-foreground font-bold shadow-md shadow-primary/20 group-hover:scale-105 transition-transform">
                             <Stethoscope className="size-6" />
                           </div>
-                          <Badge variant="outline" className={cn("text-[11px] font-semibold", theme.badge)}>
+                          <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 text-[11px] font-semibold">
                             Available
                           </Badge>
                         </div>
@@ -677,458 +585,457 @@ export function BookingWizard({
                           </span>
                         </div>
 
-                        <span className={cn("flex items-center gap-1 text-xs font-semibold group-hover:translate-x-1 transition-transform", theme.arrow)}>
+                        <span className="flex items-center gap-1 text-xs font-semibold text-primary group-hover:translate-x-1 transition-transform">
                           Select Doctor <ArrowRight className="size-3.5" />
                         </span>
                       </div>
                     </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── STEP 3: DATE & TIME SLOT SELECTION (7-DAY STRIP + 30-DAY CALENDAR) ── */}
-        {step === "slot" && service && practitioner && (
-          <div className="space-y-7">
-            {/* Service & Doctor Context Summary Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary-soft/40 p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold shadow-xs">
-                  <Stethoscope className="size-5" />
+                  ))}
                 </div>
-                <div>
-                  <p className="font-semibold text-foreground text-sm">
-                    {service.name} with <strong className="text-primary">{practitioner.doctor_name}</strong>
-                  </p>
-                  <p className="text-xs text-text-muted">
-                    {practitioner.title || "Dental Specialist"} &middot; {practitioner.effective_duration_minutes} min &middot; €{practitioner.effective_price.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-
-              {!reschedule && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedSlot(null);
-                    setRecommendedSlot(null);
-                    setStep("practitioner");
-                  }}
-                  className="rounded-xl text-xs"
-                >
-                  Change Doctor
-                </Button>
               )}
             </div>
+          )}
 
-            {/* ==========================================================
-                7-DAY STRIP & 30-DAY CALENDAR PICKER CONTAINER
-                ========================================================== */}
-            <div className="rounded-3xl border border-border/80 bg-surface p-6 shadow-sm space-y-6">
-              {/* Header with Month / Year & 30-Day Calendar Popover */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border/60 pb-5">
-                <div>
-                  <h3 className="font-heading text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-                    {format(selectedDateObj, "MMMM yyyy")}
-                  </h3>
-                  <p className="text-xs text-text-muted mt-1">
-                    Select a date within the upcoming 30-day window ({format(today, "MMM d")} &ndash; {format(maxBookingDate, "MMM d, yyyy")})
-                  </p>
-                </div>
-
-                {/* 30-Day Popover Calendar Quick Trigger */}
-                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                  <PopoverTrigger
-                    render={
-                      <Button
-                        variant="outline"
-                        className="gap-2 rounded-2xl border-primary/30 bg-primary-soft/40 px-4 py-2.5 text-xs font-bold text-primary hover:bg-primary-soft shadow-xs"
-                      />
-                    }
-                  >
-                    <CalendarDays className="size-4 text-primary" />
-                    <span>Choose from 30 Days</span>
-                  </PopoverTrigger>
-                  <PopoverContent align="end" className="p-0 rounded-3xl shadow-2xl border-border bg-surface">
-                    <div className="p-3.5 border-b border-border bg-background-subtle text-center rounded-t-3xl">
-                      <p className="text-xs font-bold text-foreground">30-Day Scheduling Window</p>
-                      <p className="text-[11px] text-text-muted">Pick any day between {format(today, "MMM d")} and {format(maxBookingDate, "MMM d")}</p>
-                    </div>
-                    <div className="p-2.5">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDateObj}
-                        onSelect={(d) => {
-                          if (d) {
-                            handleSelectDate(d);
-                            setCalendarOpen(false);
-                          }
-                        }}
-                        disabled={(d) => isBefore(d, today) || isAfter(d, maxBookingDate)}
-                      />
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* 7-Day Interactive Strip Navigation */}
-              <div className="relative flex items-center justify-between gap-2 sm:gap-4">
-                {/* Left Arrow Button */}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  disabled={stripOffset === 0}
-                  onClick={handleStripPrevious}
-                  aria-label="Previous 7 days"
-                  className="size-11 shrink-0 rounded-2xl border-border/80 bg-background-subtle hover:bg-primary-soft hover:border-primary transition-all disabled:opacity-25 shadow-xs"
-                >
-                  <ChevronLeft className="size-5 text-foreground" />
-                </Button>
-
-                {/* 7-Day Strip Cards Grid */}
-                <div className="grid flex-1 grid-cols-7 gap-2 sm:gap-3">
-                  {visible7Days.map((dayItem) => {
-                    const isSelected = isSameDay(dayItem, selectedDateObj);
-                    const isCurrentDay = isToday(dayItem);
-                    const isPast = isBefore(dayItem, today);
-                    const isBeyond30 = isAfter(dayItem, maxBookingDate);
-                    const disabled = isPast || isBeyond30;
-
-                    const weekdayShort = format(dayItem, "EEE");
-                    const dayNum = format(dayItem, "d");
-
-                    return (
-                      <button
-                        key={dayItem.toISOString()}
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => handleSelectDate(dayItem)}
-                        className={cn(
-                          "group relative flex flex-col items-center justify-center rounded-2xl py-4 px-1.5 transition-all duration-200",
-                          isSelected
-                            ? "bg-gradient-to-br from-primary to-primary-hover text-primary-foreground font-bold shadow-lg shadow-primary/30 scale-[1.05] ring-2 ring-primary ring-offset-2 ring-offset-background"
-                            : "bg-background-subtle hover:bg-primary-soft/50 border border-border/70 text-foreground hover:border-primary/40 hover:scale-[1.02]",
-                          disabled && "opacity-30 pointer-events-none cursor-not-allowed",
-                        )}
-                      >
-                        {/* Short Weekday */}
-                        <span
-                          className={cn(
-                            "text-[11px] font-semibold tracking-wide",
-                            isSelected ? "text-primary-foreground/90" : "text-text-muted",
-                          )}
-                        >
-                          {weekdayShort}
-                        </span>
-
-                        {/* Day Number */}
-                        <span
-                          className={cn(
-                            "font-heading text-xl sm:text-2xl font-extrabold leading-tight my-1",
-                            isSelected ? "text-primary-foreground" : "text-foreground",
-                          )}
-                        >
-                          {dayNum}
-                        </span>
-
-                        {/* Bottom Status Indicator Bar */}
-                        <div
-                          className={cn(
-                            "mt-1 h-1 w-6 rounded-full transition-all",
-                            isSelected
-                              ? "bg-white"
-                              : isCurrentDay
-                                ? "bg-accent"
-                                : "bg-emerald-500/40 group-hover:bg-emerald-500",
-                          )}
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Right Arrow Button */}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  disabled={stripOffset >= 23}
-                  onClick={handleStripNext}
-                  aria-label="Next 7 days"
-                  className="size-11 shrink-0 rounded-2xl border-border/80 bg-background-subtle hover:bg-primary-soft hover:border-primary transition-all disabled:opacity-25 shadow-xs"
-                >
-                  <ChevronRight className="size-5 text-foreground" />
-                </Button>
-              </div>
-
-              {/* Selected Day Context Indicator */}
-              <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-background-subtle/80 px-4 py-3 text-xs">
-                <span className="font-bold text-foreground text-sm">
-                  {format(selectedDateObj, "EEEE, MMMM d, yyyy")}
-                </span>
-                <span className="text-primary font-semibold flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
-                  {loadingSlots
-                    ? "Checking available times..."
-                    : `${slots.length} open slots with ${practitioner.doctor_name}`}
-                </span>
-              </div>
-            </div>
-
-            {/* ==========================================================
-                TIME SLOTS GRID (AESTHETIC CAPSULE PILL BUTTONS)
-                ========================================================== */}
-            <div className="rounded-3xl border border-primary/25 bg-surface p-6 shadow-xs space-y-5">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-4">
+          {/* ── STEP 3: DATE & TIME SLOT SELECTION (7-DAY STRIP + 30-DAY CALENDAR) ── */}
+          {step === "slot" && service && practitioner && (
+            <div className="space-y-7">
+              {/* Service & Doctor Context Summary Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary-soft/40 p-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-primary-soft text-primary font-bold shadow-xs">
+                  <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold shadow-xs">
                     <Stethoscope className="size-5" />
                   </div>
                   <div>
-                    <h4 className="font-heading text-base font-bold text-foreground">
-                      Available Appointment Times
-                    </h4>
+                    <p className="font-semibold text-foreground text-sm">
+                      {service.name} with <strong className="text-primary">{practitioner.doctor_name}</strong>
+                    </p>
                     <p className="text-xs text-text-muted">
-                      Select your preferred consultation time below.
+                      {practitioner.title || "Dental Specialist"} &middot; {practitioner.effective_duration_minutes} min &middot; €{practitioner.effective_price.toLocaleString()}
                     </p>
                   </div>
                 </div>
 
-                <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 text-xs font-semibold px-3 py-1">
-                  Live Clinic Availability
-                </Badge>
-              </div>
-
-              {loadingSlots ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center text-sm text-text-muted gap-3">
-                  <Loader2 className="size-7 animate-spin text-primary" />
-                  <p>Loading open times for {format(selectedDateObj, "EEEE, MMM d")}...</p>
-                </div>
-              ) : slots.length === 0 ? (
-                <div className="rounded-3xl border border-dashed border-border bg-background-subtle/50 p-8 text-center space-y-3">
-                  <p className="text-sm font-bold text-foreground">
-                    No open slots for {practitioner.doctor_name} on {format(selectedDateObj, "EEEE, MMM d")}.
-                  </p>
-                  <p className="text-xs text-text-muted max-w-md mx-auto">
-                    Please pick another day from the 7-day strip above, or check available times of other doctors below.
-                  </p>
+                {!reschedule && (
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleSelectDate(addDays(selectedDateObj, 1))}
-                    className="rounded-xl border-primary/30 text-xs font-semibold text-primary hover:bg-primary-soft mt-2"
+                    onClick={() => {
+                      setSelectedSlot(null);
+                      setRecommendedSlot(null);
+                      setStep("practitioner");
+                    }}
+                    className="rounded-xl text-xs"
                   >
-                    Check Next Day ({format(addDays(selectedDateObj, 1), "MMM d")}) &rarr;
+                    Change Doctor
                   </Button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pt-1">
-                  {slots.map((slot) => {
-                    const isChosen = selectedSlot?.slot_start === slot.slot_start;
-                    const isHomepagePick = slot.slot_start === recommendedSlot;
+                )}
+              </div>
 
-                    return (
-                      <button
-                        key={slot.slot_start}
-                        type="button"
-                        onClick={() => handleSelectSlot(slot)}
-                        className={cn(
-                          "group relative flex items-center justify-center rounded-full py-3.5 px-4 text-sm font-semibold transition-all duration-200 hover:scale-[1.03]",
-                          isChosen
-                            ? "bg-gradient-to-br from-primary to-primary-hover text-primary-foreground font-bold shadow-lg shadow-primary/35 ring-2 ring-primary ring-offset-2 ring-offset-background"
-                            : "border border-emerald-500/25 bg-emerald-500/10 dark:bg-emerald-950/35 text-emerald-950 dark:text-emerald-200 hover:bg-emerald-500/20 hover:border-emerald-500/50 hover:shadow-xs",
-                          isHomepagePick && !isChosen && "ring-2 ring-accent border-accent bg-accent/15",
-                        )}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span
-                            className={cn(
-                              "size-2 rounded-full",
-                              isChosen
-                                ? "bg-white"
-                                : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]",
-                            )}
-                          />
-                          {format(new Date(slot.slot_start), "HH:mm")}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* ==========================================================
-                ALTERNATIVE DOCTORS SECTION
+              {/* ==========================================================
+                7-DAY STRIP & 30-DAY CALENDAR PICKER CONTAINER
                 ========================================================== */}
-            {offeredPractitioners.length > 1 && (
-              <div className="space-y-4 pt-2">
-                <div className="flex items-center gap-2 px-1">
-                  <Users className="size-4 text-primary" />
+              <div className="rounded-3xl border border-border/80 bg-surface p-6 shadow-sm space-y-6">
+                {/* Header with Month / Year & 30-Day Calendar Popover */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border/60 pb-5">
                   <div>
-                    <h4 className="font-heading text-sm font-bold text-foreground">
-                      Other Doctors Available on {format(selectedDateObj, "MMM d")}
-                    </h4>
-                    <p className="text-xs text-text-muted">
-                      Need a different time? Click any slot below to proceed with that doctor.
+                    <h3 className="font-heading text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+                      {format(selectedDateObj, "MMMM yyyy")}
+                    </h3>
+                    <p className="text-xs text-text-muted mt-1">
+                      Select a date within the upcoming 30-day window ({format(today, "MMM d")} &ndash; {format(maxBookingDate, "MMM d, yyyy")})
                     </p>
                   </div>
+
+                  {/* 30-Day Popover Calendar Quick Trigger */}
+                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                    <PopoverTrigger
+                      render={
+                        <Button
+                          variant="outline"
+                          className="gap-2 rounded-2xl border-primary/30 bg-primary-soft/40 px-4 py-2.5 text-xs font-bold text-primary hover:bg-primary-soft shadow-xs"
+                        />
+                      }
+                    >
+                      <CalendarDays className="size-4 text-primary" />
+                      <span>Choose from 30 Days</span>
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="p-0 rounded-3xl shadow-2xl border-border bg-surface">
+                      <div className="p-3.5 border-b border-border bg-background-subtle text-center rounded-t-3xl">
+                        <p className="text-xs font-bold text-foreground">30-Day Scheduling Window</p>
+                        <p className="text-[11px] text-text-muted">Pick any day between {format(today, "MMM d")} and {format(maxBookingDate, "MMM d")}</p>
+                      </div>
+                      <div className="p-2.5">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDateObj}
+                          onSelect={(d) => {
+                            if (d) {
+                              handleSelectDate(d);
+                              setCalendarOpen(false);
+                            }
+                          }}
+                          disabled={(d) => isBefore(d, today) || isAfter(d, maxBookingDate)}
+                        />
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
-                {loadingOtherSlots ? (
-                  <div className="flex items-center gap-2 py-3 text-xs text-text-muted">
-                    <Loader2 className="size-4 animate-spin text-primary" /> Checking other doctors...
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {otherDoctorSlots.map((docData) => {
-                      const doc = docData.practitioner;
-                      const docSlots = docData.slots;
+                {/* 7-Day Interactive Strip Navigation */}
+                <div className="relative flex items-center justify-between gap-2 sm:gap-4">
+                  {/* Left Arrow Button */}
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={stripOffset === 0}
+                    onClick={handleStripPrevious}
+                    aria-label="Previous 7 days"
+                    className="size-11 shrink-0 rounded-2xl border-border/80 bg-background-subtle hover:bg-primary-soft hover:border-primary transition-all disabled:opacity-25 shadow-xs"
+                  >
+                    <ChevronLeft className="size-5 text-foreground" />
+                  </Button>
+
+                  {/* 7-Day Strip Cards Grid */}
+                  <div className="grid flex-1 grid-cols-7 gap-2 sm:gap-3">
+                    {visible7Days.map((dayItem) => {
+                      const isSelected = isSameDay(dayItem, selectedDateObj);
+                      const isCurrentDay = isToday(dayItem);
+                      const isPast = isBefore(dayItem, today);
+                      const isBeyond30 = isAfter(dayItem, maxBookingDate);
+                      const disabled = isPast || isBeyond30;
+
+                      const weekdayShort = format(dayItem, "EEE");
+                      const dayNum = format(dayItem, "d");
 
                       return (
-                        <div
-                          key={doc.id}
-                          className="rounded-3xl border border-border/80 bg-background-subtle/60 p-5 space-y-3.5 transition-all hover:border-primary/40"
-                        >
-                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/50 pb-3">
-                            <div className="flex items-center gap-3">
-                              <div className="flex size-10 items-center justify-center rounded-xl bg-surface text-primary border border-border/70 font-bold shadow-xs">
-                                <Stethoscope className="size-5" />
-                              </div>
-                              <div>
-                                <p className="font-bold text-sm text-foreground">{doc.doctor_name}</p>
-                                <p className="text-xs text-text-muted">
-                                  {doc.title || "Dental Specialist"} &middot; {doc.effective_duration_minutes} min &middot; €{doc.effective_price.toLocaleString()}
-                                </p>
-                              </div>
-                            </div>
-                            <span className="text-xs font-semibold text-text-muted">
-                              {docSlots.length} {docSlots.length === 1 ? "slot" : "slots"} available
-                            </span>
-                          </div>
-
-                          {docSlots.length === 0 ? (
-                            <p className="text-xs text-text-muted italic py-1">
-                              No open slots on this date for {doc.doctor_name}.
-                            </p>
-                          ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5 pt-1">
-                              {docSlots.map((slot) => (
-                                <button
-                                  key={slot.slot_start}
-                                  type="button"
-                                  onClick={() => handleSelectOtherDoctorSlot(doc, slot)}
-                                  className="group flex items-center justify-center rounded-full py-2.5 px-3 text-xs font-semibold border border-border/80 bg-surface hover:border-primary hover:bg-primary-soft/40 hover:scale-[1.03] transition-all shadow-xs"
-                                >
-                                  <span className="flex items-center gap-1.5">
-                                    <span className="size-1.5 rounded-full bg-emerald-500" />
-                                    {format(new Date(slot.slot_start), "HH:mm")}
-                                  </span>
-                                </button>
-                              ))}
-                            </div>
+                        <button
+                          key={dayItem.toISOString()}
+                          type="button"
+                          disabled={disabled}
+                          onClick={() => handleSelectDate(dayItem)}
+                          className={cn(
+                            "group relative flex flex-col items-center justify-center rounded-2xl py-4 px-1.5 transition-all duration-200",
+                            isSelected
+                              ? "bg-gradient-to-br from-primary to-primary-hover text-primary-foreground font-bold shadow-lg shadow-primary/30 scale-[1.05] ring-2 ring-primary ring-offset-2 ring-offset-background"
+                              : "bg-background-subtle hover:bg-primary-soft/50 border border-border/70 text-foreground hover:border-primary/40 hover:scale-[1.02]",
+                            disabled && "opacity-30 pointer-events-none cursor-not-allowed",
                           )}
-                        </div>
+                        >
+                          {/* Short Weekday */}
+                          <span
+                            className={cn(
+                              "text-[11px] font-semibold tracking-wide",
+                              isSelected ? "text-primary-foreground/90" : "text-text-muted",
+                            )}
+                          >
+                            {weekdayShort}
+                          </span>
+
+                          {/* Day Number */}
+                          <span
+                            className={cn(
+                              "font-heading text-xl sm:text-2xl font-extrabold leading-tight my-1",
+                              isSelected ? "text-primary-foreground" : "text-foreground",
+                            )}
+                          >
+                            {dayNum}
+                          </span>
+
+                          {/* Bottom Status Indicator Bar */}
+                          <div
+                            className={cn(
+                              "mt-1 h-1 w-6 rounded-full transition-all",
+                              isSelected
+                                ? "bg-white"
+                                : isCurrentDay
+                                  ? "bg-accent"
+                                  : "bg-emerald-500/40 group-hover:bg-emerald-500",
+                            )}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right Arrow Button */}
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={stripOffset >= 23}
+                    onClick={handleStripNext}
+                    aria-label="Next 7 days"
+                    className="size-11 shrink-0 rounded-2xl border-border/80 bg-background-subtle hover:bg-primary-soft hover:border-primary transition-all disabled:opacity-25 shadow-xs"
+                  >
+                    <ChevronRight className="size-5 text-foreground" />
+                  </Button>
+                </div>
+
+                {/* Selected Day Context Indicator */}
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-background-subtle/80 px-4 py-3 text-xs">
+                  <span className="font-bold text-foreground text-sm">
+                    {format(selectedDateObj, "EEEE, MMMM d, yyyy")}
+                  </span>
+                  <span className="text-primary font-semibold flex items-center gap-2">
+                    <span className="size-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
+                    {loadingSlots
+                      ? "Checking available times..."
+                      : `${slots.length} open slots with ${practitioner.doctor_name}`}
+                  </span>
+                </div>
+              </div>
+
+              {/* ==========================================================
+                TIME SLOTS GRID (AESTHETIC CAPSULE PILL BUTTONS)
+                ========================================================== */}
+              <div className="rounded-3xl border border-primary/25 bg-surface p-6 shadow-xs space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-xl bg-primary-soft text-primary font-bold shadow-xs">
+                      <Stethoscope className="size-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-heading text-base font-bold text-foreground">
+                        Available Appointment Times
+                      </h4>
+                      <p className="text-xs text-text-muted">
+                        Select your preferred consultation time below.
+                      </p>
+                    </div>
+                  </div>
+
+                  <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 text-xs font-semibold px-3 py-1">
+                    Live Clinic Availability
+                  </Badge>
+                </div>
+
+                {loadingSlots ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center text-sm text-text-muted gap-3">
+                    <Loader2 className="size-7 animate-spin text-primary" />
+                    <p>Loading open times for {format(selectedDateObj, "EEEE, MMM d")}...</p>
+                  </div>
+                ) : slots.length === 0 ? (
+                  <div className="rounded-3xl border border-dashed border-border bg-background-subtle/50 p-8 text-center space-y-3">
+                    <p className="text-sm font-bold text-foreground">
+                      No open slots for {practitioner.doctor_name} on {format(selectedDateObj, "EEEE, MMM d")}.
+                    </p>
+                    <p className="text-xs text-text-muted max-w-md mx-auto">
+                      Please pick another day from the 7-day strip above, or check available times of other doctors below.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleSelectDate(addDays(selectedDateObj, 1))}
+                      className="rounded-xl border-primary/30 text-xs font-semibold text-primary hover:bg-primary-soft mt-2"
+                    >
+                      Check Next Day ({format(addDays(selectedDateObj, 1), "MMM d")}) &rarr;
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pt-1">
+                    {slots.map((slot) => {
+                      const isChosen = selectedSlot?.slot_start === slot.slot_start;
+                      const isHomepagePick = slot.slot_start === recommendedSlot;
+
+                      return (
+                        <button
+                          key={slot.slot_start}
+                          type="button"
+                          onClick={() => handleSelectSlot(slot)}
+                          className={cn(
+                            "group relative flex items-center justify-center rounded-full py-3.5 px-4 text-sm font-semibold transition-all duration-200 hover:scale-[1.03]",
+                            isChosen
+                              ? "bg-gradient-to-br from-primary to-primary-hover text-primary-foreground font-bold shadow-lg shadow-primary/35 ring-2 ring-primary ring-offset-2 ring-offset-background"
+                              : "border border-emerald-500/25 bg-emerald-500/10 dark:bg-emerald-950/35 text-emerald-950 dark:text-emerald-200 hover:bg-emerald-500/20 hover:border-emerald-500/50 hover:shadow-xs",
+                            isHomepagePick && !isChosen && "ring-2 ring-accent border-accent bg-accent/15",
+                          )}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span
+                              className={cn(
+                                "size-2 rounded-full",
+                                isChosen
+                                  ? "bg-white"
+                                  : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]",
+                              )}
+                            />
+                            {format(new Date(slot.slot_start), "HH:mm")}
+                          </span>
+                        </button>
                       );
                     })}
                   </div>
                 )}
               </div>
-            )}
-          </div>
-        )}
 
-        {/* ── STEP 4: REVIEW & CONFIRMATION ── */}
-        {step === "confirm" && service && practitioner && selectedSlot && (
-          <div className="space-y-6">
-            <div className="space-y-1">
-              <h2 className="font-heading text-xl font-bold text-foreground">
-                Review & Confirm Appointment
-              </h2>
-              <p className="text-xs text-text-secondary">
-                Please verify your visit details before finalising the booking.
-              </p>
+              {/* ==========================================================
+                ALTERNATIVE DOCTORS SECTION
+                ========================================================== */}
+              {offeredPractitioners.length > 1 && (
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center gap-2 px-1">
+                    <Users className="size-4 text-primary" />
+                    <div>
+                      <h4 className="font-heading text-sm font-bold text-foreground">
+                        Other Doctors Available on {format(selectedDateObj, "MMM d")}
+                      </h4>
+                      <p className="text-xs text-text-muted">
+                        Need a different time? Click any slot below to proceed with that doctor.
+                      </p>
+                    </div>
+                  </div>
+
+                  {loadingOtherSlots ? (
+                    <div className="flex items-center gap-2 py-3 text-xs text-text-muted">
+                      <Loader2 className="size-4 animate-spin text-primary" /> Checking other doctors...
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {otherDoctorSlots.map((docData) => {
+                        const doc = docData.practitioner;
+                        const docSlots = docData.slots;
+
+                        return (
+                          <div
+                            key={doc.id}
+                            className="rounded-3xl border border-border/80 bg-background-subtle/60 p-5 space-y-3.5 transition-all hover:border-primary/40"
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/50 pb-3">
+                              <div className="flex items-center gap-3">
+                                <div className="flex size-10 items-center justify-center rounded-xl bg-surface text-primary border border-border/70 font-bold shadow-xs">
+                                  <Stethoscope className="size-5" />
+                                </div>
+                                <div>
+                                  <p className="font-bold text-sm text-foreground">{doc.doctor_name}</p>
+                                  <p className="text-xs text-text-muted">
+                                    {doc.title || "Dental Specialist"} &middot; {doc.effective_duration_minutes} min &middot; €{doc.effective_price.toLocaleString()}
+                                  </p>
+                                </div>
+                              </div>
+                              <span className="text-xs font-semibold text-text-muted">
+                                {docSlots.length} {docSlots.length === 1 ? "slot" : "slots"} available
+                              </span>
+                            </div>
+
+                            {docSlots.length === 0 ? (
+                              <p className="text-xs text-text-muted italic py-1">
+                                No open slots on this date for {doc.doctor_name}.
+                              </p>
+                            ) : (
+                              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5 pt-1">
+                                {docSlots.map((slot) => (
+                                  <button
+                                    key={slot.slot_start}
+                                    type="button"
+                                    onClick={() => handleSelectOtherDoctorSlot(doc, slot)}
+                                    className="group flex items-center justify-center rounded-full py-2.5 px-3 text-xs font-semibold border border-border/80 bg-surface hover:border-primary hover:bg-primary-soft/40 hover:scale-[1.03] transition-all shadow-xs"
+                                  >
+                                    <span className="flex items-center gap-1.5">
+                                      <span className="size-1.5 rounded-full bg-emerald-500" />
+                                      {format(new Date(slot.slot_start), "HH:mm")}
+                                    </span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
+          )}
 
-            <div className="rounded-3xl border border-border/80 bg-background-subtle/80 p-6 space-y-6">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="rounded-2xl border border-border/70 bg-surface p-4 space-y-1 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Procedure</span>
-                  <p className="font-heading text-base font-bold text-foreground">{service.name}</p>
-                  <p className="text-xs text-text-muted">{practitioner.effective_duration_minutes} minutes duration</p>
+          {/* ── STEP 4: REVIEW & CONFIRMATION ── */}
+          {step === "confirm" && service && practitioner && selectedSlot && (
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <h2 className="font-heading text-xl font-bold text-foreground">
+                  Review & Confirm Appointment
+                </h2>
+                <p className="text-xs text-text-secondary">
+                  Please verify your visit details before finalising the booking.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-border/80 bg-background-subtle/80 p-6 space-y-6">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-border/70 bg-surface p-4 space-y-1 shadow-xs">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Procedure</span>
+                    <p className="font-heading text-base font-bold text-foreground">{service.name}</p>
+                    <p className="text-xs text-text-muted">{practitioner.effective_duration_minutes} minutes duration</p>
+                  </div>
+
+                  <div className="rounded-2xl border border-border/70 bg-surface p-4 space-y-1 shadow-xs">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Doctor</span>
+                    <p className="font-heading text-base font-bold text-foreground">{practitioner.doctor_name}</p>
+                    <p className="text-xs text-text-muted">{practitioner.title || "Senior Dental Specialist"}</p>
+                  </div>
+
+                  <div className="rounded-2xl border border-border/70 bg-surface p-4 space-y-1 shadow-xs">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Appointment Date</span>
+                    <p className="font-heading text-base font-bold text-foreground">
+                      {format(new Date(selectedSlot.slot_start), "EEEE, d MMMM yyyy")}
+                    </p>
+                    <p className="text-xs text-text-muted">Clinic Suite 402, Level 4</p>
+                  </div>
+
+                  <div className="rounded-2xl border border-border/70 bg-surface p-4 space-y-1 shadow-xs">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Time Window</span>
+                    <p className="font-heading text-base font-bold text-primary">
+                      {format(new Date(selectedSlot.slot_start), "HH:mm")} &ndash; {format(new Date(selectedSlot.slot_end), "HH:mm")}
+                    </p>
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Slot Reserved</p>
+                  </div>
                 </div>
 
-                <div className="rounded-2xl border border-border/70 bg-surface p-4 space-y-1 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Doctor</span>
-                  <p className="font-heading text-base font-bold text-foreground">{practitioner.doctor_name}</p>
-                  <p className="text-xs text-text-muted">{practitioner.title || "Senior Dental Specialist"}</p>
-                </div>
-
-                <div className="rounded-2xl border border-border/70 bg-surface p-4 space-y-1 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Appointment Date</span>
-                  <p className="font-heading text-base font-bold text-foreground">
-                    {format(new Date(selectedSlot.slot_start), "EEEE, d MMMM yyyy")}
-                  </p>
-                  <p className="text-xs text-text-muted">Clinic Suite 402, Level 4</p>
-                </div>
-
-                <div className="rounded-2xl border border-border/70 bg-surface p-4 space-y-1 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Time Window</span>
-                  <p className="font-heading text-base font-bold text-primary">
-                    {format(new Date(selectedSlot.slot_start), "HH:mm")} &ndash; {format(new Date(selectedSlot.slot_end), "HH:mm")}
-                  </p>
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Slot Reserved</p>
+                <div className="flex flex-wrap items-center justify-between border-t border-border/80 pt-5 text-sm gap-2">
+                  <span className="font-semibold text-text-secondary">Service fee:</span>
+                  <span className="font-heading text-2xl font-extrabold text-foreground">
+                    €{practitioner.effective_price.toLocaleString()}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between border-t border-border/80 pt-5 text-sm gap-2">
-                <span className="font-semibold text-text-secondary">Service fee:</span>
-                <span className="font-heading text-2xl font-extrabold text-foreground">
-                  €{practitioner.effective_price.toLocaleString()}
-                </span>
+              {/* Privacy & Safety Note */}
+              <div className="flex items-start gap-3 rounded-2xl border border-primary/20 bg-primary-soft/30 p-4 text-xs text-text-secondary leading-relaxed">
+                <ShieldCheck className="size-5 text-primary shrink-0 mt-0.5" />
+                <p>
+                  Your appointment will be confirmed immediately. You can view, manage, or add this visit to your calendar from your Patient Sanctuary dashboard anytime.
+                </p>
+              </div>
+
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between pt-2">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  disabled={booking !== null}
+                  onClick={() => setStep("slot")}
+                  className="rounded-2xl text-sm font-semibold"
+                >
+                  <ChevronLeft className="size-4 mr-1.5" /> Change Time
+                </Button>
+
+                <Button
+                  size="lg"
+                  disabled={booking !== null}
+                  onClick={handleFinalConfirm}
+                  className="rounded-2xl bg-primary hover:bg-primary-hover px-8 py-6 text-base font-bold text-primary-foreground shadow-lg shadow-primary/25"
+                >
+                  {booking !== null ? (
+                    <>
+                      <Loader2 className="size-5 animate-spin mr-2" /> Confirming Appointment...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="size-5 mr-2 stroke-[2.5]" /> {reschedule ? "Confirm Reschedule" : "Confirm Appointment"}
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
-
-            {/* Privacy & Safety Note */}
-            <div className="flex items-start gap-3 rounded-2xl border border-primary/20 bg-primary-soft/30 p-4 text-xs text-text-secondary leading-relaxed">
-              <ShieldCheck className="size-5 text-primary shrink-0 mt-0.5" />
-              <p>
-                Your appointment will be confirmed immediately. You can view, manage, or add this visit to your calendar from your Patient Sanctuary dashboard anytime.
-              </p>
-            </div>
-
-            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between pt-2">
-              <Button
-                variant="outline"
-                size="lg"
-                disabled={booking !== null}
-                onClick={() => setStep("slot")}
-                className="rounded-2xl text-sm font-semibold"
-              >
-                <ChevronLeft className="size-4 mr-1.5" /> Change Time
-              </Button>
-
-              <Button
-                size="lg"
-                disabled={booking !== null}
-                onClick={handleFinalConfirm}
-                className="rounded-2xl bg-primary hover:bg-primary-hover px-8 py-6 text-base font-bold text-primary-foreground shadow-lg shadow-primary/25"
-              >
-                {booking !== null ? (
-                  <>
-                    <Loader2 className="size-5 animate-spin mr-2" /> Confirming Appointment...
-                  </>
-                ) : (
-                  <>
-                    <Check className="size-5 mr-2 stroke-[2.5]" /> {reschedule ? "Confirm Reschedule" : "Confirm Appointment"}
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        )}
+          )}
         </div>
       </div>
     </div>
