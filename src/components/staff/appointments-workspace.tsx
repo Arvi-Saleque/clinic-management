@@ -18,6 +18,7 @@ import {
   UserCheck,
   UserRound,
   UserX,
+  X,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -80,14 +81,15 @@ function statusLabel(status: string) {
 function statusBadgeClass(status: string) {
   switch (status) {
     case "confirmed":
-      return "border-blue-200/80 bg-blue-50/80 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300";
+      return "border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300";
     case "checked_in":
-      return "border-purple-200/80 bg-purple-50/80 text-purple-700 dark:border-purple-900/60 dark:bg-purple-950/40 dark:text-purple-300";
+      return "border-purple-300 bg-purple-50 text-purple-900 dark:border-purple-900/60 dark:bg-purple-950/40 dark:text-purple-300";
     case "completed":
-      return "border-emerald-200/80 bg-emerald-50/80 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300";
+      return "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300";
     case "cancelled":
+      return "border-red-300 bg-red-50 text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300";
     case "no_show":
-      return "border-red-200/80 bg-red-50/80 text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300";
+      return "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300";
     default:
       return "border-border bg-muted/50 text-muted-foreground";
   }
@@ -326,8 +328,17 @@ export function AppointmentsWorkspace({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search appointments…"
-              className="h-9.5 rounded-xl border-border/80 bg-card pl-8.5 pr-3 text-xs placeholder:text-muted-foreground/70 w-full"
+              className="h-9.5 rounded-xl border-border/80 bg-card pl-8.5 pr-8 text-xs placeholder:text-muted-foreground/70 w-full font-medium"
             />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="size-3.5" />
+              </button>
+            )}
           </div>
 
           {services.length > 0 && practitionerId && (
@@ -337,7 +348,7 @@ export function AppointmentsWorkspace({
               date={date}
               services={services}
               triggerVariant="default"
-              triggerClassName="h-9.5 gap-1.5 rounded-xl px-3 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-2xs shrink-0"
+              triggerClassName="h-9.5 gap-1.5 rounded-xl px-3 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-2xs shrink-0 cursor-pointer"
             />
           )}
         </div>
@@ -352,7 +363,7 @@ export function AppointmentsWorkspace({
           type="button"
           onClick={() => setSelectedStatusFilter(null)}
           className={cn(
-            "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-all shadow-2xs hover:border-border",
+            "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-all shadow-2xs hover:border-border cursor-pointer",
             selectedStatusFilter === null
               ? "bg-card border-[#0B3B36]/50 ring-2 ring-[#0B3B36]/15"
               : "bg-muted/15 border-border/70 hover:bg-muted/30",
@@ -378,7 +389,7 @@ export function AppointmentsWorkspace({
             setSelectedStatusFilter((prev) => (prev === "confirmed" ? null : "confirmed"))
           }
           className={cn(
-            "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-all shadow-2xs hover:border-border",
+            "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-all shadow-2xs hover:border-border cursor-pointer",
             selectedStatusFilter === "confirmed"
               ? "bg-blue-50/50 dark:bg-blue-950/30 border-blue-500 ring-2 ring-blue-500/20"
               : "bg-muted/15 border-border/70 hover:bg-muted/30",
@@ -404,7 +415,7 @@ export function AppointmentsWorkspace({
             setSelectedStatusFilter((prev) => (prev === "checked_in" ? null : "checked_in"))
           }
           className={cn(
-            "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-all shadow-2xs hover:border-border",
+            "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-all shadow-2xs hover:border-border cursor-pointer",
             selectedStatusFilter === "checked_in"
               ? "bg-purple-50/50 dark:bg-purple-950/30 border-purple-500 ring-2 ring-purple-500/20"
               : "bg-muted/15 border-border/70 hover:bg-muted/30",
@@ -430,7 +441,7 @@ export function AppointmentsWorkspace({
             setSelectedStatusFilter((prev) => (prev === "completed" ? null : "completed"))
           }
           className={cn(
-            "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-all shadow-2xs hover:border-border",
+            "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-all shadow-2xs hover:border-border cursor-pointer",
             selectedStatusFilter === "completed"
               ? "bg-emerald-50/50 dark:bg-emerald-950/30 border-emerald-500 ring-2 ring-emerald-500/20"
               : "bg-muted/15 border-border/70 hover:bg-muted/30",
@@ -449,14 +460,14 @@ export function AppointmentsWorkspace({
           </div>
         </button>
 
-        {/* Cancelled / DNA */}
+        {/* Cancelled / No show */}
         <button
           type="button"
           onClick={() =>
             setSelectedStatusFilter((prev) => (prev === "cancelled" ? null : "cancelled"))
           }
           className={cn(
-            "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-all shadow-2xs hover:border-border col-span-2 sm:col-span-1",
+            "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition-all shadow-2xs hover:border-border col-span-2 sm:col-span-1 cursor-pointer",
             selectedStatusFilter === "cancelled"
               ? "bg-red-50/50 dark:bg-red-950/30 border-red-500 ring-2 ring-red-500/20"
               : "bg-muted/15 border-border/70 hover:bg-muted/30",
@@ -470,7 +481,7 @@ export function AppointmentsWorkspace({
               {counts.cancelled}
             </p>
             <p className="text-[11px] font-semibold text-muted-foreground mt-1">
-              Cancelled / DNA
+              Cancelled / No show
             </p>
           </div>
         </button>
@@ -523,35 +534,35 @@ export function AppointmentsWorkspace({
                 return (
                   <li
                     key={appointment.id}
-                    className="grid grid-cols-1 gap-3 p-4 transition-colors hover:bg-muted/10 lg:grid-cols-[170px_1fr_240px_140px_190px] lg:gap-4 lg:items-center lg:px-5 lg:py-3.5"
+                    className="grid grid-cols-1 gap-3 p-4 transition-colors hover:bg-muted/15 lg:grid-cols-[170px_1fr_240px_140px_190px] lg:gap-4 lg:items-center lg:px-6 lg:py-4"
                   >
                     {/* 1. Time Block */}
                     <div className="flex items-center gap-3">
-                      <div className="flex size-9 items-center justify-center rounded-xl bg-muted/40 text-muted-foreground shrink-0">
-                        <Clock3 className="size-4" />
+                      <div className="flex size-10 items-center justify-center rounded-2xl bg-[#0B3B36]/10 text-[#0B3B36] dark:bg-emerald-950/60 dark:text-emerald-300 shrink-0 border border-emerald-500/20 shadow-2xs">
+                        <Clock3 className="size-4.5" />
                       </div>
                       <div>
-                        <p className="font-heading text-sm font-bold tracking-tight text-foreground">
+                        <p className="font-heading text-sm font-extrabold tracking-tight text-foreground">
                           {startFormatted} – {endFormatted}
                         </p>
-                        <p className="text-[11px] font-medium text-muted-foreground">
+                        <p className="text-[11px] font-semibold text-muted-foreground">
                           {appointment.services?.duration_minutes ?? 30} mins
                         </p>
                       </div>
                     </div>
 
                     {/* 2. Patient Profile Block */}
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex size-9 items-center justify-center rounded-full bg-[#0B3B36]/10 text-xs font-bold text-[#0B3B36] dark:bg-[#0B3B36]/25 dark:text-emerald-300 shrink-0">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="flex size-10 items-center justify-center rounded-2xl bg-[#0B3B36]/10 text-xs font-black text-[#0B3B36] dark:bg-emerald-950/60 dark:text-emerald-300 shrink-0 border border-emerald-500/20 shadow-2xs">
                         {initials}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="font-heading text-sm font-bold text-foreground truncate">
+                        <p className="font-heading text-sm font-extrabold text-foreground truncate">
                           {patientName}
                         </p>
                         {appointment.patients?.phone && (
-                          <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                            <Phone className="size-2.5 shrink-0" />
+                          <p className="flex items-center gap-1.5 text-[11px] font-mono font-medium text-muted-foreground mt-0.5">
+                            <Phone className="size-3 shrink-0" />
                             <span>{appointment.patients.phone}</span>
                           </p>
                         )}
@@ -560,12 +571,16 @@ export function AppointmentsWorkspace({
 
                     {/* 3. Treatment / Service */}
                     <div className="min-w-0">
-                      <p className="text-xs font-semibold text-foreground truncate">
+                      <p className="text-xs font-bold text-foreground truncate">
                         {appointment.services?.name ?? "General Dental Care"}
                       </p>
-                      {appointment.notes && (
-                        <p className="text-[11px] text-muted-foreground truncate max-w-[220px]">
+                      {appointment.notes ? (
+                        <p className="text-[11px] text-muted-foreground font-medium truncate max-w-[220px] mt-0.5">
                           &ldquo;{appointment.notes}&rdquo;
+                        </p>
+                      ) : (
+                        <p className="text-[11px] text-muted-foreground/70 font-medium">
+                          Scheduled visit
                         </p>
                       )}
                     </div>
@@ -575,7 +590,7 @@ export function AppointmentsWorkspace({
                       <Badge
                         variant="outline"
                         className={cn(
-                          "rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
+                          "rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider border shadow-2xs",
                           statusBadgeClass(appointment.status),
                         )}
                       >

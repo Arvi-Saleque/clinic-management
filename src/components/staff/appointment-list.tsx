@@ -17,6 +17,7 @@ import { ConsultationActionButton } from "@/components/clinical/consultation-act
 import { updateAppointmentStatus, type AppointmentStatus } from "@/lib/server/appointments";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { useTablePagination } from "@/lib/hooks/use-table-pagination";
+import { cn } from "@/lib/utils";
 
 interface Appointment {
   id: string;
@@ -29,21 +30,26 @@ interface Appointment {
   services: { name: string; duration_minutes: number } | null;
 }
 
-const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-  pending: "outline",
-  confirmed: "secondary",
-  checked_in: "default",
-  completed: "default",
-  cancelled: "destructive",
-  no_show: "destructive",
+const STATUS_STYLE: Record<string, string> = {
+  completed:
+    "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300",
+  confirmed:
+    "border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300",
+  pending:
+    "border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300",
+  checked_in:
+    "border-purple-300 bg-purple-50 text-purple-900 dark:border-purple-900/60 dark:bg-purple-950/40 dark:text-purple-300",
+  cancelled:
+    "border-red-300 bg-red-50 text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300",
+  no_show:
+    "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300",
 };
 
 // Canonical lifecycle: checked_in appointments must only be completed via the clinical consultation workflow
 const NEXT_ACTIONS: Record<string, { label: string; status: AppointmentStatus }[]> = {
-  pending: [{ label: "Confirm", status: "confirmed" }],
   confirmed: [
     { label: "Check in", status: "checked_in" },
-    { label: "No-show", status: "no_show" },
+    { label: "No show", status: "no_show" },
   ],
   checked_in: [],
 };
@@ -101,7 +107,13 @@ export function AppointmentList({ appointments }: { appointments: Appointment[] 
             </div>
 
             <div className="flex items-center gap-2">
-              <Badge variant={STATUS_VARIANT[appt.status] ?? "outline"}>
+              <Badge
+                variant="outline"
+                className={cn(
+                  "rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider border shadow-2xs",
+                  STATUS_STYLE[appt.status] ?? "border-border bg-muted/40 text-foreground",
+                )}
+              >
                 {appt.status === "no_show"
                   ? "No show"
                   : appt.status === "checked_in"
