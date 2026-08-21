@@ -35,7 +35,6 @@ import {
 } from "@/components/ui/dialog";
 import { getInvoiceDetail } from "@/lib/server/directory";
 import {
-  issueDraftInvoiceAction,
   recordDirectPaymentAction,
   updateDraftInvoiceAction,
 } from "@/lib/server/invoices";
@@ -60,20 +59,20 @@ interface EditableItem {
   unitPrice: number;
 }
 
-function formatStatusBadge(status: string) {
+function formatStatusHeaderBadge(status: string) {
   switch (status) {
     case "paid":
-      return "border-emerald-400 bg-emerald-500/15 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300";
+      return "bg-emerald-400/25 text-emerald-100 border-emerald-300/60 shadow-emerald-900/30";
     case "partially_paid":
-      return "border-blue-400 bg-blue-500/15 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300";
+      return "bg-cyan-400/25 text-cyan-100 border-cyan-300/60 shadow-cyan-900/30";
     case "issued":
-      return "border-amber-400 bg-amber-500/15 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300";
+      return "bg-amber-400/25 text-amber-100 border-amber-300/60 shadow-amber-900/30";
     case "draft":
-      return "border-purple-400 bg-purple-500/15 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300";
+      return "bg-purple-400/25 text-purple-100 border-purple-300/60 shadow-purple-900/30";
     case "void":
-      return "border-red-400 bg-red-500/15 text-red-800 dark:bg-red-950/60 dark:text-red-300";
+      return "bg-red-400/25 text-red-100 border-red-300/60 shadow-red-900/30";
     default:
-      return "border-border bg-muted/50 text-muted-foreground";
+      return "bg-white/15 text-white border-white/30";
   }
 }
 
@@ -86,7 +85,7 @@ function formatStatusLabel(status: string) {
     case "issued":
       return "Outstanding";
     case "draft":
-      return "Draft (Editable)";
+      return "Draft";
     case "void":
       return "Void";
     default:
@@ -130,7 +129,6 @@ export function InvoiceDetailDialog({
   // Outstanding Installment Payment State
   const [installmentAmount, setInstallmentAmount] = React.useState<number>(0);
   const [installmentMethod, setInstallmentMethod] = React.useState<PaymentMethod>("card");
-  const [installmentRef, setInstallmentRef] = React.useState<string>("");
   const [isRecordingInstallment, setIsRecordingInstallment] = React.useState(false);
 
   const fetchDetail = React.useCallback(async (id: string) => {
@@ -143,7 +141,6 @@ export function InvoiceDetailDialog({
         const currentPaid = (res.payments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
         const currentBalance = Math.max(0, Number(res.invoice.total) - currentPaid);
         setInstallmentAmount(currentBalance);
-        setInstallmentRef("");
         setInstallmentMethod("card");
 
         if (res.invoice.status === "draft") {
@@ -263,41 +260,52 @@ export function InvoiceDetailDialog({
 
       if (res.success) {
         if (targetStatus === "draft") {
-          toast.success("Draft invoice changes saved.");
+          toast.success("Draft invoice changes saved.", {
+            position: "top-center",
+            duration: 4000,
+          });
         } else if (targetStatus === "paid") {
           toast.success(
-            `Invoice ${invoice.invoice_number} settled & marked Paid (€${draftNetTotal.toFixed(2)}).`,
+            `Invoice ${invoice.invoice_number} settled & marked Paid (€${draftNetTotal.toFixed(2)})! 🎉`,
+            { position: "top-center", duration: 5000 },
           );
         } else if (targetStatus === "issued") {
-          toast.success(`Invoice ${invoice.invoice_number} issued as Outstanding.`);
+          toast.success(`Invoice ${invoice.invoice_number} issued as Outstanding.`, {
+            position: "top-center",
+            duration: 4500,
+          });
         } else {
-          toast.success(`Invoice ${invoice.invoice_number} updated with partial deposit.`);
+          toast.success(`Invoice ${invoice.invoice_number} updated with partial deposit.`, {
+            position: "top-center",
+            duration: 4500,
+          });
         }
 
-        fetchDetail(invoice.id);
         onPaymentSuccess?.();
-        if (targetStatus !== "draft") {
-          onOpenChange(false);
-        }
+        onOpenChange(false);
       } else {
-        toast.error(res.error || "Failed to update draft invoice.");
+        toast.error(res.error || "Failed to update draft invoice.", { position: "top-center" });
       }
     } catch {
-      toast.error("Failed to update draft invoice.");
+      toast.error("Failed to update draft invoice.", { position: "top-center" });
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  // Handle Inline Installment Payment (Pay little by little)
+  // Handle Inline Installment Payment
   async function handleRecordInstallment() {
     if (!invoice) return;
     if (installmentAmount <= 0) {
-      toast.error("Please enter a valid payment amount greater than €0.");
+      toast.error("Please enter a valid payment amount greater than €0.", {
+        position: "top-center",
+      });
       return;
     }
     if (installmentAmount > balance + 0.01) {
-      toast.error(`Payment cannot exceed the remaining balance of €${balance.toFixed(2)}.`);
+      toast.error(`Payment cannot exceed the remaining balance of €${balance.toFixed(2)}.`, {
+        position: "top-center",
+      });
       return;
     }
 
@@ -307,211 +315,214 @@ export function InvoiceDetailDialog({
         invoiceId: invoice.id,
         amount: installmentAmount,
         method: installmentMethod,
-        reference: installmentRef.trim() || undefined,
       });
 
       if (res.success) {
         const nextBal = Math.max(0, balance - installmentAmount);
         if (nextBal <= 0.01) {
           toast.success(
-            `Payment of €${installmentAmount.toFixed(2)} recorded. Invoice is now Paid in Full! 🎉`,
+            `Payment of €${installmentAmount.toFixed(2)} recorded. Invoice ${invoice.invoice_number} is now Paid in Full! 🎉`,
+            { position: "top-center", duration: 5000 },
           );
         } else {
           toast.success(
             `Payment of €${installmentAmount.toFixed(2)} recorded. Remaining balance: €${nextBal.toFixed(2)}.`,
+            { position: "top-center", duration: 4500 },
           );
         }
 
-        await fetchDetail(invoice.id);
         onPaymentSuccess?.();
+        onOpenChange(false);
       } else {
-        toast.error(res.error || "Failed to record payment.");
+        toast.error(res.error || "Failed to record payment.", { position: "top-center" });
       }
     } catch {
-      toast.error("Failed to record installment payment.");
+      toast.error("Failed to record installment payment.", { position: "top-center" });
     } finally {
       setIsRecordingInstallment(false);
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[640px] rounded-3xl p-0 overflow-hidden border border-border/80 shadow-2xl bg-card">
-        {loading || !invoice ? (
-          <div className="flex h-72 items-center justify-center">
-            <Loader2 className="size-7 animate-spin text-primary" />
-          </div>
-        ) : (
-          <div className="flex flex-col">
-            {/* ── Top Header Banner (Glass Sanctuary) ── */}
-            <div className="relative bg-gradient-to-r from-[#062420] via-[#0B3B36] to-[#0E4741] px-6 py-5 text-white overflow-hidden">
-              <div className="pointer-events-none absolute -right-10 -top-10 size-44 rounded-full bg-emerald-400/15 blur-2xl" />
-
-              <div className="flex items-start justify-between relative z-10">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="flex size-7 items-center justify-center rounded-lg bg-white/10 text-emerald-300 border border-white/15">
-                      <Receipt className="size-4" />
-                    </span>
-                    <h2 className="font-heading text-lg font-black text-white font-mono tracking-tight">
-                      {invoice.invoice_number}
-                    </h2>
-                  </div>
-                  <p className="text-[11px] font-medium text-emerald-100/80 pl-9">
-                    Issued {format(new Date(`${invoice.issue_date}T00:00:00`), "dd MMM yyyy")}
-                    {invoice.due_date &&
-                      ` · Due ${format(new Date(`${invoice.due_date}T00:00:00`), "dd MMM yyyy")}`}
-                  </p>
-                </div>
-
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "rounded-full px-3 py-1 text-[11px] font-extrabold capitalize border shadow-2xs",
-                    formatStatusBadge(invoice.status),
-                  )}
-                >
-                  {formatStatusLabel(invoice.status)}
-                </Badge>
-              </div>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent
+          showCloseButton={false}
+          className="sm:max-w-[640px] rounded-3xl p-0 overflow-hidden border border-border/80 shadow-2xl bg-card print:hidden"
+        >
+          {loading || !invoice ? (
+            <div className="flex h-72 items-center justify-center">
+              <Loader2 className="size-7 animate-spin text-primary" />
             </div>
+          ) : (
+            <div className="flex flex-col">
+              {/* ── 1. Top Header Banner ── */}
+              <div className="relative bg-gradient-to-r from-[#041D1A] via-[#093530] to-[#0D443D] px-7 py-4.5 text-white overflow-hidden">
+                <div className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-emerald-400/15 blur-2xl" />
 
-            {/* ── Patient Information Card ── */}
-            <div className="px-6 pt-4 pb-2">
-              <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-muted/20 p-3 text-xs">
-                <div className="flex items-center gap-2.5">
-                  <div className="size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <User className="size-4" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">
-                      Patient
+                <div className="flex items-center justify-between relative z-10">
+                  <div className="flex items-center gap-3">
+                    <span className="flex size-9 items-center justify-center rounded-xl bg-white/10 text-emerald-300 border border-white/15 shadow-inner">
+                      <Receipt className="size-4.5" />
                     </span>
-                    {invoice.patients ? (
-                      <Link
-                        href={`/patients/${invoice.patients.id}`}
-                        onClick={() => onOpenChange(false)}
-                        className="font-bold text-foreground hover:text-primary transition-colors underline"
-                      >
-                        {patientName}
-                      </Link>
-                    ) : (
-                      <span className="font-bold text-foreground">{patientName}</span>
-                    )}
-                  </div>
-                </div>
-
-                {invoice.patients?.phone && (
-                  <div className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
-                    <Phone className="size-3 text-muted-foreground/70" />
-                    <span>{invoice.patients.phone}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* ── MAIN BODY ── */}
-            <div className="px-6 py-3 space-y-4.5 max-h-[64vh] overflow-y-auto overflow-x-hidden">
-              {isDraft ? (
-                /* ────────────────────────────────────────────────────────
-                 * 1. FULLY EDITABLE DRAFT MODE
-                 * ──────────────────────────────────────────────────────── */
-                <div className="space-y-4">
-                  {/* Itemised Editable Treatments */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                        Treatments &amp; Line Items
-                      </Label>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleAddItem}
-                        className="h-7 px-2.5 text-[11px] font-bold rounded-lg gap-1 border-border/70 hover:bg-muted/40 cursor-pointer"
-                      >
-                        <Plus className="size-3 text-primary" />
-                        Add Item
-                      </Button>
+                    <div>
+                      <h2 className="font-heading text-base font-black text-white font-mono tracking-tight flex items-center gap-2">
+                        {invoice.invoice_number}
+                      </h2>
+                      <p className="text-[11px] font-medium text-emerald-100/80">
+                        Issued {format(new Date(`${invoice.issue_date}T00:00:00`), "dd MMMM yyyy")}
+                        {invoice.due_date &&
+                          ` · Due ${format(new Date(`${invoice.due_date}T00:00:00`), "dd MMM yyyy")}`}
+                      </p>
                     </div>
+                  </div>
 
-                    <div className="space-y-2">
-                      {editableItems.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center gap-2 p-2.5 rounded-2xl border border-border/80 bg-muted/15"
+                  {/* Status Badge + Dedicated Circular Cross (X) Close Button */}
+                  <div className="flex items-center gap-3">
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "rounded-full px-3 py-1 text-xs font-black capitalize border shadow-xs backdrop-blur-md",
+                        formatStatusHeaderBadge(invoice.status),
+                      )}
+                    >
+                      {formatStatusLabel(invoice.status)}
+                    </Badge>
+
+                    <button
+                      type="button"
+                      onClick={() => onOpenChange(false)}
+                      className="size-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white/90 hover:text-white border border-white/15 transition-all cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                      title="Close dialog"
+                    >
+                      <X className="size-4 stroke-[2.5]" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── 2. Modal Body ── */}
+              <div className="p-6 sm:p-7 space-y-4.5 max-h-[70vh] overflow-y-auto overflow-x-hidden">
+                {/* Patient Banner */}
+                <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-muted/20 p-3.5 text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="size-7 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                      <User className="size-3.5" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block">
+                        Patient
+                      </span>
+                      {invoice.patients ? (
+                        <Link
+                          href={`/patients/${invoice.patients.id}`}
+                          onClick={() => onOpenChange(false)}
+                          className="font-bold text-foreground hover:text-primary transition-colors underline"
                         >
-                          {/* Procedure Description */}
-                          <Input
-                            value={item.description}
-                            onChange={(e) => handleUpdateItem(idx, "description", e.target.value)}
-                            placeholder="Procedure or service name..."
-                            className="h-9 text-xs font-bold rounded-xl bg-card border-border/80 flex-1"
-                          />
-
-                          {/* Quantity */}
-                          <div className="w-16">
-                            <Input
-                              type="number"
-                              min="1"
-                              value={item.quantity || 1}
-                              onChange={(e) =>
-                                handleUpdateItem(
-                                  idx,
-                                  "quantity",
-                                  Math.max(1, Number(e.target.value)),
-                                )
-                              }
-                              placeholder="Qty"
-                              className="h-9 text-center text-xs font-bold rounded-xl bg-card border-border/80 font-mono px-1"
-                            />
-                          </div>
-
-                          {/* Unit Fee */}
-                          <div className="relative w-28">
-                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                              €
-                            </span>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="1"
-                              value={item.unitPrice || ""}
-                              onChange={(e) =>
-                                handleUpdateItem(
-                                  idx,
-                                  "unitPrice",
-                                  Math.max(0, Number(e.target.value)),
-                                )
-                              }
-                              placeholder="Fee"
-                              className="h-9 pl-6 text-xs font-bold rounded-xl bg-card border-border/80 font-mono"
-                            />
-                          </div>
-
-                          {/* Delete Button (if > 1 item) */}
-                          {editableItems.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveItem(idx)}
-                              className="size-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors shrink-0 cursor-pointer"
-                              title="Remove item"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </button>
-                          )}
-                        </div>
-                      ))}
+                          {patientName}
+                        </Link>
+                      ) : (
+                        <span className="font-bold text-foreground">{patientName}</span>
+                      )}
                     </div>
                   </div>
 
-                  {/* Discount & Net Total Block */}
-                  <div className="rounded-2xl border border-border/70 bg-muted/20 p-3.5 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
+                  {invoice.patients?.phone && (
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {invoice.patients.phone}
+                    </span>
+                  )}
+                </div>
+
+                {isDraft ? (
+                  /* ────────────────────────────────────────────────────────
+                   * DRAFT MODE (EDITABLE)
+                   * ──────────────────────────────────────────────────────── */
+                  <div className="space-y-4">
+                    {/* Line Items Table Editor */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                          Itemised Treatments &amp; Services
+                        </Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleAddItem}
+                          className="h-7 px-2.5 text-[10px] font-bold rounded-lg gap-1 border-border/70 hover:bg-muted/40 cursor-pointer"
+                        >
+                          <Plus className="size-3 text-primary" />
+                          Add Line
+                        </Button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {editableItems.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2 p-2.5 rounded-2xl border border-border/80 bg-muted/15"
+                          >
+                            <Input
+                              value={item.description}
+                              onChange={(e) => handleUpdateItem(idx, "description", e.target.value)}
+                              placeholder="Treatment / procedure name..."
+                              className="h-9 text-xs font-bold rounded-xl bg-card border-border/80 flex-1"
+                            />
+                            <div className="w-14">
+                              <Input
+                                type="number"
+                                min="1"
+                                value={item.quantity || 1}
+                                onChange={(e) =>
+                                  handleUpdateItem(
+                                    idx,
+                                    "quantity",
+                                    Math.max(1, Number(e.target.value)),
+                                  )
+                                }
+                                className="h-9 text-center text-xs font-bold rounded-xl bg-card border-border/80 font-mono px-1"
+                              />
+                            </div>
+                            <div className="relative w-24">
+                              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
+                                €
+                              </span>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="1"
+                                value={item.unitPrice || ""}
+                                onChange={(e) =>
+                                  handleUpdateItem(
+                                    idx,
+                                    "unitPrice",
+                                    Math.max(0, Number(e.target.value)),
+                                  )
+                                }
+                                className="h-9 pl-5 text-xs font-bold rounded-xl bg-card border-border/80 font-mono"
+                              />
+                            </div>
+                            {editableItems.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveItem(idx)}
+                                className="size-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors shrink-0 cursor-pointer"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Discount & Net Total */}
+                    <div className="rounded-2xl border border-border/70 bg-muted/20 p-3.5 space-y-2.5">
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                            Clinician Discount
+                            Discount
                           </Label>
                           <div className="flex items-center rounded-md bg-muted/50 p-0.5 border border-border/60">
                             <button
@@ -521,7 +532,7 @@ export function InvoiceDetailDialog({
                                 "rounded px-1.5 py-0.2 text-[9px] font-bold transition-all cursor-pointer",
                                 discountType === "percentage"
                                   ? "bg-card text-foreground shadow-2xs"
-                                  : "text-muted-foreground hover:text-foreground",
+                                  : "text-muted-foreground",
                               )}
                             >
                               %
@@ -533,625 +544,398 @@ export function InvoiceDetailDialog({
                                 "rounded px-1.5 py-0.2 text-[9px] font-bold transition-all cursor-pointer",
                                 discountType === "fixed"
                                   ? "bg-card text-foreground shadow-2xs"
-                                  : "text-muted-foreground hover:text-foreground",
+                                  : "text-muted-foreground",
                               )}
                             >
                               €
                             </button>
                           </div>
+                          <div className="relative w-28">
+                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
+                              {discountType === "fixed" ? "€" : "%"}
+                            </span>
+                            <Input
+                              type="number"
+                              min="0"
+                              max={discountType === "percentage" ? 100 : draftSubtotal}
+                              value={discountValue || ""}
+                              onChange={(e) => setDiscountValue(Math.max(0, Number(e.target.value)))}
+                              className="h-8.5 pl-6 text-xs font-bold rounded-xl bg-card border-border/80 font-mono"
+                            />
+                          </div>
                         </div>
-                        <div className="relative w-36">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                            {discountType === "fixed" ? "€" : "%"}
+
+                        <div className="text-right">
+                          <span className="text-[10px] font-bold text-muted-foreground block">
+                            Net Payable
                           </span>
-                          <Input
-                            type="number"
-                            min="0"
-                            max={discountType === "percentage" ? 100 : draftSubtotal}
-                            value={discountValue || ""}
-                            onChange={(e) => setDiscountValue(Math.max(0, Number(e.target.value)))}
-                            placeholder="0"
-                            className="h-8.5 pl-7 text-xs font-bold rounded-xl bg-card border-border/80 font-mono"
-                          />
+                          <span className="text-base font-black font-mono text-[#0B3B36] dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300/70 px-3 py-0.5 rounded-xl inline-block mt-0.5 shadow-2xs">
+                            €{draftNetTotal.toFixed(2)}
+                          </span>
                         </div>
                       </div>
 
-                      {/* Net Total Pill */}
-                      <div className="text-right">
-                        <span className="text-[10px] font-bold text-muted-foreground block">
-                          Net Payable
+                      <div className="flex items-center gap-1.5 pt-1 border-t border-border/50">
+                        <span className="text-[10px] font-semibold text-muted-foreground mr-1">
+                          Presets:
                         </span>
-                        <span className="text-lg font-black font-mono text-[#0B3B36] dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300/70 px-3.5 py-0.5 rounded-xl inline-block mt-0.5 shadow-2xs">
-                          €{draftNetTotal.toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Quick Discount Preset Chips */}
-                    <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-border/50">
-                      <span className="text-[10px] font-semibold text-muted-foreground mr-1">
-                        Presets:
-                      </span>
-                      {[
-                        { label: "0%", val: 0, type: "percentage" as const },
-                        { label: "-5%", val: 5, type: "percentage" as const },
-                        { label: "-10%", val: 10, type: "percentage" as const },
-                        { label: "-20%", val: 20, type: "percentage" as const },
-                        { label: "-€10", val: 10, type: "fixed" as const },
-                        { label: "-€25", val: 25, type: "fixed" as const },
-                      ].map((chip) => {
-                        const isSelected = discountValue === chip.val && discountType === chip.type;
-                        return (
+                        {[
+                          { label: "0%", val: 0, type: "percentage" as const },
+                          { label: "-5%", val: 5, type: "percentage" as const },
+                          { label: "-10%", val: 10, type: "percentage" as const },
+                          { label: "-20%", val: 20, type: "percentage" as const },
+                          { label: "-€10", val: 10, type: "fixed" as const },
+                        ].map((chip) => (
                           <button
                             key={chip.label}
                             type="button"
                             onClick={() => applyQuickDiscount(chip.val, chip.type)}
                             className={cn(
-                              "rounded-lg px-2 py-0.5 text-[10px] font-bold transition-all border cursor-pointer",
-                              isSelected
-                                ? "bg-emerald-500/15 text-emerald-800 border-emerald-400 dark:bg-emerald-950/60 dark:text-emerald-300 shadow-2xs"
-                                : "bg-card text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted/40",
+                              "rounded-md px-2 py-0.5 text-[10px] font-bold border transition-all cursor-pointer",
+                              discountValue === chip.val && discountType === chip.type
+                                ? "bg-emerald-500/15 text-emerald-800 border-emerald-400 dark:bg-emerald-950/60 dark:text-emerald-300"
+                                : "bg-card text-muted-foreground border-border/60 hover:text-foreground",
                             )}
                           >
                             {chip.label}
                           </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Settlement Choice (4 Distinct Signature Colors) */}
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                      Settlement Status
-                    </Label>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      {/* 1. PAID */}
-                      <button
-                        type="button"
-                        onClick={() => setSettlementStatus("paid")}
-                        className={cn(
-                          "flex items-center gap-2.5 rounded-2xl border p-2.5 text-left transition-all cursor-pointer",
-                          settlementStatus === "paid"
-                            ? "border-emerald-500 bg-emerald-500/10 dark:bg-emerald-950/40 shadow-xs ring-1.5 ring-emerald-500"
-                            : "border-emerald-200/50 bg-emerald-50/25 dark:border-emerald-900/30 dark:bg-emerald-950/10 hover:border-emerald-400",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "size-7 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-                            settlementStatus === "paid"
-                              ? "bg-emerald-600 text-white"
-                              : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-                          )}
-                        >
-                          <Check className="size-3.5 stroke-[2.5]" />
-                        </div>
-                        <div>
-                          <span className="text-xs font-extrabold text-foreground block leading-tight">
-                            Paid
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">100% Settled</span>
-                        </div>
-                      </button>
-
-                      {/* 2. ISSUED */}
-                      <button
-                        type="button"
-                        onClick={() => setSettlementStatus("issued")}
-                        className={cn(
-                          "flex items-center gap-2.5 rounded-2xl border p-2.5 text-left transition-all cursor-pointer",
-                          settlementStatus === "issued"
-                            ? "border-amber-500 bg-amber-500/10 dark:bg-amber-950/40 shadow-xs ring-1.5 ring-amber-500"
-                            : "border-amber-200/50 bg-amber-50/25 dark:border-amber-900/30 dark:bg-amber-950/10 hover:border-amber-400",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "size-7 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-                            settlementStatus === "issued"
-                              ? "bg-amber-600 text-white"
-                              : "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-                          )}
-                        >
-                          <Clock3 className="size-3.5 stroke-[2.5]" />
-                        </div>
-                        <div>
-                          <span className="text-xs font-extrabold text-foreground block leading-tight">
-                            Issued
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">Outstanding</span>
-                        </div>
-                      </button>
-
-                      {/* 3. PART PAID */}
-                      <button
-                        type="button"
-                        onClick={() => setSettlementStatus("partially_paid")}
-                        className={cn(
-                          "flex items-center gap-2.5 rounded-2xl border p-2.5 text-left transition-all cursor-pointer",
-                          settlementStatus === "partially_paid"
-                            ? "border-blue-500 bg-blue-500/10 dark:bg-blue-950/40 shadow-xs ring-1.5 ring-blue-500"
-                            : "border-blue-200/50 bg-blue-50/25 dark:border-blue-900/30 dark:bg-blue-950/10 hover:border-blue-400",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "size-7 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-                            settlementStatus === "partially_paid"
-                              ? "bg-blue-600 text-white"
-                              : "bg-blue-500/15 text-blue-700 dark:text-blue-300",
-                          )}
-                        >
-                          <Wallet className="size-3.5 stroke-[2.5]" />
-                        </div>
-                        <div>
-                          <span className="text-xs font-extrabold text-foreground block leading-tight">
-                            Part Paid
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">Deposit</span>
-                        </div>
-                      </button>
-
-                      {/* 4. DRAFT */}
-                      <button
-                        type="button"
-                        onClick={() => setSettlementStatus("draft")}
-                        className={cn(
-                          "flex items-center gap-2.5 rounded-2xl border p-2.5 text-left transition-all cursor-pointer",
-                          settlementStatus === "draft"
-                            ? "border-purple-500 bg-purple-500/10 dark:bg-purple-950/40 shadow-xs ring-1.5 ring-purple-500"
-                            : "border-purple-200/50 bg-purple-50/25 dark:border-purple-900/30 dark:bg-purple-950/10 hover:border-purple-400",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "size-7 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-                            settlementStatus === "draft"
-                              ? "bg-purple-600 text-white"
-                              : "bg-purple-500/15 text-purple-700 dark:text-purple-300",
-                          )}
-                        >
-                          <FileEdit className="size-3.5 stroke-[2.5]" />
-                        </div>
-                        <div>
-                          <span className="text-xs font-extrabold text-foreground block leading-tight">
-                            Draft
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">Keep in Draft</span>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Payment Method Selector (if Paid or Part Paid) */}
-                  {(settlementStatus === "paid" || settlementStatus === "partially_paid") && (
-                    <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/30 dark:bg-emerald-950/20 p-3 space-y-2 animate-in fade-in-50">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                          Payment Method
-                        </Label>
-                        {settlementStatus === "partially_paid" && (
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold text-muted-foreground">
-                              Deposit Paid (€):
-                            </span>
-                            <Input
-                              type="number"
-                              min="1"
-                              max={draftNetTotal}
-                              step="1"
-                              value={partialAmount || ""}
-                              onChange={(e) =>
-                                setPartialAmount(
-                                  Math.min(draftNetTotal, Math.max(0, Number(e.target.value))),
-                                )
-                              }
-                              className="h-7 w-20 rounded-lg bg-card text-xs font-bold font-mono px-2"
-                              placeholder="0"
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-2">
-                        {[
-                          { id: "card" as const, label: "Card / POS", icon: CreditCard },
-                          { id: "cash" as const, label: "Cash", icon: Banknote },
-                          { id: "bank_transfer" as const, label: "Bank Transfer", icon: Landmark },
-                        ].map((m) => (
-                          <button
-                            key={m.id}
-                            type="button"
-                            onClick={() => setPaymentMethod(m.id)}
-                            className={cn(
-                              "flex items-center justify-center gap-1.5 rounded-xl py-1.5 px-2 text-xs font-bold transition-all border cursor-pointer",
-                              paymentMethod === m.id
-                                ? "bg-[#0B3B36] text-white border-[#0B3B36] shadow-xs"
-                                : "bg-card text-foreground border-border/80 hover:bg-muted/40",
-                            )}
-                          >
-                            <m.icon className="size-3" />
-                            <span>{m.label}</span>
-                          </button>
                         ))}
                       </div>
-
-                      {settlementStatus === "partially_paid" && (
-                        <div className="flex items-center justify-between pt-1 text-[11px] font-semibold text-muted-foreground border-t border-border/40">
-                          <span>Remaining balance to bill:</span>
-                          <span className="font-mono font-bold text-amber-700 dark:text-amber-400">
-                            €{draftRemainingBalance.toFixed(2)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                /* ────────────────────────────────────────────────────────
-                 * 2. LOCKED VIEW (Issued, Part Paid, Paid, Void)
-                 * With Interactive Installment Payment if Outstanding
-                 * ──────────────────────────────────────────────────────── */
-                <div className="space-y-4">
-                  {/* Itemised Services Table (Locked / Non-Editable) */}
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                      Itemised Treatments &amp; Services (Locked)
-                    </Label>
-
-                    <div className="rounded-2xl border border-border/70 overflow-hidden text-xs bg-card">
-                      <div className="grid grid-cols-[1fr_50px_95px_95px] gap-2 border-b border-border/60 bg-muted/25 px-4 py-2.5 font-black uppercase tracking-wider text-[10px] text-muted-foreground">
-                        <span>Description</span>
-                        <span className="text-center">Qty</span>
-                        <span className="text-right">Unit Fee</span>
-                        <span className="text-right">Total</span>
-                      </div>
-                      <ul className="divide-y divide-border/60">
-                        {items.map((item) => (
-                          <li
-                            key={item.id}
-                            className="grid grid-cols-[1fr_50px_95px_95px] gap-2 px-4 py-3 items-center"
-                          >
-                            <span className="font-bold text-foreground">{item.description}</span>
-                            <span className="text-center font-mono text-muted-foreground">
-                              {item.quantity}
-                            </span>
-                            <span className="text-right font-mono text-muted-foreground">
-                              {formatCurrency(item.unit_price)}
-                            </span>
-                            <span className="text-right font-mono font-bold text-foreground">
-                              {formatCurrency(item.line_total)}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  {/* Financial Summary Calculation Box */}
-                  <div className="ml-auto w-full sm:max-w-xs space-y-2 rounded-2xl border border-border/70 bg-muted/15 p-4 text-xs">
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Subtotal:</span>
-                      <span className="font-mono font-medium">
-                        {formatCurrency(invoice.subtotal)}
-                      </span>
                     </div>
 
-                    {Number(invoice.discount_amount) > 0 && (
-                      <div className="flex justify-between text-emerald-700 dark:text-emerald-400 font-semibold">
-                        <span>Discount:</span>
-                        <span className="font-mono">-{formatCurrency(invoice.discount_amount)}</span>
-                      </div>
-                    )}
-
-                    {Number(invoice.tax_amount) > 0 && (
-                      <div className="flex justify-between text-muted-foreground">
-                        <span>Tax:</span>
-                        <span className="font-mono">{formatCurrency(invoice.tax_amount)}</span>
-                      </div>
-                    )}
-
-                    <div className="flex justify-between font-black text-foreground pt-1.5 border-t border-border/50 text-sm">
-                      <span>Total Billed:</span>
-                      <span className="font-mono">{formatCurrency(invoice.total)}</span>
-                    </div>
-
-                    <div className="flex justify-between text-emerald-700 dark:text-emerald-300 font-bold">
-                      <span>Total Paid:</span>
-                      <span className="font-mono">{formatCurrency(totalPaid)}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between font-black text-foreground pt-1.5 border-t border-border/50 text-sm">
-                      <span>Remaining Balance:</span>
-                      <span
-                        className={cn(
-                          "font-mono rounded-lg px-2 py-0.5",
-                          balance > 0
-                            ? "bg-amber-50 text-amber-900 border border-amber-300/80 dark:bg-amber-950/60 dark:text-amber-300"
-                            : "bg-emerald-50 text-emerald-900 border border-emerald-300/80 dark:bg-emerald-950/60 dark:text-emerald-300",
-                        )}
-                      >
-                        {formatCurrency(balance)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* ── INTERACTIVE INSTALLMENT PAYMENT BOX (When Outstanding Balance > 0) ── */}
-                  {balance > 0 && invoice.status !== "void" && (
-                    <div className="rounded-3xl border border-amber-400/70 bg-amber-50/40 dark:border-amber-900/50 dark:bg-amber-950/20 p-4 space-y-3.5 shadow-2xs animate-in fade-in-50 duration-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="size-6 rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold text-xs">
-                            €
-                          </span>
-                          <span className="text-xs font-black text-foreground">
-                            Pay Installment / Settle Balance
-                          </span>
-                        </div>
-                        <span className="rounded-lg bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-300/70 px-2 py-0.5 text-[10px] font-black font-mono">
-                          €{balance.toFixed(2)} Outstanding
-                        </span>
-                      </div>
-
-                      {/* Payment Amount Input & Quick Presets */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-                        <div className="space-y-1">
-                          <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                            Amount Paying Now (€)
-                          </Label>
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                              €
-                            </span>
-                            <Input
-                              type="number"
-                              min="1"
-                              max={balance}
-                              step="1"
-                              value={installmentAmount || ""}
-                              onChange={(e) =>
-                                setInstallmentAmount(
-                                  Math.min(balance, Math.max(0, Number(e.target.value))),
-                                )
-                              }
-                              placeholder="0.00"
-                              className="h-9.5 pl-7 text-xs font-bold rounded-xl bg-card border-border/80 font-mono"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Quick Presets */}
-                        <div className="space-y-1">
-                          <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                            Quick Fill
-                          </Label>
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => setInstallmentAmount(balance)}
-                              className="rounded-lg px-2.5 py-1 text-[10px] font-black bg-emerald-600 text-white shadow-2xs hover:bg-emerald-700 transition-colors cursor-pointer"
-                            >
-                              Full (€{balance.toFixed(2)})
-                            </button>
-                            {balance >= 50 && (
-                              <button
-                                type="button"
-                                onClick={() => setInstallmentAmount(Math.round(balance / 2))}
-                                className="rounded-lg px-2 py-1 text-[10px] font-bold bg-card border border-border/80 hover:bg-muted/40 transition-colors cursor-pointer"
-                              >
-                                50% (€{Math.round(balance / 2)})
-                              </button>
-                            )}
-                            {balance >= 100 && (
-                              <button
-                                type="button"
-                                onClick={() => setInstallmentAmount(100)}
-                                className="rounded-lg px-2 py-1 text-[10px] font-bold bg-card border border-border/80 hover:bg-muted/40 transition-colors cursor-pointer"
-                              >
-                                €100
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Payment Method Selector */}
-                      <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                          Payment Method
-                        </Label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {[
-                            { id: "card" as const, label: "Card / POS", icon: CreditCard },
-                            { id: "cash" as const, label: "Cash", icon: Banknote },
-                            {
-                              id: "bank_transfer" as const,
-                              label: "Bank Transfer",
-                              icon: Landmark,
-                            },
-                          ].map((m) => (
-                            <button
-                              key={m.id}
-                              type="button"
-                              onClick={() => setInstallmentMethod(m.id)}
-                              className={cn(
-                                "flex items-center justify-center gap-1.5 rounded-xl py-1.5 px-2 text-xs font-bold transition-all border cursor-pointer",
-                                installmentMethod === m.id
-                                  ? "bg-[#0B3B36] text-white border-[#0B3B36] shadow-xs"
-                                  : "bg-card text-foreground border-border/80 hover:bg-muted/40",
-                              )}
-                            >
-                              <m.icon className="size-3" />
-                              <span>{m.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Direct Record Button */}
-                      <div className="flex items-center justify-between pt-1 border-t border-amber-300/40 dark:border-amber-900/40">
-                        <div className="text-[11px] font-semibold text-muted-foreground">
-                          {balance - installmentAmount <= 0.01 ? (
-                            <span className="text-emerald-700 dark:text-emerald-400 font-bold">
-                              ✓ Will settle invoice in full
-                            </span>
-                          ) : (
-                            <span>
-                              Remaining after payment:{" "}
-                              <strong className="font-mono text-foreground">
-                                €{Math.max(0, balance - installmentAmount).toFixed(2)}
-                              </strong>
-                            </span>
-                          )}
-                        </div>
-
-                        <Button
+                    {/* Settlement Status Grid */}
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        { id: "paid" as const, label: "Paid", color: "emerald" },
+                        { id: "issued" as const, label: "Issued", color: "amber" },
+                        { id: "partially_paid" as const, label: "Part Paid", color: "blue" },
+                        { id: "draft" as const, label: "Draft", color: "purple" },
+                      ].map((s) => (
+                        <button
+                          key={s.id}
                           type="button"
-                          disabled={isRecordingInstallment || installmentAmount <= 0}
-                          onClick={handleRecordInstallment}
-                          className="h-9 px-4 text-xs font-black bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white rounded-xl shadow-md shadow-[#0B3B36]/20 cursor-pointer"
-                        >
-                          {isRecordingInstallment ? (
-                            <Loader2 className="size-3.5 animate-spin mr-1.5" />
-                          ) : (
-                            <Check className="size-3.5 mr-1.5 stroke-[2.5]" />
+                          onClick={() => setSettlementStatus(s.id)}
+                          className={cn(
+                            "py-2.5 px-2 text-center rounded-2xl border text-xs font-bold transition-all cursor-pointer",
+                            settlementStatus === s.id
+                              ? s.color === "emerald"
+                                ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                                : s.color === "amber"
+                                  ? "bg-amber-600 text-white border-amber-600 shadow-xs"
+                                  : s.color === "blue"
+                                    ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                                    : "bg-purple-600 text-white border-purple-600 shadow-xs"
+                              : "bg-card text-foreground border-border/80 hover:bg-muted/40",
                           )}
-                          Record €{installmentAmount.toFixed(2)} Payment
-                        </Button>
-                      </div>
+                        >
+                          {s.label}
+                        </button>
+                      ))}
                     </div>
-                  )}
-
-                  {/* Fully Paid Badge (When Balance == 0) */}
-                  {balance === 0 && invoice.status === "paid" && (
-                    <div className="rounded-2xl border border-emerald-300 bg-emerald-50/70 dark:border-emerald-900/60 dark:bg-emerald-950/30 p-3.5 flex items-center justify-between text-xs text-emerald-950 dark:text-emerald-200">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                        <span className="font-bold">
-                          Fully Settled &bull; No Outstanding Balance
-                        </span>
-                      </div>
-                      <span className="font-mono font-black text-emerald-700 dark:text-emerald-300">
-                        €{totalPaid.toFixed(2)} Paid
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Payment History Ledger */}
-                  {payments.length > 0 && (
-                    <div className="space-y-1.5 pt-1">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                          Payment Ledger ({payments.length} Transaction
-                          {payments.length > 1 ? "s" : ""})
-                        </Label>
-                        <span className="text-[10px] font-bold text-muted-foreground">
-                          Total Received:{" "}
-                          <strong className="font-mono text-emerald-700 dark:text-emerald-400">
-                            €{totalPaid.toFixed(2)}
-                          </strong>
-                        </span>
-                      </div>
+                  </div>
+                ) : (
+                  /* ────────────────────────────────────────────────────────
+                   * SETTLED VIEW (Locked Items + Clean Layout)
+                   * ──────────────────────────────────────────────────────── */
+                  <div className="space-y-4.5">
+                    {/* Itemised Services Table */}
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                        Itemised Treatments &amp; Services
+                      </Label>
 
                       <div className="rounded-2xl border border-border/70 overflow-hidden text-xs bg-card">
-                        <div className="grid grid-cols-[100px_90px_1fr_85px] gap-2 border-b border-border/60 bg-muted/25 px-4 py-2 font-black uppercase tracking-wider text-[10px] text-muted-foreground">
-                          <span>Date</span>
-                          <span>Method</span>
-                          <span>Reference</span>
-                          <span className="text-right">Amount</span>
+                        <div className="grid grid-cols-[1fr_50px_95px_95px] gap-2 border-b border-border/60 bg-muted/25 px-4 py-2.5 font-black uppercase tracking-wider text-[10px] text-muted-foreground">
+                          <span>Description</span>
+                          <span className="text-center">Qty</span>
+                          <span className="text-right">Unit Fee</span>
+                          <span className="text-right">Total</span>
                         </div>
                         <ul className="divide-y divide-border/60">
-                          {payments.map((p) => (
+                          {items.map((item) => (
                             <li
-                              key={p.id}
-                              className="grid grid-cols-[100px_90px_1fr_85px] gap-2 px-4 py-2.5 items-center text-xs"
+                              key={item.id}
+                              className="grid grid-cols-[1fr_50px_95px_95px] gap-2 px-4 py-2.5 items-center"
                             >
-                              <span className="text-muted-foreground font-mono text-[11px]">
-                                {format(new Date(p.paid_at), "dd MMM yyyy")}
+                              <span className="font-bold text-foreground">{item.description}</span>
+                              <span className="text-center font-mono text-muted-foreground">
+                                {item.quantity}
                               </span>
-                              <span className="font-semibold text-foreground">
-                                {formatPaymentMethodLabel(p.method)}
+                              <span className="text-right font-mono text-muted-foreground">
+                                {formatCurrency(item.unit_price)}
                               </span>
-                              <span className="truncate text-[11px] text-muted-foreground">
-                                {p.reference || "—"}
-                              </span>
-                              <span className="text-right font-mono font-black text-emerald-700 dark:text-emerald-300">
-                                {formatCurrency(p.amount)}
+                              <span className="text-right font-mono font-bold text-foreground">
+                                {formatCurrency(item.line_total)}
                               </span>
                             </li>
                           ))}
                         </ul>
                       </div>
                     </div>
-                  )}
-                </div>
-              )}
-            </div>
 
-            {/* ── Modal Footer Actions ── */}
-            <DialogFooter className="p-4 sm:px-6 border-t border-border/60 bg-muted/15 flex flex-col sm:flex-row items-center justify-between gap-2">
-              {!isDraft ? (
-                /* Read-Only Footer */
-                <>
+                    {/* Financial Summary Calculation Box */}
+                    <div className="ml-auto w-full sm:max-w-xs space-y-1.5 rounded-2xl border border-border/70 bg-muted/15 p-3.5 text-xs">
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Subtotal:</span>
+                        <span className="font-mono font-medium">
+                          {formatCurrency(invoice.subtotal)}
+                        </span>
+                      </div>
+
+                      {Number(invoice.discount_amount) > 0 && (
+                        <div className="flex justify-between text-emerald-700 dark:text-emerald-400 font-semibold">
+                          <span>Discount:</span>
+                          <span className="font-mono">-{formatCurrency(invoice.discount_amount)}</span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between font-black text-foreground pt-1 border-t border-border/50 text-sm">
+                        <span>Total Billed:</span>
+                        <span className="font-mono">{formatCurrency(invoice.total)}</span>
+                      </div>
+
+                      <div className="flex justify-between text-emerald-700 dark:text-emerald-300 font-bold">
+                        <span>Total Paid:</span>
+                        <span className="font-mono">{formatCurrency(totalPaid)}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between font-black text-foreground pt-1 border-t border-border/50 text-sm">
+                        <span>Remaining Balance:</span>
+                        <span
+                          className={cn(
+                            "font-mono rounded-lg px-2 py-0.5",
+                            balance > 0
+                              ? "bg-amber-50 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300"
+                              : "bg-emerald-50 text-emerald-900 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300",
+                          )}
+                        >
+                          {formatCurrency(balance)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* ── Pay Installment / Settle Balance Card ── */}
+                    {balance > 0 && invoice.status !== "void" && (
+                      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/25 dark:border-emerald-900/40 dark:bg-emerald-950/15 p-4 space-y-3.5">
+                        {/* Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="size-6 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs">
+                              €
+                            </span>
+                            <span className="text-xs font-black text-foreground">
+                              Pay Installment / Settle Balance
+                            </span>
+                          </div>
+                          <span className="rounded-lg bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-300/70 px-2 py-0.5 text-[10px] font-black font-mono">
+                            €{balance.toFixed(2)} Outstanding
+                          </span>
+                        </div>
+
+                        {/* Inputs Row */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                          <div className="space-y-1">
+                            <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                              Amount Paying Now (€)
+                            </Label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
+                                €
+                              </span>
+                              <Input
+                                type="number"
+                                min="1"
+                                max={balance}
+                                step="1"
+                                value={installmentAmount || ""}
+                                onChange={(e) =>
+                                  setInstallmentAmount(
+                                    Math.min(balance, Math.max(0, Number(e.target.value))),
+                                  )
+                                }
+                                placeholder="0.00"
+                                className="h-9.5 pl-7 text-xs font-bold rounded-xl bg-card border-border/80 font-mono"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Quick Presets */}
+                          <div className="space-y-1">
+                            <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                              Quick Fill
+                            </Label>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => setInstallmentAmount(balance)}
+                                className="rounded-lg px-2.5 py-1.5 text-[10px] font-black bg-[#0B3B36] text-white hover:bg-[#0B3B36]/90 transition-colors cursor-pointer shadow-2xs"
+                              >
+                                Full (€{balance.toFixed(0)})
+                              </button>
+                              {balance >= 50 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setInstallmentAmount(Math.round(balance / 2))}
+                                  className="rounded-lg px-2.5 py-1.5 text-[10px] font-bold bg-card border border-border/80 hover:bg-muted/40 transition-colors cursor-pointer"
+                                >
+                                  50% (€{Math.round(balance / 2)})
+                                </button>
+                              )}
+                              {balance >= 100 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setInstallmentAmount(100)}
+                                  className="rounded-lg px-2.5 py-1.5 text-[10px] font-bold bg-card border border-border/80 hover:bg-muted/40 transition-colors cursor-pointer"
+                                >
+                                  €100
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Payment Method Selector */}
+                        <div className="space-y-1.5">
+                          <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                            Payment Method
+                          </Label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { id: "card" as const, label: "Card / POS", icon: CreditCard },
+                              { id: "cash" as const, label: "Cash", icon: Banknote },
+                              {
+                                id: "bank_transfer" as const,
+                                label: "Bank Transfer",
+                                icon: Landmark,
+                              },
+                            ].map((m) => (
+                              <button
+                                key={m.id}
+                                type="button"
+                                onClick={() => setInstallmentMethod(m.id)}
+                                className={cn(
+                                  "flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs font-bold transition-all border cursor-pointer",
+                                  installmentMethod === m.id
+                                    ? "bg-[#0B3B36] text-white border-[#0B3B36] shadow-xs"
+                                    : "bg-card text-foreground border-border/80 hover:bg-muted/40",
+                                )}
+                              >
+                                <m.icon className="size-3.5" />
+                                <span>{m.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Action Row */}
+                        <div className="flex items-center justify-between pt-2 border-t border-emerald-500/20">
+                          <div className="text-[11px] font-semibold text-muted-foreground">
+                            {balance - installmentAmount <= 0.01 ? (
+                              <span className="text-emerald-700 dark:text-emerald-400 font-bold">
+                                ✓ Will settle invoice in full
+                              </span>
+                            ) : (
+                              <span>
+                                Remaining:{" "}
+                                <strong className="font-mono text-foreground">
+                                  €{Math.max(0, balance - installmentAmount).toFixed(2)}
+                                </strong>
+                              </span>
+                            )}
+                          </div>
+
+                          <Button
+                            type="button"
+                            disabled={isRecordingInstallment || installmentAmount <= 0}
+                            onClick={handleRecordInstallment}
+                            className="h-9.5 px-5 text-xs font-black bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white rounded-xl shadow-sm cursor-pointer"
+                          >
+                            {isRecordingInstallment ? (
+                              <Loader2 className="size-3.5 animate-spin mr-1.5" />
+                            ) : (
+                              <Check className="size-3.5 mr-1.5 stroke-[2.5]" />
+                            )}
+                            Record €{installmentAmount.toFixed(2)} Payment
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Payment History Ledger (Without Reference column per request) */}
+                    {payments.length > 0 && (
+                      <div className="space-y-1.5 pt-1">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                            Payment Ledger ({payments.length} Transaction
+                            {payments.length > 1 ? "s" : ""})
+                          </Label>
+                          <span className="text-[10px] font-bold text-muted-foreground">
+                            Total Received:{" "}
+                            <strong className="font-mono text-emerald-700 dark:text-emerald-400">
+                              €{totalPaid.toFixed(2)}
+                            </strong>
+                          </span>
+                        </div>
+
+                        <div className="rounded-2xl border border-border/70 overflow-hidden text-xs bg-card">
+                          <div className="grid grid-cols-[140px_1fr_110px] gap-2 border-b border-border/60 bg-muted/25 px-4 py-2 font-black uppercase tracking-wider text-[10px] text-muted-foreground">
+                            <span>Date</span>
+                            <span>Payment Method</span>
+                            <span className="text-right">Amount Paid</span>
+                          </div>
+                          <ul className="divide-y divide-border/60">
+                            {payments.map((p) => (
+                              <li
+                                key={p.id}
+                                className="grid grid-cols-[140px_1fr_110px] gap-2 px-4 py-2.5 items-center text-xs"
+                              >
+                                <span className="text-muted-foreground font-mono text-[11px]">
+                                  {format(new Date(p.paid_at), "dd MMM yyyy")}
+                                </span>
+                                <span className="font-semibold text-foreground">
+                                  {formatPaymentMethodLabel(p.method)}
+                                </span>
+                                <span className="text-right font-mono font-black text-emerald-700 dark:text-emerald-300">
+                                  {formatCurrency(p.amount)}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* ── 3. Modal Footer Actions (Generous Padding & Standard Symmetry) ── */}
+              <DialogFooter className="px-8 py-5 border-t border-border/70 bg-muted/20 flex flex-row items-center justify-between gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePrint}
+                  className="h-11 px-5 rounded-xl text-xs font-bold gap-2.5 border-border/80 hover:bg-muted/50 transition-all cursor-pointer shadow-2xs"
+                >
+                  <Printer className="size-4 text-muted-foreground" />
+                  <span>Print Statement</span>
+                </Button>
+
+                <div className="flex items-center gap-3">
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
-                    onClick={handlePrint}
-                    className="w-full sm:w-auto h-9.5 rounded-xl text-xs font-bold gap-1.5 border-border/80 cursor-pointer"
+                    onClick={() => onOpenChange(false)}
+                    className="h-11 px-7 rounded-xl text-xs font-bold border-border/80 hover:bg-muted/50 transition-all cursor-pointer"
                   >
-                    <Printer className="size-3.5" />
-                    Print Statement
+                    Close
                   </Button>
 
-                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onOpenChange(false)}
-                      className="h-9.5 rounded-xl text-xs font-semibold hover:bg-muted/50 cursor-pointer"
-                    >
-                      Close
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                /* Draft Edit Footer */
-                <>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    disabled={isSubmitting}
-                    onClick={() => handleSaveDraftAction("draft")}
-                    className="w-full sm:w-auto h-9.5 px-4 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl cursor-pointer"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="size-3.5 animate-spin mr-1.5" />
-                    ) : (
-                      <FileEdit className="size-3.5 mr-1.5 text-purple-600 dark:text-purple-400" />
-                    )}
-                    Save Draft
-                  </Button>
-
-                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onOpenChange(false)}
-                      className="h-9.5 rounded-xl text-xs font-semibold border-border/80 cursor-pointer"
-                    >
-                      Cancel
-                    </Button>
-
+                  {isDraft && (
                     <Button
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => handleSaveDraftAction(settlementStatus)}
-                      className="h-9.5 px-5 text-xs font-black bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white rounded-xl shadow-md shadow-[#0B3B36]/20 cursor-pointer"
+                      className="h-11 px-6 text-xs font-black bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white rounded-xl shadow-md shadow-[#0B3B36]/20 cursor-pointer"
                     >
                       {isSubmitting ? (
                         <Loader2 className="size-4 animate-spin mr-1.5" />
@@ -1159,20 +943,193 @@ export function InvoiceDetailDialog({
                         <Check className="size-4 mr-1.5 stroke-[2.5]" />
                       )}
                       {settlementStatus === "draft"
-                        ? "Save Changes"
+                        ? "Save Draft"
                         : settlementStatus === "paid"
-                          ? `Confirm & Settle (€${draftNetTotal.toFixed(2)})`
+                          ? `Settle (€${draftNetTotal.toFixed(2)})`
                           : settlementStatus === "issued"
-                            ? `Confirm & Issue (€${draftNetTotal.toFixed(2)})`
-                            : `Confirm Deposit (€${partialAmount.toFixed(2)})`}
+                            ? `Issue (€${draftNetTotal.toFixed(2)})`
+                            : `Deposit (€${partialAmount.toFixed(2)})`}
                     </Button>
-                  </div>
-                </>
+                  )}
+                </div>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── 4. OFFICIAL UK DENTAL CLINIC PRINTABLE INVOICE / STATEMENT TEMPLATE ── */}
+      {invoice && (
+        <div className="hidden print:block fixed inset-0 bg-white text-slate-900 p-10 z-[999999] font-sans leading-normal">
+          {/* Practice Header & Brand */}
+          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-6">
+            <div>
+              <h1 className="text-2xl font-black tracking-tight text-slate-900 uppercase">
+                Elysian Dental Care &amp; Implant Clinic
+              </h1>
+              <p className="text-xs font-semibold text-slate-600 mt-0.5">
+                Private &amp; Specialist Dental Practice &bull; CQC Registered Provider
+              </p>
+              <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                48 Harley Street, Marylebone, London W1G 9PJ, United Kingdom<br />
+                Tel: +44 (0) 20 7946 0912 &bull; Email: accounts@elysiandental.co.uk<br />
+                Web: www.elysiandental.co.uk &bull; CQC Reg: 1-104928371
+              </p>
+            </div>
+
+            <div className="text-right">
+              <div className="inline-block border-2 border-slate-900 px-4 py-1.5 rounded-lg mb-2">
+                <span className="text-xs font-black uppercase tracking-widest text-slate-900 block">
+                  TAX INVOICE &bull; STATEMENT
+                </span>
+              </div>
+              <p className="font-mono font-bold text-sm text-slate-900">{invoice.invoice_number}</p>
+              <p className="text-[11px] text-slate-600 mt-1">
+                Issue Date: <strong>{format(new Date(`${invoice.issue_date}T00:00:00`), "dd MMMM yyyy")}</strong>
+              </p>
+              {invoice.due_date && (
+                <p className="text-[11px] text-slate-600">
+                  Due Date: <strong>{format(new Date(`${invoice.due_date}T00:00:00`), "dd MMMM yyyy")}</strong>
+                </p>
               )}
-            </DialogFooter>
+            </div>
           </div>
-        )}
-      </DialogContent>
-    </Dialog>
+
+          {/* Patient Details & Status Banner */}
+          <div className="grid grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 text-xs">
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">
+                Billed To Patient:
+              </span>
+              <p className="text-sm font-bold text-slate-900">{patientName}</p>
+              {invoice.patients?.id && (
+                <p className="font-mono text-slate-500 text-[11px] mt-1">
+                  Patient Ref: PT-{invoice.patients.id.replace(/-/g, "").slice(0, 8).toUpperCase()}
+                </p>
+              )}
+            </div>
+
+            <div className="text-right flex flex-col justify-between items-end">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block">
+                Settlement Status:
+              </span>
+              <div className="mt-1">
+                <span className={cn(
+                  "inline-block px-3 py-1 text-xs font-black rounded-lg uppercase tracking-wider border",
+                  balance <= 0
+                    ? "bg-emerald-100 text-emerald-900 border-emerald-300"
+                    : "bg-amber-100 text-amber-900 border-amber-300",
+                )}>
+                  {balance <= 0 ? "PAID IN FULL" : `OUTSTANDING BALANCE: €${balance.toFixed(2)}`}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Itemised Treatments Table */}
+          <div className="mb-6">
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 mb-2">
+              Itemised Clinical Treatments &amp; Dental Services
+            </h3>
+            <table className="w-full text-xs text-left border border-slate-300 rounded-lg overflow-hidden">
+              <thead className="bg-slate-100 border-b border-slate-300 text-[10px] font-black uppercase tracking-wider text-slate-700">
+                <tr>
+                  <th className="p-3">Description of Clinical Service</th>
+                  <th className="p-3 text-center w-16">Qty</th>
+                  <th className="p-3 text-right w-28">Unit Rate</th>
+                  <th className="p-3 text-right w-28">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <td className="p-3 font-semibold text-slate-900">{item.description}</td>
+                    <td className="p-3 text-center text-slate-700">{item.quantity}</td>
+                    <td className="p-3 text-right font-mono text-slate-700">{formatCurrency(item.unit_price)}</td>
+                    <td className="p-3 text-right font-mono font-bold text-slate-900">{formatCurrency(item.line_total)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Financial Calculation Summary */}
+          <div className="flex justify-end mb-6">
+            <div className="w-72 bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs space-y-1.5">
+              <div className="flex justify-between text-slate-600">
+                <span>Subtotal:</span>
+                <span className="font-mono font-semibold">{formatCurrency(invoice.subtotal)}</span>
+              </div>
+              {Number(invoice.discount_amount) > 0 && (
+                <div className="flex justify-between text-emerald-700 font-semibold">
+                  <span>Clinician Discount:</span>
+                  <span className="font-mono">-{formatCurrency(invoice.discount_amount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-slate-500 text-[11px]">
+                <span>UK VAT (Exempt - Healthcare):</span>
+                <span className="font-mono">£0.00 / €0.00</span>
+              </div>
+              <div className="flex justify-between font-black text-slate-900 border-t border-slate-300 pt-1 text-sm">
+                <span>Total Amount Due:</span>
+                <span className="font-mono">{formatCurrency(invoice.total)}</span>
+              </div>
+              <div className="flex justify-between text-emerald-800 font-bold">
+                <span>Total Paid to Date:</span>
+                <span className="font-mono">{formatCurrency(totalPaid)}</span>
+              </div>
+              <div className="flex justify-between font-black text-slate-900 border-t-2 border-slate-900 pt-1.5 text-sm">
+                <span>Remaining Balance Due:</span>
+                <span className="font-mono">{formatCurrency(balance)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Schedule (if any payments recorded) */}
+          {payments.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 mb-2">
+                Receipts &amp; Payments Schedule
+              </h3>
+              <table className="w-full text-xs text-left border border-slate-300 rounded-lg overflow-hidden">
+                <thead className="bg-slate-100 border-b border-slate-300 text-[10px] font-black uppercase tracking-wider text-slate-700">
+                  <tr>
+                    <th className="p-2.5">Date Received</th>
+                    <th className="p-2.5">Payment Method</th>
+                    <th className="p-2.5 text-right">Amount Received</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {payments.map((p) => (
+                    <tr key={p.id}>
+                      <td className="p-2.5 font-mono text-slate-700">{format(new Date(p.paid_at), "dd MMMM yyyy")}</td>
+                      <td className="p-2.5 font-semibold text-slate-900">{formatPaymentMethodLabel(p.method)}</td>
+                      <td className="p-2.5 text-right font-mono font-bold text-emerald-800">{formatCurrency(p.amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Official UK Regulatory Terms & BACS Remittance Advice */}
+          <div className="border-t-2 border-slate-300 pt-4 mt-8 text-[10px] text-slate-500 leading-relaxed grid grid-cols-2 gap-4">
+            <div>
+              <p className="font-bold text-slate-700 uppercase mb-1">UK BACS Direct Bank Remittance:</p>
+              <p>Bank: <strong>Barclays Bank UK PLC</strong></p>
+              <p>Sort Code: <strong>20-04-15</strong> &bull; Account No: <strong>83920194</strong></p>
+              <p>Payment Reference: <strong>{invoice.invoice_number}</strong></p>
+            </div>
+            <div>
+              <p className="font-bold text-slate-700 uppercase mb-1">Clinical Governance &amp; Compliance:</p>
+              <p>
+                Medical and dental services are exempt from UK Value Added Tax under VAT Notice 701/57.<br />
+                All dental surgeons and hygienists are fully registered with the General Dental Council (GDC).
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
