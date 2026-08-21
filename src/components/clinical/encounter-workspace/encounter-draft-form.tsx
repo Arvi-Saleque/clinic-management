@@ -890,7 +890,13 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
                   </div>
                 )}
 
-                {/* In-place Appointment Scheduler Card */}
+                {/* In-place Appointment Scheduler Card — only show if practitioner is configured */}
+                {!followUpScheduling ? (
+                  <div className="rounded-2xl border border-dashed border-border/80 bg-muted/10 p-6 text-center space-y-1.5">
+                    <p className="text-xs font-bold text-foreground">Scheduling unavailable for this practitioner</p>
+                    <p className="text-xs text-muted-foreground">The follow-up appointment note has been saved. Please arrange scheduling via the Scheduler or contact reception.</p>
+                  </div>
+                ) : (
                 <div className="rounded-3xl border border-border/80 bg-muted/20 p-5 sm:p-6 space-y-5">
                   {/* Row 1: Procedure Name (Same + " - Follow-up") & Doctor (Same Doctor) */}
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
@@ -1219,6 +1225,7 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
                     </Button>
                   </div>
                 </div>
+                )}
               </div>
             )}
           </div>

@@ -217,8 +217,9 @@ export function OdontogramChart({
   const isEncounterMode = Boolean(encounterId);
 
   const [overrides, setOverrides] = React.useState<Record<string, OdontogramEntry>>({});
-  const [localEncounterEntries, setLocalEncounterEntries] = React.useState<OdontogramEntry[]>([]);
-  const [selectedTooth, setSelectedTooth] = React.useState(entries[0]?.tooth_number ?? "14");
+  // Local encounter entries keyed by tooth_number so duplicates (re-saves) replace each other
+  const [localEncounterByTooth, setLocalEncounterByTooth] = React.useState<Record<string, OdontogramEntry>>({});
+  const [selectedTooth, setSelectedTooth] = React.useState(entries[0]?.tooth_number ?? "11");
   const [saving, setSaving] = React.useState(false);
 
   const byTooth = React.useMemo(() => {
@@ -229,23 +230,25 @@ export function OdontogramChart({
   }, [entries, overrides]);
 
   const selectedEntry = byTooth.get(selectedTooth);
-  const [status, setStatus] = React.useState(selectedEntry?.status ?? "existing_treatment");
-  const [condition, setCondition] = React.useState(selectedEntry?.condition_code ?? "AM-14");
+  const [status, setStatus] = React.useState(selectedEntry?.status ?? "healthy");
+  const [condition, setCondition] = React.useState(selectedEntry?.condition_code ?? "Healthy");
   const [treatment, setTreatment] = React.useState(selectedEntry?.recommended_treatment ?? "Observation");
   const [priority, setPriority] = React.useState(selectedEntry?.treatment_priority ?? "routine");
   const [plannedDate, setPlannedDate] = React.useState(selectedEntry?.planned_date ?? "");
   const [estimatedFee, setEstimatedFee] = React.useState(selectedEntry?.estimated_fee?.toString() ?? "");
-  const [note, setNote] = React.useState(selectedEntry?.condition_note ?? "Class II MO amalgam filling intact");
+  const [note, setNote] = React.useState(selectedEntry?.condition_note ?? "");
 
-  // Combined encounter-specific entries
+  // Combined encounter-specific entries: server entries merged with local overrides, keyed by tooth_number (latest wins)
   const combinedEncounterEntries = React.useMemo(() => {
+    // Start with server-provided encounter entries keyed by tooth_number
     const map = new Map<string, OdontogramEntry>();
-    encounterEntries.forEach((e) => map.set(e.id, e));
-    localEncounterEntries.forEach((e) => map.set(e.id, e));
+    encounterEntries.forEach((e) => map.set(e.tooth_number, e));
+    // Local saves override server data for the same tooth
+    Object.values(localEncounterByTooth).forEach((e) => map.set(e.tooth_number, e));
     return Array.from(map.values()).sort(
       (a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime(),
     );
-  }, [encounterEntries, localEncounterEntries]);
+  }, [encounterEntries, localEncounterByTooth]);
 
   function selectTooth(tooth: string) {
     const entry = byTooth.get(tooth);
@@ -296,8 +299,9 @@ export function OdontogramChart({
           recorded_at: result.data?.recorded_at ?? new Date().toISOString(),
         };
 
+        // Update overrides (drives the arch map colours) and local encounter map (deduped by tooth)
         setOverrides((current) => ({ ...current, [selectedTooth]: newEntry }));
-        setLocalEncounterEntries((current) => [...current, newEntry]);
+        setLocalEncounterByTooth((current) => ({ ...current, [selectedTooth]: newEntry }));
         toast.success(`Tooth ${selectedTooth} recorded for consultation`);
         onEntrySaved?.(newEntry);
         router.refresh();

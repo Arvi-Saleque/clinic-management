@@ -98,6 +98,11 @@ export function AppointmentContextCard({
               <span className="size-1.5 rounded-full bg-amber-600 animate-pulse" />
               Unsaved Draft
             </span>
+          ) : isCompleted ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-900 border border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300">
+              <CheckCircle2 className="size-3 text-emerald-600" />
+              Completed &amp; Signed
+            </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-900 border border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300">
               <span className="size-1.5 rounded-full bg-emerald-600" />
@@ -156,17 +161,25 @@ export function AppointmentContextCard({
           </div>
         )}
 
-        {/* Booking Note */}
-        {appointment.notes && (
-          <div className="mt-3.5 rounded-2xl bg-muted/25 border border-border/60 p-3 space-y-1">
-            <p className="text-[11px] font-bold text-foreground uppercase tracking-wider">
-              Patient Booking Note
-            </p>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              {appointment.notes}
-            </p>
-          </div>
-        )}
+        {/* Booking Note — strip internal metadata tags before display */}
+        {appointment.notes && (() => {
+          const cleanNote = appointment.notes
+            .replace(/\[FEE:[\d.]+\]/gi, "")
+            .replace(/\[DUR:\d+\]/gi, "")
+            .replace(/Fee:\s*€\s*[\d.]+/gi, "")
+            .replace(/Duration:\s*\d+m/gi, "")
+            .trim();
+          return cleanNote ? (
+            <div className="mt-3.5 rounded-2xl bg-muted/25 border border-border/60 p-3 space-y-1">
+              <p className="text-[11px] font-bold text-foreground uppercase tracking-wider">
+                Booking Note
+              </p>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {cleanNote}
+              </p>
+            </div>
+          ) : null;
+        })()}
       </CardContent>
     </Card>
   );

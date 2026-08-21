@@ -196,7 +196,7 @@ export function EncounterPrescriptionModule({
                       {/* Column 2: Dosage */}
                       <div className="space-y-1">
                         <Label htmlFor={`med-dosage-${index}`} className="text-[11px] font-semibold text-muted-foreground">
-                          Dosage <span className="text-destructive">*</span>
+                          Dosage
                         </Label>
                         <Input
                           id={`med-dosage-${index}`}
@@ -211,7 +211,7 @@ export function EncounterPrescriptionModule({
                       {/* Column 3: Frequency */}
                       <div className="space-y-1">
                         <Label htmlFor={`med-freq-${index}`} className="text-[11px] font-semibold text-muted-foreground">
-                          Frequency <span className="text-destructive">*</span>
+                          Frequency
                         </Label>
                         <Input
                           id={`med-freq-${index}`}
@@ -226,7 +226,7 @@ export function EncounterPrescriptionModule({
                       {/* Column 4: Duration */}
                       <div className="space-y-1">
                         <Label htmlFor={`med-dur-${index}`} className="text-[11px] font-semibold text-muted-foreground">
-                          Duration <span className="text-destructive">*</span>
+                          Duration
                         </Label>
                         <Input
                           id={`med-dur-${index}`}
