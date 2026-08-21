@@ -401,8 +401,8 @@ export function InvoiceDetailDialog({
                 </div>
               </div>
 
-              {/* ── 2. Modal Body ── */}
-              <div className="p-6 sm:p-7 space-y-4.5 max-h-[70vh] overflow-y-auto overflow-x-hidden">
+              {/* ── 2. Modal Body (Smooth Aesthetic Custom Scrollbar) ── */}
+              <div className="p-6 sm:p-7 space-y-4.5 max-h-[70vh] overflow-y-auto overflow-x-hidden custom-scrollbar pr-2">
                 {/* Patient Banner */}
                 <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-muted/20 p-3.5 text-xs">
                   <div className="flex items-center gap-2.5">
@@ -909,7 +909,7 @@ export function InvoiceDetailDialog({
               </div>
 
               {/* ── 3. Modal Footer Actions (Generous Padding & Standard Symmetry) ── */}
-              <DialogFooter className="px-8 py-5 border-t border-border/70 bg-muted/20 flex flex-row items-center justify-between gap-4">
+              <DialogFooter className="px-8 pt-5 pb-8 sm:pb-9 border-t border-border/70 bg-muted/20 flex flex-row items-center justify-between gap-4">
                 <Button
                   type="button"
                   variant="outline"
