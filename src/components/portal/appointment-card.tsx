@@ -46,6 +46,13 @@ export interface PrescriptionItem {
   instructions: string | null;
 }
 
+export interface EncounterDetails {
+  chief_complaint?: string | null;
+  diagnosis?: string | null;
+  performed_treatment?: string | null;
+  patient_notes?: string | null;
+}
+
 export interface PrescriptionSummary {
   id: string;
   issued_at: string;
@@ -53,6 +60,7 @@ export interface PrescriptionSummary {
   notes: string | null;
   practitionerName?: string;
   prescription_items: PrescriptionItem[];
+  encounter?: EncounterDetails | null;
 }
 
 export interface AppointmentCardProps {
@@ -206,17 +214,21 @@ export function AppointmentCard(props: AppointmentCardProps) {
                       </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-4 pt-2">
+                    <div className="space-y-4 pt-2 max-h-[70vh] overflow-y-auto pr-1">
+                      {/* Prescribed Medications */}
                       <div className="space-y-3">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-1.5">
+                          <Pill className="size-3.5 text-primary" /> Prescribed Medications
+                        </h4>
                         {props.prescription.prescription_items.map((item, idx) => (
-                          <div key={item.id || idx} className="rounded-2xl border border-border bg-background-subtle/70 p-4">
+                          <div key={item.id || idx} className="rounded-2xl border border-border bg-background-subtle/70 p-4 shadow-2xs">
                             <div className="flex items-start gap-3">
                               <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
                                 {idx + 1}
                               </span>
                               <div className="min-w-0 flex-1">
-                                <p className="font-semibold text-foreground">{item.medicine_name}</p>
-                                <p className="mt-0.5 text-xs text-text-secondary">
+                                <p className="font-bold text-foreground">{item.medicine_name}</p>
+                                <p className="mt-0.5 text-xs text-text-secondary font-medium">
                                   {[item.dosage, item.frequency, item.duration].filter(Boolean).join(" · ") ||
                                     "As directed by doctor"}
                                 </p>
@@ -232,10 +244,61 @@ export function AppointmentCard(props: AppointmentCardProps) {
                         ))}
                       </div>
 
-                      {props.prescription.notes && (
-                        <div className="rounded-2xl border border-border p-3.5 text-xs text-text-secondary">
-                          <strong className="text-foreground">Clinical Note: </strong>
-                          {props.prescription.notes}
+                      {/* Clinical Notes & Treatment Section */}
+                      {Boolean(
+                        props.prescription.encounter?.diagnosis ||
+                        props.prescription.encounter?.performed_treatment ||
+                        props.prescription.encounter?.chief_complaint ||
+                        props.prescription.encounter?.patient_notes ||
+                        props.prescription.notes
+                      ) && (
+                        <div className="rounded-2xl border border-border/80 bg-background-subtle/80 p-4 space-y-3 shadow-2xs">
+                          <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+                            <h4 className="text-xs font-extrabold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                              <Stethoscope className="size-4 text-primary" /> Clinical Notes &amp; Treatment
+                            </h4>
+                            <Badge variant="outline" className="text-[10px] font-bold border-primary/30 text-primary bg-primary-soft/50 rounded-lg px-2 py-0.5">
+                              Consultation Record
+                            </Badge>
+                          </div>
+
+                          <div className="space-y-2.5 text-xs">
+                            {props.prescription.encounter?.diagnosis && (
+                              <div className="space-y-1">
+                                <span className="font-bold text-foreground">Clinical Diagnosis:</span>
+                                <div className="text-text-secondary font-medium leading-relaxed bg-surface/90 rounded-xl p-3 border border-border/50">
+                                  {props.prescription.encounter.diagnosis}
+                                </div>
+                              </div>
+                            )}
+
+                            {props.prescription.encounter?.performed_treatment && (
+                              <div className="space-y-1">
+                                <span className="font-bold text-foreground">Treatment Performed:</span>
+                                <div className="text-text-secondary font-medium leading-relaxed bg-surface/90 rounded-xl p-3 border border-border/50">
+                                  {props.prescription.encounter.performed_treatment}
+                                </div>
+                              </div>
+                            )}
+
+                            {props.prescription.encounter?.chief_complaint && (
+                              <div className="space-y-1">
+                                <span className="font-bold text-foreground">Chief Complaint / Symptoms:</span>
+                                <div className="text-text-secondary leading-relaxed bg-surface/90 rounded-xl p-3 border border-border/50">
+                                  {props.prescription.encounter.chief_complaint}
+                                </div>
+                              </div>
+                            )}
+
+                            {(props.prescription.encounter?.patient_notes || props.prescription.notes) && (
+                              <div className="space-y-1">
+                                <span className="font-bold text-foreground">Post-Op Care &amp; Instructions:</span>
+                                <div className="text-text-secondary leading-relaxed italic bg-surface/90 rounded-xl p-3 border border-border/50">
+                                  &ldquo;{props.prescription.encounter?.patient_notes || props.prescription.notes}&rdquo;
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )}
 

@@ -315,14 +315,59 @@ export async function listOwnPrescriptions() {
     .maybeSingle();
   if (!patient) return [];
 
-  const { data } = await supabase
+  const { data: prescriptions, error: rxError } = await supabase
     .from("prescriptions")
     .select(
-      "id, appointment_id, issued_at, status, notes, practitioners:practitioner_id(profiles:profile_id(full_name)), prescription_items(id, medicine_name, dosage, frequency, duration, instructions)",
+      "id, appointment_id, encounter_id, issued_at, status, notes, practitioners:practitioner_id(profiles:profile_id(full_name)), prescription_items(id, medicine_name, dosage, frequency, duration, instructions)",
     )
     .eq("patient_id", patient.id)
     .order("issued_at", { ascending: false });
-  return data ?? [];
+
+  if (rxError || !prescriptions || prescriptions.length === 0) {
+    return [];
+  }
+
+  // Gather encounter_ids and appointment_ids to resolve clinical encounter details
+  const encounterIds = prescriptions.map((p) => p.encounter_id).filter(Boolean) as string[];
+  const appointmentIds = prescriptions.map((p) => p.appointment_id).filter(Boolean) as string[];
+
+  const encountersMap = new Map<
+    string,
+    { chief_complaint: string | null; diagnosis: string | null; performed_treatment: string | null; patient_notes: string | null }
+  >();
+
+  if (encounterIds.length > 0 || appointmentIds.length > 0) {
+    const conditions: string[] = [];
+    if (encounterIds.length > 0) {
+      conditions.push(`id.in.(${encounterIds.join(",")})`);
+    }
+    if (appointmentIds.length > 0) {
+      conditions.push(`appointment_id.in.(${appointmentIds.join(",")})`);
+    }
+
+    const { data: encs } = await supabase
+      .from("clinical_encounters")
+      .select("id, appointment_id, chief_complaint, diagnosis, performed_treatment, patient_notes")
+      .or(conditions.join(","));
+
+    if (encs) {
+      for (const e of encs) {
+        if (e.id) encountersMap.set(e.id, e);
+        if (e.appointment_id) encountersMap.set(e.appointment_id, e);
+      }
+    }
+  }
+
+  return prescriptions.map((rx) => {
+    const enc =
+      (rx.encounter_id ? encountersMap.get(rx.encounter_id) : null) ||
+      (rx.appointment_id ? encountersMap.get(rx.appointment_id) : null);
+
+    return {
+      ...rx,
+      clinical_encounters: enc ?? null,
+    };
+  });
 }
 
 export async function listPatients(query?: string) {

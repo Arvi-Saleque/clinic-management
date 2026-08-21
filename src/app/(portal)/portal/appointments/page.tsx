@@ -45,6 +45,7 @@ export default async function PortalAppointmentsPage({
       (rx) => (rx as unknown as { appointment_id?: string }).appointment_id === appointment.id,
     );
     if (directMatch) {
+      const rxEnc = (directMatch as unknown as { clinical_encounters?: { chief_complaint?: string; diagnosis?: string; performed_treatment?: string; patient_notes?: string } | null }).clinical_encounters;
       return {
         id: directMatch.id,
         issued_at: directMatch.issued_at,
@@ -52,6 +53,7 @@ export default async function PortalAppointmentsPage({
         notes: directMatch.notes,
         practitionerName: directMatch.practitioners?.profiles?.full_name ?? undefined,
         prescription_items: directMatch.prescription_items ?? [],
+        encounter: rxEnc ?? null,
       };
     }
 
@@ -59,6 +61,7 @@ export default async function PortalAppointmentsPage({
     const apptDateStr = new Date(appointment.starts_at).toISOString().slice(0, 10);
     const dateMatch = prescriptions.find((rx) => rx.issued_at?.slice(0, 10) === apptDateStr);
     if (dateMatch) {
+      const rxEnc = (dateMatch as unknown as { clinical_encounters?: { chief_complaint?: string; diagnosis?: string; performed_treatment?: string; patient_notes?: string } | null }).clinical_encounters;
       return {
         id: dateMatch.id,
         issued_at: dateMatch.issued_at,
@@ -66,6 +69,7 @@ export default async function PortalAppointmentsPage({
         notes: dateMatch.notes,
         practitionerName: dateMatch.practitioners?.profiles?.full_name ?? undefined,
         prescription_items: dateMatch.prescription_items ?? [],
+        encounter: rxEnc ?? null,
       };
     }
 
