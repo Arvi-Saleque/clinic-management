@@ -31,13 +31,11 @@ begin
     if p_practitioner_id <> private.current_practitioner_id() then
       raise exception 'Dentists may only manage their own availability schedule';
     end if;
-  elsif v_role = 'owner_admin' then
-    -- Owner/Admin may manage practitioners within their organization
+  elsif v_role in ('owner_admin', 'receptionist') then
+    -- Owner/Admin and Receptionists may manage practitioners within their organization
     if not private.practitioner_in_org(p_practitioner_id) then
       raise exception 'Practitioner does not belong to your clinic organization';
     end if;
-  elsif v_role = 'receptionist' then
-    raise exception 'Receptionists are not authorized to modify doctor availability schedules';
   else
     raise exception 'Unauthorized schedule access';
   end if;

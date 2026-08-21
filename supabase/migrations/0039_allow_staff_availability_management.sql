@@ -1,150 +1,138 @@
 -- ---------------------------------------------------------------------
--- 0033_authoritative_date_availability_overrides.sql
--- Phase 2: Authoritative Date-Specific Availability Overrides & Slot Engine
+-- 0039_allow_staff_availability_management.sql
+-- Allow receptionists and practice staff to manage doctor availability
 -- ---------------------------------------------------------------------
 
--- 1. Update public.get_available_slots to authoritatively honor positive date overrides
-create or replace function public.get_available_slots(
+-- 1. Atomic Multi-Interval Weekly Availability Save RPC
+create or replace function public.save_weekly_availability(
   p_practitioner_id uuid,
-  p_service_id uuid,
-  p_date date
-) returns table (slot_start timestamptz, slot_end timestamptz)
-language plpgsql stable security definer set search_path = '' as $$
+  p_branch_id uuid,
+  p_rules jsonb
+) returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
 declare
-  v_duration int;
-  v_dow smallint := extract(dow from p_date);
-  v_tz text;
+  v_role text;
+  v_practitioner_branch_id uuid;
+  v_practitioner_org_id uuid;
+  v_branch_org_id uuid;
   v_rule record;
-  v_grid_start timestamptz;
-  v_grid_end timestamptz;
-  v_cursor timestamptz;
-  v_step interval := interval '15 minutes';
 begin
-  -- Require that the practitioner actively offers this service
-  select coalesce(ps.override_duration_minutes, s.duration_minutes)
-    into v_duration
-  from public.services s
-  join public.practitioner_services ps
-    on ps.service_id = s.id and ps.practitioner_id = p_practitioner_id
-  where s.id = p_service_id
-    and s.is_active = true;
-
-  if v_duration is null then
-    return;
+  -- 1. Authentication & Role Check
+  v_role := private.current_role();
+  if v_role is null then
+    raise exception 'Unauthenticated request';
   end if;
 
-  select b.timezone into v_tz
-  from public.practitioners p join public.branches b on b.id = p.branch_id
-  where p.id = p_practitioner_id
-    and p.is_bookable = true;
-
-  if v_tz is null then
-    return;
-  end if;
-
-  -- Level 1: Full-day exception (leave/holiday) blocks the entire date
-  if exists (
-    select 1 from public.availability_exceptions
-    where practitioner_id = p_practitioner_id and date = p_date
-      and is_unavailable = true and start_time is null
-  ) then
-    return;
-  end if;
-
-  -- Level 2: Positive Custom Date Overrides (is_unavailable = false)
-  -- If positive custom working intervals exist for this specific date,
-  -- they completely replace the recurring weekly template for this date.
-  if exists (
-    select 1 from public.availability_exceptions
-    where practitioner_id = p_practitioner_id and date = p_date
-      and is_unavailable = false and start_time is not null and end_time is not null
-  ) then
-    for v_rule in
-      select start_time, end_time from public.availability_exceptions
-      where practitioner_id = p_practitioner_id and date = p_date
-        and is_unavailable = false and start_time is not null and end_time is not null
-      order by start_time
-    loop
-      v_grid_start := (p_date::text || ' ' || v_rule.start_time::text)::timestamp at time zone v_tz;
-      v_grid_end := (p_date::text || ' ' || v_rule.end_time::text)::timestamp at time zone v_tz;
-      v_cursor := v_grid_start;
-
-      while v_cursor + (v_duration || ' minutes')::interval <= v_grid_end loop
-        if not exists (
-          -- Level 4: Partial-day unavailable exception overlap
-          select 1 from public.availability_exceptions ae
-          where ae.practitioner_id = p_practitioner_id
-            and ae.date = p_date
-            and ae.is_unavailable = true
-            and ae.start_time is not null
-            and tstzrange(
-                  (p_date::text || ' ' || ae.start_time::text)::timestamp at time zone v_tz,
-                  (p_date::text || ' ' || ae.end_time::text)::timestamp at time zone v_tz
-                ) && tstzrange(v_cursor, v_cursor + (v_duration || ' minutes')::interval)
-        ) and not exists (
-          -- Level 5: Existing active booking overlap
-          select 1 from public.appointments a
-          where a.practitioner_id = p_practitioner_id
-            and a.status not in ('cancelled', 'no_show')
-            and tstzrange(a.starts_at, a.ends_at) && tstzrange(v_cursor, v_cursor + (v_duration || ' minutes')::interval)
-        ) and v_cursor > now() then
-          slot_start := v_cursor;
-          slot_end := v_cursor + (v_duration || ' minutes')::interval;
-          return next;
-        end if;
-
-        v_cursor := v_cursor + v_step;
-      end loop;
-    end loop;
+  -- 2. Explicit Role Authorization
+  if v_role = 'dentist' then
+    -- Dentist can ONLY modify their own practitioner record
+    if p_practitioner_id <> private.current_practitioner_id() then
+      raise exception 'Dentists may only manage their own availability schedule';
+    end if;
+  elsif v_role in ('owner_admin', 'receptionist') then
+    -- Owner/Admin and Receptionists may manage practitioners within their organization
+    if not private.practitioner_in_org(p_practitioner_id) then
+      raise exception 'Practitioner does not belong to your clinic organization';
+    end if;
   else
-    -- Level 3: Recurring Weekly Rules fallback
-    for v_rule in
-      select start_time, end_time from public.availability_rules
-      where practitioner_id = p_practitioner_id
-        and day_of_week = v_dow
-        and effective_from <= p_date
-        and (effective_to is null or effective_to >= p_date)
-      order by start_time
-    loop
-      v_grid_start := (p_date::text || ' ' || v_rule.start_time::text)::timestamp at time zone v_tz;
-      v_grid_end := (p_date::text || ' ' || v_rule.end_time::text)::timestamp at time zone v_tz;
-      v_cursor := v_grid_start;
+    raise exception 'Unauthorized schedule access';
+  end if;
 
-      while v_cursor + (v_duration || ' minutes')::interval <= v_grid_end loop
-        if not exists (
-          -- Level 4: Partial-day unavailable exception overlap
-          select 1 from public.availability_exceptions ae
-          where ae.practitioner_id = p_practitioner_id
-            and ae.date = p_date
-            and ae.is_unavailable = true
-            and ae.start_time is not null
-            and tstzrange(
-                  (p_date::text || ' ' || ae.start_time::text)::timestamp at time zone v_tz,
-                  (p_date::text || ' ' || ae.end_time::text)::timestamp at time zone v_tz
-                ) && tstzrange(v_cursor, v_cursor + (v_duration || ' minutes')::interval)
-        ) and not exists (
-          -- Level 5: Existing active booking overlap
-          select 1 from public.appointments a
-          where a.practitioner_id = p_practitioner_id
-            and a.status not in ('cancelled', 'no_show')
-            and tstzrange(a.starts_at, a.ends_at) && tstzrange(v_cursor, v_cursor + (v_duration || ' minutes')::interval)
-        ) and v_cursor > now() then
-          slot_start := v_cursor;
-          slot_end := v_cursor + (v_duration || ' minutes')::interval;
-          return next;
-        end if;
+  -- 3. Verify Practitioner & Branch multi-tenant integrity and acquire exclusive row lock
+  select p.branch_id, b.organization_id
+    into v_practitioner_branch_id, v_practitioner_org_id
+  from public.practitioners p
+  join public.branches b on b.id = p.branch_id
+  where p.id = p_practitioner_id
+  for update of p;
 
-        v_cursor := v_cursor + v_step;
-      end loop;
-    end loop;
+  if v_practitioner_org_id is null or v_practitioner_org_id <> private.current_org_id() then
+    raise exception 'Practitioner does not exist or does not belong to the current organization';
+  end if;
+
+  -- Validate target branch belongs to same organization
+  select organization_id into v_branch_org_id
+  from public.branches
+  where id = p_branch_id;
+
+  if v_branch_org_id is null or v_branch_org_id <> private.current_org_id() then
+    raise exception 'Branch does not exist or does not belong to the current organization';
+  end if;
+
+  -- 4. Validate p_rules JSON Array
+  if p_rules is null or jsonb_typeof(p_rules) <> 'array' then
+    raise exception 'p_rules must be a non-null JSON array of intervals';
+  end if;
+
+  -- Check individual interval validity
+  for v_rule in
+    select
+      (elem->>'day_of_week')::smallint as dow,
+      (elem->>'start_time')::time as st,
+      (elem->>'end_time')::time as et
+    from jsonb_array_elements(p_rules) as elem
+  loop
+    if v_rule.dow is null or v_rule.dow < 0 or v_rule.dow > 6 then
+      raise exception 'Invalid day_of_week: must be between 0 (Sunday) and 6 (Saturday)';
+    end if;
+    if v_rule.st is null or v_rule.et is null or v_rule.st >= v_rule.et then
+      raise exception 'Invalid interval: start_time (%) must be strictly before end_time (%)', v_rule.st, v_rule.et;
+    end if;
+  end loop;
+
+  -- Check for overlapping or duplicate intervals on the same day_of_week
+  if exists (
+    with parsed as (
+      select
+        row_number() over () as rn,
+        (elem->>'day_of_week')::smallint as dow,
+        (elem->>'start_time')::time as st,
+        (elem->>'end_time')::time as et
+      from jsonb_array_elements(p_rules) as elem
+    )
+    select 1
+    from parsed p1
+    join parsed p2
+      on p1.dow = p2.dow
+     and p1.rn < p2.rn
+    where p1.st < p2.et and p1.et > p2.st
+  ) then
+    raise exception 'Overlapping or duplicate time intervals detected on the same weekday';
+  end if;
+
+  -- 5. Atomic Delete & Reinsert in single transaction
+  delete from public.availability_rules
+  where practitioner_id = p_practitioner_id;
+
+  if jsonb_array_length(p_rules) > 0 then
+    insert into public.availability_rules (
+      practitioner_id,
+      branch_id,
+      day_of_week,
+      start_time,
+      end_time,
+      effective_from
+    )
+    select
+      p_practitioner_id,
+      coalesce(v_practitioner_branch_id, p_branch_id),
+      (elem->>'day_of_week')::smallint,
+      (elem->>'start_time')::time,
+      (elem->>'end_time')::time,
+      current_date
+    from jsonb_array_elements(p_rules) as elem;
   end if;
 end;
 $$;
 
-revoke execute on function public.get_available_slots(uuid, uuid, date) from public;
-grant execute on function public.get_available_slots(uuid, uuid, date) to anon, authenticated;
+revoke all on function public.save_weekly_availability(uuid, uuid, jsonb) from public;
+grant execute on function public.save_weekly_availability(uuid, uuid, jsonb) to authenticated;
 
--- 2. Atomic Date Availability Override Save RPC
+
+-- 2. Authoritative Date Availability Override RPC
 create or replace function public.save_date_availability_override(
   p_practitioner_id uuid,
   p_date date,
@@ -281,6 +269,7 @@ $$;
 revoke execute on function public.save_date_availability_override(uuid, date, boolean, text, jsonb) from public;
 revoke execute on function public.save_date_availability_override(uuid, date, boolean, text, jsonb) from anon;
 grant execute on function public.save_date_availability_override(uuid, date, boolean, text, jsonb) to authenticated;
+
 
 -- 3. Reset Date Availability Override RPC
 create or replace function public.reset_date_availability_override(
