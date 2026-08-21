@@ -99,7 +99,7 @@ export function ClinicalDocumentationSummary({
   return (
     <div className="space-y-5">
       <div className="overflow-hidden rounded-3xl border border-border/80 bg-card/95 backdrop-blur-xs shadow-xs">
-        <SummaryRow icon={FileHeart} title="1. Presenting Complaint (PC)" value={encounter.chief_complaint} />
+        <SummaryRow icon={FileHeart} title="1. Patient Concerns & Symptoms" value={encounter.chief_complaint} />
         <SummaryRow icon={FileText} title="2. Clinical Findings & Diagnosis (Dx)" value={encounter.diagnosis} />
         <SummaryRow icon={ClipboardList} title="3. Treatment Provided (Tx)" value={encounter.performed_treatment} />
         <SummaryRow

@@ -89,10 +89,10 @@ export function PreviousEncounters({ encounters }: PreviousEncountersProps) {
 
                     {/* 2. Middle Sub-column: Presenting Complaint & Treatment (5 cols) */}
                     <div className="md:col-span-5 space-y-3">
-                      {/* Presenting Complaint */}
+                      {/* Patient Concerns & Symptoms */}
                       <div>
                         <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                          Presenting Complaint
+                          Patient Concerns &amp; Symptoms
                         </p>
                         <p className="mt-0.5 text-xs text-foreground leading-relaxed">
                           {enc.chief_complaint || "Routine 6-month dental check-up with no acute symptoms."}

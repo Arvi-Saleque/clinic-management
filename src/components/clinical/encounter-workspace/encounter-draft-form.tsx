@@ -447,7 +447,7 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
         {/* 6 Sequenced Documentation Cards (UK Standard)                */}
         {/* ------------------------------------------------------------- */}
         <div className="space-y-4">
-          {/* Card 1: Presenting Complaint (PC) / Reason for Attendance */}
+          {/* Card 1: Patient Concerns & Symptoms */}
           <div className="rounded-3xl border border-border/80 bg-card/95 backdrop-blur-xs p-5 sm:p-6 space-y-3.5 shadow-xs">
             <div className="flex items-start gap-3.5">
               <div className="size-10 rounded-2xl bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 flex items-center justify-center shrink-0 border border-emerald-200/60 shadow-2xs">
@@ -457,7 +457,7 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <h3 className="font-heading text-sm font-extrabold text-foreground">
-                      1. Presenting Complaint (PC)
+                      1. Patient Concerns &amp; Symptoms
                     </h3>
                     <span className="rounded-full bg-emerald-50 text-emerald-900 border border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-300 px-2.5 py-0.5 text-[10px] font-bold">
                       Required
@@ -468,7 +468,7 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Reason for attendance, presenting symptoms, location, history &amp; pain characteristics (HPC).
+                  Reason for visit, presenting symptoms, location, pain history, or aesthetic goals.
                 </p>
               </div>
             </div>
@@ -476,7 +476,7 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
             <Textarea
               value={chiefComplaint}
               onChange={(e) => setChiefComplaint(e.target.value)}
-              placeholder="e.g. Patient attends complaining of pain in lower right quadrant for 2 days, exacerbated by hot/cold liquids..."
+              placeholder="e.g. Patient presents with sensitivity in lower right quadrant for 2 days, exacerbated by cold liquids..."
               maxLength={1000}
               className="min-h-[90px] rounded-2xl border-border/80 bg-card text-xs leading-relaxed placeholder:text-muted-foreground/60 resize-y p-3.5"
             />
