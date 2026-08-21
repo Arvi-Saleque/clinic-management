@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AlertCircle, Check, Loader2, Pencil, Plus, Tag, Trash2, X } from "lucide-react";
+import { AlertCircle, Check, Layers, Loader2, Pencil, Plus, Tag, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -143,26 +143,30 @@ export function CategoryManagerDialog({
     <>
       {/* Main Manage Categories Dialog */}
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-md rounded-3xl p-6 space-y-4">
+          <DialogHeader className="border-b border-border/60 pb-3.5 space-y-1">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Tag className="size-4 text-primary" />
-                <DialogTitle>Manage Categories</DialogTitle>
+              <div className="flex items-center gap-2.5">
+                <div className="size-9 rounded-2xl bg-gradient-to-br from-[#0B3B36] to-[#075e5a] text-white flex items-center justify-center shadow-xs shrink-0">
+                  <Layers className="size-4.5" />
+                </div>
+                <DialogTitle className="font-heading text-lg font-black text-foreground">
+                  Manage Sections
+                </DialogTitle>
               </div>
               {!isAdding && (
                 <Button
                   size="sm"
                   onClick={() => setIsAdding(true)}
-                  className="h-8 gap-1.5 rounded-xl px-3 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-xs"
+                  className="h-8.5 gap-1.5 rounded-2xl px-3.5 text-xs font-black bg-[#0B3B36] hover:bg-[#075e5a] text-white shadow-2xs cursor-pointer"
                 >
                   <Plus className="size-3.5" />
-                  Add Category
+                  Add Section
                 </Button>
               )}
             </div>
-            <DialogDescription>
-              Categories group your clinical treatments and organize online booking.
+            <DialogDescription className="text-xs text-muted-foreground">
+              Categories group clinical treatments and organize online patient booking steps.
             </DialogDescription>
           </DialogHeader>
 
@@ -171,25 +175,25 @@ export function CategoryManagerDialog({
             {isAdding && (
               <form
                 onSubmit={handleAddSubmit}
-                className="rounded-xl border border-primary/20 bg-primary-soft/20 p-3 space-y-2.5 animate-in fade-in-50"
+                className="rounded-2xl border border-primary/25 bg-primary/5 p-3.5 space-y-2.5 animate-in fade-in-50"
               >
                 <Label htmlFor="add-cat-name" className="text-xs font-bold text-foreground">
-                  New Category Name
+                  New Section Name
                 </Label>
                 <div className="flex items-center gap-2">
                   <Input
                     id="add-cat-name"
                     value={newCatName}
                     onChange={(e) => setNewCatName(e.target.value)}
-                    placeholder="e.g. Facial Aesthetics"
+                    placeholder="e.g. Cosmetic & Whitening"
                     autoFocus
-                    className="h-8.5 text-xs rounded-xl bg-background"
+                    className="h-9 text-xs rounded-xl bg-card border-border/80"
                   />
                   <Button
                     type="submit"
                     size="sm"
                     disabled={isSavingNew || !newCatName.trim()}
-                    className="h-8.5 px-3 text-xs font-bold rounded-xl shrink-0 bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white"
+                    className="h-9 px-3.5 text-xs font-black rounded-xl shrink-0 bg-[#0B3B36] hover:bg-[#075e5a] text-white cursor-pointer"
                   >
                     {isSavingNew ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
                     Add
@@ -202,9 +206,9 @@ export function CategoryManagerDialog({
                       setIsAdding(false);
                       setNewCatName("");
                     }}
-                    className="h-8.5 px-2 rounded-xl shrink-0 text-muted-foreground"
+                    className="h-9 px-2 rounded-xl shrink-0 text-muted-foreground cursor-pointer"
                   >
-                    <X className="size-3.5" />
+                    <X className="size-4" />
                   </Button>
                 </div>
               </form>
@@ -214,25 +218,25 @@ export function CategoryManagerDialog({
             {editingCat && (
               <form
                 onSubmit={handleEditSubmit}
-                className="rounded-xl border border-primary/30 bg-muted/40 p-3 space-y-2.5 animate-in fade-in-50"
+                className="rounded-2xl border border-primary/30 bg-muted/40 p-3.5 space-y-2.5 animate-in fade-in-50"
               >
                 <Label htmlFor="edit-cat-name" className="text-xs font-bold text-foreground">
-                  Rename Category: <span className="text-primary">{editingCat.name}</span>
+                  Rename Section: <span className="text-primary font-black">{editingCat.name}</span>
                 </Label>
                 <div className="flex items-center gap-2">
                   <Input
                     id="edit-cat-name"
                     value={editCatName}
                     onChange={(e) => setEditCatName(e.target.value)}
-                    placeholder="New category name"
+                    placeholder="New section name"
                     autoFocus
-                    className="h-8.5 text-xs rounded-xl bg-background"
+                    className="h-9 text-xs rounded-xl bg-card border-border/80"
                   />
                   <Button
                     type="submit"
                     size="sm"
                     disabled={isSavingEdit || !editCatName.trim()}
-                    className="h-8.5 px-3 text-xs font-bold rounded-xl shrink-0 bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white"
+                    className="h-9 px-3.5 text-xs font-black rounded-xl shrink-0 bg-[#0B3B36] hover:bg-[#075e5a] text-white cursor-pointer"
                   >
                     {isSavingEdit ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
                     Save
@@ -242,31 +246,31 @@ export function CategoryManagerDialog({
                     variant="ghost"
                     size="sm"
                     onClick={() => setEditingCat(null)}
-                    className="h-8.5 px-2 rounded-xl shrink-0 text-muted-foreground"
+                    className="h-9 px-2 rounded-xl shrink-0 text-muted-foreground cursor-pointer"
                   >
-                    <X className="size-3.5" />
+                    <X className="size-4" />
                   </Button>
                 </div>
               </form>
             )}
 
             {/* Category List */}
-            <div className="max-h-72 overflow-y-auto divide-y divide-border/60 rounded-xl border border-border bg-card">
+            <div className="max-h-72 overflow-y-auto divide-y divide-border/60 rounded-2xl border border-border/80 bg-card/90">
               {categories.length === 0 ? (
-                <div className="p-4 text-center text-xs text-muted-foreground">
-                  No categories created yet.
+                <div className="p-6 text-center text-xs text-muted-foreground font-medium">
+                  No sections created yet.
                 </div>
               ) : (
                 categories.map((cat) => (
                   <div
                     key={cat.name}
-                    className="flex items-center justify-between p-3 transition-colors hover:bg-muted/20"
+                    className="flex items-center justify-between p-3.5 transition-colors hover:bg-muted/20"
                   >
-                    <div className="flex items-center gap-2 min-w-0 pr-2">
-                      <span className="font-heading text-xs font-bold text-foreground truncate">
+                    <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                      <span className="font-heading text-xs font-black text-foreground truncate">
                         {cat.name}
                       </span>
-                      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-emerald-50/80 text-emerald-800 border border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/40 shrink-0">
+                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-black bg-emerald-50 text-emerald-900 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 shrink-0">
                         {cat.serviceCount} {cat.serviceCount === 1 ? "service" : "services"}
                       </span>
                     </div>
@@ -281,18 +285,18 @@ export function CategoryManagerDialog({
                           setIsAdding(false);
                         }}
                         title={`Rename "${cat.name}"`}
-                        className="size-7 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                        className="size-8 rounded-xl text-muted-foreground hover:bg-emerald-50 hover:text-emerald-900 cursor-pointer"
                       >
-                        <Pencil className="size-3" />
+                        <Pencil className="size-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => setDeletingCat(cat)}
                         title={`Delete "${cat.name}"`}
-                        className="size-7 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        className="size-8 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                       >
-                        <Trash2 className="size-3" />
+                        <Trash2 className="size-3.5" />
                       </Button>
                     </div>
                   </div>
@@ -301,12 +305,12 @@ export function CategoryManagerDialog({
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="border-t border-border/60 pt-3">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="h-8.5 rounded-xl text-xs"
+              className="h-9 rounded-2xl px-4 text-xs font-bold border-border/80 cursor-pointer"
             >
               Close
             </Button>
@@ -316,32 +320,32 @@ export function CategoryManagerDialog({
 
       {/* Delete Category Confirmation Dialog */}
       <Dialog open={!!deletingCat} onOpenChange={(open) => !open && setDeletingCat(null)}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-sm rounded-3xl p-6 space-y-3">
+          <DialogHeader className="space-y-1">
             <div className="flex items-center gap-2 text-destructive">
               <AlertCircle className="size-5 shrink-0" />
-              <DialogTitle>Delete category?</DialogTitle>
+              <DialogTitle className="font-heading text-base font-black">Delete section?</DialogTitle>
             </div>
-            <DialogDescription>
+            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
               {deletingCat && deletingCat.serviceCount > 0 ? (
                 <span>
-                  This category contains <strong>{deletingCat.serviceCount} active {deletingCat.serviceCount === 1 ? "service" : "services"}</strong>.
-                  Please reassign or remove those services before deleting this category.
+                  This section contains <strong>{deletingCat.serviceCount} active {deletingCat.serviceCount === 1 ? "service" : "services"}</strong>.
+                  Please reassign or remove those services before deleting this section.
                 </span>
               ) : (
                 <span>
-                  Are you sure you want to delete category <strong>&ldquo;{deletingCat?.name}&rdquo;</strong>?
+                  Are you sure you want to delete section <strong>&ldquo;{deletingCat?.name}&rdquo;</strong>?
                 </span>
               )}
             </DialogDescription>
           </DialogHeader>
 
-          <DialogFooter className="mt-2">
+          <DialogFooter className="border-t border-border/60 pt-3 flex gap-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => setDeletingCat(null)}
-              className="h-8.5 rounded-xl text-xs"
+              className="h-9 rounded-2xl px-4 text-xs font-bold border-border/80"
             >
               Cancel
             </Button>
@@ -350,9 +354,9 @@ export function CategoryManagerDialog({
               variant="destructive"
               disabled={isDeleting || (deletingCat ? deletingCat.serviceCount > 0 : true)}
               onClick={handleDeleteSubmit}
-              className="h-8.5 rounded-xl text-xs font-bold"
+              className="h-9 rounded-2xl px-4 text-xs font-bold"
             >
-              {isDeleting ? <Loader2 className="size-3.5 animate-spin" /> : "Delete Category"}
+              {isDeleting ? <Loader2 className="size-3.5 animate-spin" /> : "Delete Section"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -5,7 +5,6 @@ import {
   CalendarDays,
   Check,
   Clock,
-  Copy,
   Loader2,
   Plus,
   Sparkles,
@@ -192,30 +191,6 @@ export function WeeklyRoutineDialog({
         },
       };
     });
-  };
-
-  // Duplicate current day's hours to all weekdays (Mon–Fri)
-  const handleCopyToAllWeekdays = () => {
-    if (!activeDay.enabled || activeDay.intervals.length === 0) {
-      toast.error("Please configure and enable working hours first before copying");
-      return;
-    }
-
-    const currentIntervals = [...activeDay.intervals];
-    setSchedule((prev) => {
-      const next = { ...prev };
-      // Mon (1) through Fri (5)
-      for (let dow = 1; dow <= 5; dow++) {
-        next[dow] = {
-          dayOfWeek: dow,
-          enabled: true,
-          intervals: currentIntervals.map((inv) => ({ ...inv })),
-        };
-      }
-      return next;
-    });
-
-    toast.success(`Copied ${activeDayMeta.fullName} hours to Monday – Friday`);
   };
 
   const handleSave = async () => {
@@ -449,20 +424,6 @@ export function WeeklyRoutineDialog({
                     </div>
                   );
                 })}
-              </div>
-
-              {/* Quick Copy Shortcut */}
-              <div className="pt-2 flex items-center justify-between text-xs border-t border-border/40">
-                <span className="text-[11px] text-muted-foreground">
-                  Need the same hours on other days?
-                </span>
-                <button
-                  type="button"
-                  onClick={handleCopyToAllWeekdays}
-                  className="text-[11px] font-black text-emerald-800 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <Copy className="size-3" /> Copy to Mon–Fri
-                </button>
               </div>
             </div>
           ) : (
