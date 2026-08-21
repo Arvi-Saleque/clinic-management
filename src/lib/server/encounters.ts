@@ -106,7 +106,7 @@ function sanitizeSaveDraftError(rawMessage?: string | null): string {
     return "Follow-up date is required when follow-up is recommended.";
   }
 
-  return "Failed to save consultation draft.";
+  return rawMessage;
 }
 
 function sanitizeCompleteEncounterError(rawMessage?: string | null): string {
@@ -159,7 +159,7 @@ function sanitizeCompleteEncounterError(rawMessage?: string | null): string {
     return "Unable to complete consultation because the appointment record is inconsistent.";
   }
 
-  return "Failed to complete consultation.";
+  return rawMessage;
 }
 
 export async function startOrResumeEncounterAction(
@@ -256,11 +256,12 @@ export async function saveEncounterDraftAction(
       p_patient_notes: parsed.data.patientNotes ?? "",
       p_private_notes: parsed.data.privateNotes ?? "",
       p_follow_up_recommended: parsed.data.followUpRecommended,
-      p_follow_up_date: followUpDate ?? "",
+      p_follow_up_date: followUpDate || null,
       p_follow_up_reason: followUpReason ?? "",
     });
 
     if (error) {
+      console.error("save_clinical_encounter_draft RPC error:", error);
       return {
         data: null,
         error: sanitizeSaveDraftError(error.message),
@@ -328,11 +329,12 @@ export async function completeEncounterAction(
       p_patient_notes: parsed.data.patientNotes ?? "",
       p_private_notes: parsed.data.privateNotes ?? "",
       p_follow_up_recommended: parsed.data.followUpRecommended,
-      p_follow_up_date: followUpDate ?? "",
+      p_follow_up_date: followUpDate || null,
       p_follow_up_reason: followUpReason ?? "",
     });
 
     if (error) {
+      console.error("complete_clinical_encounter RPC error:", error);
       return {
         data: null,
         error: sanitizeCompleteEncounterError(error.message),

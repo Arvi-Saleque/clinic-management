@@ -211,8 +211,9 @@ export async function listInvoices(patientId?: string) {
   const supabase = await createClient();
   let query = supabase
     .from("invoices")
-    .select("id, invoice_number, status, subtotal, discount_amount, tax_amount, total, issue_date, due_date, patients:patient_id(id, first_name, last_name, phone)")
-    .order("issue_date", { ascending: false });
+    .select("id, invoice_number, status, subtotal, discount_amount, tax_amount, total, issue_date, due_date, created_at, patients:patient_id(id, first_name, last_name, phone)")
+    .order("issue_date", { ascending: true })
+    .order("created_at", { ascending: true });
 
   if (profile.organization_id) {
     query = query.eq("organization_id", profile.organization_id);

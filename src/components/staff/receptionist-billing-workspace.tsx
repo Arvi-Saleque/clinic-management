@@ -5,6 +5,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  ArrowUpDown,
   Clock3,
   CreditCard,
   Eye,
@@ -51,7 +52,7 @@ interface ReceptionistBillingWorkspaceProps {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  draft: "border-border bg-muted text-muted-foreground",
+  draft: "border-slate-300/80 bg-slate-100 text-slate-800 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300",
   issued: "border-amber-200/80 bg-amber-50/80 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300",
   partially_paid: "border-blue-200/80 bg-blue-50/80 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300",
   paid: "border-emerald-200/80 bg-emerald-50/80 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300",
@@ -59,6 +60,7 @@ const STATUS_STYLE: Record<string, string> = {
 };
 
 function formatStatusBadgeLabel(status: string) {
+  if (status === "draft") return "Draft (Pending)";
   if (status === "issued") return "Outstanding";
   if (status === "partially_paid") return "Part Paid";
   return status.charAt(0).toUpperCase() + status.slice(1);
@@ -74,7 +76,8 @@ export function ReceptionistBillingWorkspace({
   const isReceptionist = userRole === "receptionist";
 
   const [query, setQuery] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<"all" | "outstanding" | "paid" | "void">("all");
+  const [statusFilter, setStatusFilter] = React.useState<"all" | "draft" | "outstanding" | "partially_paid" | "paid" | "void">("all");
+  const [sortOrder, setSortOrder] = React.useState<"earliest" | "latest">("earliest");
 
   // Dialog targets
   const [activeDetailId, setActiveDetailId] = React.useState<string | null>(null);
@@ -88,11 +91,11 @@ export function ReceptionistBillingWorkspace({
     return { totalDue, dueCount };
   }, [invoices]);
 
-  // Filtered List
+  // Filtered & Chronologically Sorted List (Earliest to Farthest by default)
   const filteredInvoices = React.useMemo(() => {
     const normalized = query.trim().toLowerCase();
 
-    return invoices.filter((inv) => {
+    const matches = invoices.filter((inv) => {
       // 1. Search match
       const patientName = inv.patients
         ? `${inv.patients.first_name} ${inv.patients.last_name}`.toLowerCase()
@@ -108,8 +111,12 @@ export function ReceptionistBillingWorkspace({
 
       // 2. Status filter
       let matchesStatus = true;
-      if (statusFilter === "outstanding") {
+      if (statusFilter === "draft") {
+        matchesStatus = inv.status === "draft";
+      } else if (statusFilter === "outstanding") {
         matchesStatus = (inv.status === "issued" || inv.status === "partially_paid") && inv.balance > 0;
+      } else if (statusFilter === "partially_paid") {
+        matchesStatus = inv.status === "partially_paid";
       } else if (statusFilter === "paid") {
         matchesStatus = inv.status === "paid";
       } else if (statusFilter === "void") {
@@ -118,7 +125,13 @@ export function ReceptionistBillingWorkspace({
 
       return matchesSearch && matchesStatus;
     });
-  }, [invoices, query, statusFilter]);
+
+    return [...matches].sort((a, b) => {
+      const timeA = new Date(a.issue_date || (a as { created_at?: string }).created_at || 0).getTime();
+      const timeB = new Date(b.issue_date || (b as { created_at?: string }).created_at || 0).getTime();
+      return sortOrder === "earliest" ? timeA - timeB : timeB - timeA;
+    });
+  }, [invoices, query, statusFilter, sortOrder]);
 
   // Standard Modern Pagination
   const pagination = useTablePagination(filteredInvoices, {
@@ -222,12 +235,12 @@ export function ReceptionistBillingWorkspace({
           </div>
 
           {/* Quick Status Tabs */}
-          <div className="flex items-center gap-1 rounded-xl border border-border/80 bg-muted/20 p-1">
+          <div className="flex flex-wrap items-center gap-1 rounded-xl border border-border/80 bg-muted/20 p-1">
             <button
               type="button"
               onClick={() => setStatusFilter("all")}
               className={cn(
-                "rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
+                "rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
                 statusFilter === "all"
                   ? "bg-card text-foreground shadow-2xs font-bold"
                   : "text-muted-foreground hover:text-foreground",
@@ -237,9 +250,21 @@ export function ReceptionistBillingWorkspace({
             </button>
             <button
               type="button"
+              onClick={() => setStatusFilter("draft")}
+              className={cn(
+                "rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+                statusFilter === "draft"
+                  ? "bg-slate-100 text-slate-900 border border-slate-300 dark:bg-slate-900/80 dark:text-slate-200 shadow-2xs font-bold"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              Drafts
+            </button>
+            <button
+              type="button"
               onClick={() => setStatusFilter("outstanding")}
               className={cn(
-                "rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
+                "rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
                 statusFilter === "outstanding"
                   ? "bg-amber-50 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 shadow-2xs font-bold"
                   : "text-muted-foreground hover:text-foreground",
@@ -249,9 +274,21 @@ export function ReceptionistBillingWorkspace({
             </button>
             <button
               type="button"
+              onClick={() => setStatusFilter("partially_paid")}
+              className={cn(
+                "rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+                statusFilter === "partially_paid"
+                  ? "bg-blue-50 text-blue-900 border border-blue-300 dark:bg-blue-950/60 dark:text-blue-300 shadow-2xs font-bold"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              Part Paid
+            </button>
+            <button
+              type="button"
               onClick={() => setStatusFilter("paid")}
               className={cn(
-                "rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
+                "rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
                 statusFilter === "paid"
                   ? "bg-emerald-50 text-emerald-900 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 shadow-2xs font-bold"
                   : "text-muted-foreground hover:text-foreground",
@@ -263,7 +300,7 @@ export function ReceptionistBillingWorkspace({
               type="button"
               onClick={() => setStatusFilter("void")}
               className={cn(
-                "rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
+                "rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
                 statusFilter === "void"
                   ? "bg-card text-foreground shadow-2xs font-bold"
                   : "text-muted-foreground hover:text-foreground",
@@ -315,7 +352,23 @@ export function ReceptionistBillingWorkspace({
                 <tr>
                   <th className="px-5 py-3">Invoice</th>
                   <th className="py-3">Patient</th>
-                  <th className="py-3">Issued / Due</th>
+                  <th className="py-3">
+                    <button
+                      type="button"
+                      onClick={() => setSortOrder(sortOrder === "earliest" ? "latest" : "earliest")}
+                      className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer group"
+                      title={sortOrder === "earliest" ? "Sorted: Earliest to Farthest (Click to flip)" : "Sorted: Farthest to Earliest (Click to flip)"}
+                    >
+                      <span>Issued / Due</span>
+                      <ArrowUpDown className={cn(
+                        "size-3 transition-colors",
+                        sortOrder === "earliest" ? "text-primary font-bold" : "text-muted-foreground",
+                      )} />
+                      <span className="text-[9px] font-mono text-primary/80 lowercase">
+                        ({sortOrder === "earliest" ? "earliest" : "latest"})
+                      </span>
+                    </button>
+                  </th>
                   <th className="py-3 text-right">Total</th>
                   <th className="py-3 text-right">Paid</th>
                   <th className="py-3 text-right">Balance</th>

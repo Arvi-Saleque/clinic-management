@@ -18,14 +18,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -41,6 +33,7 @@ import {
   completeEncounterAction,
   saveEncounterDraftAction,
 } from "@/lib/server/encounters";
+import { createInstantEncounterInvoiceAction } from "@/lib/server/invoices";
 import type {
   ClinicalEncounter,
   EncounterFollowUpSchedulingContext,
@@ -48,6 +41,7 @@ import type {
   EncounterWorkspacePatient,
 } from "@/types/clinical";
 import { FollowUpAppointmentDialog } from "./follow-up-appointment-dialog";
+import { InstantBillingDialog, type InstantBillingContext } from "./instant-billing-dialog";
 
 export interface EncounterDraftFormRef {
   triggerComplete: () => void;
@@ -81,6 +75,7 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
       encounter,
       privateNotes: initialPrivateNotes,
       patient,
+      appointment,
       followUpScheduling,
       onDirtyChange,
       onValidationFail,
@@ -90,8 +85,8 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
     const router = useRouter();
     const [isPendingSave, startSaveTransition] = useTransition();
     const [isCompleting, setIsCompleting] = useState(false);
-    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
     const [isFollowUpDialogOpen, setIsFollowUpDialogOpen] = useState(false);
+    const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
 
     // Initial form snapshot
     const initialSnapshot: DraftSnapshot = {
@@ -243,7 +238,7 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
         onValidationFail?.();
         return;
       }
-      setIsConfirmDialogOpen(true);
+      setIsBillingModalOpen(true);
     };
 
     // Imperative ref for parent EncounterWorkspace / EncounterHeader
@@ -252,10 +247,19 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
       saveDraft: handleSaveDraft,
     }));
 
-    const handleConfirmComplete = async () => {
+    const handleFinalizeConsultationAndBilling = async (billingData: {
+      targetStatus: "draft" | "issued" | "partially_paid" | "paid";
+      procedureName: string;
+      unitPrice: number;
+      discountAmount: number;
+      paidAmount?: number;
+      paymentMethod?: "cash" | "card" | "bank_transfer" | "other";
+      notes?: string;
+    }): Promise<boolean> => {
       setIsCompleting(true);
 
       try {
+        // 1. Complete & Sign Encounter
         const payload = {
           encounterId: encounter.id,
           chiefComplaint: chiefComplaint.trim() || null,
@@ -273,29 +277,72 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
         if (result.error) {
           toast.error(result.error);
           setIsCompleting(false);
-          return;
+          return false;
         }
 
-        if (result.data) {
-          setSavedSnapshot({
-            chiefComplaint,
-            diagnosis,
-            performedTreatment,
-            patientNotes,
-            privateNotes,
-            followUpRecommended,
-            followUpDate: followUpRecommended ? followUpDate : "",
-            followUpReason: followUpRecommended ? followUpReason : "",
-          });
-          setIsConfirmDialogOpen(false);
-          setIsCompleting(false);
-          toast.success("Consultation completed & signed successfully.");
-          router.refresh();
+        // 2. Generate Instant Invoice
+        const invRes = await createInstantEncounterInvoiceAction({
+          patientId: encounter.patient_id,
+          encounterId: encounter.id,
+          appointmentId: encounter.appointment_id,
+          procedureName: billingData.procedureName,
+          unitPrice: billingData.unitPrice,
+          quantity: 1,
+          discountAmount: billingData.discountAmount,
+          taxAmount: 0,
+          status: billingData.targetStatus,
+          paidAmount: billingData.paidAmount,
+          paymentMethod: billingData.paymentMethod,
+          notes: billingData.notes,
+        });
+
+        if (invRes.success) {
+          if (billingData.targetStatus === "draft") {
+            toast.success("Consultation completed & signed. Bill saved as Draft (#1 on Billing list).", {
+              duration: 4500,
+            });
+          } else if (billingData.targetStatus === "paid") {
+            toast.success(`Consultation completed. Invoice ${invRes.invoiceNumber} paid in full.`);
+          } else if (billingData.targetStatus === "issued") {
+            toast.success(`Consultation completed. Invoice ${invRes.invoiceNumber} issued as Outstanding.`);
+          } else {
+            toast.success(`Consultation completed. Invoice ${invRes.invoiceNumber} created with partial deposit.`);
+          }
+        } else {
+          toast.error(invRes.error || "Consultation signed, but failed to save invoice.");
         }
+
+        setSavedSnapshot({
+          chiefComplaint,
+          diagnosis,
+          performedTreatment,
+          patientNotes,
+          privateNotes,
+          followUpRecommended,
+          followUpDate: followUpRecommended ? followUpDate : "",
+          followUpReason: followUpRecommended ? followUpReason : "",
+        });
+
+        setIsBillingModalOpen(false);
+        setIsCompleting(false);
+        router.refresh();
+        return true;
       } catch {
         toast.error("Failed to complete consultation.");
         setIsCompleting(false);
+        return false;
       }
+    };
+
+    const billingContext: InstantBillingContext = {
+      patientId: encounter.patient_id,
+      patientName: patient?.full_name ?? "Patient",
+      patientReference: patient?.patient_reference ?? `PT-${encounter.patient_id.replace(/-/g, "").slice(0, 8).toUpperCase()}`,
+      encounterId: encounter.id,
+      appointmentId: encounter.appointment_id,
+      practitionerName: appointment?.practitioner_name,
+      procedureName: appointment?.service_name || performedTreatment || "Clinical Consultation & Treatment",
+      defaultPrice: appointment?.service_price || 0,
     };
 
     const formattedSavedAt = lastSavedAt
@@ -365,71 +412,6 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
             </Button>
           </div>
         </div>
-
-        {/* Confirmation Dialog for Completing Encounter */}
-        <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-          <DialogContent className="sm:max-w-lg rounded-3xl p-6 sm:p-7 border border-border/80 bg-card shadow-2xl">
-            <DialogHeader className="space-y-1.5">
-              <div className="flex items-center gap-2.5 text-emerald-800 dark:text-emerald-300">
-                <div className="size-9 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 flex items-center justify-center">
-                  <CheckCircle2 className="size-5 text-emerald-600" />
-                </div>
-                <DialogTitle className="font-heading text-lg font-extrabold text-foreground">
-                  Sign &amp; Complete Consultation
-                </DialogTitle>
-              </div>
-              <DialogDescription className="text-xs text-muted-foreground leading-relaxed pt-1">
-                Finalizing this clinical episode will lock the clinical notes, tooth chart observations, and update the patient&apos;s medical record in compliance with UK clinical governance standards.
-              </DialogDescription>
-            </DialogHeader>
-
-            {/* Quick Summary Review Box */}
-            <div className="rounded-2xl border border-border/70 bg-muted/20 p-3.5 space-y-2 text-xs">
-              <div className="flex items-start justify-between gap-2">
-                <span className="font-semibold text-muted-foreground">Diagnosis:</span>
-                <span className="font-bold text-foreground text-right max-w-[260px] truncate">
-                  {diagnosis || "Not specified"}
-                </span>
-              </div>
-              <div className="flex items-start justify-between gap-2 border-t border-border/40 pt-2">
-                <span className="font-semibold text-muted-foreground">Treatment:</span>
-                <span className="font-bold text-foreground text-right max-w-[260px] truncate">
-                  {performedTreatment || "Not specified"}
-                </span>
-              </div>
-              <div className="flex items-start justify-between gap-2 border-t border-border/40 pt-2">
-                <span className="font-semibold text-muted-foreground">Recall / Follow-up:</span>
-                <span className="font-bold text-foreground text-right">
-                  {followUpRecommended ? `${followUpInterval.replace("-", " ")} (${followUpReason})` : "None required"}
-                </span>
-              </div>
-            </div>
-
-            <DialogFooter className="mt-4 flex flex-col-reverse sm:flex-row items-center justify-end gap-2 border-t border-border/50 pt-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsConfirmDialogOpen(false)}
-                className="w-full sm:w-auto h-10 px-5 text-xs font-bold rounded-xl border-border"
-              >
-                Keep Editing
-              </Button>
-              <Button
-                type="button"
-                onClick={handleConfirmComplete}
-                disabled={isCompleting}
-                className="w-full sm:w-auto h-10 px-6 text-xs font-black rounded-xl bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white gap-2 shadow-md shadow-[#0B3B36]/20"
-              >
-                {isCompleting ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Check className="size-4 stroke-[2.5]" />
-                )}
-                Confirm &amp; Complete Visit
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
 
         {/* Follow-up Appointment Modal (if triggered) */}
         {followUpScheduling && patient && (
@@ -737,6 +719,22 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
             )}
           </div>
         </div>
+
+        {/* ── Instant Billing & Invoicing Pop-up ── */}
+        <InstantBillingDialog
+          open={isBillingModalOpen}
+          onOpenChange={(isOpen) => {
+            setIsBillingModalOpen(isOpen);
+            if (!isOpen) {
+              router.refresh();
+            }
+          }}
+          context={billingContext}
+          onFinalize={handleFinalizeConsultationAndBilling}
+          onCompleted={() => {
+            router.refresh();
+          }}
+        />
       </div>
     );
   },

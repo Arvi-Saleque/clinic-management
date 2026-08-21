@@ -1572,15 +1572,15 @@ export type Database = {
       }
       complete_clinical_encounter: {
         Args: {
-          p_chief_complaint: string
+          p_chief_complaint?: string | null
           p_diagnosis: string
           p_encounter_id: string
-          p_follow_up_date: string
-          p_follow_up_reason: string
+          p_follow_up_date?: string | null
+          p_follow_up_reason?: string | null
           p_follow_up_recommended: boolean
-          p_patient_notes: string
+          p_patient_notes?: string | null
           p_performed_treatment: string
-          p_private_notes: string
+          p_private_notes?: string | null
         }
         Returns: Json
       }
@@ -1615,15 +1615,15 @@ export type Database = {
       }
       save_clinical_encounter_draft: {
         Args: {
-          p_chief_complaint: string
-          p_diagnosis: string
+          p_chief_complaint?: string | null
+          p_diagnosis?: string | null
           p_encounter_id: string
-          p_follow_up_date: string
-          p_follow_up_reason: string
-          p_follow_up_recommended: boolean
-          p_patient_notes: string
-          p_performed_treatment: string
-          p_private_notes: string
+          p_follow_up_date?: string | null
+          p_follow_up_reason?: string | null
+          p_follow_up_recommended?: boolean | null
+          p_patient_notes?: string | null
+          p_performed_treatment?: string | null
+          p_private_notes?: string | null
         }
         Returns: Json
       }
