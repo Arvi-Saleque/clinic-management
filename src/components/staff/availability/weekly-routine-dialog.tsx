@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Clock, Loader2, Plus, Trash2 } from "lucide-react";
+import { Check, Clock, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -13,8 +13,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { ModernTimePicker } from "./modern-time-picker";
 import { saveMultiIntervalWeeklyAvailability } from "@/lib/server/appointments";
 import type { DayAvailability } from "@/types/availability";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,19 @@ const DAYS = [
   { dow: 6, label: "Saturday", short: "Sat" },
   { dow: 0, label: "Sunday", short: "Sun" },
 ];
+
+function getSlotDuration(start: string, end: string) {
+  if (!start || !end || start >= end) return "";
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  const totalMin = eh * 60 + em - (sh * 60 + sm);
+  if (totalMin <= 0) return "";
+  const hrs = Math.floor(totalMin / 60);
+  const mins = totalMin % 60;
+  if (hrs === 0) return `${mins} mins`;
+  if (mins === 0) return `${hrs} hr${hrs > 1 ? "s" : ""}`;
+  return `${hrs}h ${mins}m`;
+}
 
 interface WeeklyRoutineDialogProps {
   open: boolean;
@@ -182,11 +195,16 @@ export function WeeklyRoutineDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="font-heading text-lg font-bold text-foreground">
-            Edit Weekly Routine
-          </DialogTitle>
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-3xl p-6">
+        <DialogHeader className="border-b border-border/60 pb-3.5">
+          <div className="flex items-center gap-2">
+            <div className="size-8 rounded-xl bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 flex items-center justify-center">
+              <Sparkles className="size-4" />
+            </div>
+            <DialogTitle className="font-heading text-lg font-black text-foreground">
+              Edit Weekly Routine
+            </DialogTitle>
+          </div>
           <DialogDescription className="text-xs text-muted-foreground">
             Configure your recurring schedule. These hours will repeat automatically every week.
           </DialogDescription>
@@ -201,10 +219,12 @@ export function WeeklyRoutineDialog({
               <div
                 key={day.dow}
                 className={cn(
-                  "rounded-2xl border p-3.5 transition-all",
+                  "rounded-2xl border p-4 transition-all",
                   isFocused
-                    ? "border-emerald-600 bg-emerald-50/20 ring-1 ring-emerald-500/20"
-                    : "border-border/70 bg-card",
+                    ? "border-emerald-600 bg-emerald-50/30 dark:bg-emerald-950/20 ring-2 ring-emerald-500/20"
+                    : current.enabled
+                      ? "border-border/80 bg-card hover:border-border"
+                      : "border-border/40 bg-muted/10 opacity-75",
                 )}
               >
                 {/* Day Header Row */}
@@ -215,9 +235,18 @@ export function WeeklyRoutineDialog({
                       onCheckedChange={(checked) => handleToggle(day.dow, checked)}
                       className="data-[state=checked]:bg-[#0B3B36]"
                     />
-                    <span className="font-heading font-bold text-xs text-foreground">
+                    <span className="font-heading font-black text-sm text-foreground">
                       {day.label}
                     </span>
+                    {current.enabled ? (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40">
+                        Working Day
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-muted/40 text-muted-foreground">
+                        Day Off
+                      </span>
+                    )}
                   </div>
 
                   {current.enabled && (
@@ -226,7 +255,7 @@ export function WeeklyRoutineDialog({
                       variant="ghost"
                       size="sm"
                       onClick={() => handleAddInterval(day.dow)}
-                      className="h-7 gap-1 rounded-lg px-2 text-[11px] font-bold text-primary hover:bg-primary-soft/30"
+                      className="h-7.5 gap-1 rounded-xl px-2.5 text-[11px] font-black text-emerald-800 dark:text-emerald-300 bg-emerald-50/60 dark:bg-emerald-950/40 hover:bg-emerald-100"
                     >
                       <Plus className="size-3" /> Add Slot
                     </Button>
@@ -236,46 +265,54 @@ export function WeeklyRoutineDialog({
                 {/* Day Intervals */}
                 {current.enabled ? (
                   <div className="mt-3 space-y-2">
-                    {current.intervals.map((inv, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center gap-2 rounded-xl border border-border/60 bg-muted/15 p-2"
-                      >
-                        <div className="relative flex-1">
-                          <Clock className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground/70" />
-                          <Input
-                            type="time"
-                            value={inv.startTime}
-                            onChange={(e) =>
-                              handleUpdateInterval(day.dow, idx, "startTime", e.target.value)
-                            }
-                            className="h-8 text-xs rounded-lg pl-8 pr-2 font-bold tabular-nums bg-card border-border/80"
-                          />
-                        </div>
-                        <span className="text-muted-foreground font-bold text-xs">–</span>
-                        <div className="relative flex-1">
-                          <Input
-                            type="time"
-                            value={inv.endTime}
-                            onChange={(e) =>
-                              handleUpdateInterval(day.dow, idx, "endTime", e.target.value)
-                            }
-                            className="h-8 text-xs rounded-lg px-2 font-bold tabular-nums bg-card border-border/80 text-center"
-                          />
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleRemoveInterval(day.dow, idx)}
-                          disabled={current.intervals.length <= 1}
-                          className="size-7.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
-                          title="Remove interval"
+                    {current.intervals.map((inv, idx) => {
+                      const duration = getSlotDuration(inv.startTime, inv.endTime);
+
+                      return (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 rounded-2xl border border-border/80 bg-muted/20 p-2.5"
                         >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </div>
-                    ))}
+                          <div className="flex-1">
+                            <ModernTimePicker
+                              value={inv.startTime}
+                              onChange={(val) =>
+                                handleUpdateInterval(day.dow, idx, "startTime", val)
+                              }
+                            />
+                          </div>
+
+                          <span className="text-muted-foreground font-black text-xs px-0.5">–</span>
+
+                          <div className="flex-1">
+                            <ModernTimePicker
+                              value={inv.endTime}
+                              onChange={(val) =>
+                                handleUpdateInterval(day.dow, idx, "endTime", val)
+                              }
+                            />
+                          </div>
+
+                          {duration && (
+                            <span className="hidden sm:inline-block text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-1 rounded-lg border border-emerald-200/60 dark:border-emerald-800/40 shrink-0">
+                              {duration}
+                            </span>
+                          )}
+
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveInterval(day.dow, idx)}
+                            disabled={current.intervals.length <= 1}
+                            className="size-8 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                            title="Remove interval"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="mt-2 text-[11px] text-muted-foreground font-medium pl-11">
@@ -287,12 +324,12 @@ export function WeeklyRoutineDialog({
           })}
         </div>
 
-        <DialogFooter className="border-t border-border/50 pt-3">
+        <DialogFooter className="border-t border-border/60 pt-3.5">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="h-9 rounded-xl px-4 text-xs font-semibold"
+            className="h-10 rounded-2xl px-4 text-xs font-bold border-border/80"
           >
             Cancel
           </Button>
@@ -300,12 +337,12 @@ export function WeeklyRoutineDialog({
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="h-9 gap-1.5 rounded-xl px-5 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-xs"
+            className="h-10 gap-2 rounded-2xl px-6 text-xs font-black bg-[#0B3B36] hover:bg-[#075e5a] text-white shadow-md shadow-[#0B3B36]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             {isSaving ? (
               <Loader2 className="size-3.5 animate-spin" />
             ) : (
-              <Check className="size-3.5" />
+              <Check className="size-4" />
             )}
             Save Routine
           </Button>

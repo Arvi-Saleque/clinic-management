@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { ModernTimePicker } from "./modern-time-picker";
 import {
   saveDayAvailabilityOverrideAction,
   resetDayAvailabilityOverrideAction,
@@ -506,22 +507,18 @@ function AvailabilityDayEditorDialogContent({
                         <span className="text-[10px] font-semibold text-muted-foreground uppercase">
                           Start Time
                         </span>
-                        <Input
-                          type="time"
+                        <ModernTimePicker
                           value={inv.startTime}
-                          onChange={(e) => handleUpdateInterval(idx, "startTime", e.target.value)}
-                          className="h-9 text-xs font-mono"
+                          onChange={(val) => handleUpdateInterval(idx, "startTime", val)}
                         />
                       </div>
                       <div className="space-y-1">
                         <span className="text-[10px] font-semibold text-muted-foreground uppercase">
                           End Time
                         </span>
-                        <Input
-                          type="time"
+                        <ModernTimePicker
                           value={inv.endTime}
-                          onChange={(e) => handleUpdateInterval(idx, "endTime", e.target.value)}
-                          className="h-9 text-xs font-mono"
+                          onChange={(val) => handleUpdateInterval(idx, "endTime", val)}
                         />
                       </div>
                     </div>

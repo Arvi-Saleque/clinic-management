@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import { ModernTimePicker } from "./modern-time-picker";
 import { saveMultiIntervalWeeklyAvailability } from "@/lib/server/appointments";
 import type { DayAvailability, TimeInterval } from "@/types/availability";
 import { saveMultiIntervalAvailabilitySchema } from "@/lib/validation/availability";
@@ -257,24 +258,23 @@ export function WeeklyTemplateView({
                 {isAvail ? (
                   intervals.map((inv, idx) => (
                     <div key={idx} className="flex items-center gap-2">
-                      <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0 hidden sm:inline" />
-                      <Input
-                        type="time"
-                        value={inv.startTime}
-                        onChange={(e) =>
-                          handleUpdateInterval(dow, idx, "startTime", e.target.value)
-                        }
-                        className="h-8 text-xs w-28 font-mono"
-                      />
-                      <span className="text-xs text-muted-foreground font-medium">to</span>
-                      <Input
-                        type="time"
-                        value={inv.endTime}
-                        onChange={(e) =>
-                          handleUpdateInterval(dow, idx, "endTime", e.target.value)
-                        }
-                        className="h-8 text-xs w-28 font-mono"
-                      />
+                      <div className="w-36">
+                        <ModernTimePicker
+                          value={inv.startTime}
+                          onChange={(val) =>
+                            handleUpdateInterval(dow, idx, "startTime", val)
+                          }
+                        />
+                      </div>
+                      <span className="text-xs text-muted-foreground font-black">–</span>
+                      <div className="w-36">
+                        <ModernTimePicker
+                          value={inv.endTime}
+                          onChange={(val) =>
+                            handleUpdateInterval(dow, idx, "endTime", val)
+                          }
+                        />
+                      </div>
 
                       <Button
                         type="button"
