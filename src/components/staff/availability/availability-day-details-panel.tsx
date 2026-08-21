@@ -113,6 +113,32 @@ export function AvailabilityDayDetailsPanel({
   const dayOfWeekName = format(parsedDate, "EEEE");
   const restOfDate = format(parsedDate, "d MMMM yyyy");
 
+  // Detect if user made any edits
+  const hasChanges = React.useMemo(() => {
+    // 1. Status toggle changed
+    if (isAvailable !== isInitialAvailable) return true;
+
+    // 2. If On Leave, check if reason changed
+    if (!isAvailable) {
+      const origReason = (initialLeaveReason || "").trim();
+      return leaveReason.trim() !== origReason;
+    }
+
+    // 3. If Available, check intervals
+    if (intervals.length !== initialIntervals.length) return true;
+
+    for (let i = 0; i < intervals.length; i++) {
+      const cur = intervals[i];
+      const init = initialIntervals[i];
+      if (!init) return true;
+      if (cur.startTime !== init.startTime || cur.endTime !== init.endTime) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [isAvailable, isInitialAvailable, leaveReason, initialLeaveReason, intervals, initialIntervals]);
+
   // Interval handlers
   const handleAddInterval = () => {
     let nextStart = "14:00";
@@ -531,39 +557,43 @@ export function AvailabilityDayDetailsPanel({
         </p>
       </div>
 
-      {/* Action Buttons Footer */}
-      <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border/60">
-        {isOverride && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleReset}
-            disabled={isResetting || isSaving}
-            className="h-10 gap-1.5 rounded-2xl px-4 text-xs font-bold border-border/80 hover:bg-muted/50 transition-all"
-          >
-            {isResetting ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <RotateCcw className="size-3.5" />
-            )}
-            Reset
-          </Button>
-        )}
-
-        <Button
-          type="button"
-          onClick={handleSave}
-          disabled={isSaving || isResetting}
-          className="h-10 gap-2 rounded-2xl px-6 text-xs font-black bg-[#0B3B36] hover:bg-[#075e5a] text-white shadow-md shadow-[#0B3B36]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
-        >
-          {isSaving ? (
-            <Loader2 className="size-3.5 animate-spin" />
-          ) : (
-            <Check className="size-4" />
+      {/* Action Buttons Footer - Only visible when changes exist or override can be reset */}
+      {(hasChanges || isOverride || isSaving) && (
+        <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border/60">
+          {isOverride && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleReset}
+              disabled={isResetting || isSaving}
+              className="h-10 gap-1.5 rounded-2xl px-4 text-xs font-bold border-border/80 hover:bg-muted/50 transition-all"
+            >
+              {isResetting ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <RotateCcw className="size-3.5" />
+              )}
+              Reset to Routine
+            </Button>
           )}
-          Save Changes
-        </Button>
-      </div>
+
+          {(hasChanges || isSaving) && (
+            <Button
+              type="button"
+              onClick={handleSave}
+              disabled={isSaving || isResetting}
+              className="h-10 gap-2 rounded-2xl px-6 text-xs font-black bg-[#0B3B36] hover:bg-[#075e5a] text-white shadow-md shadow-[#0B3B36]/25 transition-all hover:scale-[1.02] active:scale-[0.98] animate-in fade-in-0 zoom-in-95 duration-150"
+            >
+              {isSaving ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Check className="size-4" />
+              )}
+              Save Changes
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
