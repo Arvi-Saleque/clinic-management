@@ -37,8 +37,13 @@ import { getInvoiceDetail } from "@/lib/server/directory";
 import {
   recordDirectPaymentAction,
   updateDraftInvoiceAction,
+  voidInvoiceAction,
 } from "@/lib/server/invoices";
 import { cn, formatCurrency } from "@/lib/utils";
+import {
+  PaymentSuccessDialog,
+  PaymentSuccessData,
+} from "@/components/staff/payment-success-dialog";
 
 interface InvoiceDetailDialogProps {
   invoiceId: string | null;
@@ -130,6 +135,10 @@ export function InvoiceDetailDialog({
   const [installmentAmount, setInstallmentAmount] = React.useState<number>(0);
   const [installmentMethod, setInstallmentMethod] = React.useState<PaymentMethod>("card");
   const [isRecordingInstallment, setIsRecordingInstallment] = React.useState(false);
+
+  // Payment Success Confirmation Modal State
+  const [successModalOpen, setSuccessModalOpen] = React.useState(false);
+  const [successModalData, setSuccessModalData] = React.useState<PaymentSuccessData | null>(null);
 
   const fetchDetail = React.useCallback(async (id: string) => {
     setLoading(true);
@@ -259,23 +268,29 @@ export function InvoiceDetailDialog({
       });
 
       if (res.success) {
-        if (targetStatus === "draft") {
+        if (targetStatus === "paid" || targetStatus === "partially_paid") {
+          const amt = targetStatus === "paid" ? draftNetTotal : partialAmount;
+          if (amt > 0) {
+            setSuccessModalData({
+              invoiceNumber: invoice.invoice_number,
+              patientName: patientName,
+              amountPaid: amt,
+              paymentMethod: paymentMethod,
+              balanceRemaining:
+                targetStatus === "paid" ? 0 : Math.max(0, draftNetTotal - partialAmount),
+              isFullSettlement: targetStatus === "paid",
+              date: new Date(),
+              invoiceId: invoice.id,
+            });
+            setSuccessModalOpen(true);
+          }
+        } else if (targetStatus === "draft") {
           toast.success("Draft invoice changes saved.", {
             position: "top-center",
             duration: 4000,
           });
-        } else if (targetStatus === "paid") {
-          toast.success(
-            `Invoice ${invoice.invoice_number} settled & marked Paid (€${draftNetTotal.toFixed(2)})! 🎉`,
-            { position: "top-center", duration: 5000 },
-          );
         } else if (targetStatus === "issued") {
           toast.success(`Invoice ${invoice.invoice_number} issued as Outstanding.`, {
-            position: "top-center",
-            duration: 4500,
-          });
-        } else {
-          toast.success(`Invoice ${invoice.invoice_number} updated with partial deposit.`, {
             position: "top-center",
             duration: 4500,
           });
@@ -319,17 +334,18 @@ export function InvoiceDetailDialog({
 
       if (res.success) {
         const nextBal = Math.max(0, balance - installmentAmount);
-        if (nextBal <= 0.01) {
-          toast.success(
-            `Payment of €${installmentAmount.toFixed(2)} recorded. Invoice ${invoice.invoice_number} is now Paid in Full! 🎉`,
-            { position: "top-center", duration: 5000 },
-          );
-        } else {
-          toast.success(
-            `Payment of €${installmentAmount.toFixed(2)} recorded. Remaining balance: €${nextBal.toFixed(2)}.`,
-            { position: "top-center", duration: 4500 },
-          );
-        }
+
+        setSuccessModalData({
+          invoiceNumber: invoice.invoice_number,
+          patientName: patientName,
+          amountPaid: installmentAmount,
+          paymentMethod: installmentMethod,
+          balanceRemaining: nextBal,
+          isFullSettlement: nextBal <= 0.01,
+          date: new Date(),
+          invoiceId: invoice.id,
+        });
+        setSuccessModalOpen(true);
 
         onPaymentSuccess?.();
         onOpenChange(false);
@@ -340,6 +356,36 @@ export function InvoiceDetailDialog({
       toast.error("Failed to record installment payment.", { position: "top-center" });
     } finally {
       setIsRecordingInstallment(false);
+    }
+  }
+
+  // Handle Void Invoice
+  const [isVoiding, setIsVoiding] = React.useState(false);
+  async function handleVoidInvoice() {
+    if (!invoice) return;
+    if (
+      !confirm(
+        `Are you sure you want to void invoice ${invoice.invoice_number}? This will cancel remaining balance and preserve an immutable audit record.`,
+      )
+    ) {
+      return;
+    }
+    setIsVoiding(true);
+    try {
+      const res = await voidInvoiceAction({ invoiceId: invoice.id });
+      if (res.success) {
+        toast.success(`Invoice ${invoice.invoice_number} has been voided.`, {
+          position: "top-center",
+        });
+        onPaymentSuccess?.();
+        onOpenChange(false);
+      } else {
+        toast.error(res.error || "Failed to void invoice.", { position: "top-center" });
+      }
+    } catch {
+      toast.error("Failed to void invoice.", { position: "top-center" });
+    } finally {
+      setIsVoiding(false);
     }
   }
 
@@ -909,16 +955,31 @@ export function InvoiceDetailDialog({
               </div>
 
               {/* ── 3. Modal Footer Actions (Generous Padding & Standard Symmetry) ── */}
-              <DialogFooter className="px-8 pt-5 pb-8 sm:pb-9 border-t border-border/70 bg-muted/20 flex flex-row items-center justify-between gap-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handlePrint}
-                  className="h-11 px-5 rounded-xl text-xs font-bold gap-2.5 border-border/80 hover:bg-muted/50 transition-all cursor-pointer shadow-2xs"
-                >
-                  <Printer className="size-4 text-muted-foreground" />
-                  <span>Print Statement</span>
-                </Button>
+              <DialogFooter className="px-8 pt-5 pb-8 sm:pb-9 border-t border-border/70 bg-muted/20 flex flex-row items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePrint}
+                    className="h-11 px-4 sm:px-5 rounded-xl text-xs font-bold gap-2 border-border/80 hover:bg-muted/50 transition-all cursor-pointer shadow-2xs"
+                  >
+                    <Printer className="size-4 text-muted-foreground" />
+                    <span>Print Statement</span>
+                  </Button>
+
+                  {invoice.status !== "void" && (invoice.status === "draft" || balance > 0) && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={isVoiding}
+                      onClick={handleVoidInvoice}
+                      className="h-11 px-3.5 rounded-xl text-xs font-bold text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 border-red-200 dark:border-red-900/50 transition-all cursor-pointer"
+                      title="Void this invoice"
+                    >
+                      {isVoiding ? <Loader2 className="size-3.5 animate-spin" /> : "Void"}
+                    </Button>
+                  )}
+                </div>
 
                 <div className="flex items-center gap-3">
                   <Button
@@ -1130,6 +1191,14 @@ export function InvoiceDetailDialog({
           </div>
         </div>
       )}
+
+      {/* ── 5. Standard Payment Success Confirmation Modal ── */}
+      <PaymentSuccessDialog
+        open={successModalOpen}
+        onOpenChange={setSuccessModalOpen}
+        data={successModalData}
+        onPrint={handlePrint}
+      />
     </>
   );
 }

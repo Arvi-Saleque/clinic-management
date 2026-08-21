@@ -502,3 +502,56 @@ export async function createInstantEncounterInvoiceAction(
     };
   }
 }
+
+/**
+ * Marks an invoice as Void (cancelled/invalidated with audit trail preserved).
+ */
+export async function voidInvoiceAction(input: {
+  invoiceId: string;
+  reason?: string;
+}): Promise<{ success: boolean; error: string | null }> {
+  try {
+    const profile = await requireStaff();
+    const supabase = await createClient();
+
+    let query = supabase
+      .from("invoices")
+      .select("id, status, invoice_number, patient_id")
+      .eq("id", input.invoiceId);
+
+    if (profile.organization_id) {
+      query = query.eq("organization_id", profile.organization_id);
+    }
+
+    const { data: invoice } = await query.single();
+    if (!invoice) return { success: false, error: "Invoice not found or unauthorized." };
+    if (invoice.status === "void") return { success: false, error: "Invoice is already void." };
+
+    let updateQuery = supabase
+      .from("invoices")
+      .update({
+        status: "void",
+        notes: input.reason ? `VOIDED: ${input.reason}` : "Invoice voided by clinic staff.",
+      })
+      .eq("id", input.invoiceId);
+
+    if (profile.organization_id) {
+      updateQuery = updateQuery.eq("organization_id", profile.organization_id);
+    }
+
+    const { error: updateError } = await updateQuery;
+    if (updateError) return { success: false, error: updateError.message };
+
+    revalidatePath("/billing/invoices");
+    revalidatePath(`/billing/invoices/${input.invoiceId}`);
+    revalidatePath(`/patients/${invoice.patient_id}`);
+
+    return { success: true, error: null };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to void invoice.",
+    };
+  }
+}
+
