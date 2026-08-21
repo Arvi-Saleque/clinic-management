@@ -73,8 +73,8 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
 
   // Offering Config Modal (when turning ON or editing fee/duration)
   const [configuringService, setConfiguringService] = React.useState<DoctorServiceConfig | null>(null);
-  const [configDuration, setConfigDuration] = React.useState<number>(30);
-  const [configPrice, setConfigPrice] = React.useState<number>(50);
+  const [configDuration, setConfigDuration] = React.useState<string>("30");
+  const [configPrice, setConfigPrice] = React.useState<string>("");
   const [isSavingConfig, setIsSavingConfig] = React.useState(false);
 
   // Delete / Remove State
@@ -129,8 +129,10 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
     if (nextChecked) {
       // Open modal to configure duration and fee
       setConfiguringService(svc);
-      setConfigDuration(svc.override_duration_minutes ?? svc.clinic_duration_minutes ?? 30);
-      setConfigPrice(svc.override_price ?? svc.clinic_price ?? 50);
+      const defaultDur = svc.override_duration_minutes ?? svc.clinic_duration_minutes ?? 30;
+      const defaultPrice = svc.override_price ?? svc.clinic_price;
+      setConfigDuration(defaultDur ? defaultDur.toString() : "30");
+      setConfigPrice(defaultPrice != null && defaultPrice > 0 ? defaultPrice.toString() : "");
     } else {
       // Turn OFF directly
       try {
@@ -168,11 +170,14 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
     if (e) e.preventDefault();
     if (!configuringService) return;
 
-    if (!configDuration || configDuration < 5) {
-      toast.error("Please enter a valid duration (minimum 5 minutes)");
+    const durNum = parseInt(configDuration, 10);
+    if (!durNum || isNaN(durNum) || durNum < 5 || durNum > 480) {
+      toast.error("Please enter a valid duration between 5 and 480 minutes");
       return;
     }
-    if (configPrice == null || configPrice < 0) {
+
+    const priceNum = parseFloat(configPrice);
+    if (configPrice.trim() === "" || isNaN(priceNum) || priceNum < 0) {
       toast.error("Please enter a valid fee/price");
       return;
     }
@@ -182,8 +187,8 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
       const res = await updateDoctorServiceAction({
         serviceId: configuringService.service_id,
         isOffered: true,
-        overrideDurationMinutes: configDuration,
-        overridePrice: configPrice,
+        overrideDurationMinutes: durNum,
+        overridePrice: priceNum,
         practitionerId: selectedPractitionerId,
       });
 
@@ -194,10 +199,10 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
               ? {
                   ...s,
                   is_offered: true,
-                  override_duration_minutes: configDuration,
-                  effective_duration_minutes: configDuration,
-                  override_price: configPrice,
-                  effective_price: configPrice,
+                  override_duration_minutes: durNum,
+                  effective_duration_minutes: durNum,
+                  override_price: priceNum,
+                  effective_price: priceNum,
                 }
               : s,
           ),
@@ -538,8 +543,8 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
                       <TableCell>
                         {isOffered ? (
                           <div className="flex items-center gap-1 text-xs font-black text-foreground font-mono">
-                            <span className="text-muted-foreground text-[11px]">৳/£</span>
-                            <span>{Number(price).toLocaleString()}</span>
+                            <span className="text-muted-foreground text-[11px]">€</span>
+                            <span>{Number(price).toFixed(2)}</span>
                           </div>
                         ) : (
                           <span className="text-xs text-muted-foreground/50 font-mono">—</span>
@@ -556,8 +561,10 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
                               size="sm"
                               onClick={() => {
                                 setConfiguringService(svc);
-                                setConfigDuration(svc.override_duration_minutes ?? svc.clinic_duration_minutes ?? 30);
-                                setConfigPrice(svc.override_price ?? svc.clinic_price ?? 50);
+                                const curDur = svc.override_duration_minutes ?? svc.clinic_duration_minutes ?? 30;
+                                const curPrice = svc.override_price ?? svc.clinic_price;
+                                setConfigDuration(curDur ? curDur.toString() : "30");
+                                setConfigPrice(curPrice != null && curPrice > 0 ? curPrice.toString() : "");
                               }}
                               className="h-8 gap-1.5 rounded-xl px-2.5 text-xs font-bold border-border/80 hover:bg-[#0B3B36] hover:text-white hover:border-[#0B3B36] transition-all cursor-pointer shadow-2xs"
                             >
@@ -625,7 +632,7 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
                 </div>
               </div>
               <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-                Set your procedure duration and fee. Patients booking with you will see these specific parameters.
+                Set your procedure duration and fee in Euro (€). Patients booking with you will see these specific parameters.
               </DialogDescription>
             </DialogHeader>
 
@@ -634,7 +641,7 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
               <div className="space-y-2">
                 <Label className="text-xs font-extrabold uppercase tracking-wider text-foreground flex items-center justify-between">
                   <span>Procedure Duration (Minutes) *</span>
-                  <span className="text-primary font-bold font-mono">{configDuration} mins</span>
+                  <span className="text-primary font-bold font-mono">{configDuration || "0"} mins</span>
                 </Label>
 
                 {/* Preset Pills */}
@@ -643,10 +650,10 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
                     <button
                       key={preset}
                       type="button"
-                      onClick={() => setConfigDuration(preset)}
+                      onClick={() => setConfigDuration(preset.toString())}
                       className={cn(
                         "px-2.5 py-1 rounded-xl text-xs font-bold border transition-all cursor-pointer",
-                        configDuration === preset
+                        configDuration === preset.toString()
                           ? "bg-[#0B3B36] text-white border-[#0B3B36] shadow-2xs"
                           : "border-border/70 bg-muted/20 text-muted-foreground hover:bg-muted/40",
                       )}
@@ -661,10 +668,11 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
                   min={5}
                   max={480}
                   step={5}
-                  value={configDuration || ""}
-                  onChange={(e) => setConfigDuration(Number(e.target.value))}
-                  placeholder="e.g. 45"
-                  className="h-10 rounded-2xl text-xs font-mono font-bold bg-muted/20 border-border/80"
+                  value={configDuration}
+                  onChange={(e) => setConfigDuration(e.target.value)}
+                  onFocus={(e) => e.target.select()}
+                  placeholder="e.g. 30"
+                  className="h-10 rounded-2xl text-xs font-mono font-bold bg-muted/20 border-border/80 focus-visible:bg-card shadow-2xs"
                   required
                 />
               </div>
@@ -672,20 +680,21 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
               {/* Fee / Price Field */}
               <div className="space-y-2">
                 <Label className="text-xs font-extrabold uppercase tracking-wider text-foreground">
-                  Your Fee / Price *
+                  Your Fee / Price (€) *
                 </Label>
                 <div className="relative">
                   <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground font-mono">
-                    Fee
+                    €
                   </span>
                   <Input
                     type="number"
                     min={0}
                     step={1}
-                    value={configPrice ?? ""}
-                    onChange={(e) => setConfigPrice(Number(e.target.value))}
-                    placeholder="e.g. 50"
-                    className="h-10 rounded-2xl pl-12 text-xs font-mono font-bold bg-muted/20 border-border/80"
+                    value={configPrice}
+                    onChange={(e) => setConfigPrice(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    placeholder="0.00"
+                    className="h-10 rounded-2xl pl-8 text-xs font-mono font-bold bg-muted/20 border-border/80 focus-visible:bg-card shadow-2xs"
                     required
                   />
                 </div>

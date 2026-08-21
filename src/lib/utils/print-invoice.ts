@@ -212,8 +212,8 @@ function generateUKInvoiceHtml(data: PrintInvoicePayload): string {
           : ""
       }
       <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #64748b; font-size: 10px;">
-        <span>UK VAT (Exempt - Healthcare):</span>
-        <span style="font-family: monospace;">€0.00 / £0.00</span>
+        <span>VAT (Exempt - Healthcare):</span>
+        <span style="font-family: monospace;">€0.00</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px solid #cbd5e1; font-weight: 800; font-size: 13px; color: #0f172a;">
         <span>Total Amount Due:</span>

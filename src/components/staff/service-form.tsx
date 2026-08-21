@@ -292,11 +292,11 @@ export function ServiceForm({ mode, context }: ServiceFormProps) {
                 {/* Fee */}
                 <div className="space-y-2">
                   <Label htmlFor="service-fee" className="text-xs font-bold text-foreground">
-                    Fee / Price (৳/£) *
+                    Fee / Price (€) *
                   </Label>
                   <div className="relative pt-6">
                     <span className="pointer-events-none absolute left-3.5 top-[38px] text-xs font-bold text-muted-foreground font-mono">
-                      Fee
+                      €
                     </span>
                     <Input
                       id="service-fee"
@@ -305,8 +305,9 @@ export function ServiceForm({ mode, context }: ServiceFormProps) {
                       step={1}
                       value={fee}
                       onChange={(e) => setFee(e.target.value)}
-                      placeholder="e.g. 80.00"
-                      className="h-10 rounded-2xl pl-12 text-xs font-mono font-bold bg-muted/20 border-border/80 focus-visible:bg-card shadow-2xs"
+                      onFocus={(e) => e.target.select()}
+                      placeholder="0.00"
+                      className="h-10 rounded-2xl pl-8 text-xs font-mono font-bold bg-muted/20 border-border/80 focus-visible:bg-card shadow-2xs"
                       required
                     />
                   </div>
@@ -367,7 +368,7 @@ export function ServiceForm({ mode, context }: ServiceFormProps) {
                     {duration} mins
                   </span>
                   <span className="font-mono font-black text-foreground">
-                    ৳/£{parseFloat(fee || "0").toLocaleString()}
+                    €{parseFloat(fee || "0").toFixed(2)}
                   </span>
                 </div>
               </div>
