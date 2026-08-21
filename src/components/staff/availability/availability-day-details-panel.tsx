@@ -490,6 +490,7 @@ export function AvailabilityDayDetailsPanel({
                       <ModernTimePicker
                         value={inv.startTime}
                         onChange={(val) => handleUpdateInterval(idx, "startTime", val)}
+                        align="left"
                       />
                     </div>
                     <span className="text-muted-foreground font-black text-xs select-none px-0.5">
@@ -499,6 +500,7 @@ export function AvailabilityDayDetailsPanel({
                       <ModernTimePicker
                         value={inv.endTime}
                         onChange={(val) => handleUpdateInterval(idx, "endTime", val)}
+                        align="right"
                       />
                     </div>
 

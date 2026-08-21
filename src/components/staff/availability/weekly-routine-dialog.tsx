@@ -279,6 +279,7 @@ export function WeeklyRoutineDialog({
                               onChange={(val) =>
                                 handleUpdateInterval(day.dow, idx, "startTime", val)
                               }
+                              align="left"
                             />
                           </div>
 
@@ -290,6 +291,7 @@ export function WeeklyRoutineDialog({
                               onChange={(val) =>
                                 handleUpdateInterval(day.dow, idx, "endTime", val)
                               }
+                              align="right"
                             />
                           </div>
 

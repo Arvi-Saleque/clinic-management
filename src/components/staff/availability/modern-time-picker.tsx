@@ -11,6 +11,7 @@ interface ModernTimePickerProps {
   className?: string;
   id?: string;
   placeholder?: string;
+  align?: "left" | "right" | "auto";
 }
 
 const HOURS_12 = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -36,7 +37,6 @@ function parse24to12(val: string) {
   let m = parseInt(mStr, 10);
   if (isNaN(m)) m = 0;
 
-  // Round minute to nearest 5 for clean display
   const period: "AM" | "PM" = h >= 12 ? "PM" : "AM";
   const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
   const minuteStr = String(m).padStart(2, "0");
@@ -63,8 +63,11 @@ export function ModernTimePicker({
   className,
   id,
   placeholder = "Select time",
+  align = "auto",
 }: ModernTimePickerProps) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [openDirection, setOpenDirection] = React.useState<"down" | "up">("down");
+  const [computedAlign, setComputedAlign] = React.useState<"left" | "right">("left");
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const { hour12, minuteStr, period, formatted } = React.useMemo(
@@ -72,7 +75,36 @@ export function ModernTimePicker({
     [value],
   );
 
-  // Close on outside click
+  // Position and collision calculation
+  React.useLayoutEffect(() => {
+    if (!isOpen || !containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceRight = window.innerWidth - rect.left;
+
+    // Popover height is ~320px
+    if (spaceBelow < 330 && rect.top > 330) {
+      setOpenDirection("up");
+    } else {
+      setOpenDirection("down");
+    }
+
+    if (align === "right") {
+      setComputedAlign("right");
+    } else if (align === "left") {
+      setComputedAlign("left");
+    } else {
+      // Auto: if not enough room on the right for 300px popover, align right
+      if (spaceRight < 310) {
+        setComputedAlign("right");
+      } else {
+        setComputedAlign("left");
+      }
+    }
+  }, [isOpen, align]);
+
+  // Close on outside click or Escape
   React.useEffect(() => {
     if (!isOpen) return;
 
@@ -125,7 +157,7 @@ export function ModernTimePicker({
         disabled={disabled}
         onClick={() => setIsOpen((prev) => !prev)}
         className={cn(
-          "group w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-bold tabular-nums transition-all border outline-none",
+          "group w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-bold tabular-nums transition-all border outline-none cursor-pointer",
           isOpen
             ? "bg-card border-[#0B3B36] ring-2 ring-[#0B3B36]/20 shadow-xs"
             : "bg-card hover:bg-muted/30 border-border/80 hover:border-border text-foreground shadow-2xs",
@@ -153,7 +185,13 @@ export function ModernTimePicker({
 
       {/* Floating Popover Picker */}
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1.5 z-50 w-72 sm:w-80 rounded-2xl border border-border/80 bg-popover/98 backdrop-blur-md p-3.5 shadow-xl ring-1 ring-black/5 animate-in fade-in-0 zoom-in-95 duration-150">
+        <div
+          className={cn(
+            "absolute z-[100] w-72 sm:w-76 rounded-2xl border border-border/80 bg-popover/98 backdrop-blur-md p-3.5 shadow-2xl ring-1 ring-black/10 animate-in fade-in-0 zoom-in-95 duration-150",
+            computedAlign === "right" ? "right-0" : "left-0",
+            openDirection === "up" ? "bottom-full mb-2" : "top-full mt-2",
+          )}
+        >
           {/* Header Preview & AM/PM Toggle */}
           <div className="flex items-center justify-between border-b border-border/60 pb-2.5 mb-2.5">
             <div className="flex items-center gap-1.5">
@@ -171,7 +209,7 @@ export function ModernTimePicker({
                 type="button"
                 onClick={() => handleSetPeriod("AM")}
                 className={cn(
-                  "px-2.5 py-1 text-[11px] font-extrabold rounded-md transition-all",
+                  "px-2.5 py-1 text-[11px] font-extrabold rounded-md transition-all cursor-pointer",
                   period === "AM"
                     ? "bg-[#0B3B36] text-white shadow-2xs"
                     : "text-muted-foreground hover:text-foreground",
@@ -183,7 +221,7 @@ export function ModernTimePicker({
                 type="button"
                 onClick={() => handleSetPeriod("PM")}
                 className={cn(
-                  "px-2.5 py-1 text-[11px] font-extrabold rounded-md transition-all",
+                  "px-2.5 py-1 text-[11px] font-extrabold rounded-md transition-all cursor-pointer",
                   period === "PM"
                     ? "bg-[#0B3B36] text-white shadow-2xs"
                     : "text-muted-foreground hover:text-foreground",
@@ -210,7 +248,7 @@ export function ModernTimePicker({
                       type="button"
                       onClick={() => handleSetHour(h)}
                       className={cn(
-                        "h-7 rounded-lg text-xs font-bold transition-all tabular-nums flex items-center justify-center",
+                        "h-7 rounded-lg text-xs font-bold transition-all tabular-nums flex items-center justify-center cursor-pointer",
                         isSelected
                           ? "bg-[#0B3B36] text-white font-black shadow-2xs scale-105"
                           : "text-foreground hover:bg-card hover:shadow-2xs",
@@ -238,7 +276,7 @@ export function ModernTimePicker({
                       type="button"
                       onClick={() => handleSetMinute(m)}
                       className={cn(
-                        "h-7 rounded-lg text-xs font-bold transition-all tabular-nums flex items-center justify-center",
+                        "h-7 rounded-lg text-xs font-bold transition-all tabular-nums flex items-center justify-center cursor-pointer",
                         isSelected
                           ? "bg-[#0B3B36] text-white font-black shadow-2xs scale-105"
                           : isMajor
@@ -266,7 +304,7 @@ export function ModernTimePicker({
                   type="button"
                   onClick={() => handleSelectPreset(preset.value)}
                   className={cn(
-                    "px-2 py-1 rounded-lg text-[10px] font-bold transition-all border",
+                    "px-2 py-1 rounded-lg text-[10px] font-bold transition-all border cursor-pointer",
                     value === preset.value
                       ? "bg-emerald-50 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200 dark:border-emerald-700"
                       : "bg-card text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted/40",
@@ -283,7 +321,7 @@ export function ModernTimePicker({
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="px-3 py-1 text-xs font-bold rounded-lg bg-[#0B3B36] text-white hover:bg-[#075e5a] transition-colors flex items-center gap-1"
+              className="px-3 py-1 text-xs font-bold rounded-lg bg-[#0B3B36] text-white hover:bg-[#075e5a] transition-colors flex items-center gap-1 cursor-pointer"
             >
               <Check className="size-3" /> Done
             </button>

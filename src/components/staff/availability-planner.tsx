@@ -123,7 +123,7 @@ export function AvailabilityPlanner({
       {/* ------------------------------------------------------------- */}
       {/* Layer 2: MAIN 2-COLUMN AVAILABILITY WORKSPACE (Calendar + Day Panel) */}
       {/* ------------------------------------------------------------- */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start relative z-20">
         {/* Left Column (~67% / 8 cols): Month Calendar */}
         <div className="lg:col-span-7 xl:col-span-8">
           <AvailabilityCalendarGrid
@@ -136,7 +136,7 @@ export function AvailabilityPlanner({
         </div>
 
         {/* Right Column (~33% / 4 cols): Selected Date Details Panel */}
-        <div className="lg:col-span-5 xl:col-span-4 sticky top-6">
+        <div className="lg:col-span-5 xl:col-span-4 sticky top-6 relative z-30">
           <AvailabilityDayDetailsPanel
             key={`${selectedDate}-${selectedEffective.source}`}
             practitionerId={practitionerId}
