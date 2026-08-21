@@ -36,7 +36,7 @@ export function AvailabilityPlanner({
   userRole = "dentist",
 }: AvailabilityPlannerProps) {
   const router = useRouter();
-  const isReadOnly = userRole === "receptionist";
+  const isReadOnly = false;
 
   // Active month for calendar view
   const [currentMonth, setCurrentMonth] = React.useState<Date>(() => new Date());

@@ -113,7 +113,7 @@ export async function saveMultiIntervalWeeklyAvailability(
   input: SaveMultiIntervalAvailabilityInput,
 ): Promise<{ error: string | null }> {
   try {
-    await requireClinician();
+    await requireStaff();
     const parsed = saveMultiIntervalAvailabilitySchema.safeParse(input);
     if (!parsed.success) {
       return { error: parsed.error.issues[0]?.message ?? "Invalid schedule configuration" };
@@ -198,7 +198,7 @@ export async function setAvailabilityExceptionAction(
   input: CreateAvailabilityExceptionInput,
 ): Promise<{ success: boolean; error: string | null }> {
   try {
-    await requireClinician();
+    await requireStaff();
     const parsed = createAvailabilityExceptionSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid exception details" };
@@ -251,7 +251,7 @@ export async function deleteAvailabilityExceptionAction(
   input: DeleteAvailabilityExceptionInput,
 ): Promise<{ success: boolean; error: string | null }> {
   try {
-    await requireClinician();
+    await requireStaff();
     const parsed = deleteAvailabilityExceptionSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -283,7 +283,7 @@ export async function saveDayAvailabilityOverrideAction(
   input: SaveDateOverrideInput,
 ): Promise<{ success: boolean; error: string | null }> {
   try {
-    await requireClinician();
+    await requireStaff();
     const parsed = saveDateOverrideSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid date override details" };
@@ -325,7 +325,7 @@ export async function resetDayAvailabilityOverrideAction(
   input: ResetDateOverrideInput,
 ): Promise<{ success: boolean; error: string | null }> {
   try {
-    await requireClinician();
+    await requireStaff();
     const parsed = resetDateOverrideSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid reset input" };

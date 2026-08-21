@@ -62,9 +62,7 @@ export default async function StaffSchedulerPage({
             Availability &amp; Diary
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            {isReceptionist
-              ? "View doctor working schedules, appointment capacity, and clinical availability."
-              : "Manage your working hours and availability."}
+            Manage and modify clinical hours, daily schedules, and availability for any selected doctor.
           </p>
         </div>
 
