@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Clock, Edit3, Info, Plus, Sparkles } from "lucide-react";
+import { Clock, Edit3, Info, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { DayAvailability, TimeInterval } from "@/types/availability";
 import { cn } from "@/lib/utils";

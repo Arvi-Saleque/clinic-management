@@ -1,4 +1,4 @@
-import { CalendarCheck2, CheckCircle2, Clock3, Plus, Receipt, Sparkles, Users, WalletCards } from "lucide-react";
+import { CalendarCheck2, CalendarDays, CheckCircle2, Clock3, Plus, Receipt, Users, WalletCards } from "lucide-react";
 
 import { StaffShell } from "@/components/staff/staff-shell";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +29,7 @@ export default function WorkspaceDemoPage() {
   return (
     <StaffShell profile={profile}>
       <div className="space-y-7">
-        <section className="relative overflow-hidden rounded-[28px] bg-secondary p-8 text-white"><div className="absolute -right-8 -top-16 size-64 rounded-full bg-primary/20 blur-3xl" /><div className="relative flex flex-col justify-between gap-6 xl:flex-row xl:items-end"><div><span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/75"><Sparkles className="size-3.5 text-accent" />Live workspace concept</span><h1 className="mt-4 font-heading text-[38px] font-extrabold tracking-[-0.035em]">Good morning, Amelia.</h1><p className="mt-3 max-w-xl text-sm leading-6 text-white/65">Your patient flow, clinical diary and outstanding work are visible in one calm command centre.</p></div><ButtonLink href="/scheduler" size="lg" className="h-11 gap-2 bg-accent text-accent-foreground"><Plus className="size-4" />New appointment</ButtonLink></div></section>
+        <section className="relative overflow-hidden rounded-[28px] bg-secondary p-8 text-white"><div className="absolute -right-8 -top-16 size-64 rounded-full bg-primary/20 blur-3xl" /><div className="relative flex flex-col justify-between gap-6 xl:flex-row xl:items-end"><div><span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/75"><CalendarDays className="size-3.5 text-accent" />Live workspace concept</span><h1 className="mt-4 font-heading text-[38px] font-extrabold tracking-[-0.035em]">Good morning, Amelia.</h1><p className="mt-3 max-w-xl text-sm leading-6 text-white/65">Your patient flow, clinical diary and outstanding work are visible in one calm command centre.</p></div><ButtonLink href="/scheduler" size="lg" className="h-11 gap-2 bg-accent text-accent-foreground"><Plus className="size-4" />New appointment</ButtonLink></div></section>
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[

@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Sparkles } from "lucide-react";
+import { Activity, ArrowRight, CalendarDays, Layers, ShieldCheck, Sun } from "lucide-react";
 import { LuxuryHero } from "@/components/marketing/luxury-hero";
 import { Card3D } from "@/components/marketing/luxury-card3d";
 import { LuxuryRoadmap } from "@/components/marketing/luxury-roadmap";
@@ -91,7 +91,7 @@ export default function HomePage() {
                       </div>
                       <div className="card-overlay-content">
                         <div className="treatment-icon">
-                          <Sparkles className="w-6 h-6" />
+                          <ShieldCheck className="w-6 h-6" />
                         </div>
                         <h3 className="card-title">Dental Implants</h3>
                         <p className="card-desc">
@@ -114,7 +114,7 @@ export default function HomePage() {
                       </div>
                       <div className="card-overlay-content">
                         <div className="treatment-icon">
-                          <Sparkles className="w-6 h-6" />
+                          <Layers className="w-6 h-6" />
                         </div>
                         <h3 className="card-title">Veneers</h3>
                         <p className="card-desc">
@@ -137,7 +137,7 @@ export default function HomePage() {
                       </div>
                       <div className="card-overlay-content">
                         <div className="treatment-icon">
-                          <Sparkles className="w-6 h-6" />
+                          <Activity className="w-6 h-6" />
                         </div>
                         <h3 className="card-title">Cosmetic Braces</h3>
                         <p className="card-desc">
@@ -160,7 +160,7 @@ export default function HomePage() {
                       </div>
                       <div className="card-overlay-content">
                         <div className="treatment-icon">
-                          <Sparkles className="w-6 h-6" />
+                          <Sun className="w-6 h-6" />
                         </div>
                         <h3 className="card-title">Teeth Whitening</h3>
                         <p className="card-desc">

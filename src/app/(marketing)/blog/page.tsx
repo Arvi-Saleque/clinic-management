@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, Search, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Search } from "lucide-react";
 
 const blogArticles = [
   {
@@ -83,7 +83,7 @@ export default function BlogPage() {
             </nav>
 
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/15 text-xs text-[#9CB080] font-medium mb-6 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
+              <BookOpen className="w-3.5 h-3.5" />
               <span>Dental Education &amp; Clinical Insights</span>
             </div>
 

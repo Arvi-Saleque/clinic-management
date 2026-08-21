@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarDays, Clock, Mail, MapPin, Phone, ShieldCheck, Sparkles } from "lucide-react";
+import { CalendarDays, Clock, Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
 import { Card3D } from "@/components/marketing/luxury-card3d";
 import { getClinicInfo } from "@/lib/server/marketing";
 
@@ -41,7 +41,7 @@ export default async function LocationsPage() {
             </nav>
 
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/15 text-xs text-[#9CB080] font-medium mb-6 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
+              <MapPin className="w-3.5 h-3.5" />
               <span>Visit Clinic Care Dental</span>
             </div>
 

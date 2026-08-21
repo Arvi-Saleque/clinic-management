@@ -6,7 +6,6 @@ import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -106,7 +105,7 @@ export function AvailabilityCalendarGrid({
             onClick={handleToday}
             className="h-8.5 rounded-2xl px-3.5 text-xs font-extrabold border-border/80 bg-card hover:bg-emerald-50 hover:text-emerald-900 hover:border-emerald-300 dark:hover:bg-emerald-950 dark:hover:text-emerald-200 transition-all shadow-2xs gap-1.5"
           >
-            <Sparkles className="size-3 text-emerald-600 dark:text-emerald-400" />
+            <CalendarIcon className="size-3 text-primary" />
             Today
           </Button>
         </div>

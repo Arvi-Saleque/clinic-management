@@ -10,11 +10,11 @@ import {
   CalendarRange,
   Check,
   Clock,
+  Info,
   Loader2,
   Plus,
   RotateCcw,
   ShieldCheck,
-  Sparkles,
   Trash2,
   Users,
 } from "lucide-react";
@@ -331,7 +331,7 @@ function AvailabilityDayEditorDialogContent({
                 variant="outline"
                 className="bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30 text-xs font-medium"
               >
-                <Sparkles className="w-3 h-3 mr-1" />
+                <CalendarRange className="w-3 h-3 mr-1" />
                 Adjusted Hours — This Date Only
               </Badge>
             ) : isNotScheduled ? (
@@ -339,7 +339,7 @@ function AvailabilityDayEditorDialogContent({
                 variant="outline"
                 className="bg-muted text-muted-foreground border-border/80 text-xs font-medium"
               >
-                <Clock className="w-3 h-3 mr-1" />
+                <CalendarOff className="w-3 h-3 mr-1" />
                 Normal {weekdayName} Routine: Off
               </Badge>
             ) : (
@@ -367,7 +367,7 @@ function AvailabilityDayEditorDialogContent({
         {/* Doctor Scope & Decision Cue Banner */}
         <div className="p-3 rounded-xl bg-primary/[0.04] border border-primary/15 text-xs text-muted-foreground space-y-2.5">
           <div className="flex items-start gap-2">
-            <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+            <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <div className="leading-relaxed">
               {isUnavailable ? (
                 <span>

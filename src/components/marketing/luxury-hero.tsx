@@ -6,7 +6,6 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
   ShieldCheck,
   CheckCircle2,
   ArrowUpRight,
@@ -198,7 +197,7 @@ export function LuxuryHero() {
         <div className="hero-content-wrapper">
           {/* Kicker Trust Pill */}
           <div className="hero-kicker-pill" aria-label="Care philosophy">
-            <Sparkles className="hero-kicker-sparkle" aria-hidden="true" />
+            <ShieldCheck className="hero-kicker-sparkle" aria-hidden="true" />
             <span className="hero-kicker-text">{currentSlide.kicker}</span>
             <span className="hero-kicker-dot" aria-hidden="true" />
             <strong className="hero-kicker-badge">{currentSlide.badge}</strong>

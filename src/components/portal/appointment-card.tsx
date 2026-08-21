@@ -28,7 +28,6 @@ import {
   RefreshCw,
   ShieldAlert,
   ShieldCheck,
-  Sparkles,
   Stethoscope,
   User,
   XCircle,

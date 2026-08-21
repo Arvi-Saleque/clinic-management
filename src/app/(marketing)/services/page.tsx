@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Clock, Sparkles, Tag } from "lucide-react";
+import { ArrowRight, CalendarDays, Clock, ShieldCheck, Tag } from "lucide-react";
 import { listPublicServices } from "@/lib/server/marketing";
 
 export const metadata: Metadata = {
@@ -42,7 +42,7 @@ export default async function ServicesPage() {
             </nav>
 
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/15 text-xs text-[#9CB080] font-medium mb-6 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
+              <ShieldCheck className="w-3.5 h-3.5" />
               <span>Dental Treatments &amp; Care Options</span>
             </div>
 
@@ -173,7 +173,7 @@ export default async function ServicesPage() {
             <div className="p-10 sm:p-14 md:p-16 rounded-[32px] bg-white/[0.06] border border-[#9CB080]/25 backdrop-blur-xl shadow-[0_30px_80px_-15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]">
               {/* Eyebrow Pill */}
               <div className="inline-flex items-center gap-2 bg-[#14201C]/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-[#9CB080]/30 text-xs text-[#B5C89B] font-semibold uppercase tracking-widest mb-6 shadow-sm">
-                <Sparkles className="w-3.5 h-3.5 text-[#B5C89B]" />
+                <ShieldCheck className="w-3.5 h-3.5 text-[#B5C89B]" />
                 <span>Personalized Guidance</span>
               </div>
 

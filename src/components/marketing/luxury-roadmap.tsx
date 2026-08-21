@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Card3D } from "./luxury-card3d";
-import { Layers, Scan, ShieldCheck, Sparkles, Wand2, CalendarDays } from "lucide-react";
+import { Layers, Scan, ShieldCheck, Wand2, CalendarDays } from "lucide-react";
 import { LuxuryMotionMark } from "./luxury-motion-mark";
 
 interface StepItem {
@@ -69,7 +69,7 @@ export function LuxuryRoadmap() {
       <div className="container">
         <div className="journey-header">
           <div className="header-badge-dark">
-            <Sparkles className="sparkle-icon w-3.5 h-3.5" aria-hidden="true" />
+            <CalendarDays className="sparkle-icon w-3.5 h-3.5" aria-hidden="true" />
             <span>Your Treatment Journey</span>
           </div>
           <LuxuryMotionMark />

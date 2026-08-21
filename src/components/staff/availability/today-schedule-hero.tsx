@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { format } from "date-fns";
-import { CalendarDays, Clock, Sparkles } from "lucide-react";
+import { CalendarDays, Clock } from "lucide-react";
 import type { TimeInterval } from "@/types/availability";
 
 interface TodayScheduleHeroProps {

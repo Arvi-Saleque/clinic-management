@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, Sparkles, UserCheck } from "lucide-react";
+import { ArrowLeft, CalendarDays, UserCheck } from "lucide-react";
 import { Card3D } from "@/components/marketing/luxury-card3d";
 import { getPublicPractitionerById } from "@/lib/server/marketing";
 
@@ -60,7 +60,7 @@ export default async function PractitionerDetailPage({
 
               <div className="lg:col-span-7">
                 <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-1 rounded-full text-xs text-[#9CB080] font-semibold mb-4">
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <UserCheck className="w-3.5 h-3.5" />
                   <span>{practitioner.title || "Dental Clinician"}</span>
                 </div>
 

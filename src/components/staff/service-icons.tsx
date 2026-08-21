@@ -6,7 +6,7 @@ import {
   Crown,
   Scissors,
   Smile,
-  Sparkles,
+  Sun,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -164,7 +164,7 @@ export const SERVICE_ICON_OPTIONS: ServiceIconOption[] = [
     key: "laser-whitening",
     label: "Laser Whitening",
     description: "Teeth bleaching, stain removal",
-    icon: Sparkles,
+    icon: Sun,
   },
   {
     key: "hygiene",

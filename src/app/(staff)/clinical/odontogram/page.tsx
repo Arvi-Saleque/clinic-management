@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Box, History, ScanLine, Sparkles } from "lucide-react";
+import { Box, History, ScanLine, Stethoscope } from "lucide-react";
 
 import { OdontogramPatientPicker } from "@/components/staff/odontogram-patient-picker";
 import { requireClinician } from "@/lib/auth/guards";
@@ -18,7 +18,7 @@ export default async function StaffOdontogramPage() {
       <section className="grid gap-4 sm:grid-cols-3">
         {[
           { icon: Box, title: "3D-style dentition", text: "Anatomical tooth models are easier to scan than a plain number grid." },
-          { icon: Sparkles, title: "Finding to treatment", text: "Connect the current condition directly to recommended care." },
+          { icon: Stethoscope, title: "Finding to treatment", text: "Connect the current condition directly to recommended care." },
           { icon: History, title: "Dated chart history", text: "Every change is recorded as a new event; earlier records remain available." },
         ].map((item) => <article key={item.title} className="flex gap-3 rounded-2xl border border-border bg-surface p-4"><span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary"><item.icon className="size-4" /></span><div><p className="text-xs font-extrabold">{item.title}</p><p className="mt-1 text-[10px] leading-4 text-muted-foreground">{item.text}</p></div></article>)}
       </section>

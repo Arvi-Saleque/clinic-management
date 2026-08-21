@@ -16,7 +16,6 @@ import {
   Plus,
   Printer,
   Receipt,
-  Sparkles,
   Trash2,
   User,
   Wallet,

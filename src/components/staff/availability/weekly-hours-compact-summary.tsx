@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarRange, Clock, Sparkles } from "lucide-react";
+import { CalendarRange, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { DayAvailability } from "@/types/availability";
 
@@ -35,7 +35,7 @@ export function WeeklyHoursCompactSummary({
             <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
               Regular Weekly Hours
               <span className="text-[10px] font-semibold text-primary px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 inline-flex items-center gap-1">
-                <Sparkles className="w-2.5 h-2.5" />
+                <Clock className="w-2.5 h-2.5" />
                 Repeats weekly
               </span>
             </h3>

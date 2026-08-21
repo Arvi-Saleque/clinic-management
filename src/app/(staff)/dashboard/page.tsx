@@ -17,7 +17,6 @@ import {
   ExternalLink,
   Loader2,
   Phone,
-  Sparkles,
   Stethoscope,
   TrendingUp,
   XCircle,
@@ -110,7 +109,7 @@ export default async function StaffDashboardPage({
               <div className="flex items-center justify-between gap-3 border-b border-border/60 pb-3.5">
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-primary border border-primary/20 shadow-2xs">
-                    <Sparkles className="size-3 text-primary" />
+                    <Clock className="size-3 text-primary" />
                     Next Appointment
                   </span>
                   {nextAppointment.status === "checked_in" && (

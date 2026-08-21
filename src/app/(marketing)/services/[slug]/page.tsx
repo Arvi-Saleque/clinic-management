@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, Clock, Sparkles, Tag } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, Tag } from "lucide-react";
 import { Card3D } from "@/components/marketing/luxury-card3d";
 import { getPublicServiceBySlug } from "@/lib/server/marketing";
 
@@ -80,7 +80,7 @@ export default async function ServiceDetailPage({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="hero-text-col">
                 <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-1 rounded-full text-xs text-[#9CB080] font-medium mb-4">
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <Tag className="w-3.5 h-3.5" />
                   <span>{service.category || "Clinical Procedure"}</span>
                 </div>
 

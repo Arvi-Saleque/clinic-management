@@ -9,7 +9,6 @@ import {
   Clock3,
   Phone,
   Search,
-  Sparkles,
   UserRoundSearch,
   Users,
   X,

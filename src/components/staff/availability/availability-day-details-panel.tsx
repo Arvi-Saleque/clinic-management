@@ -13,7 +13,6 @@ import {
   Plus,
   RotateCcw,
   ShieldCheck,
-  Sparkles,
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";

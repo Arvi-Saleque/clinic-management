@@ -13,7 +13,6 @@ import {
   Plus,
   Search,
   SlidersHorizontal,
-  Sparkles,
   Stethoscope,
   Trash2,
   X,

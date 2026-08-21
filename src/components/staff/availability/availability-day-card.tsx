@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { format, parseISO } from "date-fns";
-import { CalendarOff, ChevronRight, Clock, Sparkles, Users } from "lucide-react";
+import { CalendarOff, ChevronRight, Clock, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { CalendarDayAvailability } from "@/types/availability";
 import { cn } from "@/lib/utils";
@@ -75,7 +75,7 @@ export function AvailabilityDayCard({
                   variant="outline"
                   className="text-[10px] px-1.5 py-0 h-4 border-indigo-500/40 text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 font-medium"
                 >
-                  <Sparkles className="w-2.5 h-2.5 mr-1" />
+                  <Clock className="w-2.5 h-2.5 mr-1" />
                   Adjusted
                 </Badge>
               )}
@@ -170,7 +170,7 @@ export function AvailabilityDayCard({
           )}
           {isCustom && (
             <span className="inline-flex items-center text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 leading-none">
-              <Sparkles className="w-2.5 h-2.5 mr-0.5" />
+              <Clock className="w-2.5 h-2.5 mr-0.5" />
               Adjusted
             </span>
           )}

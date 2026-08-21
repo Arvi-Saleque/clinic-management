@@ -10,7 +10,6 @@ import {
   Landmark,
   Printer,
   Receipt,
-  Sparkles,
   Wallet,
   X,
 } from "lucide-react";
@@ -110,7 +109,7 @@ export function PaymentSuccessDialog({
           </div>
 
           <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/20 border border-emerald-400/30 px-3 py-0.5 text-[11px] font-black text-emerald-200 uppercase tracking-wider mb-1.5 backdrop-blur-md">
-            <Sparkles className="size-3 text-emerald-300" />
+            <Check className="size-3 text-emerald-300 stroke-[2.5]" />
             <span>Payment Confirmed</span>
           </div>
 

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, CalendarCheck, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, CalendarCheck, CheckCircle2, ShieldCheck } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/button";
 import { MagneticButton, ParallaxLayer } from "@/components/motion";
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 const HIGHLIGHTS = [
   { icon: CalendarCheck, label: "Same-week appointments" },
   { icon: ShieldCheck, label: "Secure patient records" },
-  { icon: Sparkles, label: "Modern, connected care" },
+  { icon: CheckCircle2, label: "Modern, connected care" },
 ];
 
 const SLIDE_DURATION = 7000;

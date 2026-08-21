@@ -9,9 +9,9 @@ import {
   Check,
   Clock,
   FileText,
+  Globe,
   LayoutGrid,
   Loader2,
-  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -320,7 +320,7 @@ export function ServiceForm({ mode, context }: ServiceFormProps) {
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-1.5 text-xs font-extrabold text-foreground">
-                    <Sparkles className="size-3.5 text-primary" />
+                    <Globe className="size-3.5 text-primary" />
                     <span>Display in Online Booking</span>
                   </div>
                   <p className="text-xs text-muted-foreground max-w-md">

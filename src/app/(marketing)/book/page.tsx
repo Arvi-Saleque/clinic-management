@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarCheck, CalendarDays, Check, LogIn, ShieldCheck, Sparkles, UserPlus } from "lucide-react";
+import { CalendarCheck, CalendarDays, Check, LogIn, ShieldCheck, UserPlus } from "lucide-react";
 
 import { getUser } from "@/lib/auth/session";
 
@@ -41,7 +41,7 @@ export default async function BookPage() {
             </nav>
 
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/15 text-xs text-[#9CB080] font-medium mb-6 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
+              <CalendarCheck className="w-3.5 h-3.5" />
               <span>Online Appointment Access</span>
             </div>
             <h1 className="page-title text-4xl sm:text-5xl md:text-6xl font-light tracking-tight leading-tight drop-shadow-md">
