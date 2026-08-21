@@ -100,6 +100,7 @@ export default async function PortalAppointmentsPage({
             diagnosis: (rxEnc as { diagnosis?: string }).diagnosis ?? null,
             performed_treatment: (rxEnc as { performed_treatment?: string }).performed_treatment ?? null,
             patient_notes: (rxEnc as { patient_notes?: string }).patient_notes ?? null,
+            private_notes: (rxEnc as { private_notes?: string }).private_notes ?? null,
             follow_up_recommended: (rxEnc as { follow_up_recommended?: boolean }).follow_up_recommended ?? null,
             follow_up_date: (rxEnc as { follow_up_date?: string }).follow_up_date ?? null,
             follow_up_reason: (rxEnc as { follow_up_reason?: string }).follow_up_reason ?? null,

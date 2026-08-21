@@ -364,9 +364,26 @@ export async function listOwnPrescriptions() {
       .or(conditions.join(","));
 
     if (encs) {
+      const allFoundEncIds = encs.map((e) => e.id).filter(Boolean);
+      const privateNotesMap = new Map<string, string>();
+      if (allFoundEncIds.length > 0) {
+        const { data: pNotes } = await supabase
+          .from("clinical_encounter_private_notes")
+          .select("encounter_id, clinical_notes")
+          .in("encounter_id", allFoundEncIds);
+        if (pNotes) {
+          for (const pn of pNotes) {
+            if (pn.encounter_id && pn.clinical_notes) {
+              privateNotesMap.set(pn.encounter_id, pn.clinical_notes);
+            }
+          }
+        }
+      }
+
       for (const e of encs) {
-        if (e.id) encountersMap.set(e.id, e);
-        if (e.appointment_id) encountersMap.set(e.appointment_id, e);
+        const item = { ...e, private_notes: privateNotesMap.get(e.id) ?? null };
+        if (e.id) encountersMap.set(e.id, item);
+        if (e.appointment_id) encountersMap.set(e.appointment_id, item);
       }
     }
   }
@@ -404,7 +421,27 @@ export async function listOwnClinicalEncounters() {
     .order("started_at", { ascending: false });
 
   if (error || !encounters) return [];
-  return encounters;
+
+  const encIds = encounters.map((e) => e.id).filter(Boolean);
+  const privateNotesMap = new Map<string, string>();
+  if (encIds.length > 0) {
+    const { data: pNotes } = await supabase
+      .from("clinical_encounter_private_notes")
+      .select("encounter_id, clinical_notes")
+      .in("encounter_id", encIds);
+    if (pNotes) {
+      for (const pn of pNotes) {
+        if (pn.encounter_id && pn.clinical_notes) {
+          privateNotesMap.set(pn.encounter_id, pn.clinical_notes);
+        }
+      }
+    }
+  }
+
+  return encounters.map((enc) => ({
+    ...enc,
+    private_notes: privateNotesMap.get(enc.id) ?? null,
+  }));
 }
 
 export async function listPatients(query?: string) {

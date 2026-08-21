@@ -21,6 +21,7 @@ import {
   Info,
   LayoutDashboard,
   Loader2,
+  Lock,
   MessageSquare,
   Pill,
   Printer,
@@ -73,6 +74,7 @@ export interface EncounterDetails {
   diagnosis?: string | null;
   performed_treatment?: string | null;
   patient_notes?: string | null;
+  private_notes?: string | null;
   follow_up_recommended?: boolean | null;
   follow_up_date?: string | null;
   follow_up_reason?: string | null;
@@ -152,6 +154,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
       props.prescription?.encounter?.performed_treatment ||
       props.prescription?.encounter?.chief_complaint ||
       props.prescription?.encounter?.patient_notes ||
+      props.prescription?.encounter?.private_notes ||
       props.prescription?.encounter?.follow_up_recommended ||
       props.prescription?.notes,
   );
@@ -492,24 +495,34 @@ export function AppointmentCard(props: AppointmentCardProps) {
                               </div>
                             )}
 
-                            {/* 5. Follow-Up & Recall Plan */}
-                            <div className="rounded-2xl border border-border/80 bg-background-subtle/80 p-4 space-y-2.5 shadow-2xs">
-                              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2">
-                                <div className="text-xs font-bold text-foreground flex items-center gap-2">
-                                  <CalendarClock className="size-3.5 text-primary" /> 5. Follow-up &amp; Recall Plan
+                            {/* 5. Private Clinician Notes */}
+                            {(props.prescription.encounter?.private_notes || props.prescription.notes) && (
+                              <div className="rounded-2xl border border-border/80 bg-background-subtle/80 p-4 space-y-1.5 shadow-2xs">
+                                <div className="text-xs font-bold text-foreground flex items-center justify-between">
+                                  <span className="flex items-center gap-2">
+                                    <Lock className="size-3.5 text-primary" /> 5. Private Clinician Notes
+                                  </span>
+                                  <Badge variant="outline" className="text-[10px] font-semibold border-border/70 text-text-muted">
+                                    Clinician Documentation
+                                  </Badge>
                                 </div>
-                                {props.prescription.encounter?.follow_up_recommended ? (
-                                  <Badge className="bg-primary-soft text-primary border-primary/20 text-[10px] font-bold">
+                                <div className="text-xs text-text-secondary font-medium leading-relaxed bg-surface/90 rounded-xl p-3 border border-border/50 whitespace-pre-wrap">
+                                  {props.prescription.encounter?.private_notes || props.prescription.notes}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Follow-Up & Recall Action if recommended */}
+                            {props.prescription.encounter?.follow_up_recommended && (
+                              <div className="rounded-2xl border border-primary/20 bg-primary-soft/40 p-4 space-y-2 shadow-2xs">
+                                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-primary/20 pb-2">
+                                  <div className="text-xs font-bold text-foreground flex items-center gap-2">
+                                    <CalendarClock className="size-3.5 text-primary" /> Follow-up &amp; Recall Recommended
+                                  </div>
+                                  <Badge className="bg-primary-soft text-primary border-primary/30 text-[10px] font-bold">
                                     Recall Recommended
                                   </Badge>
-                                ) : (
-                                  <Badge variant="outline" className="text-[10px] font-normal text-text-muted">
-                                    Routine Follow-up Not Required
-                                  </Badge>
-                                )}
-                              </div>
-
-                              {props.prescription.encounter?.follow_up_recommended ? (
+                                </div>
                                 <div className="space-y-2 text-xs">
                                   <p className="text-foreground font-medium">
                                     {props.prescription.encounter.follow_up_reason || "Clinical evaluation and healing check recommended."}
@@ -532,12 +545,8 @@ export function AppointmentCard(props: AppointmentCardProps) {
                                     </ButtonLink>
                                   </div>
                                 </div>
-                              ) : (
-                                <p className="text-xs text-text-muted">
-                                  No routine clinical follow-up is currently required for this procedure.
-                                </p>
-                              )}
-                            </div>
+                              </div>
+                            )}
                           </div>
                         ) : (
                           <div className="rounded-2xl border border-dashed border-border/80 bg-background-subtle/50 p-4 text-center text-xs text-text-muted">
