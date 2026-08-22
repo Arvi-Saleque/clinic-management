@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { TablePagination } from "@/components/shared/table-pagination";
+import { useTablePagination } from "@/lib/hooks/use-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -136,6 +138,24 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
   // Default practitioner and branch for booking modal
   const defaultPractitioner = practitioners[0];
   const defaultBranchId = defaultPractitioner?.branch_id || "";
+
+  // Hook up pagination for dashboard queues
+  const upcomingPagination = useTablePagination(upcomingAppointments, {
+    initialPageSize: 10,
+  });
+  const waitingPagination = useTablePagination(waitingAppointments, {
+    initialPageSize: 10,
+  });
+  const completedPagination = useTablePagination(completedAppointments, {
+    initialPageSize: 10,
+  });
+
+  // Reset pagination when practitioner filter changes
+  React.useEffect(() => {
+    upcomingPagination.resetPage();
+    waitingPagination.resetPage();
+    completedPagination.resetPage();
+  }, [activePractitionerId]);
 
   // Relative time helper for hero
   const now = new Date();
@@ -497,7 +517,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {waitingAppointments.map((appt) => {
+                {waitingPagination.paginatedItems.map((appt) => {
                   const pName = appt.patients
                     ? `${appt.patients.first_name} ${appt.patients.last_name}`
                     : "Patient";
@@ -570,6 +590,20 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
             </table>
           </div>
         )}
+
+        {waitingAppointments.length > 5 && (
+          <TablePagination
+            currentPage={waitingPagination.currentPage}
+            totalPages={waitingPagination.totalPages}
+            totalItems={waitingPagination.totalItems}
+            pageSize={waitingPagination.pageSize}
+            onPageChange={waitingPagination.onPageChange}
+            onPageSizeChange={waitingPagination.onPageSizeChange}
+            pageSizeOptions={[5, 10, 20]}
+            itemLabel="waiting patients"
+            compact
+          />
+        )}
       </section>
 
       {/* ============================================================= */}
@@ -614,7 +648,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {upcomingAppointments.map((appt) => {
+                {upcomingPagination.paginatedItems.map((appt) => {
                   const pName = appt.patients
                     ? `${appt.patients.first_name} ${appt.patients.last_name}`
                     : "Patient";
@@ -725,6 +759,19 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
             </table>
           </div>
         )}
+
+        {upcomingAppointments.length > 0 && (
+          <TablePagination
+            currentPage={upcomingPagination.currentPage}
+            totalPages={upcomingPagination.totalPages}
+            totalItems={upcomingPagination.totalItems}
+            pageSize={upcomingPagination.pageSize}
+            onPageChange={upcomingPagination.onPageChange}
+            onPageSizeChange={upcomingPagination.onPageSizeChange}
+            pageSizeOptions={[5, 10, 20]}
+            itemLabel="upcoming appointments"
+          />
+        )}
       </section>
 
       {/* ============================================================= */}
@@ -771,7 +818,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {completedAppointments.slice(0, 6).map((appt) => {
+                {completedPagination.paginatedItems.map((appt) => {
                   const pName = appt.patients
                     ? `${appt.patients.first_name} ${appt.patients.last_name}`
                     : "Patient";
@@ -809,6 +856,20 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
               </tbody>
             </table>
           </div>
+        )}
+
+        {completedAppointments.length > 5 && (
+          <TablePagination
+            currentPage={completedPagination.currentPage}
+            totalPages={completedPagination.totalPages}
+            totalItems={completedPagination.totalItems}
+            pageSize={completedPagination.pageSize}
+            onPageChange={completedPagination.onPageChange}
+            onPageSizeChange={completedPagination.onPageSizeChange}
+            pageSizeOptions={[5, 10, 20]}
+            itemLabel="completed visits"
+            compact
+          />
         )}
       </section>
 

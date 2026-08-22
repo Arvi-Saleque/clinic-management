@@ -25,6 +25,7 @@ import {
 import { ButtonLink } from "@/components/ui/button";
 import { ConsultationActionButton } from "@/components/clinical/consultation-action-button";
 import { ReceptionistDashboard } from "@/components/staff/receptionist-dashboard";
+import { ClinicianUpcomingAppointmentsList } from "@/components/staff/clinician-upcoming-appointments-list";
 import { requireStaff } from "@/lib/auth/guards";
 import {
   getDashboardStats,
@@ -295,65 +296,7 @@ export default async function StaffDashboardPage({
           </div>
 
           {/* List of Upcoming Items */}
-          {upcomingAppointmentsList.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border/80 bg-muted/10 p-8 text-center">
-              <p className="text-xs font-bold text-muted-foreground">
-                No upcoming appointments remaining today.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {upcomingAppointmentsList.map((appt) => {
-                const patient = appt.patients;
-                const patientName = patient
-                  ? `${patient.first_name} ${patient.last_name}`
-                  : "Patient";
-
-                return (
-                  <Link
-                    key={appt.id}
-                    href={`/patients/${patient?.id ?? ""}`}
-                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl border border-border/60 bg-muted/10 hover:bg-muted/30 hover:border-border/90 transition-all shadow-2xs"
-                  >
-                    {/* Time & Timeline Badge */}
-                    <div className="flex items-center gap-3 w-32 shrink-0">
-                      <span className="font-mono text-xs font-black bg-card px-2.5 py-1 rounded-xl border border-border/70 text-foreground shadow-2xs">
-                        {format(new Date(appt.starts_at), "hh:mm a")}
-                      </span>
-                    </div>
-
-                    {/* Patient Name */}
-                    <div className="min-w-0 w-48 shrink-0">
-                      <span className="font-heading text-xs font-extrabold text-foreground group-hover:text-primary truncate block transition-colors">
-                        {patientName}
-                      </span>
-                    </div>
-
-                    {/* Service & Tooth/Notes */}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-semibold text-muted-foreground truncate">
-                        {appt.services?.name ?? "Dental Check-up"}
-                      </p>
-                    </div>
-
-                    {/* Duration & Action Chevron */}
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span className="font-mono text-[11px] font-bold text-muted-foreground bg-card px-2.5 py-1 rounded-xl border border-border/60 shadow-2xs">
-                        {appt.services?.duration_minutes ?? 30} min
-                      </span>
-                      <ChevronRight className="size-4 text-muted-foreground group-hover:text-primary transition-transform group-hover:translate-x-0.5" />
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Footer Count */}
-          <div className="pt-2 border-t border-border/50 flex items-center justify-center gap-1.5 text-xs font-bold text-muted-foreground">
-            <CalendarDays className="size-3.5 text-primary" />
-            <span>{upcomingAppointmentsList.length} appointment{upcomingAppointmentsList.length === 1 ? "" : "s"} remaining today</span>
-          </div>
+          <ClinicianUpcomingAppointmentsList appointments={upcomingAppointmentsList} />
         </section>
       </div>
 

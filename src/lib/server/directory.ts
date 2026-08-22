@@ -1,5 +1,6 @@
 "use server";
 
+import { addDays, format, startOfDay } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { getProfile, getUser } from "@/lib/auth/session";
 import { requireClinician, requireStaff } from "@/lib/auth/guards";
@@ -167,17 +168,19 @@ export async function listAppointmentsForDay(practitionerId?: string | null, dat
     if (!ownPractitioner) return [];
     allowedPractitionerId = ownPractitioner.id;
   }
-  const effectiveDate = date ?? new Date().toISOString().split("T")[0];
-  const dayStart = `${effectiveDate}T00:00:00`;
-  const dayEnd = `${effectiveDate}T23:59:59`;
+  const todayFormatted = format(new Date(), "yyyy-MM-dd");
+  const effectiveDate = date ?? todayFormatted;
+  const [y, m, d] = effectiveDate.split("-").map(Number);
+  const dayStart = startOfDay(new Date(y, m - 1, d));
+  const dayEnd = addDays(dayStart, 1);
 
   let query = supabase
     .from("appointments")
     .select(
       "id, starts_at, ends_at, status, notes, originating_encounter_id, practitioner_id, practitioners:practitioner_id(id, title, profiles:profile_id(full_name)), patients:patient_id(id, first_name, last_name, phone), services:service_id(id, name, duration_minutes)",
     )
-    .gte("starts_at", dayStart)
-    .lte("starts_at", dayEnd)
+    .gte("starts_at", dayStart.toISOString())
+    .lt("starts_at", dayEnd.toISOString())
     .order("starts_at");
 
   if (profile?.organization_id) {

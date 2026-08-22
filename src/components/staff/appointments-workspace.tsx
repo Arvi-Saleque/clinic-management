@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { addDays, format } from "date-fns";
+import { addDays, format, startOfDay } from "date-fns";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   CalendarDays,
@@ -25,6 +25,8 @@ import {
 import { toast } from "sonner";
 
 import { ConsultationActionButton } from "@/components/clinical/consultation-action-button";
+import { TablePagination } from "@/components/shared/table-pagination";
+import { useTablePagination } from "@/lib/hooks/use-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -180,6 +182,25 @@ export function AppointmentsWorkspace({
     );
   }, [appointments, query, selectedStatusFilter]);
 
+  // Hook up table pagination on filtered appointments
+  const {
+    currentPage,
+    pageSize,
+    totalItems,
+    totalPages,
+    paginatedItems: paginatedAppointments,
+    onPageChange,
+    onPageSizeChange,
+    resetPage,
+  } = useTablePagination(filteredAppointments, {
+    initialPageSize: 10,
+  });
+
+  // Reset to first page whenever search query, status tab filter, date, or practitioner changes
+  React.useEffect(() => {
+    resetPage();
+  }, [query, selectedStatusFilter, date, practitionerId, resetPage]);
+
   const setDateParam = React.useCallback(
     (newDate: string) => {
       const nextParams = new URLSearchParams(searchParams.toString());
@@ -228,11 +249,11 @@ export function AppointmentsWorkspace({
   };
 
   const currentDateObj = React.useMemo(() => {
-    try {
-      return new Date(`${date}T00:00:00`);
-    } catch {
-      return new Date();
+    const [y, m, d] = date.split("-").map(Number);
+    if (y && m && d) {
+      return new Date(y, m - 1, d);
     }
+    return new Date();
   }, [date]);
 
   const formattedDate = React.useMemo(() => {
@@ -551,7 +572,7 @@ export function AppointmentsWorkspace({
             </div>
 
             <ul className="divide-y divide-border/60">
-              {filteredAppointments.map((appointment) => {
+              {paginatedAppointments.map((appointment) => {
                 const startFormatted = format(new Date(appointment.starts_at), "h:mm a");
                 const endFormatted = format(new Date(appointment.ends_at), "h:mm a");
                 const patientName = appointment.patients
@@ -692,35 +713,55 @@ export function AppointmentsWorkspace({
                             >
                               <MoreVertical className="size-4" />
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 p-1.5">
-                              {/* Reschedule */}
+                            <DropdownMenuContent align="end" className="w-48 text-xs">
+                              {/* Option 1: Profile / History */}
+                              {appointment.patients && (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    router.push(`/patients/${appointment.patients!.id}`)
+                                  }
+                                  className="text-xs font-medium gap-2"
+                                >
+                                  <UserRound className="size-3.5 text-muted-foreground" />
+                                  Patient Profile
+                                </DropdownMenuItem>
+                              )}
+
+                              {/* Option 2: Reschedule */}
                               <DropdownMenuItem
                                 onClick={() => setRescheduleTarget(appointment)}
                                 className="text-xs font-medium gap-2"
                               >
-                                <RefreshCw className="size-3.5 text-primary" />
-                                Reschedule visit
+                                <RefreshCw className="size-3.5 text-muted-foreground" />
+                                Reschedule Visit
                               </DropdownMenuItem>
 
-                              {/* No show */}
-                              <DropdownMenuItem
-                                onClick={() => handleStatusChange(appointment.id, "no_show")}
-                                className="text-xs font-medium gap-2"
-                              >
-                                <UserX className="size-3.5 text-amber-600" />
-                                No show
-                              </DropdownMenuItem>
+                              {/* Status Transitions */}
+                              {isConfirmed && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() => handleStatusChange(appointment.id, "no_show")}
+                                    className="text-xs font-medium gap-2 text-amber-700 dark:text-amber-400"
+                                  >
+                                    <UserX className="size-3.5" />
+                                    Mark as No Show
+                                  </DropdownMenuItem>
+                                </>
+                              )}
 
-                              <DropdownMenuSeparator />
-
-                              {/* Cancel */}
-                              <DropdownMenuItem
-                                onClick={() => handleStatusChange(appointment.id, "cancelled")}
-                                className="text-xs font-medium gap-2 text-destructive focus:text-destructive"
-                              >
-                                <Trash2 className="size-3.5" />
-                                Cancel appointment
-                              </DropdownMenuItem>
+                              {(isConfirmed || isCheckedIn) && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() => handleStatusChange(appointment.id, "cancelled")}
+                                    className="text-xs font-medium gap-2 text-destructive focus:text-destructive"
+                                  >
+                                    <Trash2 className="size-3.5" />
+                                    Cancel Appointment
+                                  </DropdownMenuItem>
+                                </>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         )}
@@ -728,33 +769,12 @@ export function AppointmentsWorkspace({
                     ) : (
                       /* Clinician / Dentist View: Full Clinical Consultation CTAs */
                       <>
-                        {isConfirmed && (
-                          <ConsultationActionButton
-                            appointmentId={appointment.id}
-                            status={appointment.status}
-                            size="xs"
-                            className="h-8.5 rounded-xl px-3.5 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-2xs"
-                          />
-                        )}
-
-                        {isCheckedIn && (
-                          <ConsultationActionButton
-                            appointmentId={appointment.id}
-                            status={appointment.status}
-                            size="xs"
-                            className="h-8.5 rounded-xl px-3.5 text-xs font-bold bg-purple-50 text-purple-700 border border-purple-300 hover:bg-purple-100 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800 shadow-2xs"
-                          />
-                        )}
-
-                        {isCompleted && (
-                          <ConsultationActionButton
-                            appointmentId={appointment.id}
-                            status={appointment.status}
-                            size="xs"
-                            variant="outline"
-                            className="h-8.5 rounded-xl px-3.5 text-xs font-semibold border-border/80 text-foreground hover:bg-muted/50 shadow-2xs"
-                          />
-                        )}
+                        <ConsultationActionButton
+                          appointmentId={appointment.id}
+                          status={appointment.status}
+                          size="sm"
+                          className="h-8.5 rounded-xl px-3 text-xs font-bold"
+                        />
 
                         {/* More Menu Dropdown for Clinician */}
                         {!isCancelled && (
@@ -772,31 +792,36 @@ export function AppointmentsWorkspace({
                             >
                               <MoreVertical className="size-4" />
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 p-1.5">
-                              {isConfirmed && (
+                            <DropdownMenuContent align="end" className="w-48 text-xs">
+                              {appointment.patients && (
                                 <DropdownMenuItem
-                                  onClick={() => handleStatusChange(appointment.id, "checked_in")}
+                                  onClick={() =>
+                                    router.push(`/patients/${appointment.patients!.id}`)
+                                  }
                                   className="text-xs font-medium gap-2"
                                 >
-                                  <UserCheck className="size-3.5 text-purple-600" />
-                                  Check in
+                                  <UserRound className="size-3.5 text-muted-foreground" />
+                                  Patient Profile
                                 </DropdownMenuItem>
                               )}
                               <DropdownMenuItem
                                 onClick={() => setRescheduleTarget(appointment)}
                                 className="text-xs font-medium gap-2"
                               >
-                                <RefreshCw className="size-3.5 text-primary" />
-                                Reschedule visit
+                                <RefreshCw className="size-3.5 text-muted-foreground" />
+                                Reschedule Visit
                               </DropdownMenuItem>
-                              {(isConfirmed || isCheckedIn) && (
-                                <DropdownMenuItem
-                                  onClick={() => handleStatusChange(appointment.id, "no_show")}
-                                  className="text-xs font-medium gap-2"
-                                >
-                                  <UserX className="size-3.5 text-amber-600" />
-                                  No show
-                                </DropdownMenuItem>
+                              {isConfirmed && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() => handleStatusChange(appointment.id, "no_show")}
+                                    className="text-xs font-medium gap-2 text-amber-700 dark:text-amber-400"
+                                  >
+                                    <UserX className="size-3.5" />
+                                    Mark as no show
+                                  </DropdownMenuItem>
+                                </>
                               )}
                               {(isConfirmed || isCheckedIn) && (
                                 <>
@@ -806,7 +831,7 @@ export function AppointmentsWorkspace({
                                     className="text-xs font-medium gap-2 text-destructive focus:text-destructive"
                                   >
                                     <Trash2 className="size-3.5" />
-                                    Cancel appointment
+                                    Cancel Appointment
                                   </DropdownMenuItem>
                                 </>
                               )}
@@ -823,13 +848,17 @@ export function AppointmentsWorkspace({
           </>
         )}
 
-        {/* Table Footer */}
-        <div className="border-t border-border/60 bg-muted/10 px-5 py-3 text-xs text-muted-foreground">
-          <p>
-            Showing <span className="font-bold text-foreground">{filteredAppointments.length}</span>{" "}
-            of {appointments.length} appointments
-          </p>
-        </div>
+        {/* Table Footer with Pagination */}
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          pageSize={pageSize}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          pageSizeOptions={[10, 20, 50]}
+          itemLabel="appointments"
+        />
       </div>
 
       {/* Reschedule Modal Dialog */}
