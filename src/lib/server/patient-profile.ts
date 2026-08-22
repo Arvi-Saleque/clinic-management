@@ -17,7 +17,30 @@ const profileSchema = z.object({
   address: z.string().trim().max(500).optional(),
   emergencyContactName: z.string().trim().min(1, "Emergency contact name is required").max(120),
   emergencyContactPhone: z.string().trim().min(6, "Enter a valid emergency phone").max(40),
+  allergies: z.string().optional(),
+  chronicConditions: z.string().optional(),
+  currentMedications: z.string().optional(),
+  pastSurgeries: z.string().trim().max(1000).optional(),
+  medicalNotes: z.string().trim().max(2000).optional(),
 });
+
+function parseTags(value: unknown): string[] {
+  if (!value || typeof value !== "string") return [];
+  const trimmed = value.trim();
+  if (!trimmed) return [];
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (Array.isArray(parsed)) {
+      return parsed.map((item) => String(item).trim()).filter(Boolean);
+    }
+  } catch {
+    // Not a JSON array, fallback to comma splitting
+  }
+  return trimmed
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
 
 export async function updateOwnPatientProfileAction(
   _previous: PatientProfileActionState,
@@ -32,17 +55,36 @@ export async function updateOwnPatientProfileAction(
     address: formData.get("address") ?? undefined,
     emergencyContactName: formData.get("emergencyContactName"),
     emergencyContactPhone: formData.get("emergencyContactPhone"),
+    allergies: formData.get("allergies")?.toString() ?? "",
+    chronicConditions: formData.get("chronicConditions")?.toString() ?? "",
+    currentMedications: formData.get("currentMedications")?.toString() ?? "",
+    pastSurgeries: formData.get("pastSurgeries")?.toString() ?? undefined,
+    medicalNotes: formData.get("medicalNotes")?.toString() ?? undefined,
   });
+
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please review your details." };
   }
 
   const user = await getUser();
   if (!user) return { error: "You must be signed in." };
+
   const input = parsed.data;
   const supabase = await createClient();
 
-  const { error } = await supabase
+  // 1. Fetch patient record
+  const { data: patient, error: patientFetchError } = await supabase
+    .from("patients")
+    .select("id")
+    .eq("profile_id", user.id)
+    .single();
+
+  if (patientFetchError || !patient) {
+    return { error: "Could not find your patient record." };
+  }
+
+  // 2. Update patient personal & emergency details
+  const { error: patientUpdateError } = await supabase
     .from("patients")
     .update({
       first_name: input.firstName,
@@ -55,16 +97,59 @@ export async function updateOwnPatientProfileAction(
       emergency_contact_phone: input.emergencyContactPhone,
       updated_at: new Date().toISOString(),
     })
-    .eq("profile_id", user.id);
+    .eq("id", patient.id);
 
-  if (error) return { error: "Could not update your profile. Please try again." };
+  if (patientUpdateError) {
+    return { error: "Could not update your personal details. Please try again." };
+  }
 
+  // 3. Update auth profile name and phone
   await supabase
     .from("profiles")
     .update({ full_name: `${input.firstName} ${input.lastName}`.trim(), phone: input.phone })
     .eq("id", user.id);
 
+  // 4. Update / Version medical history
+  const parsedAllergies = parseTags(input.allergies);
+  const parsedConditions = parseTags(input.chronicConditions);
+  const parsedMedications = parseTags(input.currentMedications);
+
+  const { data: existingHistories } = await supabase
+    .from("medical_history")
+    .select("id, version")
+    .eq("patient_id", patient.id)
+    .order("version", { ascending: false });
+
+  const nextVersion = (existingHistories?.[0]?.version ?? 0) + 1;
+
+  // Deactivate prior current versions
+  if (existingHistories && existingHistories.length > 0) {
+    await supabase
+      .from("medical_history")
+      .update({ is_current: false })
+      .eq("patient_id", patient.id)
+      .eq("is_current", true);
+  }
+
+  // Insert the fresh authoritative version
+  const { error: historyError } = await supabase.from("medical_history").insert({
+    patient_id: patient.id,
+    version: nextVersion,
+    source: "digital_intake",
+    allergies: parsedAllergies,
+    current_medications: parsedMedications,
+    chronic_conditions: parsedConditions,
+    past_surgeries: input.pastSurgeries || null,
+    notes: input.medicalNotes || null,
+    is_current: true,
+  });
+
+  if (historyError) {
+    console.error("Failed to insert updated medical history:", historyError);
+    return { error: "Personal details updated, but could not update health record. Please try again." };
+  }
+
   revalidatePath("/portal/profile");
   revalidatePath("/portal/dashboard");
-  return { error: null, message: "Your profile has been updated." };
+  return { error: null, message: "Your health profile and personal details have been saved." };
 }

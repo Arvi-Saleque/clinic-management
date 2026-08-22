@@ -174,18 +174,10 @@ export default async function PortalProfilePage() {
             <div className="rounded-2xl border border-primary/20 bg-primary-soft/50 p-4 text-xs leading-relaxed text-primary space-y-1">
               <div className="flex items-center gap-1.5 font-bold">
                 <ShieldCheck className="size-4 shrink-0" />
-                <span>Protected Record</span>
+                <span>Verified Health Record</span>
               </div>
-              <p>Medical-history changes are reviewed with clinic staff to protect the accuracy of your clinical record.</p>
+              <p>You can directly update your allergies, medications, and conditions using the profile editor on the right.</p>
             </div>
-
-            <ButtonLink
-              href="/contact"
-              variant="outline"
-              className="w-full rounded-2xl text-xs font-bold border-border/80 bg-surface hover:bg-surface-elevated h-10 shadow-2xs"
-            >
-              Request a medical update
-            </ButtonLink>
           </article>
 
           {/* Card 2: Emergency contact */}
@@ -229,7 +221,7 @@ export default async function PortalProfilePage() {
           </article>
         </div>
 
-        {/* Right Column: Personal & Contact Details Form */}
+        {/* Right Column: Health Profile & Personal Details Form */}
         <article className="rounded-[32px] border border-border/80 bg-surface/90 backdrop-blur-xl p-6 sm:p-8 lg:p-9 shadow-sm space-y-6">
           <div className="flex items-center gap-3.5 border-b border-border/60 pb-5">
             <span className="flex size-12 items-center justify-center rounded-2xl bg-primary-soft text-primary shadow-xs">
@@ -237,7 +229,7 @@ export default async function PortalProfilePage() {
             </span>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-text-muted">Self-service</p>
-              <h2 className="font-heading text-xl sm:text-2xl font-bold text-foreground">Personal & contact details</h2>
+              <h2 className="font-heading text-xl sm:text-2xl font-bold text-foreground">Health profile &amp; details</h2>
             </div>
           </div>
 
