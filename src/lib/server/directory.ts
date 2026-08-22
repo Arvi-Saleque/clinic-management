@@ -154,7 +154,7 @@ export async function searchPatients(query: string) {
   return data ?? [];
 }
 
-export async function listAppointmentsForDay(practitionerId: string, date: string) {
+export async function listAppointmentsForDay(practitionerId?: string | null, date?: string) {
   const supabase = await createClient();
   const profile = await getProfile();
   let allowedPractitionerId = practitionerId;
@@ -167,19 +167,28 @@ export async function listAppointmentsForDay(practitionerId: string, date: strin
     if (!ownPractitioner) return [];
     allowedPractitionerId = ownPractitioner.id;
   }
-  const dayStart = `${date}T00:00:00`;
-  const dayEnd = `${date}T23:59:59`;
+  const effectiveDate = date ?? new Date().toISOString().split("T")[0];
+  const dayStart = `${effectiveDate}T00:00:00`;
+  const dayEnd = `${effectiveDate}T23:59:59`;
 
-  const { data } = await supabase
+  let query = supabase
     .from("appointments")
     .select(
-      "id, starts_at, ends_at, status, notes, originating_encounter_id, patients:patient_id(id, first_name, last_name, phone), services:service_id(id, name, duration_minutes)",
+      "id, starts_at, ends_at, status, notes, originating_encounter_id, practitioner_id, practitioners:practitioner_id(id, title, profiles:profile_id(full_name)), patients:patient_id(id, first_name, last_name, phone), services:service_id(id, name, duration_minutes)",
     )
-    .eq("practitioner_id", allowedPractitionerId)
     .gte("starts_at", dayStart)
     .lte("starts_at", dayEnd)
     .order("starts_at");
 
+  if (profile?.organization_id) {
+    query = query.eq("organization_id", profile.organization_id);
+  }
+
+  if (allowedPractitionerId && allowedPractitionerId !== "all") {
+    query = query.eq("practitioner_id", allowedPractitionerId);
+  }
+
+  const { data } = await query;
   return data ?? [];
 }
 

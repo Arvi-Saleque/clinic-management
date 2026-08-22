@@ -14,6 +14,7 @@ import {
   Phone,
   RefreshCw,
   Search,
+  Stethoscope,
   Trash2,
   UserCheck,
   UserRound,
@@ -53,6 +54,12 @@ export interface WorkspaceAppointment {
   status: string;
   notes: string | null;
   originating_encounter_id?: string | null;
+  practitioner_id?: string;
+  practitioners?: {
+    id?: string;
+    title?: string | null;
+    profiles: { full_name: string } | null;
+  } | null;
   patients: { id: string; first_name: string; last_name: string; phone: string | null } | null;
   services: { id?: string; name: string; duration_minutes: number } | null;
 }
@@ -60,6 +67,7 @@ export interface WorkspaceAppointment {
 interface Practitioner {
   id: string;
   title: string | null;
+  branch_id?: string;
   profiles: { full_name: string } | null;
 }
 
@@ -113,7 +121,7 @@ export function AppointmentsWorkspace({
 }: {
   appointments: WorkspaceAppointment[];
   practitioners: Practitioner[];
-  practitionerId: string;
+  practitionerId?: string;
   branchId?: string;
   date: string;
   canSelectPractitioner: boolean;
@@ -150,11 +158,13 @@ export function AppointmentsWorkspace({
         : "";
       const phone = appointment.patients?.phone?.toLowerCase() ?? "";
       const service = appointment.services?.name?.toLowerCase() ?? "";
+      const doctorName = appointment.practitioners?.profiles?.full_name?.toLowerCase() ?? "";
       const matchesQuery =
         !normalized ||
         patientName.includes(normalized) ||
         phone.includes(normalized) ||
-        service.includes(normalized);
+        service.includes(normalized) ||
+        doctorName.includes(normalized);
 
       if (!matchesQuery) return false;
 
@@ -182,7 +192,11 @@ export function AppointmentsWorkspace({
   const setPractitionerParam = React.useCallback(
     (newPractitionerId: string) => {
       const nextParams = new URLSearchParams(searchParams.toString());
-      nextParams.set("practitioner", newPractitionerId);
+      if (!newPractitionerId || newPractitionerId === "all") {
+        nextParams.delete("practitioner");
+      } else {
+        nextParams.set("practitioner", newPractitionerId);
+      }
       router.push(`/appointments?${nextParams.toString()}`);
     },
     [router, searchParams],
@@ -297,16 +311,30 @@ export function AppointmentsWorkspace({
           {canSelectPractitioner && practitioners.length > 0 && (
             <div className="w-52">
               <Select
-                value={practitionerId}
-                onValueChange={(val) => val && setPractitionerParam(val)}
+                value={practitionerId && practitionerId !== "" ? practitionerId : "all"}
+                onValueChange={(val) => setPractitionerParam(val || "all")}
               >
                 <SelectTrigger className="h-9 rounded-xl border-border/80 bg-card text-xs font-medium">
-                  <SelectValue placeholder="Select practitioner" />
+                  <SelectValue placeholder="All Doctors">
+                    {(val: string) => {
+                      if (val === "all" || !val) {
+                        return `All Doctors (${practitioners.length})`;
+                      }
+                      const p = practitioners.find((doc) => doc.id === val);
+                      return p
+                        ? `${p.title ? `${p.title} ` : ""}${p.profiles?.full_name ?? "Doctor"}`
+                        : "All Doctors";
+                    }}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all" className="text-xs font-semibold">
+                    All Doctors ({practitioners.length})
+                  </SelectItem>
                   {practitioners.map((p) => (
                     <SelectItem key={p.id} value={p.id} className="text-xs">
-                      {p.profiles?.full_name ?? "Doctor"} {p.title ? `(${p.title})` : ""}
+                      {p.title ? `${p.title} ` : ""}
+                      {p.profiles?.full_name ?? "Doctor"}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -341,12 +369,17 @@ export function AppointmentsWorkspace({
             )}
           </div>
 
-          {services.length > 0 && practitionerId && (
+          {services.length > 0 && (
             <NewAppointmentDialog
-              practitionerId={practitionerId}
+              practitionerId={
+                practitionerId === "all" || !practitionerId
+                  ? practitioners[0]?.id || ""
+                  : practitionerId
+              }
               branchId={branchId}
               date={date}
               services={services}
+              practitioners={practitioners}
               triggerVariant="default"
               triggerClassName="h-9.5 gap-1.5 rounded-xl px-3 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-2xs shrink-0 cursor-pointer"
             />
@@ -508,9 +541,10 @@ export function AppointmentsWorkspace({
         ) : (
           <>
             {/* Table Header for Desktop */}
-            <div className="hidden lg:grid lg:grid-cols-[170px_1fr_240px_140px_190px] gap-4 px-5 py-3 border-b border-border/70 bg-muted/25 text-[10px] font-black uppercase tracking-wider text-muted-foreground items-center">
+            <div className="hidden lg:grid lg:grid-cols-[145px_1fr_160px_200px_130px_170px] gap-4 px-5 py-3 border-b border-border/70 bg-muted/25 text-[10px] font-black uppercase tracking-wider text-muted-foreground items-center">
               <div>TIME</div>
               <div>PATIENT</div>
+              <div>DOCTOR</div>
               <div>TREATMENT / SERVICE</div>
               <div>STATUS</div>
               <div className="text-right pr-2">ACTIONS</div>
@@ -531,10 +565,14 @@ export function AppointmentsWorkspace({
                 const isCancelled =
                   appointment.status === "cancelled" || appointment.status === "no_show";
 
+                const doctorDisplayName = appointment.practitioners?.profiles?.full_name
+                  ? `${appointment.practitioners.title ? `${appointment.practitioners.title} ` : ""}${appointment.practitioners.profiles.full_name}`
+                  : "Assigned Doctor";
+
                 return (
                   <li
                     key={appointment.id}
-                    className="grid grid-cols-1 gap-3 p-4 transition-colors hover:bg-muted/15 lg:grid-cols-[170px_1fr_240px_140px_190px] lg:gap-4 lg:items-center lg:px-6 lg:py-4"
+                    className="grid grid-cols-1 gap-3 p-4 transition-colors hover:bg-muted/15 lg:grid-cols-[145px_1fr_160px_200px_130px_170px] lg:gap-4 lg:items-center lg:px-6 lg:py-4"
                   >
                     {/* 1. Time Block */}
                     <div className="flex items-center gap-3">
@@ -566,10 +604,30 @@ export function AppointmentsWorkspace({
                             <span>{appointment.patients.phone}</span>
                           </p>
                         )}
+                        {/* Mobile Doctor badge */}
+                        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-primary lg:hidden mt-1">
+                          <Stethoscope className="size-3 shrink-0" />
+                          <span className="truncate">{doctorDisplayName}</span>
+                        </div>
                       </div>
                     </div>
 
-                    {/* 3. Treatment / Service */}
+                    {/* 3. Doctor Column (Desktop) */}
+                    <div className="hidden lg:flex items-center gap-2.5 min-w-0">
+                      <div className="size-7 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20 shadow-2xs">
+                        <Stethoscope className="size-3.5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-heading text-xs font-bold text-foreground truncate">
+                          {doctorDisplayName}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground truncate">
+                          Treating Doctor
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* 4. Treatment / Service */}
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-foreground truncate">
                         {appointment.services?.name ?? "General Dental Care"}
@@ -585,7 +643,7 @@ export function AppointmentsWorkspace({
                       )}
                     </div>
 
-                    {/* 4. Status Badge */}
+                    {/* 5. Status Badge */}
                     <div>
                       <Badge
                         variant="outline"
@@ -598,7 +656,7 @@ export function AppointmentsWorkspace({
                       </Badge>
                     </div>
 
-                    {/* 5. Actions */}
+                    {/* 6. Actions */}
                     <div className="flex items-center justify-start gap-2 lg:justify-end min-h-[36px]">
                     {/* Receptionist View: Front-Desk Operational Actions */}
                     {isReceptionist ? (
@@ -791,7 +849,11 @@ export function AppointmentsWorkspace({
           }
           serviceName={rescheduleTarget.services?.name ?? "Dental Procedure"}
           serviceId={rescheduleTarget.services?.id}
-          practitionerId={practitionerId}
+          practitionerId={
+            rescheduleTarget.practitioner_id ||
+            (practitionerId !== "all" ? (practitionerId || "") : "") ||
+            (practitioners[0]?.id ?? "")
+          }
           currentStartsAt={rescheduleTarget.starts_at}
           onSuccess={() => {
             setRescheduleTarget(null);

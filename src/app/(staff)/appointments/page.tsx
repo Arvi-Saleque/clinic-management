@@ -19,8 +19,9 @@ export default async function StaffAppointmentsPage({
   const params = await searchParams;
   const context = await getSchedulerContext(params.practitioner);
   const activePractitioner = context.activePractitioner;
+  const isClinician = profile.role === "dentist";
 
-  if (!activePractitioner) {
+  if (isClinician && !activePractitioner) {
     return (
       <ComingSoon
         title="Practitioner profile required"
@@ -30,10 +31,19 @@ export default async function StaffAppointmentsPage({
   }
 
   const date = params.date ?? format(new Date(), "yyyy-MM-dd");
+  const targetPractitionerId = isClinician
+    ? activePractitioner?.id
+    : params.practitioner && params.practitioner !== "all"
+      ? params.practitioner
+      : null;
+
   const [appointments, services] = await Promise.all([
-    listAppointmentsForDay(activePractitioner.id, date),
+    listAppointmentsForDay(targetPractitionerId, date),
     listServices(),
   ]);
+
+  const defaultBranchId =
+    activePractitioner?.branch_id ?? context.practitioners[0]?.branch_id ?? "";
 
   return (
     <div className="space-y-5 w-full pb-12">
@@ -55,8 +65,8 @@ export default async function StaffAppointmentsPage({
       <AppointmentsWorkspace
         appointments={appointments}
         practitioners={context.practitioners}
-        practitionerId={activePractitioner.id}
-        branchId={activePractitioner.branch_id}
+        practitionerId={isClinician ? activePractitioner?.id : (params.practitioner || "all")}
+        branchId={defaultBranchId}
         date={date}
         canSelectPractitioner={context.canSelectPractitioner}
         userRole={profile.role}

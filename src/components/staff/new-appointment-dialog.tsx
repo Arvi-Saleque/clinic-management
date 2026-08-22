@@ -42,11 +42,19 @@ interface Service {
   duration_minutes: number;
 }
 
+interface Practitioner {
+  id: string;
+  title: string | null;
+  branch_id?: string;
+  profiles: { full_name: string } | null;
+}
+
 interface NewAppointmentDialogProps {
   practitionerId: string;
   branchId: string;
   date: string;
   services: Service[];
+  practitioners?: Practitioner[];
   initialPatient?: Patient | null;
   defaultOpen?: boolean;
   open?: boolean;
@@ -61,6 +69,7 @@ export function NewAppointmentDialog({
   branchId,
   date,
   services,
+  practitioners = [],
   initialPatient = null,
   defaultOpen = false,
   open: controlledOpen,
@@ -75,6 +84,22 @@ export function NewAppointmentDialog({
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
   const setOpen = isControlled ? (setControlledOpen ?? (() => {})) : setInternalOpen;
+
+  const initialPractitionerId =
+    practitionerId && practitionerId !== "all"
+      ? practitionerId
+      : practitioners[0]?.id || "";
+  const [selectedPractitionerId, setSelectedPractitionerId] =
+    React.useState(initialPractitionerId);
+
+  // Sync selectedPractitionerId when practitionerId changes or modal opens
+  React.useEffect(() => {
+    if (practitionerId && practitionerId !== "all") {
+      setSelectedPractitionerId(practitionerId);
+    } else if (practitioners.length > 0) {
+      setSelectedPractitionerId((prev) => prev || practitioners[0]?.id || "");
+    }
+  }, [practitionerId, practitioners, open]);
 
   const [query, setQuery] = React.useState("");
   const [results, setResults] = React.useState<Patient[]>([]);
@@ -96,15 +121,16 @@ export function NewAppointmentDialog({
   // Fetch-on-dependency-change: the canonical data-fetching effect.
   /* eslint-disable react-hooks/set-state-in-effect */
   React.useEffect(() => {
-    if (!serviceId || !practitionerId) {
+    const activeDocId = selectedPractitionerId || practitionerId;
+    if (!serviceId || !activeDocId || activeDocId === "all") {
       setSlots([]);
       return;
     }
     setLoadingSlots(true);
-    getAvailableSlots(practitionerId, serviceId, date)
+    getAvailableSlots(activeDocId, serviceId, date)
       .then(({ slots }) => setSlots(slots))
       .finally(() => setLoadingSlots(false));
-  }, [serviceId, practitionerId, date]);
+  }, [serviceId, selectedPractitionerId, practitionerId, date]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   function reset() {
@@ -117,11 +143,20 @@ export function NewAppointmentDialog({
 
   async function handleBook(slot: SlotResult) {
     if (!selectedPatient) return;
+    const activeDocId = selectedPractitionerId || practitionerId;
+    if (!activeDocId || activeDocId === "all") {
+      toast.error("Please select a doctor for this appointment");
+      return;
+    }
+
+    const matchedPractitioner = practitioners.find((p) => p.id === activeDocId);
+    const effectiveBranchId = matchedPractitioner?.branch_id || branchId;
+
     setBooking(true);
     const { error } = await createStaffAppointment({
-      practitionerId,
+      practitionerId: activeDocId,
       serviceId,
-      branchId,
+      branchId: effectiveBranchId,
       patientId: selectedPatient.id,
       startsAt: slot.slot_start,
       bookingSource: "phone",
@@ -209,6 +244,35 @@ export function NewAppointmentDialog({
               </>
             )}
           </div>
+
+          {practitioners.length > 1 && (
+            <div className="space-y-2">
+              <Label>Doctor / Practitioner</Label>
+              <Select
+                value={selectedPractitionerId}
+                onValueChange={(value) => setSelectedPractitionerId(value ?? "")}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a doctor">
+                    {(id: string) => {
+                      const p = practitioners.find((doc) => doc.id === id);
+                      return p
+                        ? `${p.title ? `${p.title} ` : ""}${p.profiles?.full_name ?? "Doctor"}`
+                        : null;
+                    }}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {practitioners.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.title ? `${p.title} ` : ""}
+                      {p.profiles?.full_name ?? "Doctor"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Service</Label>
