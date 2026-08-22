@@ -27,6 +27,8 @@ import { toast } from "sonner";
 import { ConsultationActionButton } from "@/components/clinical/consultation-action-button";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { useTablePagination } from "@/lib/hooks/use-table-pagination";
+import { PractitionerAppointmentSelector } from "@/components/staff/practitioner-appointment-selector";
+import { AppointmentDateSelector } from "@/components/staff/appointment-date-selector";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,13 +39,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { NewAppointmentDialog } from "@/components/staff/new-appointment-dialog";
 import { RescheduleAppointmentDialog } from "@/components/staff/reschedule-appointment-dialog";
 import { cn } from "@/lib/utils";
@@ -248,32 +243,13 @@ export function AppointmentsWorkspace({
     }
   };
 
-  const currentDateObj = React.useMemo(() => {
+  const formattedDate = React.useMemo(() => {
     const [y, m, d] = date.split("-").map(Number);
     if (y && m && d) {
-      return new Date(y, m - 1, d);
+      return format(new Date(y, m - 1, d), "EEEE, d MMMM yyyy");
     }
-    return new Date();
+    return date;
   }, [date]);
-
-  const formattedDate = React.useMemo(() => {
-    return format(currentDateObj, "EEEE, d MMMM yyyy");
-  }, [currentDateObj]);
-
-  const handlePrevDay = () => {
-    const prev = format(addDays(currentDateObj, -1), "yyyy-MM-dd");
-    setDateParam(prev);
-  };
-
-  const handleNextDay = () => {
-    const next = format(addDays(currentDateObj, 1), "yyyy-MM-dd");
-    setDateParam(next);
-  };
-
-  const handleToday = () => {
-    const today = format(new Date(), "yyyy-MM-dd");
-    setDateParam(today);
-  };
 
   return (
     <div className="space-y-6">
@@ -281,92 +257,22 @@ export function AppointmentsWorkspace({
       {/* 1. TOP TOOLBAR: Date Navigator + Search + Practitioner Picker */}
       {/* ------------------------------------------------------------- */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 rounded-2xl border border-border/80 bg-card p-4 shadow-2xs">
-        {/* Left Side: Date Navigation */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Quick Today Button */}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleToday}
-            className="h-9 rounded-xl px-3 text-xs font-semibold border-border/80 hover:bg-muted/50"
-          >
-            Today
-          </Button>
-
-          {/* Prev/Next Buttons */}
-          <div className="flex items-center rounded-xl border border-border/80 bg-muted/20 p-0.5">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={handlePrevDay}
-              className="size-8 rounded-lg text-muted-foreground hover:text-foreground"
-              aria-label="Previous day"
-            >
-              <ChevronLeft className="size-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={handleNextDay}
-              className="size-8 rounded-lg text-muted-foreground hover:text-foreground"
-              aria-label="Next day"
-            >
-              <ChevronRight className="size-4" />
-            </Button>
-          </div>
-
-          {/* Date Picker Input */}
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => {
-              if (e.target.value) setDateParam(e.target.value);
-            }}
-            className="h-9 w-auto rounded-xl border-border/80 bg-card text-xs font-medium"
+        {/* Left Side: Modern Date & Practitioner Selectors */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Modern Date Selector with Stepper & Interactive Popover */}
+          <AppointmentDateSelector
+            currentDate={date}
+            onSelectDate={(newDate) => setDateParam(newDate)}
           />
 
           {/* Practitioner Selector (if permitted) */}
           {canSelectPractitioner && practitioners.length > 0 && (
-            <div className="w-48 sm:w-56">
-              <Select
-                value={practitionerId && practitionerId !== "" ? practitionerId : "all"}
-                onValueChange={(val) => setPractitionerParam(val || "all")}
-              >
-                <SelectTrigger className="h-9.5 rounded-xl border-border/80 bg-card hover:bg-muted/30 hover:border-border text-xs font-semibold shadow-2xs transition-all px-3">
-                  <div className="flex items-center gap-2 min-w-0 truncate">
-                    <Stethoscope className="size-3.5 text-primary shrink-0" />
-                    <SelectValue placeholder="All Doctors">
-                      {(val: string) => {
-                        if (val === "all" || !val) {
-                          return "All Doctors";
-                        }
-                        const p = practitioners.find((doc) => doc.id === val);
-                        return p?.profiles?.full_name ?? "All Doctors";
-                      }}
-                    </SelectValue>
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="rounded-2xl border-border/80 bg-card p-1 shadow-lg min-w-[220px]">
-                  <SelectItem value="all" className="text-xs font-medium rounded-xl py-2">
-                    All Doctors
-                  </SelectItem>
-                  {practitioners.map((p) => (
-                    <SelectItem key={p.id} value={p.id} className="text-xs font-medium rounded-xl py-2">
-                      {p.profiles?.full_name || "Doctor"}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <PractitionerAppointmentSelector
+              practitioners={practitioners}
+              currentPractitionerId={practitionerId && practitionerId !== "" ? practitionerId : "all"}
+              onSelect={(val) => setPractitionerParam(val || "all")}
+            />
           )}
-
-          {/* Formatted Date Title */}
-          <span className="font-heading font-bold text-sm sm:text-base text-foreground pl-1">
-            {formattedDate}
-          </span>
         </div>
 
         {/* Right Side: Search + Optional Book Appointment Action */}

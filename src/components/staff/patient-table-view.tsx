@@ -4,11 +4,19 @@ import * as React from "react";
 import Link from "next/link";
 import { differenceInYears, format } from "date-fns";
 import {
+  ArrowUpRight,
+  Cake,
+  CalendarCheck,
+  CalendarClock,
   CalendarDays,
   ChevronRight,
   Clock3,
+  Mail,
   Phone,
   Search,
+  Sparkles,
+  User,
+  UserCheck,
   UserRoundSearch,
   Users,
   X,
@@ -16,14 +24,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { useTablePagination } from "@/lib/hooks/use-table-pagination";
 import { cn } from "@/lib/utils";
@@ -83,37 +83,66 @@ interface PatientTableViewProps {
   isReceptionist: boolean;
 }
 
+type PatientFilterTab = "all" | "with_upcoming" | "no_upcoming";
+
 export function PatientTableView({ patients, isReceptionist }: PatientTableViewProps) {
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [activeTab, setActiveTab] = React.useState<PatientFilterTab>("all");
 
+  // Tab counts
+  const countWithUpcoming = React.useMemo(
+    () => patients.filter((p) => !!p.follow_up).length,
+    [patients]
+  );
+  const countNoUpcoming = patients.length - countWithUpcoming;
+
+  // Filtered patients based on search and active tab
   const filteredPatients = React.useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return patients;
+    let result = patients;
 
-    return patients.filter((p) => {
-      const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
-      const phone = p.phone?.toLowerCase() ?? "";
-      const ref = p.patient_reference.toLowerCase();
-      const email = p.email?.toLowerCase() ?? "";
-      return fullName.includes(q) || phone.includes(q) || ref.includes(q) || email.includes(q);
-    });
-  }, [patients, searchQuery]);
+    // Filter by tab
+    if (activeTab === "with_upcoming") {
+      result = result.filter((p) => !!p.follow_up);
+    } else if (activeTab === "no_upcoming") {
+      result = result.filter((p) => !p.follow_up);
+    }
+
+    // Filter by query
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      result = result.filter((p) => {
+        const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
+        const phone = p.phone?.toLowerCase() ?? "";
+        const ref = p.patient_reference.toLowerCase();
+        const email = p.email?.toLowerCase() ?? "";
+        return fullName.includes(q) || phone.includes(q) || ref.includes(q) || email.includes(q);
+      });
+    }
+
+    return result;
+  }, [patients, searchQuery, activeTab]);
 
   const pagination = useTablePagination(filteredPatients, {
     initialPageSize: 10,
   });
 
+  // Reset pagination on search or tab switch
+  React.useEffect(() => {
+    pagination.resetPage();
+  }, [searchQuery, activeTab]);
+
   return (
-    <section className="overflow-hidden rounded-3xl border border-border/80 bg-card shadow-xs">
-      {/* ── 1. Top Search & Summary Bar ── */}
-      <div className="flex flex-col gap-3.5 border-b border-border/60 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 bg-muted/10">
-        <div className="relative w-full sm:w-88">
+    <div className="space-y-4">
+      {/* ── 1. Top Control Strip: Search & Filter Tabs ── */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5 rounded-3xl border border-border/80 bg-card p-3.5 sm:p-4 shadow-xs">
+        {/* Left: Search Box */}
+        <div className="relative w-full lg:w-96">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search patient by name, phone, or PT ID..."
-            className="h-10 rounded-2xl pl-10 pr-9 text-xs bg-card border-border/80 focus-visible:bg-card focus-visible:ring-1 focus-visible:ring-primary shadow-2xs font-medium"
+            className="h-10 rounded-2xl pl-10 pr-9 text-xs bg-muted/20 border-border/80 focus-visible:bg-card focus-visible:ring-2 focus-visible:ring-primary/20 shadow-2xs font-medium placeholder:text-muted-foreground/70"
           />
           {searchQuery && (
             <button
@@ -126,335 +155,497 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
           )}
         </div>
 
-        <div className="flex items-center gap-2 self-end sm:self-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card px-3 py-1 text-xs font-semibold text-muted-foreground shadow-2xs">
-            <Users className="size-3 text-primary" />
+        {/* Center/Right: Filter Tabs + Counter Badge */}
+        <div className="flex flex-wrap items-center justify-between lg:justify-end gap-2.5">
+          {/* Quick Filter Tabs */}
+          <div className="flex items-center gap-1 rounded-2xl border border-border/80 bg-muted/25 p-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab("all")}
+              className={cn(
+                "flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer",
+                activeTab === "all"
+                  ? "bg-card text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-card/40"
+              )}
+            >
+              <span>All Patients</span>
+              <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+                {patients.length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("with_upcoming")}
+              className={cn(
+                "flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer",
+                activeTab === "with_upcoming"
+                  ? "bg-card text-primary shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-card/40"
+              )}
+            >
+              <span>Upcoming Visit</span>
+              <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-mono text-primary font-black">
+                {countWithUpcoming}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("no_upcoming")}
+              className={cn(
+                "flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer",
+                activeTab === "no_upcoming"
+                  ? "bg-card text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-card/40"
+              )}
+            >
+              <span>No Visit Queued</span>
+              <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+                {countNoUpcoming}
+              </span>
+            </button>
+          </div>
+
+          {/* Showing Counter Badge */}
+          <span className="inline-flex items-center gap-1.5 rounded-2xl border border-border/70 bg-card px-3 py-2 text-xs font-semibold text-muted-foreground shadow-2xs">
+            <Users className="size-3.5 text-primary" />
             <span>
-              Showing <strong className="text-foreground">{filteredPatients.length}</strong> of{" "}
-              <strong className="text-foreground">{patients.length}</strong> patients
+              <strong className="text-foreground">{filteredPatients.length}</strong> patient{filteredPatients.length === 1 ? "" : "s"}
             </span>
           </span>
         </div>
       </div>
 
-      {filteredPatients.length === 0 ? (
-        <div className="flex min-h-80 flex-col items-center justify-center px-6 py-14 text-center">
-          <span className="flex size-14 items-center justify-center rounded-2xl bg-muted/40 text-muted-foreground border border-border/60">
-            <UserRoundSearch className="size-7" />
-          </span>
-          <p className="mt-4 text-base font-extrabold text-foreground font-heading">
-            No matching patient record
-          </p>
-          <p className="mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
-            Try searching by full or partial name, phone number, or the PT-prefixed patient ID.
-          </p>
-          {searchQuery && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setSearchQuery("")}
-              className="mt-4 h-8.5 rounded-xl px-4 text-xs font-semibold"
-            >
-              Clear search filter
-            </Button>
-          )}
-        </div>
-      ) : isReceptionist ? (
-        /* ── RECEPTIONIST TABLE: Front-Desk Focused ── */
-        <>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-muted/25 border-b border-border/70">
-                <TableRow className="hover:bg-muted/25 border-border/60">
-                  <TableHead className="h-12 px-6 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
-                    PATIENT
-                  </TableHead>
-                  <TableHead className="h-12 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
-                    PATIENT REF
-                  </TableHead>
-                  <TableHead className="h-12 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
-                    CONTACT NUMBER
-                  </TableHead>
-                  <TableHead className="h-12 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
-                    DOB / AGE
-                  </TableHead>
-                  <TableHead className="h-12 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
-                    NEXT APPOINTMENT
-                  </TableHead>
-                  <TableHead className="h-12 w-16 text-right pr-6" />
-                </TableRow>
-              </TableHeader>
-              <TableBody className="divide-y divide-border/40">
-                {pagination.paginatedItems.map((patient) => {
-                  const followUp = patient.follow_up;
-                  const age = patient.dob
-                    ? differenceInYears(new Date(), new Date(`${patient.dob}T00:00:00`))
-                    : null;
+      {/* ── 2. Main Patient Records Display ── */}
+      <section className="overflow-hidden rounded-3xl border border-border/80 bg-card shadow-xs">
+        {filteredPatients.length === 0 ? (
+          <div className="flex min-h-80 flex-col items-center justify-center px-6 py-16 text-center">
+            <span className="flex size-16 items-center justify-center rounded-3xl bg-muted/40 text-muted-foreground border border-border/70 shadow-2xs">
+              <UserRoundSearch className="size-8 text-primary" />
+            </span>
+            <p className="mt-4 text-base font-extrabold text-foreground font-heading">
+              No matching patient found
+            </p>
+            <p className="mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
+              Try searching by name, phone number, or patient reference ID.
+            </p>
+            {(searchQuery || activeTab !== "all") && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSearchQuery("");
+                  setActiveTab("all");
+                }}
+                className="mt-4 h-9 rounded-xl px-4 text-xs font-bold"
+              >
+                Clear all filters
+              </Button>
+            )}
+          </div>
+        ) : isReceptionist ? (
+          /* ══════════════════════════════════════════════════════════════════════════ */
+          /* ── RECEPTIONIST DIRECTORY VIEW: Modern, Aesthetic & Lucrative Layout ── */
+          /* ══════════════════════════════════════════════════════════════════════════ */
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                {/* Table Header */}
+                <thead>
+                  <tr className="border-b border-border/70 bg-muted/20 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
+                    <th className="py-3.5 pl-6 pr-4">PATIENT</th>
+                    <th className="py-3.5 px-4">PATIENT ID</th>
+                    <th className="py-3.5 px-4">CONTACT NUMBER</th>
+                    <th className="py-3.5 px-4">DOB / AGE</th>
+                    <th className="py-3.5 px-4">NEXT APPOINTMENT</th>
+                    <th className="py-3.5 pr-6 pl-4 text-right">ACTION</th>
+                  </tr>
+                </thead>
 
-                  return (
-                    <TableRow
-                      key={patient.id}
-                      className="group h-[72px] hover:bg-muted/15 transition-colors"
-                    >
-                      {/* Patient Name + Initials */}
-                      <TableCell className="px-6">
-                        <Link href={`/patients/${patient.id}`} className="flex items-center gap-3.5">
-                          <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[#0B3B36]/10 text-[#0B3B36] dark:bg-emerald-950/60 dark:text-emerald-300 font-extrabold text-xs border border-emerald-500/20 shadow-2xs">
-                            {patient.first_name[0]}
-                            {patient.last_name[0]}
-                          </span>
-                          <div>
-                            <span className="block font-heading text-sm font-extrabold text-foreground group-hover:text-primary transition-colors">
-                              {patient.first_name} {patient.last_name}
+                {/* Table Body */}
+                <tbody className="divide-y divide-border/40">
+                  {pagination.paginatedItems.map((patient) => {
+                    const followUp = patient.follow_up;
+                    const age = patient.dob
+                      ? differenceInYears(new Date(), new Date(`${patient.dob}T00:00:00`))
+                      : null;
+
+                    return (
+                      <tr
+                        key={patient.id}
+                        className="group hover:bg-muted/25 transition-all duration-150 h-[72px]"
+                      >
+                        {/* Patient Name & Avatar */}
+                        <td className="py-3 pl-6 pr-4">
+                          <Link
+                            href={`/patients/${patient.id}`}
+                            className="flex items-center gap-3.5 group/link"
+                          >
+                            <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0B3B36]/15 via-[#0B3B36]/10 to-[#0B3B36]/5 text-[#0B3B36] dark:from-emerald-500/25 dark:to-emerald-500/10 dark:text-emerald-300 font-black text-xs border border-emerald-500/25 shadow-2xs group-hover/link:scale-105 transition-transform">
+                              {patient.first_name[0]}
+                              {patient.last_name[0]}
                             </span>
-                            {patient.email && (
-                              <span className="block text-[11px] text-muted-foreground font-medium truncate max-w-[200px]">
-                                {patient.email}
+                            <div className="min-w-0">
+                              <span className="block font-heading text-sm font-extrabold text-foreground group-hover/link:text-primary transition-colors truncate">
+                                {patient.first_name} {patient.last_name}
                               </span>
-                            )}
+                              {patient.email && (
+                                <span className="flex items-center gap-1 text-[11px] text-muted-foreground font-medium truncate max-w-[220px] mt-0.5">
+                                  <Mail className="size-3 text-muted-foreground/70 shrink-0" />
+                                  <span className="truncate">{patient.email}</span>
+                                </span>
+                              )}
+                            </div>
+                          </Link>
+                        </td>
+
+                        {/* Reference ID Capsule */}
+                        <td className="py-3 px-4">
+                          <span className="inline-flex items-center rounded-xl border border-border/80 bg-muted/30 px-2.5 py-1 font-mono text-[11px] font-bold text-foreground tracking-tight shadow-2xs">
+                            {patient.patient_reference}
+                          </span>
+                        </td>
+
+                        {/* Contact Number */}
+                        <td className="py-3 px-4">
+                          {patient.phone ? (
+                            <a
+                              href={`tel:${patient.phone}`}
+                              className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-foreground hover:text-primary transition-colors"
+                            >
+                              <span className="flex size-6 items-center justify-center rounded-lg bg-muted/50 text-muted-foreground">
+                                <Phone className="size-3" />
+                              </span>
+                              <span>{patient.phone}</span>
+                            </a>
+                          ) : (
+                            <span className="text-xs text-muted-foreground/60 italic font-medium">
+                              No phone registered
+                            </span>
+                          )}
+                        </td>
+
+                        {/* DOB & Age */}
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <span className="flex size-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 shrink-0">
+                              <Cake className="size-3.5" />
+                            </span>
+                            <div>
+                              <p className="text-xs font-bold text-foreground">
+                                {patient.dob
+                                  ? format(new Date(`${patient.dob}T00:00:00`), "dd MMM yyyy")
+                                  : "—"}
+                              </p>
+                              {age !== null && (
+                                <p className="text-[10px] font-semibold text-muted-foreground">
+                                  {age} years old
+                                </p>
+                              )}
+                            </div>
                           </div>
-                        </Link>
-                      </TableCell>
+                        </td>
 
-                      {/* Reference ID */}
-                      <TableCell>
-                        <span className="inline-flex items-center rounded-xl border border-border/80 bg-muted/40 px-2.5 py-1 font-mono text-[11px] font-bold text-foreground tracking-tight shadow-2xs">
-                          {patient.patient_reference}
+                        {/* Next Scheduled Visit */}
+                        <td className="py-3 px-4">
+                          {followUp ? (
+                            <div className="inline-flex items-center gap-2.5 rounded-2xl border border-blue-200/80 bg-blue-50/60 dark:border-blue-900/60 dark:bg-blue-950/30 p-2 pr-3">
+                              <span className="flex size-8 items-center justify-center rounded-xl bg-blue-500 text-white dark:bg-blue-600 shrink-0 shadow-2xs">
+                                <CalendarDays className="size-4" />
+                              </span>
+                              <div className="min-w-0">
+                                <p className="text-xs font-extrabold text-blue-950 dark:text-blue-200 truncate">
+                                  {format(new Date(followUp.starts_at), "EEE, d MMM · h:mm a")}
+                                </p>
+                                <p className="text-[10px] text-blue-800/80 dark:text-blue-300/80 font-semibold truncate">
+                                  {followUp.services?.name ?? "Scheduled Visit"}
+                                </p>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-border/80 bg-muted/20 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                              <Clock3 className="size-3 text-muted-foreground/70" />
+                              No upcoming visit
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Fast Actions */}
+                        <td className="py-3 pr-6 pl-4 text-right">
+                          <Link
+                            href={`/patients/${patient.id}`}
+                            aria-label={`Open ${patient.first_name} ${patient.last_name}`}
+                            className="inline-flex items-center gap-1.5 h-8.5 px-3 rounded-xl border border-border/80 bg-card hover:bg-[#0B3B36] hover:text-white hover:border-[#0B3B36] text-xs font-bold text-foreground transition-all shadow-2xs group/btn"
+                          >
+                            <span>Profile</span>
+                            <ArrowUpRight className="size-3.5 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile & Tablet Card Layout */}
+            <div className="lg:hidden divide-y divide-border/50">
+              {pagination.paginatedItems.map((patient) => {
+                const followUp = patient.follow_up;
+                const age = patient.dob
+                  ? differenceInYears(new Date(), new Date(`${patient.dob}T00:00:00`))
+                  : null;
+
+                return (
+                  <div key={patient.id} className="p-4 space-y-3.5">
+                    {/* Top Row: Avatar, Name & Profile Button */}
+                    <div className="flex items-center justify-between gap-3">
+                      <Link
+                        href={`/patients/${patient.id}`}
+                        className="flex items-center gap-3 min-w-0"
+                      >
+                        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#0B3B36]/10 text-[#0B3B36] dark:bg-emerald-950/60 dark:text-emerald-300 font-black text-xs border border-emerald-500/20 shadow-2xs">
+                          {patient.first_name[0]}
+                          {patient.last_name[0]}
                         </span>
-                      </TableCell>
+                        <div className="min-w-0">
+                          <span className="block font-heading text-sm font-extrabold text-foreground hover:text-primary transition-colors truncate">
+                            {patient.first_name} {patient.last_name}
+                          </span>
+                          <span className="inline-flex items-center rounded-md border border-border/80 bg-muted/40 px-1.5 py-0.5 font-mono text-[10px] font-bold text-foreground mt-0.5">
+                            {patient.patient_reference}
+                          </span>
+                        </div>
+                      </Link>
 
-                      {/* Contact (Phone) */}
-                      <TableCell>
-                        <p className="flex items-center gap-1.5 text-xs font-mono font-medium text-foreground">
-                          <Phone className="size-3 text-muted-foreground" />
-                          <span>{patient.phone || "No phone"}</span>
+                      <Link
+                        href={`/patients/${patient.id}`}
+                        className="inline-flex items-center gap-1 h-8 px-3 rounded-xl border border-border/80 bg-card hover:bg-[#0B3B36] hover:text-white text-xs font-bold transition-colors shrink-0"
+                      >
+                        <span>Profile</span>
+                        <ChevronRight className="size-3.5" />
+                      </Link>
+                    </div>
+
+                    {/* Middle Details Grid */}
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="rounded-xl border border-border/70 bg-muted/15 p-2">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                          Phone
+                        </span>
+                        <p className="font-mono font-bold text-foreground truncate mt-0.5">
+                          {patient.phone || "No phone"}
                         </p>
-                      </TableCell>
+                      </div>
 
-                      {/* DOB / Age */}
-                      <TableCell>
-                        <p className="text-xs text-foreground font-semibold">
-                          {patient.dob
-                            ? format(new Date(`${patient.dob}T00:00:00`), "dd MMM yyyy")
-                            : "—"}
-                          {age !== null && (
-                            <span className="text-muted-foreground font-medium ml-1.5 text-[11px]">
-                              ({age} yrs)
+                      <div className="rounded-xl border border-border/70 bg-muted/15 p-2">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                          Age / DOB
+                        </span>
+                        <p className="font-semibold text-foreground truncate mt-0.5">
+                          {age !== null ? `${age} yrs` : "—"}{" "}
+                          {patient.dob && (
+                            <span className="text-muted-foreground text-[10px]">
+                              ({format(new Date(`${patient.dob}T00:00:00`), "dd MMM")})
                             </span>
                           )}
                         </p>
-                      </TableCell>
+                      </div>
+                    </div>
 
-                      {/* Next Appointment */}
-                      <TableCell>
-                        {followUp ? (
-                          <div className="flex items-center gap-2.5">
-                            <span className="flex size-8 items-center justify-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200/60 shrink-0">
-                              <CalendarDays className="size-4" />
+                    {/* Bottom Next Appointment Badge */}
+                    {followUp ? (
+                      <div className="flex items-center gap-2.5 rounded-2xl border border-blue-200/80 bg-blue-50/70 dark:border-blue-900/60 dark:bg-blue-950/30 p-2.5">
+                        <CalendarDays className="size-4 text-blue-700 dark:text-blue-300 shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-extrabold text-blue-950 dark:text-blue-200 truncate">
+                            {format(new Date(followUp.starts_at), "EEE, d MMM · h:mm a")}
+                          </p>
+                          <p className="text-[10px] text-blue-800/80 dark:text-blue-300 font-semibold truncate">
+                            {followUp.services?.name ?? "Visit"}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground font-medium px-1">
+                        <Clock3 className="size-3" />
+                        <span>No upcoming visit booked</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination Footer */}
+            <TablePagination
+              currentPage={pagination.currentPage}
+              totalPages={pagination.totalPages}
+              totalItems={pagination.totalItems}
+              pageSize={pagination.pageSize}
+              onPageChange={pagination.onPageChange}
+              onPageSizeChange={pagination.onPageSizeChange}
+              pageSizeOptions={[10, 20, 50]}
+              itemLabel="patients"
+            />
+          </>
+        ) : (
+          /* ══════════════════════════════════════════════════════════════════════════ */
+          /* ── CLINICIAN / DENTIST TABLE: Medical Records Focused Layout ──           */
+          /* ══════════════════════════════════════════════════════════════════════════ */
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-border/70 bg-muted/20 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
+                    <th className="py-3.5 pl-6 pr-4">PATIENT</th>
+                    <th className="py-3.5 px-4">PATIENT ID</th>
+                    <th className="py-3.5 px-4">LAST VISIT &amp; PROCEDURE</th>
+                    <th className="py-3.5 px-4">CARE STATUS</th>
+                    <th className="py-3.5 px-4">NEXT RECALL / FOLLOW-UP</th>
+                    <th className="py-3.5 pr-6 pl-4 text-right">ACTION</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/40">
+                  {pagination.paginatedItems.map((patient) => {
+                    const latest = patient.latest_visit;
+                    const followUp = patient.follow_up;
+                    return (
+                      <tr
+                        key={patient.id}
+                        className="group hover:bg-muted/25 transition-all duration-150 h-[76px]"
+                      >
+                        {/* Patient Name + Avatar */}
+                        <td className="py-3 pl-6 pr-4">
+                          <Link href={`/patients/${patient.id}`} className="flex items-center gap-3.5">
+                            <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0B3B36]/15 via-[#0B3B36]/10 to-[#0B3B36]/5 text-[#0B3B36] dark:from-emerald-500/25 dark:to-emerald-500/10 dark:text-emerald-300 font-black text-xs border border-emerald-500/25 shadow-2xs">
+                              {patient.first_name[0]}
+                              {patient.last_name[0]}
                             </span>
-                            <div>
-                              <p className="text-xs font-bold text-foreground">
-                                {format(new Date(followUp.starts_at), "dd MMM, HH:mm")}
-                              </p>
-                              <p className="text-[11px] text-muted-foreground font-medium">
-                                {followUp.services?.name ?? "Booked Visit"}
-                              </p>
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground italic font-medium">
-                            No upcoming visit
-                          </span>
-                        )}
-                      </TableCell>
-
-                      {/* Action Arrow */}
-                      <TableCell className="pr-6 text-right">
-                        <Link
-                          href={`/patients/${patient.id}`}
-                          aria-label={`Open ${patient.first_name} ${patient.last_name}`}
-                          className="inline-flex size-9 items-center justify-center rounded-xl border border-border/70 text-muted-foreground hover:bg-[#0B3B36] hover:text-white hover:border-[#0B3B36] transition-all shadow-2xs"
-                        >
-                          <ChevronRight className="size-4" />
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Pagination Bar */}
-          <TablePagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            totalItems={pagination.totalItems}
-            pageSize={pagination.pageSize}
-            onPageChange={pagination.onPageChange}
-            onPageSizeChange={pagination.onPageSizeChange}
-            itemLabel="patients"
-          />
-        </>
-      ) : (
-        /* ── CLINICIAN / DENTIST TABLE: Medical Records Focused ── */
-        <>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-muted/25 border-b border-border/70">
-                <TableRow className="hover:bg-muted/25 border-border/60">
-                  <TableHead className="h-12 px-6 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
-                    PATIENT
-                  </TableHead>
-                  <TableHead className="h-12 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
-                    PATIENT ID
-                  </TableHead>
-                  <TableHead className="h-12 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
-                    LAST VISIT &amp; PROCEDURE
-                  </TableHead>
-                  <TableHead className="h-12 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
-                    CARE STATUS
-                  </TableHead>
-                  <TableHead className="h-12 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
-                    NEXT RECALL / FOLLOW-UP
-                  </TableHead>
-                  <TableHead className="h-12 w-16 pr-6 text-right" />
-                </TableRow>
-              </TableHeader>
-              <TableBody className="divide-y divide-border/40">
-                {pagination.paginatedItems.map((patient) => {
-                  const latest = patient.latest_visit;
-                  const followUp = patient.follow_up;
-                  return (
-                    <TableRow
-                      key={patient.id}
-                      className="group h-[76px] hover:bg-muted/15 transition-colors"
-                    >
-                      {/* Patient Name + Avatar */}
-                      <TableCell className="px-6">
-                        <Link href={`/patients/${patient.id}`} className="flex items-center gap-3.5">
-                          <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[#0B3B36]/10 text-[#0B3B36] dark:bg-emerald-950/60 dark:text-emerald-300 font-extrabold text-xs border border-emerald-500/20 shadow-2xs">
-                            {patient.first_name[0]}
-                            {patient.last_name[0]}
-                          </span>
-                          <div>
-                            <span className="block font-heading text-sm font-extrabold text-foreground group-hover:text-primary transition-colors">
-                              {patient.first_name} {patient.last_name}
-                            </span>
-                            <span className="mt-0.5 block text-[11px] text-muted-foreground font-medium">
-                              {patient.phone ?? "No phone"}
-                              {patient.dob
-                                ? ` · DOB ${format(new Date(`${patient.dob}T00:00:00`), "dd MMM yyyy")}`
-                                : ""}
-                            </span>
-                          </div>
-                        </Link>
-                      </TableCell>
-
-                      {/* Reference ID */}
-                      <TableCell>
-                        <span className="inline-flex items-center rounded-xl border border-border/80 bg-muted/40 px-2.5 py-1 font-mono text-[11px] font-bold text-foreground tracking-tight shadow-2xs">
-                          {patient.patient_reference}
-                        </span>
-                      </TableCell>
-
-                      {/* Last Visit & Procedure */}
-                      <TableCell className="max-w-[280px]">
-                        {latest ? (
-                          <div>
-                            <p className="text-xs font-bold text-foreground">
-                              {format(new Date(latest.starts_at), "dd MMM yyyy")} ·{" "}
-                              <span className="text-primary font-extrabold">
-                                {latest.services?.name ?? "Visit"}
+                            <div className="min-w-0">
+                              <span className="block font-heading text-sm font-extrabold text-foreground group-hover:text-primary transition-colors truncate">
+                                {patient.first_name} {patient.last_name}
                               </span>
-                            </p>
-                            <p className="mt-0.5 truncate text-[11px] text-muted-foreground font-medium">
-                              {latest.notes ? `“${latest.notes}”` : "Routine consultation completed"}
-                            </p>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground italic font-medium">
-                            No visit recorded
+                              <span className="mt-0.5 block text-[11px] text-muted-foreground font-medium truncate">
+                                {patient.phone ?? "No phone"}
+                                {patient.dob
+                                  ? ` · DOB ${format(new Date(`${patient.dob}T00:00:00`), "dd MMM yyyy")}`
+                                  : ""}
+                              </span>
+                            </div>
+                          </Link>
+                        </td>
+
+                        {/* Reference ID */}
+                        <td className="py-3 px-4">
+                          <span className="inline-flex items-center rounded-xl border border-border/80 bg-muted/30 px-2.5 py-1 font-mono text-[11px] font-bold text-foreground tracking-tight shadow-2xs">
+                            {patient.patient_reference}
                           </span>
-                        )}
-                      </TableCell>
+                        </td>
 
-                      {/* Care Status */}
-                      <TableCell>
-                        {latest ? (
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider border shadow-2xs",
-                              STATUS_STYLE[latest.status] ??
-                                "border-border bg-muted/40 text-foreground",
-                            )}
-                          >
-                            {formatAppointmentStatusLabel(latest.status)}
-                          </Badge>
-                        ) : (
-                          <Badge
-                            variant="outline"
-                            className="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-muted-foreground border-border/70"
-                          >
-                            No Appointment
-                          </Badge>
-                        )}
-                      </TableCell>
-
-                      {/* Next Recall / Follow-up */}
-                      <TableCell>
-                        {followUp ? (
-                          <div className="flex items-center gap-2.5">
-                            <span className="flex size-8 items-center justify-center rounded-xl bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200/60 shrink-0">
-                              <Clock3 className="size-4" />
-                            </span>
+                        {/* Last Visit & Procedure */}
+                        <td className="py-3 px-4 max-w-[280px]">
+                          {latest ? (
                             <div>
                               <p className="text-xs font-bold text-foreground">
-                                {format(new Date(followUp.starts_at), "dd MMM, HH:mm")}
+                                {format(new Date(latest.starts_at), "dd MMM yyyy")} ·{" "}
+                                <span className="text-primary font-extrabold">
+                                  {latest.services?.name ?? "Visit"}
+                                </span>
                               </p>
-                              <p className="text-[11px] text-muted-foreground font-medium">
-                                {followUp.services?.name ?? "Follow-up visit"}
+                              <p className="mt-0.5 truncate text-[11px] text-muted-foreground font-medium">
+                                {latest.notes ? `“${latest.notes}”` : "Routine consultation completed"}
                               </p>
                             </div>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground italic font-medium">
-                            Not booked
-                          </span>
-                        )}
-                      </TableCell>
+                          ) : (
+                            <span className="text-xs text-muted-foreground italic font-medium">
+                              No visit recorded
+                            </span>
+                          )}
+                        </td>
 
-                      {/* Action Arrow */}
-                      <TableCell className="pr-6 text-right">
-                        <Link
-                          href={`/patients/${patient.id}`}
-                          aria-label={`Open ${patient.first_name} ${patient.last_name}`}
-                          className="inline-flex size-9 items-center justify-center rounded-xl border border-border/70 text-muted-foreground hover:bg-[#0B3B36] hover:text-white hover:border-[#0B3B36] transition-all shadow-2xs"
-                        >
-                          <ChevronRight className="size-4" />
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+                        {/* Care Status */}
+                        <td className="py-3 px-4">
+                          {latest ? (
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider border shadow-2xs",
+                                STATUS_STYLE[latest.status] ??
+                                  "border-border bg-muted/40 text-foreground",
+                              )}
+                            >
+                              {formatAppointmentStatusLabel(latest.status)}
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant="outline"
+                              className="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-muted-foreground border-border/70"
+                            >
+                              No Appointment
+                            </Badge>
+                          )}
+                        </td>
 
-          {/* Pagination Bar */}
-          <TablePagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            totalItems={pagination.totalItems}
-            pageSize={pagination.pageSize}
-            onPageChange={pagination.onPageChange}
-            onPageSizeChange={pagination.onPageSizeChange}
-            itemLabel="patient records"
-          />
-        </>
-      )}
-    </section>
+                        {/* Next Recall / Follow-up */}
+                        <td className="py-3 px-4">
+                          {followUp ? (
+                            <div className="flex items-center gap-2.5">
+                              <span className="flex size-8 items-center justify-center rounded-xl bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200/60 shrink-0">
+                                <Clock3 className="size-4" />
+                              </span>
+                              <div>
+                                <p className="text-xs font-bold text-foreground">
+                                  {format(new Date(followUp.starts_at), "dd MMM, HH:mm")}
+                                </p>
+                                <p className="text-[11px] text-muted-foreground font-medium">
+                                  {followUp.services?.name ?? "Follow-up visit"}
+                                </p>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground italic font-medium">
+                              Not booked
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Action Arrow */}
+                        <td className="py-3 pr-6 pl-4 text-right">
+                          <Link
+                            href={`/patients/${patient.id}`}
+                            aria-label={`Open ${patient.first_name} ${patient.last_name}`}
+                            className="inline-flex items-center gap-1.5 h-8.5 px-3 rounded-xl border border-border/80 bg-card hover:bg-[#0B3B36] hover:text-white hover:border-[#0B3B36] text-xs font-bold text-foreground transition-all shadow-2xs group/btn"
+                          >
+                            <span>Profile</span>
+                            <ArrowUpRight className="size-3.5 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Bar */}
+            <TablePagination
+              currentPage={pagination.currentPage}
+              totalPages={pagination.totalPages}
+              totalItems={pagination.totalItems}
+              pageSize={pagination.pageSize}
+              onPageChange={pagination.onPageChange}
+              onPageSizeChange={pagination.onPageSizeChange}
+              pageSizeOptions={[10, 20, 50]}
+              itemLabel="patient records"
+            />
+          </>
+        )}
+      </section>
+    </div>
   );
 }

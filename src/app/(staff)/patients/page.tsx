@@ -54,6 +54,23 @@ export default async function StaffPatientsPage({
 
   const withCompletedCare = patients.filter((patient) => patient.latest_visit?.status === "completed").length;
   const withFollowUp = patients.filter((patient) => patient.follow_up).length;
+  const newThisMonth = patients.filter((patient) => {
+    if (!patient.created_at) return false;
+    const diff = (Date.now() - new Date(patient.created_at).getTime()) / (1000 * 60 * 60 * 24);
+    return diff <= 30;
+  }).length;
+
+  const stats = isReceptionist
+    ? [
+        { label: "Total registered", value: patients.length, icon: Users, tone: "bg-primary/10 text-primary border border-primary/20" },
+        { label: "Upcoming visits", value: withFollowUp, icon: CalendarClock, tone: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-200/60" },
+        { label: "New this month", value: newThisMonth, icon: CircleCheck, tone: "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60" },
+      ]
+    : [
+        { label: "Total records", value: patients.length, icon: Users, tone: "bg-primary/10 text-primary border border-primary/20" },
+        { label: "Care completed", value: withCompletedCare, icon: CircleCheck, tone: "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60" },
+        { label: "Follow-up booked", value: withFollowUp, icon: CalendarClock, tone: "bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-200/60" },
+      ];
 
   return (
     <div className="space-y-6 w-full max-w-[1600px] pb-16">
@@ -83,27 +100,21 @@ export default async function StaffPatientsPage({
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* 2. STATS STRIP (Dentist View Only)                            */}
+      {/* 2. STATS STRIP                                                */}
       {/* ------------------------------------------------------------- */}
-      {!isReceptionist && (
-        <section className="grid gap-4 sm:grid-cols-3">
-          {[
-            { label: "Total records", value: patients.length, icon: Users, tone: "bg-primary-soft text-primary" },
-            { label: "Care completed", value: withCompletedCare, icon: CircleCheck, tone: "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60" },
-            { label: "Follow-up booked", value: withFollowUp, icon: CalendarClock, tone: "bg-violet-500/10 text-violet-700 dark:text-violet-300 border border-violet-200/60" },
-          ].map((item) => (
-            <article key={item.label} className="flex items-center gap-4 rounded-3xl border border-border/80 bg-card/95 backdrop-blur-xs p-5 shadow-xs">
-              <span className={cn("flex size-11 items-center justify-center rounded-2xl", item.tone)}>
-                <item.icon className="size-5" />
-              </span>
-              <div>
-                <p className="font-heading text-2xl font-black text-foreground">{item.value}</p>
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{item.label}</p>
-              </div>
-            </article>
-          ))}
-        </section>
-      )}
+      <section className="grid gap-4 sm:grid-cols-3">
+        {stats.map((item) => (
+          <article key={item.label} className="flex items-center gap-4 rounded-3xl border border-border/80 bg-card p-4.5 sm:p-5 shadow-xs">
+            <span className={cn("flex size-11 items-center justify-center rounded-2xl shrink-0 shadow-2xs", item.tone)}>
+              <item.icon className="size-5" />
+            </span>
+            <div>
+              <p className="font-heading text-2xl font-black text-foreground">{item.value}</p>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{item.label}</p>
+            </div>
+          </article>
+        ))}
+      </section>
 
       {/* ------------------------------------------------------------- */}
       {/* 3. PATIENTS PAGINATED TABLE                                   */}
