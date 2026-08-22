@@ -169,13 +169,12 @@ export async function getDashboardStats() {
     upcoming[0] ??
     null;
 
-  // Upcoming appointments list (excluding already completed, cancelled, no_show, and the current hero next appointment)
+  // Upcoming appointments list (pending, booked, confirmed, checked_in)
   const upcomingAppointmentsList = schedule.filter(
     (a) =>
       a.status !== "completed" &&
       a.status !== "cancelled" &&
-      a.status !== "no_show" &&
-      (!nextAppointment || a.id !== nextAppointment.id),
+      a.status !== "no_show",
   );
 
   const outstandingAmount = (outstanding ?? []).reduce(
@@ -313,30 +312,19 @@ export async function getReceptionistDashboardContext(
   const { data: appointmentsData } = await query;
   const rawSchedule = (appointmentsData ?? []) as unknown as ReceptionistDashboardAppointment[];
 
-  // Classify queues
-  const rawWaiting = rawSchedule.filter((a) => a.status === "checked_in");
-  const upcomingConfirmed = rawSchedule.filter((a) =>
+  // Classify queues: the whole data is divided into Waiting Now, Today's Upcoming, and Completed Today
+  const waitingAppointments = rawSchedule.filter((a) => a.status === "checked_in");
+  const upcomingAppointments = rawSchedule.filter((a) =>
     ["confirmed", "booked", "pending"].includes(a.status),
   );
   const completedAppointments = rawSchedule.filter((a) => a.status === "completed");
 
-  // Determine Next Patient Hero:
-  // 1. Arrived/waiting patient requiring immediate attention, OR
-  // 2. Earliest future upcoming confirmed appointment
+  // Next Patient is highlighted at the top (top of Waiting Now, or earliest upcoming appointment)
   const nextAppointment =
-    rawWaiting[0] ??
-    upcomingConfirmed.find((a) => new Date(a.starts_at) >= now) ??
-    upcomingConfirmed[0] ??
+    waitingAppointments[0] ??
+    upcomingAppointments.find((a) => new Date(a.starts_at) >= now) ??
+    upcomingAppointments[0] ??
     null;
-
-  // De-duplication rule:
-  // The Next Patient hero appointment must NOT appear in Waiting Now OR in Today's Upcoming!
-  const waitingAppointments = rawWaiting.filter(
-    (a) => !nextAppointment || a.id !== nextAppointment.id,
-  );
-  const upcomingAppointments = upcomingConfirmed.filter(
-    (a) => !nextAppointment || a.id !== nextAppointment.id,
-  );
 
   return {
     profile: {
@@ -355,8 +343,8 @@ export async function getReceptionistDashboardContext(
     upcomingAppointments,
     completedAppointments,
     counts: {
-      waiting: rawWaiting.length,
-      upcoming: upcomingConfirmed.length,
+      waiting: waitingAppointments.length,
+      upcoming: upcomingAppointments.length,
       completed: completedAppointments.length,
     },
   };

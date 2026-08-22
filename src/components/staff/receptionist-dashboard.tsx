@@ -541,7 +541,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
       </section>
 
       {/* ============================================================= */}
-      {/* 4. TODAY'S UPCOMING (CHRONOLOGICAL, EXCLUDING NEXT HERO)      */}
+      {/* 4. TODAY'S UPCOMING (CHRONOLOGICAL APPOINTMENTS QUEUE)        */}
       {/* ============================================================= */}
       <section className="rounded-3xl border border-border/80 bg-card shadow-xs overflow-hidden">
         <div className="flex items-center justify-between border-b border-border/60 px-5 py-3.5 bg-muted/15">
@@ -560,13 +560,13 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
             </Badge>
           </div>
           <span className="text-[11px] text-muted-foreground">
-            Later today in queue
+            Upcoming bookings today
           </span>
         </div>
 
         {upcomingAppointments.length === 0 ? (
           <div className="p-6 text-center text-xs text-muted-foreground">
-            No further upcoming appointments scheduled for today.
+            No upcoming appointments scheduled for today.
           </div>
         ) : (
           <div className="overflow-x-auto">
