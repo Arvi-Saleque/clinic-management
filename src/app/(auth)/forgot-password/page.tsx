@@ -1,20 +1,27 @@
 import type { Metadata } from "next";
+import { KeyRound } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 
-export const metadata: Metadata = { title: "Reset password" };
+export const metadata: Metadata = { title: "Reset password · Clinic Care" };
 
 export default function ForgotPasswordPage() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Reset your password</CardTitle>
-        <CardDescription>We&apos;ll email you a link to choose a new one.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ForgotPasswordForm />
-      </CardContent>
-    </Card>
+    <div className="mx-auto max-w-lg rounded-3xl border border-border/80 bg-card/95 backdrop-blur-xl p-6 sm:p-8 lg:p-9 shadow-xl space-y-6">
+      <div className="space-y-1.5 border-b border-border/60 pb-4 text-center sm:text-left">
+        <div className="flex items-center justify-center sm:justify-start gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-primary">
+          <KeyRound className="size-3.5" />
+          <span>Account Recovery</span>
+        </div>
+        <h2 className="font-heading text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+          Reset your password
+        </h2>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Enter your registered email address and we&apos;ll send you a secure link to reset your credentials.
+        </p>
+      </div>
+
+      <ForgotPasswordForm />
+    </div>
   );
 }
