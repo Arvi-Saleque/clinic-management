@@ -252,21 +252,18 @@ export function NewAppointmentDialog({
                 value={selectedPractitionerId}
                 onValueChange={(value) => setSelectedPractitionerId(value ?? "")}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-9.5 rounded-xl border-border/80 text-xs font-medium bg-card">
                   <SelectValue placeholder="Select a doctor">
                     {(id: string) => {
                       const p = practitioners.find((doc) => doc.id === id);
-                      return p
-                        ? `${p.title ? `${p.title} ` : ""}${p.profiles?.full_name ?? "Doctor"}`
-                        : null;
+                      return p?.profiles?.full_name ?? null;
                     }}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-xl border-border/80 bg-card p-1 shadow-lg">
                   {practitioners.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.title ? `${p.title} ` : ""}
-                      {p.profiles?.full_name ?? "Doctor"}
+                    <SelectItem key={p.id} value={p.id} className="text-xs font-medium rounded-lg py-2">
+                      {p.profiles?.full_name || "Doctor"}
                     </SelectItem>
                   ))}
                 </SelectContent>

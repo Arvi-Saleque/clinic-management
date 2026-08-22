@@ -182,21 +182,31 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Subtle Practitioner Scope Filter */}
           {practitioners.length > 1 && (
-            <div className="w-48 sm:w-52">
+            <div className="w-48 sm:w-56">
               <Select
                 value={activePractitionerId || "all"}
                 onValueChange={handlePractitionerFilter}
               >
-                <SelectTrigger className="h-9.5 rounded-xl border-border/80 text-xs font-semibold bg-card">
-                  <SelectValue placeholder="All Practitioners" />
+                <SelectTrigger className="h-9.5 rounded-xl border-border/80 bg-card hover:bg-muted/30 hover:border-border text-xs font-semibold shadow-2xs transition-all px-3">
+                  <div className="flex items-center gap-2 min-w-0 truncate">
+                    <Stethoscope className="size-3.5 text-primary shrink-0" />
+                    <SelectValue placeholder="All Doctors">
+                      {(val: string) => {
+                        if (val === "all" || !val) {
+                          return "All Doctors";
+                        }
+                        const p = practitioners.find((doc) => doc.id === val);
+                        return p?.profiles?.full_name ?? "All Doctors";
+                      }}
+                    </SelectValue>
+                  </div>
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all" className="text-xs">
-                    All Practitioners ({practitioners.length})
+                <SelectContent className="rounded-2xl border-border/80 bg-card p-1 shadow-lg min-w-[220px]">
+                  <SelectItem value="all" className="text-xs font-medium rounded-xl py-2">
+                    All Doctors
                   </SelectItem>
                   {practitioners.map((pr) => (
-                    <SelectItem key={pr.id} value={pr.id} className="text-xs">
-                      {pr.title ? `${pr.title} ` : ""}
+                    <SelectItem key={pr.id} value={pr.id} className="text-xs font-medium rounded-xl py-2">
                       {pr.profiles?.full_name || "Doctor"}
                     </SelectItem>
                   ))}

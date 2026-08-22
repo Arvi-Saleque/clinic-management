@@ -309,32 +309,32 @@ export function AppointmentsWorkspace({
 
           {/* Practitioner Selector (if permitted) */}
           {canSelectPractitioner && practitioners.length > 0 && (
-            <div className="w-52">
+            <div className="w-48 sm:w-56">
               <Select
                 value={practitionerId && practitionerId !== "" ? practitionerId : "all"}
                 onValueChange={(val) => setPractitionerParam(val || "all")}
               >
-                <SelectTrigger className="h-9 rounded-xl border-border/80 bg-card text-xs font-medium">
-                  <SelectValue placeholder="All Doctors">
-                    {(val: string) => {
-                      if (val === "all" || !val) {
-                        return `All Doctors (${practitioners.length})`;
-                      }
-                      const p = practitioners.find((doc) => doc.id === val);
-                      return p
-                        ? `${p.title ? `${p.title} ` : ""}${p.profiles?.full_name ?? "Doctor"}`
-                        : "All Doctors";
-                    }}
-                  </SelectValue>
+                <SelectTrigger className="h-9.5 rounded-xl border-border/80 bg-card hover:bg-muted/30 hover:border-border text-xs font-semibold shadow-2xs transition-all px-3">
+                  <div className="flex items-center gap-2 min-w-0 truncate">
+                    <Stethoscope className="size-3.5 text-primary shrink-0" />
+                    <SelectValue placeholder="All Doctors">
+                      {(val: string) => {
+                        if (val === "all" || !val) {
+                          return "All Doctors";
+                        }
+                        const p = practitioners.find((doc) => doc.id === val);
+                        return p?.profiles?.full_name ?? "All Doctors";
+                      }}
+                    </SelectValue>
+                  </div>
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all" className="text-xs font-semibold">
-                    All Doctors ({practitioners.length})
+                <SelectContent className="rounded-2xl border-border/80 bg-card p-1 shadow-lg min-w-[220px]">
+                  <SelectItem value="all" className="text-xs font-medium rounded-xl py-2">
+                    All Doctors
                   </SelectItem>
                   {practitioners.map((p) => (
-                    <SelectItem key={p.id} value={p.id} className="text-xs">
-                      {p.title ? `${p.title} ` : ""}
-                      {p.profiles?.full_name ?? "Doctor"}
+                    <SelectItem key={p.id} value={p.id} className="text-xs font-medium rounded-xl py-2">
+                      {p.profiles?.full_name || "Doctor"}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -565,9 +565,8 @@ export function AppointmentsWorkspace({
                 const isCancelled =
                   appointment.status === "cancelled" || appointment.status === "no_show";
 
-                const doctorDisplayName = appointment.practitioners?.profiles?.full_name
-                  ? `${appointment.practitioners.title ? `${appointment.practitioners.title} ` : ""}${appointment.practitioners.profiles.full_name}`
-                  : "Assigned Doctor";
+                const doctorDisplayName =
+                  appointment.practitioners?.profiles?.full_name || "—";
 
                 return (
                   <li
@@ -605,26 +604,23 @@ export function AppointmentsWorkspace({
                           </p>
                         )}
                         {/* Mobile Doctor badge */}
-                        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-primary lg:hidden mt-1">
-                          <Stethoscope className="size-3 shrink-0" />
-                          <span className="truncate">{doctorDisplayName}</span>
-                        </div>
+                        {appointment.practitioners?.profiles?.full_name && (
+                          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-primary lg:hidden mt-1">
+                            <Stethoscope className="size-3 shrink-0" />
+                            <span className="truncate">{appointment.practitioners.profiles.full_name}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     {/* 3. Doctor Column (Desktop) */}
-                    <div className="hidden lg:flex items-center gap-2.5 min-w-0">
+                    <div className="hidden lg:flex items-center gap-2 min-w-0">
                       <div className="size-7 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20 shadow-2xs">
                         <Stethoscope className="size-3.5" />
                       </div>
-                      <div className="min-w-0">
-                        <p className="font-heading text-xs font-bold text-foreground truncate">
-                          {doctorDisplayName}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground truncate">
-                          Treating Doctor
-                        </p>
-                      </div>
+                      <span className="font-heading text-xs font-bold text-foreground truncate">
+                        {doctorDisplayName}
+                      </span>
                     </div>
 
                     {/* 4. Treatment / Service */}
