@@ -33,6 +33,13 @@ export default async function StaffPatientsPage({
     phone: p.phone,
     dob: p.dob,
     created_at: p.created_at,
+    doctor: p.doctor
+      ? {
+          id: p.doctor.id,
+          full_name: p.doctor.full_name,
+          title: p.doctor.title,
+        }
+      : null,
     latest_visit: p.latest_visit
       ? {
         id: p.latest_visit.id,

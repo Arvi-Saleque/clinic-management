@@ -2,21 +2,16 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { differenceInYears, format } from "date-fns";
+import { format } from "date-fns";
 import {
   ArrowUpRight,
-  Cake,
-  CalendarCheck,
-  CalendarClock,
   CalendarDays,
   ChevronRight,
   Clock3,
   Mail,
   Phone,
   Search,
-  Sparkles,
   User,
-  UserCheck,
   UserRoundSearch,
   Users,
   X,
@@ -63,6 +58,11 @@ export interface PatientRecordItem {
   gender?: string | null;
   address?: string | null;
   created_at: string;
+  doctor?: {
+    id: string;
+    full_name: string;
+    title?: string | null;
+  } | null;
   latest_visit?: {
     id: string;
     starts_at: string;
@@ -259,8 +259,8 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
                   <tr className="border-b border-border/70 bg-muted/20 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
                     <th className="py-3.5 pl-6 pr-4">PATIENT</th>
                     <th className="py-3.5 px-4">PATIENT ID</th>
-                    <th className="py-3.5 px-4">CONTACT NUMBER</th>
-                    <th className="py-3.5 px-4">DOB / AGE</th>
+                    <th className="py-3.5 px-4">LAST APPOINTMENT</th>
+                    <th className="py-3.5 px-4">DOCTOR</th>
                     <th className="py-3.5 px-4">NEXT APPOINTMENT</th>
                     <th className="py-3.5 pr-6 pl-4 text-right">ACTION</th>
                   </tr>
@@ -269,10 +269,9 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
                 {/* Table Body */}
                 <tbody className="divide-y divide-border/40">
                   {pagination.paginatedItems.map((patient) => {
+                    const latest = patient.latest_visit;
                     const followUp = patient.follow_up;
-                    const age = patient.dob
-                      ? differenceInYears(new Date(), new Date(`${patient.dob}T00:00:00`))
-                      : null;
+                    const doctorName = patient.doctor?.full_name || "Unassigned";
 
                     return (
                       <tr
@@ -293,12 +292,18 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
                               <span className="block font-heading text-sm font-extrabold text-foreground group-hover/link:text-primary transition-colors truncate">
                                 {patient.first_name} {patient.last_name}
                               </span>
-                              {patient.email && (
-                                <span className="flex items-center gap-1 text-[11px] text-muted-foreground font-medium truncate max-w-[220px] mt-0.5">
-                                  <Mail className="size-3 text-muted-foreground/70 shrink-0" />
-                                  <span className="truncate">{patient.email}</span>
-                                </span>
-                              )}
+                              <div className="flex items-center gap-2 text-[11px] text-muted-foreground font-medium mt-0.5">
+                                {patient.phone && (
+                                  <span className="flex items-center gap-1 font-mono">
+                                    <Phone className="size-2.5 text-muted-foreground/70" />
+                                    <span>{patient.phone}</span>
+                                  </span>
+                                )}
+                                {patient.phone && patient.email && <span>&middot;</span>}
+                                {patient.email && (
+                                  <span className="truncate max-w-[160px]">{patient.email}</span>
+                                )}
+                              </div>
                             </div>
                           </Link>
                         </td>
@@ -310,44 +315,58 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
                           </span>
                         </td>
 
-                        {/* Contact Number */}
-                        <td className="py-3 px-4">
-                          {patient.phone ? (
-                            <a
-                              href={`tel:${patient.phone}`}
-                              className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-foreground hover:text-primary transition-colors"
-                            >
-                              <span className="flex size-6 items-center justify-center rounded-lg bg-muted/50 text-muted-foreground">
-                                <Phone className="size-3" />
-                              </span>
-                              <span>{patient.phone}</span>
-                            </a>
+                        {/* Last Appointment */}
+                        <td className="py-3 px-4 max-w-[240px]">
+                          {latest ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-bold text-foreground">
+                                  {format(new Date(latest.starts_at), "dd MMM yyyy")}
+                                </span>
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    "rounded-md px-1.5 py-0 text-[10px] font-bold uppercase",
+                                    STATUS_STYLE[latest.status] ??
+                                      "border-border bg-muted/40 text-foreground"
+                                  )}
+                                >
+                                  {formatAppointmentStatusLabel(latest.status)}
+                                </Badge>
+                              </div>
+                              <p className="text-[11px] text-muted-foreground truncate font-medium">
+                                {latest.services?.name ?? "Dental Procedure"}
+                              </p>
+                            </div>
                           ) : (
-                            <span className="text-xs text-muted-foreground/60 italic font-medium">
-                              No phone registered
+                            <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground/70 italic font-medium">
+                              <Clock3 className="size-3" />
+                              No previous visit
                             </span>
                           )}
                         </td>
 
-                        {/* DOB & Age */}
+                        {/* Attending Doctor */}
                         <td className="py-3 px-4">
-                          <div className="flex items-center gap-2">
-                            <span className="flex size-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 shrink-0">
-                              <Cake className="size-3.5" />
-                            </span>
-                            <div>
-                              <p className="text-xs font-bold text-foreground">
-                                {patient.dob
-                                  ? format(new Date(`${patient.dob}T00:00:00`), "dd MMM yyyy")
-                                  : "—"}
-                              </p>
-                              {age !== null && (
-                                <p className="text-[10px] font-semibold text-muted-foreground">
-                                  {age} years old
+                          {patient.doctor ? (
+                            <div className="flex items-center gap-2.5">
+                              <span className="flex size-7.5 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0 shadow-2xs">
+                                <User className="size-3.5" />
+                              </span>
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-foreground truncate">
+                                  {patient.doctor.full_name}
                                 </p>
-                              )}
+                                <p className="text-[10px] text-muted-foreground font-medium truncate">
+                                  {patient.doctor.title || "Attending Dentist"}
+                                </p>
+                              </div>
                             </div>
-                          </div>
+                          ) : (
+                            <span className="inline-flex items-center rounded-lg bg-muted/40 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                              Unassigned
+                            </span>
+                          )}
                         </td>
 
                         {/* Next Scheduled Visit */}
@@ -395,10 +414,8 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
             {/* Mobile & Tablet Card Layout */}
             <div className="lg:hidden divide-y divide-border/50">
               {pagination.paginatedItems.map((patient) => {
+                const latest = patient.latest_visit;
                 const followUp = patient.follow_up;
-                const age = patient.dob
-                  ? differenceInYears(new Date(), new Date(`${patient.dob}T00:00:00`))
-                  : null;
 
                 return (
                   <div key={patient.id} className="p-4 space-y-3.5">
@@ -435,23 +452,22 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="rounded-xl border border-border/70 bg-muted/15 p-2">
                         <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-                          Phone
+                          Doctor
                         </span>
-                        <p className="font-mono font-bold text-foreground truncate mt-0.5">
-                          {patient.phone || "No phone"}
+                        <p className="font-bold text-foreground truncate mt-0.5">
+                          {patient.doctor?.full_name || "Unassigned"}
                         </p>
                       </div>
 
                       <div className="rounded-xl border border-border/70 bg-muted/15 p-2">
                         <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-                          Age / DOB
+                          Last Visit
                         </span>
                         <p className="font-semibold text-foreground truncate mt-0.5">
-                          {age !== null ? `${age} yrs` : "—"}{" "}
-                          {patient.dob && (
-                            <span className="text-muted-foreground text-[10px]">
-                              ({format(new Date(`${patient.dob}T00:00:00`), "dd MMM")})
-                            </span>
+                          {latest ? (
+                            <span>{format(new Date(latest.starts_at), "dd MMM yyyy")}</span>
+                          ) : (
+                            <span className="text-muted-foreground">No visit</span>
                           )}
                         </p>
                       </div>

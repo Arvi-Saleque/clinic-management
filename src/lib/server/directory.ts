@@ -525,7 +525,20 @@ export async function listPatients(query?: string) {
   // Query appointments - for dentist, filter by this practitioner
   let appointmentsQuery = supabase
     .from("appointments")
-    .select("id, patient_id, practitioner_id, starts_at, status, notes, services:service_id(name)")
+    .select(`
+      id,
+      patient_id,
+      practitioner_id,
+      starts_at,
+      status,
+      notes,
+      services:service_id(name),
+      practitioners:practitioner_id(
+        id,
+        title,
+        profiles:profile_id(full_name)
+      )
+    `)
     .in("patient_id", patients.map((patient) => patient.id))
     .order("starts_at", { ascending: false });
 
@@ -541,7 +554,7 @@ export async function listPatients(query?: string) {
       (appointment) => appointment.patient_id === patient.id,
     );
 
-    // Latest appointment of this patient with the doctor
+    // Latest appointment of this patient
     const rawLatestVisit = patientAppointments.length > 0 ? patientAppointments[0] : null;
     const latestVisit = rawLatestVisit
       ? {
@@ -558,9 +571,22 @@ export async function listPatients(query?: string) {
           !["cancelled", "no_show"].includes(appointment.status),
       );
 
+    // Resolved primary/latest doctor for patient
+    const primaryPractitioner =
+      followUp?.practitioners ||
+      latestVisit?.practitioners ||
+      (patientAppointments[0]?.practitioners ?? null);
+
     return {
       ...patient,
       patient_reference: `PT-${patient.id.replace(/-/g, "").slice(0, 8).toUpperCase()}`,
+      doctor: primaryPractitioner
+        ? {
+            id: primaryPractitioner.id,
+            title: primaryPractitioner.title,
+            full_name: primaryPractitioner.profiles?.full_name || "Doctor",
+          }
+        : null,
       latest_visit: latestVisit,
       follow_up: followUp
         ? {
