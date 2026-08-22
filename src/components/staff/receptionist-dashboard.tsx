@@ -10,14 +10,12 @@ import {
   CheckCircle2,
   Clock,
   Clock3,
-  CreditCard,
   ExternalLink,
   Loader2,
   MoreHorizontal,
   Phone,
   Plus,
   RefreshCw,
-  Search,
   Stethoscope,
   Trash2,
   User,
@@ -36,13 +34,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { NewAppointmentDialog } from "@/components/staff/new-appointment-dialog";
 import { NewPatientDialog } from "@/components/staff/new-patient-dialog";
 import { RescheduleAppointmentDialog } from "@/components/staff/reschedule-appointment-dialog";
@@ -198,43 +189,8 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
           </h1>
         </div>
 
-        {/* Practitioner Scope Filter & Quick Actions */}
+        {/* Quick Actions */}
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* Subtle Practitioner Scope Filter */}
-          {practitioners.length > 1 && (
-            <div className="w-48 sm:w-56">
-              <Select
-                value={activePractitionerId || "all"}
-                onValueChange={handlePractitionerFilter}
-              >
-                <SelectTrigger className="h-9.5 rounded-xl border-border/80 bg-card hover:bg-muted/30 hover:border-border text-xs font-semibold shadow-2xs transition-all px-3">
-                  <div className="flex items-center gap-2 min-w-0 truncate">
-                    <Stethoscope className="size-3.5 text-primary shrink-0" />
-                    <SelectValue placeholder="All Doctors">
-                      {(val: string) => {
-                        if (val === "all" || !val) {
-                          return "All Doctors";
-                        }
-                        const p = practitioners.find((doc) => doc.id === val);
-                        return p?.profiles?.full_name ?? "All Doctors";
-                      }}
-                    </SelectValue>
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="rounded-2xl border-border/80 bg-card p-1 shadow-lg min-w-[220px]">
-                  <SelectItem value="all" className="text-xs font-medium rounded-xl py-2">
-                    All Doctors
-                  </SelectItem>
-                  {practitioners.map((pr) => (
-                    <SelectItem key={pr.id} value={pr.id} className="text-xs font-medium rounded-xl py-2">
-                      {pr.profiles?.full_name || "Doctor"}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
           {/* Quick Action 1: Book Appointment */}
           <Button
             type="button"
@@ -254,28 +210,6 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
           >
             <UserPlus className="size-3.5 text-muted-foreground" />
             Register Patient
-          </Button>
-
-          {/* Quick Action 3: Find Patient */}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push("/patients")}
-            className="h-9.5 gap-1.5 rounded-xl px-3.5 text-xs font-semibold border-border/80 bg-card hover:bg-muted/40"
-          >
-            <Search className="size-3.5 text-muted-foreground" />
-            Find Patient
-          </Button>
-
-          {/* Quick Action 4: Take Payment */}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push("/billing/invoices")}
-            className="h-9.5 gap-1.5 rounded-xl px-3.5 text-xs font-semibold border-border/80 bg-card hover:bg-muted/40"
-          >
-            <CreditCard className="size-3.5 text-muted-foreground" />
-            Take Payment
           </Button>
         </div>
       </div>
