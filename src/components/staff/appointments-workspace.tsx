@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ConsultationActionButton } from "@/components/clinical/consultation-action-button";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { useTablePagination } from "@/lib/hooks/use-table-pagination";
 import { PractitionerAppointmentSelector } from "@/components/staff/practitioner-appointment-selector";
@@ -38,6 +39,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { NewAppointmentDialog } from "@/components/staff/new-appointment-dialog";
 import { RescheduleAppointmentDialog } from "@/components/staff/reschedule-appointment-dialog";
 import { cn, formatClinicTime } from "@/lib/utils";
 import { updateAppointmentStatus, type AppointmentStatus } from "@/lib/server/appointments";
@@ -125,6 +127,8 @@ export function AppointmentsWorkspace({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const isDoctor = userRole === "dentist";
 
   const [query, setQuery] = React.useState("");
   const [selectedStatusFilter, setSelectedStatusFilter] = React.useState<string | null>(null);
@@ -264,7 +268,7 @@ export function AppointmentsWorkspace({
           )}
         </div>
 
-        {/* Right Side: Search */}
+        {/* Right Side: Search + (Optional for Doctor: New Appointment Button) */}
         <div className="flex items-center gap-2.5">
           <div className="relative min-w-[200px] sm:w-64">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -284,6 +288,23 @@ export function AppointmentsWorkspace({
               </button>
             )}
           </div>
+
+          {/* New Appointment Button: Shown ONLY for Doctor/Clinician, hidden for Admin */}
+          {isDoctor && services.length > 0 && (
+            <NewAppointmentDialog
+              practitionerId={
+                practitionerId === "all" || !practitionerId
+                  ? practitioners[0]?.id || ""
+                  : practitionerId
+              }
+              branchId={branchId}
+              date={date}
+              services={services}
+              practitioners={practitioners}
+              triggerVariant="default"
+              triggerClassName="h-9.5 gap-1.5 rounded-xl px-3 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-2xs shrink-0 cursor-pointer"
+            />
+          )}
         </div>
       </div>
 
@@ -602,34 +623,47 @@ export function AppointmentsWorkspace({
 
                       {/* 6. Actions */}
                       <div className="flex items-center justify-start gap-2 lg:justify-end min-h-[36px]">
-                        {isConfirmed && (
-                          <Button
-                            type="button"
+                        {/* DOCTOR VIEW: Full clinical consultation action buttons */}
+                        {isDoctor ? (
+                          <ConsultationActionButton
+                            appointmentId={appointment.id}
+                            status={appointment.status}
                             size="sm"
-                            disabled={pendingId === appointment.id}
-                            onClick={() => handleStatusChange(appointment.id, "checked_in")}
-                            className="h-8.5 rounded-xl px-3 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-2xs gap-1.5 cursor-pointer"
-                          >
-                            <UserCheck className="size-3.5" />
-                            Check In
-                          </Button>
+                            className="h-8.5 rounded-xl px-3 text-xs font-bold"
+                          />
+                        ) : (
+                          /* ADMIN VIEW: Check In button and status indicators */
+                          <>
+                            {isConfirmed && (
+                              <Button
+                                type="button"
+                                size="sm"
+                                disabled={pendingId === appointment.id}
+                                onClick={() => handleStatusChange(appointment.id, "checked_in")}
+                                className="h-8.5 rounded-xl px-3 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-2xs gap-1.5 cursor-pointer"
+                              >
+                                <UserCheck className="size-3.5" />
+                                Check In
+                              </Button>
+                            )}
+
+                            {isCheckedIn && (
+                              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 px-3 py-1 rounded-xl">
+                                <UserCheck className="size-3.5 text-purple-600 dark:text-purple-400" />
+                                Checked In
+                              </span>
+                            )}
+
+                            {isCompleted && (
+                              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-xl">
+                                <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                                Completed
+                              </span>
+                            )}
+                          </>
                         )}
 
-                        {isCheckedIn && (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 px-3 py-1 rounded-xl">
-                            <UserCheck className="size-3.5 text-purple-600 dark:text-purple-400" />
-                            Checked In
-                          </span>
-                        )}
-
-                        {isCompleted && (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-xl">
-                            <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400" />
-                            Completed
-                          </span>
-                        )}
-
-                        {/* More Menu Dropdown */}
+                        {/* More Menu Dropdown for all staff */}
                         {!isCancelled && (
                           <DropdownMenu>
                             <DropdownMenuTrigger
