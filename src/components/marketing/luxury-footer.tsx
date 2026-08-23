@@ -29,7 +29,7 @@ export function LuxuryFooter({
   return (
     <footer id="footer" className="luxury-site-footer">
       <div className="container">
-        {/* Brand & Direct Contact Highlight Banner (No Fake Newsletter Form) */}
+        {/* Brand & Direct Contact Highlight Banner */}
         <div className="footer-top-banner">
           <div className="footer-brand-info">
             <Link href="/" className="footer-logo">
@@ -50,7 +50,7 @@ export function LuxuryFooter({
             <div className="flex flex-wrap gap-3">
               <Link href="/book" className="btn-blue text-xs uppercase tracking-wider">
                 <CalendarDays className="w-3.5 h-3.5 mr-1.5" />
-                Book Online
+                Book an Appointment
               </Link>
               <Link href="/contact" className="btn-stroke text-xs uppercase tracking-wider border-white/20 hover:border-white text-white">
                 Contact Clinic
@@ -134,7 +134,7 @@ export function LuxuryFooter({
             <ul>
               <li>
                 <Link href="/book" className="font-bold text-[#9CB080]">
-                  Book Online →
+                  Book an Appointment →
                 </Link>
               </li>
               <li>

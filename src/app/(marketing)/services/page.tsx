@@ -1,33 +1,31 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Clock, ShieldCheck, Tag } from "lucide-react";
-import { listPublicServices } from "@/lib/server/marketing";
+import {
+  ArrowRight,
+  CalendarDays,
+  Clock,
+  Sparkles,
+  Tag,
+  ShieldCheck,
+} from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { listPublicServices } from "@/lib/server/marketing";
 
 export const metadata: Metadata = {
   title: "Treatments & Services | Clinic Care Dental",
-  description: "Explore our comprehensive cosmetic, restorative, orthodontic, and general dental treatments.",
-};
-
-const defaultImages: Record<string, string> = {
-  veneers: "/marketing/ceramist_artistry.jpg",
-  implants: "/marketing/hero_implant.png",
-  invisalign: "/marketing/hero_aligners.png",
-  whitening: "/marketing/hero_smile.png",
-  general: "/marketing/hero_dentist.png",
-  checkup: "/marketing/hero_clinic.png",
+  description: "Explore our comprehensive dental treatments, from preventative cleanings to surgical implants and cosmetic veneers.",
 };
 
 export default async function ServicesPage() {
   const services = await listPublicServices();
 
   return (
-    <div className="treatments-page">
+    <div className="services-page">
       <main>
-        {/* Treatments Hero Banner */}
+        {/* Page Hero Banner */}
         <section className="page-hero-banner py-20 text-white">
           <div className="container text-center max-w-4xl mx-auto px-4">
-            {/* Breadcrumb Route (Dhaka Heights style) */}
+            {/* Breadcrumb Route */}
             <nav aria-label="Breadcrumb" className="mb-6 flex justify-center">
               <ol className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-white/70 uppercase">
                 <li>
@@ -43,13 +41,13 @@ export default async function ServicesPage() {
             </nav>
 
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/15 text-xs text-[#9CB080] font-medium mb-6 shadow-sm">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Dental Treatments &amp; Care Options</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Comprehensive Dental Portfolio</span>
             </div>
 
             <h1 className="page-title text-4xl sm:text-5xl md:text-6xl font-light tracking-tight leading-tight drop-shadow-md">
-              Thoughtful Treatment Planning. <br />
-              <i className="font-serif text-[#9CB080]">Care Built Around You.</i>
+              Our Dental Treatments. <br />
+              <i className="font-serif text-[#9CB080]">Tailored to Your Health.</i>
             </h1>
 
             <p className="page-subtitle text-base sm:text-lg text-white/85 mt-6 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
@@ -63,58 +61,44 @@ export default async function ServicesPage() {
           </div>
         </section>
 
-        {/* Treatments Grid Section */}
-        <section className="treatments-catalogue-section py-20 bg-[#FBFBF9] text-[#273338]">
-          <div className="container px-4">
-            <div className="title-box text-center max-w-2xl mx-auto mb-12">
-              <span className="subtitle-italic text-[#2B5748] font-semibold">Our Services</span>
-              <h2 className="h3 text-3xl sm:text-4xl font-light text-[#273338] mt-2 mb-4">
-                Explore Our Treatment Options
+        {/* Treatment Grid Section */}
+        <section className="treatments-grid-section py-24 bg-[#FBFBF9] text-[#273338]">
+          <div className="container">
+            <div className="title-box text-center max-w-3xl mx-auto mb-14">
+              <span className="subtitle-italic text-[#2B5748] font-semibold text-sm">Clinical Services</span>
+              <h2 className="h3 text-3xl sm:text-4xl font-light text-[#182320] mt-2 mb-4 tracking-tight">
+                All Treatments &amp; Procedures
               </h2>
-              <p className="text-[#414a4c] text-sm sm:text-base">
+              <p className="text-[#52605B] text-sm sm:text-base max-w-2xl mx-auto">
                 Select a treatment to view an overview, typical appointment duration, and the next steps for booking.
               </p>
             </div>
 
             {services.length === 0 ? (
-              <p className="text-center text-sm text-[#414a4c]">No active services found in database.</p>
+              <p className="text-center text-sm text-[#52605B]">No active services found.</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                {services.map((service, idx) => {
-                  const key = Object.keys(defaultImages)[idx % Object.keys(defaultImages).length];
-                  const imgSrc = defaultImages[key];
-
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+                {services.map((service) => {
                   return (
                     <article
                       key={service.id}
-                      className="treatment-card-luxury group relative flex flex-col justify-between rounded-[28px] bg-white border border-[#273338]/10 shadow-[0_10px_30px_-5px_rgba(27,38,33,0.06),0_20px_40px_-10px_rgba(27,38,33,0.08)] hover:shadow-[0_24px_50px_-10px_rgba(43,87,72,0.18)] hover:border-[#9CB080]/50 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden"
+                      className="group flex flex-col justify-between overflow-hidden rounded-[28px] border border-[#273338]/10 bg-white shadow-[0_12px_36px_-6px_rgba(27,38,33,0.07),0_4px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_24px_50px_-10px_rgba(43,87,72,0.22)] hover:border-[#9CB080]/60 transition-all duration-500"
                     >
-                      {/* Top Media & Floating Category Badge */}
-                      <div className="relative">
-                        <div className="aspect-[16/10] w-full overflow-hidden bg-[#1D2B26]">
-                          <img
-                            src={imgSrc}
-                            alt={service.name}
-                            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#1F2421]/60 via-transparent to-black/20 pointer-events-none" />
+                      <div className="p-7">
+                        {/* Service Category/Icon Pill */}
+                        <div className="flex items-center justify-between gap-2 mb-4">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#2B5748]/08 px-3 py-1 text-[11px] font-bold text-[#2B5748] border border-[#2B5748]/12 uppercase tracking-wider">
+                            <ShieldCheck className="size-3.5 text-[#2B5748]" />
+                            <span>{service.category || "General Dentistry"}</span>
+                          </span>
                         </div>
 
-                        {service.category && (
-                          <div className="absolute top-4 left-4 z-10">
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#14201C]/85 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#B5C89B] shadow-md backdrop-blur-md border border-white/20">
-                              <span className="size-1.5 rounded-full bg-[#B5C89B] animate-pulse" />
-                              {service.category}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Content Area */}
-                      <div className="flex flex-1 flex-col justify-between p-6 sm:p-7">
+                        {/* Title & Description */}
                         <div>
-                          <h3 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-[#1F2421] group-hover:text-[#2B5748] transition-colors duration-200">
-                            {service.name}
+                          <h3 className="text-xl sm:text-2xl font-bold text-[#182320] tracking-tight group-hover:text-[#2B5748] transition-colors duration-200">
+                            <Link href={`/services/${service.slug}`}>
+                              {service.name}
+                            </Link>
                           </h3>
 
                           <p className="mt-2.5 text-xs sm:text-sm text-[#52605B] leading-relaxed line-clamp-2">
@@ -153,7 +137,7 @@ export default async function ServicesPage() {
                           className="treatment-card-book-btn inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-5 py-2.5 text-xs font-bold uppercase tracking-wider !text-white text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
                           style={{ color: '#ffffff' }}
                         >
-                          <span>Book Now</span>
+                          <span>Book an Appointment</span>
                         </Link>
                       </div>
                     </article>
@@ -164,18 +148,18 @@ export default async function ServicesPage() {
           </div>
         </section>
 
-        {/* Treatments Bottom CTA */}
-        <section className="treatments-cta relative py-24 bg-[#1B2623] text-white overflow-hidden">
+        {/* Services Bottom CTA Section */}
+        <section className="services-cta relative py-24 bg-[#1B2623] text-white overflow-hidden">
           {/* Ambient Glow & Texture */}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(156,176,128,0.18),transparent_70%)]" />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(16,26,23,0.85)_0%,rgba(10,18,16,0.95)_100%)]" />
 
-          <div className="container relative z-10 px-4 text-center max-w-4xl mx-auto">
-            <div className="p-10 sm:p-14 md:p-16 rounded-[32px] bg-white/[0.06] border border-[#9CB080]/25 backdrop-blur-xl shadow-[0_30px_80px_-15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]">
+          <div className="container relative z-10 text-center">
+            <div className="p-10 sm:p-14 md:p-16 rounded-[32px] bg-white/[0.06] border border-[#9CB080]/25 backdrop-blur-xl shadow-[0_30px_80px_-15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)] max-w-4xl mx-auto">
               {/* Eyebrow Pill */}
               <div className="inline-flex items-center gap-2 bg-[#14201C]/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-[#9CB080]/30 text-xs text-[#B5C89B] font-semibold uppercase tracking-widest mb-6 shadow-sm">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#B5C89B]" />
-                <span>Personalized Guidance</span>
+                <Sparkles className="w-3.5 h-3.5 text-[#B5C89B]" />
+                <span>Personalized Oral Wellness</span>
               </div>
 
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-white leading-tight tracking-tight mb-4 drop-shadow-md">
@@ -194,7 +178,7 @@ export default async function ServicesPage() {
                   style={{ color: '#ffffff' }}
                 >
                   <CalendarDays className="w-4 h-4" />
-                  <span>Book Consultation Online</span>
+                  <span>Book an Appointment</span>
                 </Link>
 
                 <Link

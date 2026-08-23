@@ -51,7 +51,7 @@ export default async function ContactPage() {
         {/* Contact Hero Banner */}
         <section className="page-hero-banner py-20 text-white">
           <div className="container text-center max-w-4xl mx-auto px-4">
-            {/* Breadcrumb Route (Dhaka Heights style) */}
+            {/* Breadcrumb Route */}
             <nav aria-label="Breadcrumb" className="mb-6 flex justify-center">
               <ol className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-white/70 uppercase">
                 <li>
@@ -174,7 +174,7 @@ export default async function ContactPage() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-xs text-[#414a4c]/70">Standard hours: Monday – Friday 9:00 AM – 6:00 PM</p>
+                      <p className="text-xs text-[#414a4c]/70">Standard hours: Monday – Friday 8:30 AM – 5:30 PM, Saturday 9:00 AM – 1:00 PM</p>
                     )}
                   </div>
                 </div>
@@ -219,7 +219,7 @@ export default async function ContactPage() {
                       style={{ color: "#ffffff" }}
                     >
                       <CalendarDays className="w-4 h-4" />
-                      <span>Continue to Online Booking</span>
+                      <span>Book an Appointment</span>
                     </Link>
 
                     <a
@@ -245,7 +245,7 @@ export default async function ContactPage() {
                 Find Our Clinic in Manchester
               </h2>
               <p className="text-[#4E5B55] text-sm sm:text-base max-w-2xl mx-auto">
-                Centrally located on historic Harley Street with convenient underground links, public transit, and underground parking.
+                Centrally located on historic King Street with convenient public transit links and nearby parking facilities.
               </p>
             </div>
 
@@ -273,9 +273,9 @@ export default async function ContactPage() {
                   <div className="w-12 h-12 rounded-2xl bg-[#2B5748]/10 text-[#2B5748] flex items-center justify-center mb-4">
                     <Train className="w-6 h-6 text-[#2B5748]" />
                   </div>
-                  <h4 className="text-lg font-bold text-[#182320] mb-2">By Underground / Train</h4>
+                  <h4 className="text-lg font-bold text-[#182320] mb-2">By Train / Metrolink</h4>
                   <p className="text-xs sm:text-sm text-[#52605B] leading-relaxed">
-                    Within a 5 to 8-minute stroll from <strong>Regent&apos;s Park</strong> (Bakerloo), <strong>Oxford Circus</strong> (Central, Victoria, Bakerloo), and <strong>Bond Street</strong> (Elizabeth &amp; Jubilee lines).
+                    Within a 5 to 7-minute stroll from <strong>Manchester Piccadilly</strong>, <strong>Manchester Victoria</strong>, and <strong>St Peter&apos;s Square</strong> Metrolink interchange.
                   </p>
                 </div>
               </div>
@@ -287,7 +287,7 @@ export default async function ContactPage() {
                   </div>
                   <h4 className="text-lg font-bold text-[#182320] mb-2">Parking Facilities</h4>
                   <p className="text-xs sm:text-sm text-[#52605B] leading-relaxed">
-                    Secure underground parking is situated nearby at <strong>Q-Park Oxford Street</strong> and <strong>Cavendish Square</strong>, offering pre-bookable vehicle bays.
+                    Convenient secure parking is located within short walking distance at <strong>NCP King Street West</strong> and <strong>Q-Park Piazza</strong>.
                   </p>
                 </div>
               </div>
@@ -299,7 +299,7 @@ export default async function ContactPage() {
                   </div>
                   <h4 className="text-lg font-bold text-[#182320] mb-2">Step-Free Accessibility</h4>
                   <p className="text-xs sm:text-sm text-[#52605B] leading-relaxed">
-                    Our Harley Street practice features step-free street level access, spacious corridors, and elevator access to all treatment and consultation suites.
+                    Our King Street practice features step-free street level access, wide corridors, and modern lift access to all clinical treatment suites.
                   </p>
                 </div>
               </div>
@@ -354,7 +354,7 @@ export default async function ContactPage() {
                   style={{ color: "#ffffff" }}
                 >
                   <CalendarDays className="w-4 h-4" />
-                  <span>Book Consultation Online</span>
+                  <span>Book an Appointment</span>
                 </Link>
 
                 <a
