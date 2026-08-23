@@ -23,23 +23,26 @@ export async function listPractitionersForService(serviceId: string): Promise<Se
     return [];
   }
 
-  // 1. Resolve current authenticated profile and organization
+  // Signed-out visitors are allowed to build a booking draft. RLS still
+  // limits them to public services and bookable practitioners; authenticated
+  // staff/patients additionally stay scoped to their own organization.
   const profile = await getProfile();
-  if (!profile?.organization_id) {
-    return [];
-  }
 
   const supabase = await createClient();
 
   // 2. Fetch the active service to ensure existence, active status, and canonical organization
   const { data: service } = await supabase
     .from("services")
-    .select("id, organization_id, duration_minutes, price, is_active")
+    .select("id, organization_id, duration_minutes, price, is_active, show_on_website")
     .eq("id", serviceId)
     .eq("is_active", true)
     .maybeSingle();
 
-  if (!service || service.organization_id !== profile.organization_id) {
+  if (!service) {
+    return [];
+  }
+
+  if (profile?.organization_id && service.organization_id !== profile.organization_id) {
     return [];
   }
 

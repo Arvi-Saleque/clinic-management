@@ -13,18 +13,13 @@ import {
 } from "date-fns";
 import {
   ArrowRight,
-  Calendar as CalendarIcon,
   CalendarDays,
   Check,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock,
-  Clock3,
-  CreditCard,
   Loader2,
-  MapPin,
-  RefreshCw,
   ShieldCheck,
   Stethoscope,
   Users,
@@ -32,14 +27,22 @@ import {
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  PublicBookingAccountStep,
+  type BookingAccountResult,
+} from "@/components/portal/public-booking-account-step";
+import { RegistrationForm } from "@/components/portal/registration-form";
 import { getAvailableSlots, type SlotResult } from "@/lib/server/appointments";
 import { listPractitionersForService } from "@/lib/server/directory";
-import { bookOwnAppointmentAction, rescheduleOwnAppointmentAction } from "@/lib/server/booking";
-import { clearPendingBooking, readPendingBooking } from "@/lib/pending-booking";
+import {
+  bookOwnAppointmentAction,
+  bookOwnAppointmentInlineAction,
+  rescheduleOwnAppointmentAction,
+} from "@/lib/server/booking";
+import { clearPendingBooking, readPendingBooking, savePendingBooking } from "@/lib/pending-booking";
 import type { ServicePractitionerOption } from "@/types/services";
 import { cn } from "@/lib/utils";
 
@@ -50,7 +53,14 @@ interface Service {
   price: number;
 }
 
-type Step = "service" | "practitioner" | "slot" | "confirm";
+type Step = "service" | "practitioner" | "slot" | "confirm" | "account" | "registration" | "success";
+
+interface BookingAccountState {
+  authenticated: boolean;
+  registered: boolean;
+  email?: string | null;
+  fullName?: string | null;
+}
 
 interface OtherDoctorAvailability {
   practitioner: ServicePractitionerOption;
@@ -60,9 +70,23 @@ interface OtherDoctorAvailability {
 export function BookingWizard({
   services,
   reschedule,
+  mode = "portal",
+  initialServiceId,
+  initialPractitionerId,
+  resumeAccount = false,
+  initialAccount = { authenticated: true, registered: true },
+  onAccountChange,
+  onClose,
 }: {
   services: Service[];
   reschedule?: { id: string; startsAt: string; serviceId: string; practitionerId: string } | null;
+  mode?: "portal" | "public";
+  initialServiceId?: string;
+  initialPractitionerId?: string;
+  resumeAccount?: boolean;
+  initialAccount?: BookingAccountState;
+  onAccountChange?: (account: BookingAccountState) => void;
+  onClose?: () => void;
 }) {
   const today = React.useMemo(() => startOfDay(new Date()), []);
   const maxBookingDate = React.useMemo(() => addDays(today, 30), [today]);
@@ -98,6 +122,9 @@ export function BookingWizard({
   const [selectedSlot, setSelectedSlot] = React.useState<SlotResult | null>(null);
   const [booking, setBooking] = React.useState<string | null>(null);
   const [recommendedSlot, setRecommendedSlot] = React.useState<string | null>(null);
+  const [account, setAccount] = React.useState<BookingAccountState>(initialAccount);
+  const preferredPractitionerId = React.useRef(initialPractitionerId ?? null);
+  const shouldResumeAccount = React.useRef(resumeAccount);
 
   // Calculate the 7 days currently in the visible strip
   const visible7Days = React.useMemo(() => {
@@ -150,6 +177,12 @@ export function BookingWizard({
     try {
       const docs = await listPractitionersForService(s.id);
       setOfferedPractitioners(docs);
+      const preferred = docs.find((doc) => doc.id === preferredPractitionerId.current);
+      if (preferred) {
+        preferredPractitionerId.current = null;
+        setPractitioner(preferred);
+        setStep("slot");
+      }
     } catch {
       toast.error("Failed to load available doctors for this service.");
       setOfferedPractitioners([]);
@@ -160,6 +193,7 @@ export function BookingWizard({
 
   // Handle doctor selection: reset downstream slot state
   function handleSelectPractitioner(p: ServicePractitionerOption) {
+    preferredPractitionerId.current = null;
     setPractitioner(p);
     setSelectedSlot(null);
     setStep("slot");
@@ -213,10 +247,12 @@ export function BookingWizard({
     }
 
     const pending = readPendingBooking();
-    if (!pending) return;
-    clearPendingBooking();
+    const targetServiceId = initialServiceId ?? pending?.serviceId;
+    const targetPractitionerId = initialPractitionerId ?? pending?.practitionerId;
+    if (targetPractitionerId) preferredPractitionerId.current = targetPractitionerId;
+    if (!targetServiceId) return;
 
-    const matchedService = services.find((s) => s.id === pending.serviceId);
+    const matchedService = services.find((s) => s.id === targetServiceId);
     if (!matchedService) return;
 
     setService(matchedService);
@@ -224,17 +260,20 @@ export function BookingWizard({
     listPractitionersForService(matchedService.id)
       .then((docs) => {
         setOfferedPractitioners(docs);
-        const matchedDoc = docs.find((p) => p.id === pending.practitionerId);
+        const matchedDoc = docs.find((p) => p.id === targetPractitionerId);
         if (matchedDoc) {
+          preferredPractitionerId.current = null;
           setPractitioner(matchedDoc);
-          setDate(pending.date);
-          const diff = differenceInDays(startOfDay(new Date(pending.date)), today);
-          setStripOffset(Math.max(0, Math.min(23, diff - 2)));
-          setRecommendedSlot(pending.slotStart);
+          if (pending?.date) {
+            setDate(pending.date);
+            const diff = differenceInDays(startOfDay(new Date(pending.date)), today);
+            setStripOffset(Math.max(0, Math.min(23, diff - 2)));
+            setRecommendedSlot(pending.slotStart);
+          }
           setStep("slot");
         } else {
           setStep("practitioner");
-          toast.info("Please select an available doctor for this service.");
+          if (targetPractitionerId) toast.info("Please select an available doctor for this service.");
         }
       })
       .catch(() => {
@@ -302,6 +341,72 @@ export function BookingWizard({
   }, [step, service, practitioner, date, offeredPractitioners]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  // After an email verification/password recovery return, restore the exact
+  // chosen slot and continue at the account/registration boundary.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  React.useEffect(() => {
+    if (!shouldResumeAccount.current || !recommendedSlot || slots.length === 0) return;
+    const restoredSlot = slots.find((slot) => slot.slot_start === recommendedSlot);
+    if (!restoredSlot) {
+      shouldResumeAccount.current = false;
+      toast.error("Your previously selected time is no longer available. Please choose another time.");
+      return;
+    }
+
+    shouldResumeAccount.current = false;
+    setSelectedSlot(restoredSlot);
+    if (!account.authenticated) setStep("account");
+    else if (!account.registered) setStep("registration");
+    else setStep("confirm");
+  }, [slots, recommendedSlot, account.authenticated, account.registered]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  function preserveBookingDraft() {
+    if (!service || !practitioner || !selectedSlot) return;
+    savePendingBooking({
+      serviceId: service.id,
+      practitionerId: practitioner.id,
+      date,
+      slotStart: selectedSlot.slot_start,
+    });
+  }
+
+  function handleReviewConfirm() {
+    if (mode === "public" && !account.authenticated) {
+      preserveBookingDraft();
+      setStep("account");
+      return;
+    }
+    if (mode === "public" && !account.registered) {
+      preserveBookingDraft();
+      setStep("registration");
+      return;
+    }
+    void handleFinalConfirm();
+  }
+
+  function updateBookingAccount(next: BookingAccountState) {
+    setAccount(next);
+    onAccountChange?.(next);
+  }
+
+  function handleAuthenticated(result: BookingAccountResult) {
+    const next = {
+      authenticated: true,
+      registered: result.registered,
+      email: result.email ?? null,
+      fullName: result.fullName ?? null,
+    };
+    updateBookingAccount(next);
+    if (result.registered) void handleFinalConfirm();
+    else setStep("registration");
+  }
+
+  function handleRegistrationComplete() {
+    updateBookingAccount({ ...account, authenticated: true, registered: true });
+    void handleFinalConfirm();
+  }
+
   // Final confirmation execution
   async function handleFinalConfirm() {
     if (!service || !practitioner || !selectedSlot) return;
@@ -309,7 +414,7 @@ export function BookingWizard({
     try {
       const result = reschedule
         ? await rescheduleOwnAppointmentAction(reschedule.id, selectedSlot.slot_start)
-        : await bookOwnAppointmentAction({
+        : await (mode === "public" ? bookOwnAppointmentInlineAction : bookOwnAppointmentAction)({
           practitionerId: practitioner.id,
           serviceId: service.id,
           branchId: practitioner.branch_id,
@@ -319,6 +424,19 @@ export function BookingWizard({
       if (result?.error) {
         toast.error(result.error);
         setBooking(null);
+        if ("code" in result && result.code === "registration_required") setStep("registration");
+        if ("code" in result && result.code === "slot_unavailable") {
+          setSelectedSlot(null);
+          setStep("slot");
+        }
+        return;
+      }
+
+      if (mode === "public" && !reschedule) {
+        clearPendingBooking();
+        setBooking(null);
+        setStep("success");
+        toast.success("Appointment booked successfully.");
       }
     } catch (err: unknown) {
       const isRedirect =
@@ -342,35 +460,58 @@ export function BookingWizard({
     { id: "practitioner", num: "2", label: "Doctor" },
     { id: "slot", num: "3", label: "Date & Time" },
     { id: "confirm", num: "4", label: "Confirmation" },
+    ...(mode === "public" ? [{ id: "account", num: "5", label: "Account" }] : []),
   ];
-  const currentStepIndex = stepsList.findIndex((s) => s.id === step);
+  const progressStep = step === "registration" ? "account" : step;
+  const currentStepIndex = step === "success" ? stepsList.length : stepsList.findIndex((s) => s.id === progressStep);
 
   return (
-    <div className="relative overflow-hidden rounded-[36px] sm:rounded-[44px] border border-border/80 bg-surface/90 backdrop-blur-2xl p-6 sm:p-8 lg:p-10 shadow-2xl space-y-7 transition-all">
+    <div
+      className={cn(
+        "relative overflow-hidden border border-border/80 backdrop-blur-2xl transition-all",
+        mode === "public"
+          ? "space-y-0 rounded-[28px] bg-surface/95 p-0 shadow-2xl"
+          : "space-y-7 rounded-[36px] bg-surface/90 p-6 shadow-2xl sm:rounded-[44px] sm:p-8 lg:p-10",
+      )}
+    >
       {/* Soft Ambient Background Glow */}
       <div className="pointer-events-none absolute -right-32 -top-32 size-96 rounded-full bg-primary/10 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-32 -left-32 size-96 rounded-full bg-accent/10 blur-3xl" />
 
       {/* ── OUTER CARD HEADER (CENTER-ALIGNED) ── */}
-      <div className="relative z-10 flex flex-col items-center text-center space-y-2 max-w-2xl mx-auto pt-2 pb-1">
-        <h1 className="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-          {reschedule ? "Reschedule Appointment" : "Book an Appointment"}
-        </h1>
-        <p className="text-sm sm:text-base text-text-secondary leading-relaxed max-w-xl mx-auto">
-          {reschedule
-            ? "Select a new date and time that fits your schedule."
-            : "Choose your preferred dental service, practitioner, and an optimal appointment time."}
-        </p>
-      </div>
+      {mode !== "public" && (
+        <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center space-y-2 pb-1 pt-2 text-center">
+          <h1 className="font-heading text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+            {reschedule ? "Reschedule Appointment" : "Book an Appointment"}
+          </h1>
+          <p className="mx-auto max-w-xl text-sm leading-relaxed text-text-secondary sm:text-base">
+            {reschedule
+              ? "Select a new date and time that fits your schedule."
+              : "Choose your preferred dental service, practitioner, and an optimal appointment time."}
+          </p>
+        </div>
+      )}
 
       {/* ── INNER NESTED LUXURY BOOKING CARD ("ONE CARD INSIDE ANOTHER") ── */}
-      <div className="relative z-10 overflow-hidden rounded-[32px] border border-border/80 bg-background-subtle/80 backdrop-blur-xl shadow-lg">
+      <div
+        className={cn(
+          "relative z-10 overflow-hidden border border-border/80 backdrop-blur-xl",
+          mode === "public"
+            ? "rounded-[28px] bg-surface/95 shadow-xl"
+            : "rounded-[32px] bg-background-subtle/80 shadow-lg",
+        )}
+      >
         {/* Stepper Progress Bar */}
         {!reschedule && (
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/70 bg-surface/90 px-6 py-4 sm:px-8">
+          <div
+            className={cn(
+              "flex flex-wrap items-center justify-between gap-4 border-b border-border/70 bg-surface/90",
+              mode === "public" ? "py-3 pl-4 pr-14 sm:pl-6" : "px-6 py-4 sm:px-8",
+            )}
+          >
             <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto py-1">
               {stepsList.map((item, idx) => {
-                const isCurrent = item.id === step;
+                const isCurrent = item.id === progressStep;
                 const isDone = idx < currentStepIndex;
 
                 return (
@@ -404,13 +545,14 @@ export function BookingWizard({
               })}
             </div>
 
-            {step !== "service" && (
+            {step !== "service" && step !== "success" && (
               <Button
                 variant="ghost"
                 size="sm"
                 className="gap-1.5 rounded-xl text-xs text-text-secondary hover:text-foreground"
                 onClick={() => {
                   if (step === "confirm") setStep("slot");
+                  else if (step === "account" || step === "registration") setStep("confirm");
                   else if (step === "slot") setStep("practitioner");
                   else if (step === "practitioner") setStep("service");
                 }}
@@ -422,7 +564,7 @@ export function BookingWizard({
         )}
 
         {/* Stepper Inner Content Area */}
-        <div className="p-6 sm:p-8 lg:p-9 space-y-8">
+        <div className={cn("space-y-8", mode === "public" ? "p-4 sm:p-5 lg:p-6" : "p-6 sm:p-8 lg:p-9")}>
           {/* ── STEP 1: SERVICE SELECTION ── */}
           {/* ── STEP 1: SERVICE SELECTION ── */}
           {step === "service" && (
@@ -986,7 +1128,7 @@ export function BookingWizard({
                     <p className="font-heading text-base font-bold text-primary">
                       {format(new Date(selectedSlot.slot_start), "h:mm a")} &ndash; {format(new Date(selectedSlot.slot_end), "h:mm a")}
                     </p>
-                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Slot Reserved</p>
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Selected — checked live</p>
                   </div>
                 </div>
 
@@ -1002,7 +1144,11 @@ export function BookingWizard({
               <div className="flex items-start gap-3 rounded-2xl border border-primary/20 bg-primary-soft/30 p-4 text-xs text-text-secondary leading-relaxed">
                 <ShieldCheck className="size-5 text-primary shrink-0 mt-0.5" />
                 <p>
-                  Your appointment will be confirmed immediately. You can view, manage, or add this visit to your calendar from your Patient Sanctuary dashboard anytime.
+                  {mode === "public" && !account.authenticated
+                    ? "Next, sign in or create a patient account to securely confirm this appointment. Your selected details will stay with you."
+                    : mode === "public" && !account.registered
+                      ? "Your account is connected. Complete the short patient intake next, then we will recheck and confirm this appointment."
+                      : "Your appointment will be rechecked and confirmed immediately. You can manage the visit from your Patient Sanctuary dashboard anytime."}
                 </p>
               </div>
 
@@ -1020,7 +1166,7 @@ export function BookingWizard({
                 <Button
                   size="lg"
                   disabled={booking !== null}
-                  onClick={handleFinalConfirm}
+                  onClick={handleReviewConfirm}
                   className="rounded-2xl bg-primary hover:bg-primary-hover px-8 py-6 text-base font-bold text-primary-foreground shadow-lg shadow-primary/25"
                 >
                   {booking !== null ? (
@@ -1036,8 +1182,116 @@ export function BookingWizard({
               </div>
             </div>
           )}
+
+          {/* ── STEP 5: INLINE ACCOUNT GATE ── */}
+          {step === "account" && service && practitioner && selectedSlot && (
+            <PublicBookingAccountStep
+              summary={{
+                service: service.name,
+                doctor: practitioner.doctor_name,
+                date: format(new Date(selectedSlot.slot_start), "EEEE, d MMMM yyyy"),
+                time: `${format(new Date(selectedSlot.slot_start), "h:mm a")} – ${format(new Date(selectedSlot.slot_end), "h:mm a")}`,
+                fee: `€${practitioner.effective_price.toLocaleString()}`,
+              }}
+              onAuthenticated={handleAuthenticated}
+            />
+          )}
+
+          {/* ── NEW PATIENT INTAKE WITHOUT LEAVING THE BOOKING ── */}
+          {step === "registration" && service && practitioner && selectedSlot && (
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.12fr)_minmax(280px,0.88fr)]">
+              <section className="order-2 rounded-3xl border border-border/80 bg-surface p-5 shadow-sm sm:p-7 lg:order-1">
+                <div className="mb-6 border-b border-border/70 pb-5">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">Secure patient intake</p>
+                  <h2 className="mt-2 font-heading text-2xl font-extrabold text-foreground">Complete your patient details</h2>
+                  <p className="mt-2 text-sm leading-6 text-text-secondary">
+                    These essential details create your clinical profile. When saved, we will automatically recheck the selected time and confirm the appointment.
+                  </p>
+                </div>
+                <RegistrationForm mode="booking" onSuccess={handleRegistrationComplete} />
+              </section>
+              <BookingSelectionSummary
+                service={service.name}
+                doctor={practitioner.doctor_name}
+                date={format(new Date(selectedSlot.slot_start), "EEEE, d MMMM yyyy")}
+                time={`${format(new Date(selectedSlot.slot_start), "h:mm a")} – ${format(new Date(selectedSlot.slot_end), "h:mm a")}`}
+                fee={`€${practitioner.effective_price.toLocaleString()}`}
+              />
+            </div>
+          )}
+
+          {/* ── REAL SUCCESS: ONLY AFTER THE DATABASE CONFIRMS THE BOOKING ── */}
+          {step === "success" && service && practitioner && selectedSlot && (
+            <div className="mx-auto max-w-2xl py-3 text-center">
+              <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/15 text-emerald-600 shadow-lg shadow-emerald-500/15">
+                <CheckCircle2 className="size-8 stroke-[2.25]" />
+              </div>
+              <h2 className="mt-5 font-heading text-2xl font-extrabold text-foreground sm:text-3xl">Appointment Confirmed!</h2>
+              <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-text-secondary">
+                Your dental care visit is securely scheduled and connected to your patient account.
+              </p>
+
+              <div className="mt-6 grid gap-3 rounded-3xl border border-border/80 bg-background-subtle p-4 text-left sm:grid-cols-2 sm:p-5">
+                <SuccessDetail label="Treatment" value={service.name} />
+                <SuccessDetail label="Doctor" value={practitioner.doctor_name} />
+                <SuccessDetail label="Date" value={format(new Date(selectedSlot.slot_start), "EEEE, d MMMM yyyy")} />
+                <SuccessDetail label="Time" value={`${format(new Date(selectedSlot.slot_start), "h:mm a")} – ${format(new Date(selectedSlot.slot_end), "h:mm a")}`} />
+              </div>
+
+              <div className="mt-6 flex flex-col-reverse justify-center gap-3 sm:flex-row">
+                <Button type="button" variant="outline" onClick={onClose} className="rounded-2xl px-6">Done</Button>
+                <ButtonLink href="/portal/appointments" className="rounded-2xl bg-primary px-6 text-primary-foreground hover:bg-primary-hover">View My Visits</ButtonLink>
+                <ButtonLink href="/portal/dashboard" variant="outline" className="rounded-2xl px-6">Overview</ButtonLink>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function BookingSelectionSummary({
+  service,
+  doctor,
+  date,
+  time,
+  fee,
+}: {
+  service: string;
+  doctor: string;
+  date: string;
+  time: string;
+  fee: string;
+}) {
+  return (
+    <aside className="order-1 self-start rounded-3xl border border-primary/20 bg-gradient-to-br from-primary-soft via-surface to-background-subtle p-5 shadow-sm sm:p-6 lg:order-2 lg:sticky lg:top-4">
+      <div className="flex items-center gap-3 border-b border-primary/15 pb-4">
+        <span className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md"><CalendarDays className="size-5" /></span>
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary">Selection preserved</p>
+          <h3 className="font-heading text-lg font-extrabold text-foreground">Appointment summary</h3>
+        </div>
+      </div>
+      <dl className="mt-5 space-y-4 text-sm">
+        <SuccessDetail label="Treatment" value={service} />
+        <SuccessDetail label="Doctor" value={doctor} />
+        <SuccessDetail label="Date" value={date} />
+        <SuccessDetail label="Time" value={time} />
+        <div className="flex items-center justify-between gap-4 border-t border-primary/15 pt-4">
+          <dt className="text-xs font-bold uppercase tracking-wider text-text-muted">Service fee</dt>
+          <dd className="font-heading text-xl font-extrabold text-foreground">{fee}</dd>
+        </div>
+      </dl>
+    </aside>
+  );
+}
+
+function SuccessDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span className="block text-[10px] font-bold uppercase tracking-wider text-text-muted">{label}</span>
+      <span className="mt-1 block font-semibold text-foreground">{value}</span>
     </div>
   );
 }

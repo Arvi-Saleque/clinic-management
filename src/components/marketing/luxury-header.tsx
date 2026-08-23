@@ -15,12 +15,12 @@ interface LuxuryHeaderProps {
 export function LuxuryHeader({
   phone = "+44 (020) 7946 0000",
   account,
-  treatments: _treatments = [],
   onOpenSearch,
 }: LuxuryHeaderProps) {
   const pathname = usePathname();
   const [headerClass, setHeaderClass] = React.useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = React.useState(false);
 
   React.useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -44,9 +44,22 @@ export function LuxuryHeader({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  React.useEffect(() => {
+    const handleBookingModalChange = (event: Event) => {
+      const nextOpen = Boolean((event as CustomEvent<{ open?: boolean }>).detail?.open);
+      setIsBookingModalOpen(nextOpen);
+      if (nextOpen) setIsMobileMenuOpen(false);
+    };
+
+    window.addEventListener("clinic:booking-modal-change", handleBookingModalChange);
+    return () => window.removeEventListener("clinic:booking-modal-change", handleBookingModalChange);
+  }, []);
+
   return (
     <>
-      <header className={`luxury-site-header ${pathname === "/" ? "homepage-header" : ""} ${headerClass}`}>
+      <header
+        className={`luxury-site-header ${pathname === "/" ? "homepage-header" : ""} ${headerClass} ${isBookingModalOpen ? "header-hidden" : ""}`}
+      >
         <div className="header-full-width-container">
           <div className="header-row">
             {/* Brand Logo */}

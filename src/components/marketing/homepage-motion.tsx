@@ -74,6 +74,21 @@ export function HomepageMotion() {
       const eventCleanups: Array<() => void> = [];
       const delayedCalls: Array<{ kill: () => void }> = [];
 
+      const syncBookingScrollLock = (event?: Event) => {
+        const eventOpen = (event as CustomEvent<{ open?: boolean }> | undefined)?.detail?.open;
+        const bookingOpen =
+          typeof eventOpen === "boolean"
+            ? eventOpen
+            : document.documentElement.classList.contains("booking-modal-open");
+
+        if (bookingOpen) lenis.stop();
+        else lenis.start();
+      };
+
+      window.addEventListener("clinic:booking-modal-change", syncBookingScrollLock);
+      eventCleanups.push(() => window.removeEventListener("clinic:booking-modal-change", syncBookingScrollLock));
+      syncBookingScrollLock();
+
       const ctx = gsap.context(() => {
         // ===================================================================
         // 1. HERO SECTION ENTRANCE & PARALLAX
