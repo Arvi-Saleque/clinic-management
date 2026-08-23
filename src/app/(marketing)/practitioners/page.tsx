@@ -141,7 +141,7 @@ export default async function PractitionersPage() {
                           style={{ color: "#ffffff" }}
                         >
                           <CalendarDays className="w-3.5 h-3.5" />
-                          <span>Book Online</span>
+                          <span>Book an Appointment</span>
                         </Link>
                       </div>
                     </div>
@@ -182,7 +182,7 @@ export default async function PractitionersPage() {
                   style={{ color: '#ffffff' }}
                 >
                   <CalendarDays className="w-4 h-4" />
-                  <span>Book Consultation Online</span>
+                  <span>Book an Appointment</span>
                 </Link>
 
                 <Link

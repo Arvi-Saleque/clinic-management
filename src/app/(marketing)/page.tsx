@@ -21,6 +21,7 @@ export default function HomePage() {
       <div className="content-dark-wrapper">
         {/* White Rounded Container 1 — Founder story / value proposition */}
         <div className="page-section-white first-card">
+
           <section className="text-image-groups" id="story">
             <div className="container">
               <div className="wrapper">
@@ -39,7 +40,7 @@ export default function HomePage() {
                         <div className="btn-group">
                           <Link href="/book" className="btn">
                             <CalendarDays className="w-4 h-4 mr-2 inline" />
-                            Book Online
+                            Book an Appointment
                           </Link>
                           <Link href="/about" className="btn-stroke">
                             About Our Clinic
