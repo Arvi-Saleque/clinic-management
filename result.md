@@ -1261,36 +1261,86 @@ The source mixed Bangladesh, Ireland and Euro-era demo content with partially UK
 
 ## 49. UK Localisation Deployment, Build Verification & Pull Request Delivery
 
-### A. Archive Extraction & Verification
-1. **Archive Source**: Extracted `Clinic-UK-Localisation-Complete-v4.zip` into project root `D:\work\Repositories\Health-Clinic-Management\website-code-premium\dental-clinic-workspace`.
-2. **Verified Artifacts**:
-   - `supabase/migrations/0041_uk_localisation.sql` (Schema default updates to `Europe/London` and `GBP`, demo data alignment).
-   - `src/lib/marketing-images.ts` (Deterministic UK dental team and clinician portrait asset paths).
-   - `public/marketing/demo_dental_team_uk.webp` (UK dental team clinic asset).
-   - `public/marketing/practitioners/dr-charlotte-hughes.webp` (UK practitioner portrait).
-   - `public/marketing/practitioners/dr-oliver-bennett.webp` (UK practitioner portrait).
+### A. Archive Extraction & Asset Integrity
+1. **Archive Source**: Extracted `Clinic-UK-Localisation-Complete-v4.zip` into the project root `D:\work\Repositories\Health-Clinic-Management\website-code-premium\dental-clinic-workspace`.
+2. **Verified Artifacts & Local Assets**:
+   - `supabase/migrations/0041_uk_localisation.sql` — Idempotent migration updating database defaults, demo branches, opening hours, practitioner profiles, and service pricing.
+   - `src/lib/marketing-images.ts` — Deterministic asset mapping linking UK practitioner IDs and fallback pools to local WebP images.
+   - `public/marketing/demo_dental_team_uk.webp` — Primary UK dental clinical team asset.
+   - `public/marketing/practitioners/dr-charlotte-hughes.webp` — Lead cosmetic dentist portrait asset.
+   - `public/marketing/practitioners/dr-oliver-bennett.webp` — Senior implantologist & surgeon portrait asset.
 
-### B. Quality & Build Verification
+### B. Database Schema & Migration Deployment (Migration 0041)
+Migration `0041_uk_localisation.sql` was deployed and verified against the linked hosted Supabase database (`https://mxywvlekwgrzlewxgfcl.supabase.co`). Key updates include:
+1. **Schema Column Defaults**:
+   - `public.branches.timezone`: Altered default to `'Europe/London'`.
+   - `public.booking_deposits.currency`: Altered default to `'GBP'`.
+2. **Demo Branch & Practice Identity**:
+   - Target Branch ID: `22222222-2222-2222-2222-222222222222`
+   - Name: `Clinic Care — Manchester`
+   - Address: `42 King Street, Manchester, M2 6BA`
+   - Phone: `+44 1632 960123`
+   - Timezone: `Europe/London`
+3. **UK Clinic Operating Hours**:
+   - Monday – Friday: `08:30` – `17:30` (`is_closed: false`)
+   - Saturday: `09:00` – `13:00` (`is_closed: false`)
+   - Sunday: `00:00` – `00:00` (`is_closed: true`)
+4. **Fictional UK Clinician & Demo Profiles**:
+   - `nadia.islam.demo@cliniccare.test` $\rightarrow$ **Dr Charlotte Hughes** (Lead Cosmetic Dentist)
+   - `rafi.ahmed.demo@cliniccare.test` $\rightarrow$ **Dr Oliver Bennett** (Senior Implantologist)
+   - `emily.white.demo@cliniccare.test` $\rightarrow$ **Dr Emily White** (Specialist Orthodontist)
+   - `tariq.hasan.demo@cliniccare.test` $\rightarrow$ **Dr George Carter** (Consultant Endodontist)
+   - `sarah.jenkins.demo@cliniccare.test` $\rightarrow$ **Dr Sarah Jenkins** (Periodontist)
+   - `marcus.vance.demo@cliniccare.test` $\rightarrow$ **Dr Marcus Vance** (Restorative Dentist)
+   - `maya.lin.demo@cliniccare.test` $\rightarrow$ **Dr Alice Morgan** (Paediatric Dentist)
+   - `farhan.chowdhury.demo@cliniccare.test` $\rightarrow$ **Dr Henry Collins** (General & Preventative Dentist)
+   - `admin.demo@cliniccare.test` $\rightarrow$ **Dr William Foster** (Clinic Director / Owner Admin)
+   - `reception.demo@cliniccare.test` $\rightarrow$ **Eleanor Brooks** (Practice Manager / Receptionist)
+   - `zubair.patient.demo@cliniccare.test` $\rightarrow$ **Daniel Harper** (Patient)
+   - `fatima.patient.demo@cliniccare.test` $\rightarrow$ **Lucy Walker** (Patient)
+   - `aarav.patient.demo@cliniccare.test` $\rightarrow$ **Thomas Reed** (Patient)
+5. **Realistic UK Dental Treatment Pricing (GBP)**:
+   - General Dental Check-up: `£65`
+   - Teeth Cleaning & Polishing: `£95`
+   - Composite Tooth Filling: `£120`
+   - Orthodontic Consultation: `£85`
+   - Paediatric Dental Visit: `£55`
+   - Root Canal Therapy: `£650`
+   - Cosmetic Porcelain Veneers: `£950`
+   - Dental Implants & Surgical Consultation: `£1,850`
+6. **Data Safety & Historical Records**:
+   - Zero patient profiles, appointments, invoices, or encounters deleted.
+   - Historical appointment notes converted from Euro to GBP (`Fee: €` $\rightarrow$ `Fee: £`).
+   - No destructive database reset or seed was executed against the hosted database.
+
+### C. Application UI & Localisation Standardization
+1. **Consistent CTA Terminology**:
+   - Standardized all booking buttons across 22+ files (homepage, header, mobile drawer, footer, about page, practitioners page, services grid, and contact page) to `"Book an Appointment"`.
+2. **Contact & Transit Directions**:
+   - Manchester King Street address and UK phone format (`+44 1632 960123`).
+   - Transit directions updated for Manchester Piccadilly, Manchester Victoria, and St Peter's Square Metrolink interchange; parking for NCP King Street West and Q-Park Piazza.
+3. **Public Booking Modal Experience**:
+   - In-place overlay with background document lock (`booking-modal-open`).
+   - Navbar hiding animation on modal launch with full restoration on modal close.
+
+### D. Quality Verification
 1. **TypeScript Typecheck**:
-   - Executed `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**.
+   - `npm run typecheck` (`tsc --noEmit`) $\rightarrow$ **PASSED (0 errors)**.
 2. **Production Build**:
-   - Executed `npm run build:local` (`next build`) -> **PASSED**.
-   - Generated all 42 static and server-rendered routes without errors.
+   - `npm run build:local` (`next build`) $\rightarrow$ **PASSED**; all 42 static and dynamic application routes compiled cleanly.
 3. **Clean Staging Guarantee**:
-   - All ZIP files (`*.zip`, `**/*.zip`), `.next` caches, `node_modules`, `.env` local environment configurations, and secrets were strictly excluded from staging.
+   - All ZIP files (`*.zip`), `.next` caches, `node_modules`, `.env*` environment files, and credentials were fully excluded from Git tracking.
+4. **Manual Browser / UI Testing**:
+   - Reserved for the user's local manual verification on dev server `http://localhost:5173`.
 
-### C. Git Branching & Pull Request
-- **Branch Created**: `feature/uk-localisation-and-public-booking`
-- **Commits**: `2e51469` (Initial UK localisation), `1577f85` (Docs update), `4573e36` (Verification fixes & button label consistency)
-- **Remote Push**: Tracked and pushed to `origin/feature/uk-localisation-and-public-booking`
-- **Pull Request**: Updated on GitHub -> [PR #16: feat: UK localisation and public booking experience](https://github.com/Arvi-Saleque/clinic-management/pull/16)
+### E. Git Delivery & Pull Request
+- **Branch**: `feature/uk-localisation-and-public-booking`
+- **Commits**:
+  - `2e51469` — `feat: localise clinic experience for the UK`
+  - `1577f85` — `docs: document UK localisation deployment and PR in result.md`
+  - `4573e36` — `fix: complete UK localisation deployment verification`
+  - `581305e` — `docs: finalize Section 49 in result.md with complete Supabase deployment record`
+  - `968f32e` — `docs: finalise UK localisation deployment status`
+- **Pull Request**: [PR #16: feat: UK localisation and public booking experience](https://github.com/Arvi-Saleque/clinic-management/pull/16) (Updated with verified deployment notes).
 
-### D. Hosted Supabase Deployment & Verification
-- **Migration**: `0041_uk_localisation.sql` successfully deployed and applied to the linked Supabase project.
-- **Database Verification**:
-  - Main Branch: Name updated to `Clinic Care — Manchester`, Address `42 King Street, Manchester, M2 6BA`, Phone `+44 1632 960123`, Timezone `Europe/London`.
-  - Currencies: Standardised to `GBP` across deposits, services, and appointment fee notes.
-  - Profiles & Practitioners: Updated with local UK assets (`/marketing/practitioners/dr-charlotte-hughes.webp`, `/marketing/practitioners/dr-oliver-bennett.webp`) and fictional UK clinician identities (Dr Charlotte Hughes, Dr Oliver Bennett, Dr Emily White, Dr George Carter, Dr Sarah Jenkins, Dr Marcus Vance, Dr Alice Morgan, Dr Henry Collins, Dr William Foster, Eleanor Brooks, Daniel Harper, Lucy Walker, Thomas Reed).
-  - Preserved Records: 100% of existing patient accounts, appointments, invoices, and clinical encounters remain intact. No destructive database reset or seed was executed.
-- **Repository Cleanliness**: Root ZIP archive deleted; no `.env`, build cache, or credentials committed.
 
