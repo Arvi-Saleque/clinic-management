@@ -11,7 +11,6 @@ import {
   CreditCard,
   Eye,
   FileEdit,
-  Plus,
   Receipt,
   Search,
   WalletCards,
@@ -185,18 +184,6 @@ export function ReceptionistBillingWorkspace({
             Itemised dental treatments, chairside collections, installments, and statement history.
           </p>
         </div>
-
-        {/* Clinician / Admin can create invoices */}
-        {!isReceptionist && (
-          <Button
-            type="button"
-            onClick={() => router.push("/billing/invoices/new")}
-            className="h-10 gap-2 rounded-2xl px-5 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-md shadow-[#0B3B36]/15 shrink-0 cursor-pointer"
-          >
-            <Plus className="size-4 stroke-[2.5]" />
-            Create Invoice
-          </Button>
-        )}
       </div>
 
       {/* Operational Summary Cards */}
