@@ -1353,24 +1353,52 @@ Migration `0041_uk_localisation.sql` was deployed and verified against the linke
 
 ---
 
-## 50. Initial Database Services Catalog (Duration, Cost & Specifications)
+## 50. Comprehensive UK Clinical Dental Services Catalog (34 Standard Services)
 
-The following is the full authoritative list of initial dental clinical services configured in the database (`public.services`), including their clinical category, scheduled appointment duration, baseline cost (in GBP £), and clinical scope:
+The following is the complete authoritative list of 34 UK dental clinical services configured in the database (`public.services`) and clinical management workspaces, categorized across all 12 dental disciplines with standardized appointment durations and recommended baseline fees (GBP £):
 
-| # | Service Name | Category | Duration (Time) | Base Fee (GBP) | Slug / Database ID | Clinical Scope & Description |
-|---|--------------|----------|-----------------|----------------|--------------------|------------------------------|
-| **1** | **General Dental Check-up / New Patient Examination** | General Dentistry | **40 mins** | **£65.00** | `general-checkup` / `new-patient-examination` | Comprehensive oral health assessment, intraoral examination, soft-tissue screening, bitewing X-rays, and personalised treatment planning. |
-| **2** | **Teeth Cleaning & Polishing / Dental Hygiene** | Dental Hygiene | **45 mins** | **£95.00** | `teeth-cleaning` / `dental-hygiene` | Ultrasonic scaling, plaque and tartar removal, gentle air-polishing, periodontal pocket health review, and oral hygiene coaching. |
-| **3** | **Composite Tooth Filling** | Restorative Dentistry | **45 mins** | **£120.00** | `composite-tooth-filling` | Direct tooth-coloured aesthetic composite resin filling for cavity restoration, enamel bonding, and fracture repair. |
-| **4** | **Specialist Orthodontic Consultation** | Orthodontics | **45 mins** | **£85.00** | `orthodontics` | 3D intraoral diagnostic scan, bite alignment analysis, clear aligners (Invisalign) & ceramic fixed brace suitability review. |
-| **5** | **Paediatric Dental Visit** | Paediatric Dentistry | **30 mins** | **£55.00** | `pediatric-dentistry` | Child-focused gentle dental examination, preventative fluoride varnish application, cavity prevention, and early habit guidance. |
-| **6** | **Root Canal Therapy (Endodontics)** | Restorative Dentistry | **90 mins** | **£650.00** | `root-canal` / `root-canal-treatment` | Precision rotary endodontic therapy with electronic apex locator, thorough canal disinfection, and biocompatible obturation. |
-| **7** | **Cosmetic Porcelain Veneer** | Cosmetic Dentistry | **60 mins** | **£950.00** | `cosmetic-veneers` / `porcelain-veneer` | Custom-crafted high-translucency porcelain veneer per tooth, digital shade matching, enamel preparation, and smile line enhancement. |
-| **8** | **Dental Implants & Surgical Consultation** | Oral Surgery & Implants | **60 mins** | **£1,850.00** | `dental-implants` | Comprehensive surgical implant assessment, CBCT 3D bone density analysis, surgical stent planning, and single titanium implant placement. |
+| # | Category | Service Name | Duration (Time) | Recommended Fee (GBP) | Database Slug |
+| -: | :--- | :--- | :---: | :---: | :--- |
+| **1** | **General Dentistry** | **New Patient Dental Examination** | **45 min** | **£70** | `new-patient-dental-examination` |
+| **2** | **General Dentistry** | **Routine Dental Examination** | **20 min** | **£60** | `routine-dental-examination` |
+| **3** | **General Dentistry** | **Emergency Dental Appointment** | **30 min** | **£85** | `emergency-dental-appointment` |
+| **4** | **General Dentistry** | **Child Dental Examination** | **20 min** | **£35** | `child-dental-examination` |
+| **5** | **Dental Hygiene** | **Routine Dental Hygiene / Scale & Polish** | **30 min** | **£85** | `routine-dental-hygiene` |
+| **6** | **Dental Hygiene** | **Extended Dental Hygiene** | **45 min** | **£125** | `extended-dental-hygiene` |
+| **7** | **Dental Hygiene** | **Airflow Stain Removal & Hygiene** | **30 min** | **£105** | `airflow-stain-removal-hygiene` |
+| **8** | **Periodontics** | **Periodontal Consultation** | **45 min** | **£150** | `periodontal-consultation` |
+| **9** | **Periodontics** | **Deep Cleaning / Periodontal Treatment** | **60 min** | **From £175** | `deep-cleaning-periodontal-treatment` |
+| **10** | **Restorative Dentistry** | **Composite White Filling** | **45 min** | **From £175** | `composite-white-filling` |
+| **11** | **Restorative Dentistry** | **Ceramic / Porcelain Crown** | **75 min** | **From £850** | `ceramic-porcelain-crown` |
+| **12** | **Restorative Dentistry** | **Dental Bridge** | **90 min** | **From £900 / unit** | `dental-bridge` |
+| **13** | **Restorative Dentistry** | **Ceramic Inlay / Onlay** | **60 min** | **From £750** | `ceramic-inlay-onlay` |
+| **14** | **Endodontics** | **Root Canal – Front Tooth** | **75 min** | **From £500** | `root-canal-front-tooth` |
+| **15** | **Endodontics** | **Root Canal – Premolar** | **90 min** | **From £575** | `root-canal-premolar` |
+| **16** | **Endodontics** | **Root Canal – Molar** | **120 min** | **From £700** | `root-canal-molar` |
+| **17** | **Oral Surgery** | **Simple Tooth Extraction** | **30 min** | **From £195** | `simple-tooth-extraction` |
+| **18** | **Oral Surgery** | **Surgical Tooth Extraction** | **60 min** | **From £350** | `surgical-tooth-extraction` |
+| **19** | **Oral Surgery** | **Wisdom Tooth Extraction** | **60 min** | **From £475** | `wisdom-tooth-extraction` |
+| **20** | **Cosmetic Dentistry** | **Composite Bonding – Per Tooth** | **60 min** | **From £250** | `composite-bonding` |
+| **21** | **Cosmetic Dentistry** | **Porcelain Veneer – Per Tooth** | **90 min** | **From £850** | `porcelain-veneer` |
+| **22** | **Cosmetic Dentistry** | **Home Teeth Whitening** | **30 min** | **£375** | `home-teeth-whitening` |
+| **23** | **Cosmetic Dentistry** | **In-Surgery Teeth Whitening** | **60 min** | **From £525** | `in-surgery-teeth-whitening` |
+| **24** | **Orthodontics** | **Orthodontic / Clear Aligner Consultation** | **45 min** | **£100** | `orthodontic-clear-aligner-consultation` |
+| **25** | **Orthodontics** | **Replacement Retainer – Per Arch** | **30 min** | **From £175** | `replacement-retainer` |
+| **26** | **Dental Implants** | **Dental Implant Consultation** | **45 min** | **£120** | `dental-implant-consultation` |
+| **27** | **Dental Implants** | **Single Dental Implant Placement** | **90 min** | **From £1,850** | `single-dental-implant-placement` |
+| **28** | **Dental Implants** | **Implant Crown / Final Restoration** | **45 min** | **From £850** | `implant-crown-final-restoration` |
+| **29** | **Prosthodontics** | **Denture Consultation** | **30 min** | **£75** | `denture-consultation` |
+| **30** | **Prosthodontics** | **Full Acrylic Denture – Per Arch** | **60 min initial stage** | **From £1,000** | `full-acrylic-denture` |
+| **31** | **Diagnostics** | **Small Dental X-Ray** | **15 min** | **£15** | `small-dental-x-ray` |
+| **32** | **Diagnostics** | **Panoramic X-Ray / OPG** | **15 min** | **£80** | `panoramic-x-ray-opg` |
+| **33** | **Diagnostics** | **CBCT 3D Scan** | **30 min** | **£130** | `cbct-3d-scan` |
+| **34** | **Preventive Dentistry** | **Night Guard / Bite Guard** | **30 min** | **From £175** | `night-guard-bite-guard` |
 
-### Notes on Service Customization:
-* **Doctor-Specific Overrides:** Each practitioner can customize their individual duration (e.g., 30, 45, 60 mins) and price in the *Services & Treatments* (`/clinical/services`) workspace without altering the clinic baseline catalog.
-* **Currency:** All financial records, invoice line items, and patient payment receipts are tracked and settled in British Pounds (`GBP £`).
+### Key Architectural & Operational Highlights:
+* **Centralized & Modular:** All 34 services are synchronized with the 12 clinical categories in `service_categories` and `services`.
+* **Practitioner Customization:** Clinicians can toggle services on/off and override default durations and fees per practitioner without modifying clinic baseline definitions.
+* **Public & Staff Parity:** Marketing service directory (`/services`), online booking flow (`/book`), staff scheduler (`/scheduler`), and clinician workspace (`/clinical/services`) uniformly reference this 34-service schema.
+
 
 
 

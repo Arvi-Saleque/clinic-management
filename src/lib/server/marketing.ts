@@ -22,7 +22,7 @@ export async function listPublicServices(): Promise<PublicServiceItem[]> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase as any)
     .from("services")
-    .select("id, name, slug, description, duration_minutes, price")
+    .select("id, name, slug, description, duration_minutes, price, category_id, service_categories(name)")
     .eq("show_on_website", true)
     .eq("is_active", true)
     .order("name");
@@ -35,8 +35,8 @@ export async function listPublicServices(): Promise<PublicServiceItem[]> {
     description: s.description,
     duration_minutes: s.duration_minutes,
     price: s.price,
-    category_id: null,
-    category: "General Dentistry",
+    category_id: s.category_id,
+    category: s.service_categories?.name || "General Dentistry",
   }));
 }
 
@@ -45,7 +45,7 @@ export async function getPublicServiceBySlug(slug: string): Promise<PublicServic
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase as any)
     .from("services")
-    .select("id, name, slug, description, duration_minutes, price")
+    .select("id, name, slug, description, duration_minutes, price, category_id, service_categories(name)")
     .eq("slug", slug)
     .eq("show_on_website", true)
     .eq("is_active", true)
@@ -61,8 +61,8 @@ export async function getPublicServiceBySlug(slug: string): Promise<PublicServic
     description: s.description,
     duration_minutes: s.duration_minutes,
     price: s.price,
-    category_id: null,
-    category: "General Dentistry",
+    category_id: s.category_id,
+    category: s.service_categories?.name || "General Dentistry",
   };
 }
 
