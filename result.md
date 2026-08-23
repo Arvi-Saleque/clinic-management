@@ -1256,3 +1256,36 @@ The source mixed Bangladesh, Ireland and Euro-era demo content with partially UK
 - Codebase residual scan -> no visible Bangladesh geography, BDT/Taka, +880, Asia/Dhaka, Euro currency, Irish phone number or Asian demo display names remain. Legacy Euro parsing is intentionally retained so historical notes remain readable.
 - Repository-wide ESLint still reports pre-existing React effect/static-component and explicit-any errors outside this localisation change; no production-build failure was introduced.
 - Supabase migration `0041_uk_localisation.sql` requires manual application before existing hosted demo data reflects the new UK identities/details.
+
+---
+
+## 49. UK Localisation Deployment, Build Verification & Pull Request Delivery
+
+### A. Archive Extraction & Verification
+1. **Archive Source**: Extracted `Clinic-UK-Localisation-Complete-v4.zip` into project root `D:\work\Repositories\Health-Clinic-Management\website-code-premium\dental-clinic-workspace`.
+2. **Verified Artifacts**:
+   - `supabase/migrations/0041_uk_localisation.sql` (Schema default updates to `Europe/London` and `GBP`, demo data alignment).
+   - `src/lib/marketing-images.ts` (Deterministic UK dental team and clinician portrait asset paths).
+   - `public/marketing/demo_dental_team_uk.webp` (UK dental team clinic asset).
+   - `public/marketing/practitioners/dr-charlotte-hughes.webp` (UK practitioner portrait).
+   - `public/marketing/practitioners/dr-oliver-bennett.webp` (UK practitioner portrait).
+
+### B. Quality & Build Verification
+1. **TypeScript Typecheck**:
+   - Executed `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**.
+2. **Production Build**:
+   - Executed `npm run build:local` (`next build`) -> **PASSED**.
+   - Generated all 42 static and server-rendered routes without errors.
+3. **Clean Staging Guarantee**:
+   - All ZIP files (`*.zip`, `**/*.zip`), `.next` caches, `node_modules`, `.env` local environment configurations, and secrets were strictly excluded from staging.
+
+### C. Git Branching & Pull Request
+- **Branch Created**: `feature/uk-localisation-and-public-booking`
+- **Commit Hash**: `2e51469` (`feat: localise clinic experience for the UK`)
+- **Remote Push**: Tracked and pushed to `origin/feature/uk-localisation-and-public-booking`
+- **Pull Request**: Created on GitHub -> [PR #16: feat: UK localisation and public booking experience](https://github.com/Arvi-Saleque/clinic-management/pull/16)
+
+### D. Pending Database Deployment
+- No remote Supabase operations (`supabase login`, `supabase link`, `supabase db push`, `supabase db reset`, or remote SQL execution) were performed.
+- Migration `supabase/migrations/0041_uk_localisation.sql` is committed in Git and will be executed against the hosted database once Supabase credentials are authenticated.
+
