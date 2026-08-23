@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, UserCheck } from "lucide-react";
 import { Card3D } from "@/components/marketing/luxury-card3d";
+import { pickFromPool, PRACTITIONER_PHOTO_FALLBACKS } from "@/lib/marketing-images";
 import { getPublicPractitionerById } from "@/lib/server/marketing";
 
 export async function generateMetadata({
@@ -29,6 +30,7 @@ export default async function PractitionerDetailPage({
   if (!practitioner) notFound();
 
   const name = (practitioner.profiles as { full_name?: string } | null)?.full_name || "Dental Practitioner";
+  const photoSrc = practitioner.photo_url || pickFromPool(PRACTITIONER_PHOTO_FALLBACKS, practitioner.id).src;
 
   return (
     <div className="practitioner-detail-page">
@@ -49,11 +51,7 @@ export default async function PractitionerDetailPage({
               <div className="lg:col-span-5">
                 <Card3D>
                   <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center relative">
-                    {practitioner.photo_url ? (
-                      <img src={practitioner.photo_url} alt={name} className="w-full h-full object-cover" />
-                    ) : (
-                      <UserCheck className="w-24 h-24 text-white/30" />
-                    )}
+                    <img src={photoSrc} alt={name} className="w-full h-full object-cover" />
                   </div>
                 </Card3D>
               </div>
@@ -89,7 +87,7 @@ export default async function PractitionerDetailPage({
                 <div className="flex flex-wrap gap-4">
                   <Link href={`/book?practitionerId=${practitioner.id}`} className="btn-blue">
                     <CalendarDays className="w-4 h-4 mr-2 inline" />
-                    Book an Appointment
+                    Book with {name.split(" ")[0]}
                   </Link>
                   <Link href="/contact" className="btn-stroke border-white/20 hover:border-white text-white">
                     Contact Clinic

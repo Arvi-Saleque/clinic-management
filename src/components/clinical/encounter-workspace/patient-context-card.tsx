@@ -28,7 +28,7 @@ export function PatientContextCard({
     : null;
 
   const dobFormatted = patient.dob
-    ? format(new Date(`${patient.dob}T00:00:00`), "MMM d, yyyy")
+    ? format(new Date(`${patient.dob}T00:00:00`), "d MMM yyyy")
     : null;
 
   const allergiesCount = medicalHistory?.allergies?.length ?? 0;

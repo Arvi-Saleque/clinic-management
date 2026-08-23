@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { ScrollReveal, StaggerGroup, StaggerItem, TiltCard } from "@/components/motion";
 import { CONTAINER } from "@/lib/layout";
-import { imageSrc, pickFromPool, PRACTITIONER_PHOTO_FALLBACKS } from "@/lib/marketing-images";
+import { pickFromPool, PRACTITIONER_PHOTO_FALLBACKS } from "@/lib/marketing-images";
 import { cn } from "@/lib/utils";
 
 export interface PractitionerCardData {
@@ -50,7 +50,7 @@ export function PractitionersSection({ practitioners }: { practitioners: Practit
             const name = p.profiles?.full_name ?? "Practitioner";
             const image = p.photo_url
               ? { src: p.photo_url, alt: name }
-              : { src: imageSrc(pickFromPool(PRACTITIONER_PHOTO_FALLBACKS, p.id), 700), alt: name };
+              : { ...pickFromPool(PRACTITIONER_PHOTO_FALLBACKS, p.id), alt: name };
 
             return (
               <StaggerItem key={p.id} className="w-full max-w-sm">
@@ -80,7 +80,7 @@ export function PractitionersSection({ practitioners }: { practitioners: Practit
                       )}
                       <div className="mt-5 flex gap-2">
                         <ButtonLink href="/book" size="sm" className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90">
-                          Book an Appointment
+                          Book
                         </ButtonLink>
                         <ButtonLink href={`/practitioners/${p.id}`} size="sm" variant="outline" className="flex-1">
                           View profile

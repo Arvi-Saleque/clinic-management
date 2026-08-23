@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
+import { formatClinicDate, formatClinicDateKey, formatClinicTime } from "@/lib/utils";
 import type {
   ClinicalEncounter,
   EncounterFollowUpSchedulingContext,
@@ -89,7 +90,7 @@ export function ClinicalDocumentationSummary({
   isEditable,
 }: ClinicalDocumentationSummaryProps) {
   const followUpDateFormatted = encounter.follow_up_date
-    ? format(new Date(`${encounter.follow_up_date}T00:00:00`), "MMM d, yyyy")
+    ? format(new Date(`${encounter.follow_up_date}T00:00:00`), "d MMM yyyy")
     : null;
 
   const canScheduleFollowUp =
@@ -170,8 +171,8 @@ export function ClinicalDocumentationSummary({
             </summary>
             <div className="mt-3 space-y-2">
               {followUpAppointments.map((appt) => {
-                const startsAtFormatted = format(new Date(appt.starts_at), "MMM d, yyyy · h:mm a");
-                const schedulerDate = format(new Date(appt.starts_at), "yyyy-MM-dd");
+                const startsAtFormatted = `${formatClinicDate(appt.starts_at)} · ${formatClinicTime(appt.starts_at)}`;
+                const schedulerDate = formatClinicDateKey(appt.starts_at);
 
                 return (
                   <div key={appt.id} className="flex flex-col gap-2 rounded-2xl border border-border/70 bg-muted/20 p-3.5 text-xs sm:flex-row sm:items-center sm:justify-between">

@@ -15,6 +15,7 @@ import { PatientProfileForm } from "@/components/portal/patient-profile-form";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { getOwnPortalPatient } from "@/lib/server/patient-portal";
+import { formatClinicDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "My health profile" };
 
@@ -87,7 +88,7 @@ export default async function PortalProfilePage() {
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-text-muted">
                   <CalendarDays className="size-3.5 text-primary" />
-                  Patient since {new Date(patient.created_at).toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+                  Patient since {formatClinicDate(patient.created_at, { month: "long", year: "numeric" })}
                 </span>
               </div>
             </div>

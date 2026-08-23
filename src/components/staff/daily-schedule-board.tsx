@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { format } from "date-fns";
 import { Clock3, Phone } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, formatClinicTime } from "@/lib/utils";
 import type { listAppointmentsForDay } from "@/lib/server/directory";
 
 type DailyAppointment = Awaited<ReturnType<typeof listAppointmentsForDay>>[number];
@@ -58,7 +57,7 @@ export function DailyScheduleBoard({ appointments }: { appointments: DailyAppoin
               if (top < 0 || top > 768) return null;
               return (
                 <Link key={appointment.id} href={`/patients/${appointment.patients?.id ?? ""}`} className={cn("absolute left-3 right-3 overflow-hidden rounded-xl border border-border border-l-4 bg-surface p-3 shadow-[0_14px_30px_-24px_rgba(5,40,38,0.75)] transition hover:z-10 hover:-translate-y-0.5 hover:shadow-lg", STATUS_STYLE[appointment.status])} style={{ top, height }}>
-                  <div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex items-center gap-1.5"><p className="truncate text-xs font-extrabold">{appointment.patients ? `${appointment.patients.first_name} ${appointment.patients.last_name}` : "Patient"}</p>{isFollowUp && <span className="shrink-0 rounded bg-primary-soft px-1.5 py-0.5 text-[9px] font-bold text-primary">Follow-up</span>}</div><p className="mt-1 truncate text-[10px] text-muted-foreground">{appointment.services?.name ?? "Dental visit"}{appointment.notes ? ` · ${appointment.notes}` : ""}</p></div><span className="shrink-0 rounded-md bg-surface/80 px-2 py-1 text-[10px] font-extrabold"><Clock3 className="mr-1 inline size-3" />{format(start, "h:mm a")}</span></div>
+                  <div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex items-center gap-1.5"><p className="truncate text-xs font-extrabold">{appointment.patients ? `${appointment.patients.first_name} ${appointment.patients.last_name}` : "Patient"}</p>{isFollowUp && <span className="shrink-0 rounded bg-primary-soft px-1.5 py-0.5 text-[9px] font-bold text-primary">Follow-up</span>}</div><p className="mt-1 truncate text-[10px] text-muted-foreground">{appointment.services?.name ?? "Dental visit"}{appointment.notes ? ` · ${appointment.notes}` : ""}</p></div><span className="shrink-0 rounded-md bg-surface/80 px-2 py-1 text-[10px] font-extrabold"><Clock3 className="mr-1 inline size-3" />{formatClinicTime(start)}</span></div>
                   {height >= 70 && appointment.patients?.phone && <p className="mt-2 flex items-center gap-1 text-[10px] text-muted-foreground"><Phone className="size-3" />{appointment.patients.phone}</p>}
                 </Link>
               );

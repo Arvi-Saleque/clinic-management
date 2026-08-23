@@ -493,7 +493,7 @@ export async function getEncounterWorkspaceContext(
         let apptCustomPrice: number | null = null;
         let apptCustomDuration: number | null = null;
         if (apptRow.notes) {
-          const feeMatch = apptRow.notes.match(/(?:\[FEE:([\d.]+)\]|Fee:\s*€\s*([\d.]+))/i);
+          const feeMatch = apptRow.notes.match(/(?:\[FEE:([\d.]+)\]|Fee:\s*[£€]\s*([\d.]+))/i);
           if (feeMatch) {
             apptCustomPrice = parseFloat(feeMatch[1] || feeMatch[2]);
           }
@@ -812,7 +812,7 @@ export async function getEncounterWorkspaceContext(
       let customPrice: number | null = null;
       let customDuration: number | null = null;
       if (row.notes) {
-        const feeMatch = row.notes.match(/(?:\[FEE:([\d.]+)\]|Fee:\s*€\s*([\d.]+))/i);
+        const feeMatch = row.notes.match(/(?:\[FEE:([\d.]+)\]|Fee:\s*[£€]\s*([\d.]+))/i);
         if (feeMatch) {
           customPrice = parseFloat(feeMatch[1] || feeMatch[2]);
         }

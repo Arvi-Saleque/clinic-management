@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, ShieldCheck, UserCheck } from "lucide-react";
+import { pickFromPool, PRACTITIONER_PHOTO_FALLBACKS } from "@/lib/marketing-images";
 import { listPublicPractitioners } from "@/lib/server/marketing";
 
 export const metadata: Metadata = {
@@ -62,6 +63,7 @@ export default async function PractitionersPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-8 w-full">
                 {practitioners.map((doc) => {
                   const docName = (doc.profiles as { full_name?: string } | null)?.full_name || "Dental Practitioner";
+                  const photoSrc = doc.photo_url || pickFromPool(PRACTITIONER_PHOTO_FALLBACKS, doc.id).src;
 
                   return (
                     <div
@@ -71,15 +73,11 @@ export default async function PractitionersPage() {
                       <div>
                         {/* Photo Container with zoom & floating badges */}
                         <div className="aspect-[4/3] rounded-[24px] overflow-hidden mb-5 bg-gradient-to-br from-[#1B2623]/05 to-[#2B5748]/10 relative flex items-center justify-center border border-[#273338]/06">
-                          {doc.photo_url ? (
-                            <img
-                              src={doc.photo_url}
-                              alt={docName}
-                              className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                            />
-                          ) : (
-                            <UserCheck className="w-14 h-14 text-[#2B5748]/40" />
-                          )}
+                          <img
+                            src={photoSrc}
+                            alt={docName}
+                            className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+                          />
 
                           {/* Subtle bottom gradient on photo */}
                           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
@@ -143,7 +141,7 @@ export default async function PractitionersPage() {
                           style={{ color: "#ffffff" }}
                         >
                           <CalendarDays className="w-3.5 h-3.5" />
-                          <span>Book an Appointment</span>
+                          <span>Book Online</span>
                         </Link>
                       </div>
                     </div>
@@ -184,7 +182,7 @@ export default async function PractitionersPage() {
                   style={{ color: '#ffffff' }}
                 >
                   <CalendarDays className="w-4 h-4" />
-                  <span>Book an Appointment</span>
+                  <span>Book Consultation Online</span>
                 </Link>
 
                 <Link

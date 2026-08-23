@@ -177,7 +177,7 @@ export function NewPatientDialog({
                 id="new-phone"
                 value={formData.phone}
                 onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
-                placeholder="e.g. 01711000000"
+                placeholder="e.g. 07700 900123"
                 className="h-9.5 rounded-xl border-border/80 text-xs"
                 required
               />
@@ -247,7 +247,7 @@ export function NewPatientDialog({
               id="new-address"
               value={formData.address}
               onChange={(e) => setFormData((p) => ({ ...p, address: e.target.value }))}
-              placeholder="e.g. Apt 4B, Dhanmondi, Dhaka"
+              placeholder="e.g. Flat 4B, 42 King Street, Manchester, M2 6BA"
               className="h-9.5 rounded-xl border-border/80 text-xs"
             />
           </div>

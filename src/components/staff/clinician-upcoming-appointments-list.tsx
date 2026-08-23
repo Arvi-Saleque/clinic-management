@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { format } from "date-fns";
 import { ChevronRight } from "lucide-react";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { useTablePagination } from "@/lib/hooks/use-table-pagination";
+import { formatClinicTime } from "@/lib/utils";
 
 interface ClinicianUpcomingAppointment {
   id: string;
@@ -70,7 +70,7 @@ export function ClinicianUpcomingAppointmentsList({
               {/* Time & Timeline Badge */}
               <div className="flex items-center gap-3 w-32 shrink-0">
                 <span className="font-mono text-xs font-black bg-card px-2.5 py-1 rounded-xl border border-border/70 text-foreground shadow-2xs">
-                  {format(new Date(appt.starts_at), "h:mm a")}
+                  {formatClinicTime(appt.starts_at)}
                 </span>
               </div>
 

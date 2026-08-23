@@ -39,7 +39,7 @@ export default function HomePage() {
                         <div className="btn-group">
                           <Link href="/book" className="btn">
                             <CalendarDays className="w-4 h-4 mr-2 inline" />
-                            Book an Appointment
+                            Book Online
                           </Link>
                           <Link href="/about" className="btn-stroke">
                             About Our Clinic
@@ -50,7 +50,7 @@ export default function HomePage() {
                       <div className="img-box">
                         <Card3D className="img-item motion-low-tilt-card" maxTilt={3} glare={false}>
                           <img
-                            src="/marketing/demo_dental_team.png"
+                            src="/marketing/demo_dental_team_uk.webp"
                             alt="Professional Dental Clinic Team"
                             className="rounded-2xl shadow-xl"
                           />

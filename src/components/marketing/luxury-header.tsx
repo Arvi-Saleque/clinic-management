@@ -13,7 +13,7 @@ interface LuxuryHeaderProps {
 }
 
 export function LuxuryHeader({
-  phone = "+44 (020) 7946 0000",
+  phone = "+44 1632 960123",
   account,
   onOpenSearch,
 }: LuxuryHeaderProps) {
@@ -125,8 +125,9 @@ export function LuxuryHeader({
 
               <Link href="/book" className="btn-blue">
                 <CalendarDays className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
-                Book an Appointment
+                Book Online
               </Link>
+
               {/* Mobile Hamburger Toggle */}
               <button
                 type="button"
@@ -205,7 +206,7 @@ export function LuxuryHeader({
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="btn-blue w-full text-center block"
               >
-                Book an Appointment
+                Book Appointment Online
               </Link>
             </div>
           </div>

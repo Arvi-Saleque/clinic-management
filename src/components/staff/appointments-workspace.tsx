@@ -41,7 +41,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { NewAppointmentDialog } from "@/components/staff/new-appointment-dialog";
 import { RescheduleAppointmentDialog } from "@/components/staff/reschedule-appointment-dialog";
-import { cn } from "@/lib/utils";
+import { cn, formatClinicTime } from "@/lib/utils";
 import { updateAppointmentStatus, type AppointmentStatus } from "@/lib/server/appointments";
 
 export interface WorkspaceAppointment {
@@ -479,8 +479,8 @@ export function AppointmentsWorkspace({
 
             <ul className="divide-y divide-border/60">
               {paginatedAppointments.map((appointment) => {
-                const startFormatted = format(new Date(appointment.starts_at), "h:mm a");
-                const endFormatted = format(new Date(appointment.ends_at), "h:mm a");
+                const startFormatted = formatClinicTime(appointment.starts_at);
+                const endFormatted = formatClinicTime(appointment.ends_at);
                 const patientName = appointment.patients
                   ? `${appointment.patients.first_name} ${appointment.patients.last_name}`
                   : "Walk-in / Unassigned Patient";

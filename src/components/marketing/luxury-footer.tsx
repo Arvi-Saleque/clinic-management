@@ -22,9 +22,9 @@ export function LuxuryFooter({
   branch,
   treatments: _treatments = [],
 }: LuxuryFooterProps) {
-  const phoneDisplay = branch?.phone || "+44 (020) 7946 0000";
+  const phoneDisplay = branch?.phone || "+44 1632 960123";
   const phoneClean = phoneDisplay.replace(/\s+/g, "");
-  const addressDisplay = branch?.address || "74 Harley Street, Marylebone, London W1G 7HQ";
+  const addressDisplay = branch?.address || "42 King Street, Manchester, M2 6BA";
 
   return (
     <footer id="footer" className="luxury-site-footer">
@@ -50,7 +50,7 @@ export function LuxuryFooter({
             <div className="flex flex-wrap gap-3">
               <Link href="/book" className="btn-blue text-xs uppercase tracking-wider">
                 <CalendarDays className="w-3.5 h-3.5 mr-1.5" />
-                Book an Appointment
+                Book Online
               </Link>
               <Link href="/contact" className="btn-stroke text-xs uppercase tracking-wider border-white/20 hover:border-white text-white">
                 Contact Clinic
@@ -134,7 +134,7 @@ export function LuxuryFooter({
             <ul>
               <li>
                 <Link href="/book" className="font-bold text-[#9CB080]">
-                  Book an Appointment →
+                  Book Online →
                 </Link>
               </li>
               <li>

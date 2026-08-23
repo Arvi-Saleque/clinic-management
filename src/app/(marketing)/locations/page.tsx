@@ -15,8 +15,8 @@ export default async function LocationsPage() {
   const { branch, hours } = await getClinicInfo();
 
   const clinicName = branch?.name || "Clinic Care Dental Practice";
-  const address = branch?.address || "74 Harley Street, Marylebone, London W1G 7HQ";
-  const phone = branch?.phone || "+44 (020) 7946 0000";
+  const address = branch?.address || "42 King Street, Manchester, M2 6BA";
+  const phone = branch?.phone || "+44 1632 960123";
   const email = branch?.email || "concierge@cliniccare.test";
 
   return (
@@ -131,7 +131,7 @@ export default async function LocationsPage() {
                   <div className="pt-4 border-t border-[#273338]/10">
                     <Link href="/book" className="btn-blue w-full text-center block">
                       <CalendarDays className="w-4 h-4 mr-2 inline" />
-                      Book an Appointment
+                      Book Appointment Online
                     </Link>
                   </div>
                 </div>

@@ -383,7 +383,7 @@ export async function getPractitionerAppointmentCountsForRange(
       .maybeSingle();
 
     const branchTz =
-      (practData?.branches as { timezone?: string } | null)?.timezone ?? "Asia/Dhaka";
+      (practData?.branches as { timezone?: string } | null)?.timezone ?? "Europe/London";
 
     const dateFormatter = new Intl.DateTimeFormat("en-CA", {
       timeZone: branchTz,
@@ -447,7 +447,7 @@ export async function getAppointmentsForDate(
       .maybeSingle();
 
     const branchTz =
-      (practData?.branches as { timezone?: string } | null)?.timezone ?? "Asia/Dhaka";
+      (practData?.branches as { timezone?: string } | null)?.timezone ?? "Europe/London";
 
     const timeFormatter = new Intl.DateTimeFormat("en-GB", {
       timeZone: branchTz,

@@ -36,8 +36,8 @@ export default async function ContactPage() {
   const { branch, hours } = await getClinicInfo();
 
   const clinicName = branch?.name || "Clinic Care Dental Practice";
-  const address = branch?.address || "74 Harley Street, Marylebone, London W1G 7HQ";
-  const phone = branch?.phone || "+44 (020) 7946 0000";
+  const address = branch?.address || "42 King Street, Manchester, M2 6BA";
+  const phone = branch?.phone || "+44 1632 960123";
   const phoneClean = phone.replace(/\s+/g, "");
   const email = branch?.email || "concierge@cliniccare.test";
 
@@ -219,7 +219,7 @@ export default async function ContactPage() {
                       style={{ color: "#ffffff" }}
                     >
                       <CalendarDays className="w-4 h-4" />
-                      <span>Book an Appointment</span>
+                      <span>Continue to Online Booking</span>
                     </Link>
 
                     <a
@@ -242,7 +242,7 @@ export default async function ContactPage() {
             <div className="title-box text-center max-w-3xl mx-auto mb-14">
               <span className="subtitle-italic text-[#2B5748] font-semibold text-sm">Location &amp; Directions</span>
               <h2 className="h3 text-3xl sm:text-4xl md:text-5xl font-light text-[#182320] mt-2 mb-4 tracking-tight">
-                Find Our Clinic in Marylebone, London
+                Find Our Clinic in Manchester
               </h2>
               <p className="text-[#4E5B55] text-sm sm:text-base max-w-2xl mx-auto">
                 Centrally located on historic Harley Street with convenient underground links, public transit, and underground parking.
@@ -354,7 +354,7 @@ export default async function ContactPage() {
                   style={{ color: "#ffffff" }}
                 >
                   <CalendarDays className="w-4 h-4" />
-                  <span>Book an Appointment</span>
+                  <span>Book Consultation Online</span>
                 </Link>
 
                 <a

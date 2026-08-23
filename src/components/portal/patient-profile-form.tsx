@@ -683,7 +683,7 @@ export function PatientProfileForm({ patient }: PatientProfileFormProps) {
                 name="address"
                 rows={2}
                 defaultValue={patient.address ?? ""}
-                placeholder="Full street address, apartment, city, and postal code..."
+                placeholder="Address line, town or city, and postcode..."
                 className="rounded-2xl border-border/80 bg-background text-xs leading-relaxed shadow-2xs resize-none"
               />
             </div>
@@ -724,7 +724,7 @@ export function PatientProfileForm({ patient }: PatientProfileFormProps) {
                 type="tel"
                 defaultValue={patient.emergency_contact_phone ?? ""}
                 required
-                placeholder="e.g. +1 (555) 019-2834"
+                placeholder="e.g. 07700 900123"
                 className="h-10.5 rounded-2xl border-border/80 bg-background text-xs shadow-2xs font-mono"
               />
             </div>

@@ -49,7 +49,7 @@ export function ForgotPasswordForm() {
             name="email"
             type="email"
             autoComplete="email"
-            placeholder="e.g. nadia.islam.demo@cliniccare.test"
+            placeholder="e.g. charlotte.hughes@example.com"
             required
             className="h-11 rounded-2xl pl-10 pr-4 text-xs bg-muted/20 border-border/80 focus-visible:bg-card focus-visible:ring-2 focus-visible:ring-primary/20 shadow-2xs font-medium"
           />

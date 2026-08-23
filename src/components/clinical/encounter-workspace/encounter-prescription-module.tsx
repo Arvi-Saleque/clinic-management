@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import {
   ClipboardList,
   Edit3,
@@ -21,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { saveEncounterPrescriptionAction } from "@/lib/server/prescriptions";
+import { formatClinicDate, formatClinicTime } from "@/lib/utils";
 import type { EncounterPrescription } from "@/types/clinical";
 import type { PrescriptionItemInput } from "@/lib/validation/prescription";
 
@@ -368,7 +368,7 @@ export function EncounterPrescriptionModule({
                       Prescription #{rxIndex + 1}
                     </span>
                     <span className="text-[11px] text-muted-foreground">
-                      · Issued {format(new Date(rx.issued_at), "MMM d, yyyy 'at' h:mm a")}
+                      · Issued {formatClinicDate(rx.issued_at)} at {formatClinicTime(rx.issued_at)}
                     </span>
                   </div>
 

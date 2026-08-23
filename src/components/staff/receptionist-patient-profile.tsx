@@ -29,7 +29,7 @@ import { NewAppointmentDialog } from "@/components/staff/new-appointment-dialog"
 import { RescheduleAppointmentDialog } from "@/components/staff/reschedule-appointment-dialog";
 import { updateAppointmentStatus } from "@/lib/server/appointments";
 import type { ReceptionistPatientProfileData } from "@/lib/server/patients";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatClinicDate, formatClinicTime, formatCurrency } from "@/lib/utils";
 
 interface Service {
   id: string;
@@ -129,7 +129,7 @@ export function ReceptionistPatientProfileView({
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Patient record · Registered {format(new Date(patient.created_at), "d MMMM yyyy")}
+                Patient record · Registered {formatClinicDate(patient.created_at, { day: "numeric", month: "long", year: "numeric" })}
               </p>
             </div>
           </div>
@@ -263,11 +263,11 @@ export function ReceptionistPatientProfileView({
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
                     <p className="font-heading text-lg font-extrabold text-foreground">
-                      {format(new Date(nextAppointment.starts_at), "EEEE, d MMMM yyyy")}
+                      {formatClinicDate(nextAppointment.starts_at, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
                       <span className="font-mono font-bold text-foreground">
-                        {format(new Date(nextAppointment.starts_at), "h:mm a")}
+                        {formatClinicTime(nextAppointment.starts_at)}
                       </span>
                       <span>·</span>
                       <span>{nextAppointment.duration_minutes} minutes</span>
@@ -387,10 +387,10 @@ export function ReceptionistPatientProfileView({
                     >
                       <div>
                         <p className="font-bold text-foreground tabular-nums">
-                          {format(new Date(appt.starts_at), "dd MMM yyyy")}
+                          {formatClinicDate(appt.starts_at, { day: "2-digit", month: "short", year: "numeric" })}
                         </p>
                         <p className="text-[10px] text-muted-foreground font-mono">
-                          {format(new Date(appt.starts_at), "h:mm a")}
+                          {formatClinicTime(appt.starts_at)}
                         </p>
                       </div>
 

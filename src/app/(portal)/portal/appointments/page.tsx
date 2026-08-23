@@ -114,7 +114,7 @@ export default async function PortalAppointmentsPage({
 
   const resolvePrice = (appointment: (typeof appointments)[number]) => {
     if (appointment.notes) {
-      const feeMatch = appointment.notes.match(/(?:\[FEE:([\d.]+)\]|Fee:\s*€\s*([\d.]+))/i);
+      const feeMatch = appointment.notes.match(/(?:\[FEE:([\d.]+)\]|Fee:\s*[£€]\s*([\d.]+))/i);
       if (feeMatch) {
         const parsed = parseFloat(feeMatch[1] || feeMatch[2]);
         if (!isNaN(parsed)) return parsed;

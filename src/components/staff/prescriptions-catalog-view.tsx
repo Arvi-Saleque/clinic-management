@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { format } from "date-fns";
 import {
   ArrowUpRight,
   Pill,
@@ -13,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { useTablePagination } from "@/lib/hooks/use-table-pagination";
+import { formatClinicDate, formatClinicTime } from "@/lib/utils";
 
 export interface PrescriptionRecordItem {
   id: string;
@@ -126,7 +126,7 @@ export function PrescriptionsCatalogView({ prescriptions }: PrescriptionsCatalog
                             : "Unknown patient"}
                         </Link>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
-                          {prescription.patients?.phone ?? "No phone"} &middot; {format(new Date(prescription.issued_at), "dd MMM yyyy, HH:mm")}
+                          {prescription.patients?.phone ?? "No phone"} &middot; {formatClinicDate(prescription.issued_at)}, {formatClinicTime(prescription.issued_at)}
                         </p>
                       </div>
                     </div>

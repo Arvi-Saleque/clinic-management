@@ -8,9 +8,9 @@ import type { Profile } from "@/lib/auth/session";
 const profile: Profile = {
   id: "demo-dentist",
   organization_id: "demo-clinic",
-  full_name: "Dr Amelia Rahman",
-  email: "amelia@cliniccare.demo",
-  phone: "+44 20 0000 0000",
+  full_name: "Dr Charlotte Hughes",
+  email: "charlotte@cliniccare.demo",
+  phone: "+44 1632 960123",
   role: "dentist",
   avatar_url: null,
   is_active: true,
@@ -19,9 +19,9 @@ const profile: Profile = {
 };
 
 const appointments = [
-  { time: "09:00", patient: "Sophie Turner", treatment: "Routine examination", duration: "30 min", status: "Completed", color: "bg-success/10 text-success border-success/20" },
+  { time: "09:00", patient: "Emily Carter", treatment: "Routine examination", duration: "30 min", status: "Completed", color: "bg-success/10 text-success border-success/20" },
   { time: "10:15", patient: "James Wilson", treatment: "Composite restoration", duration: "45 min", status: "Checked in", color: "bg-violet-500/10 text-violet-700 border-violet-500/20 dark:text-violet-300" },
-  { time: "11:30", patient: "Maya Patel", treatment: "Root canal review", duration: "40 min", status: "Confirmed", color: "bg-blue-500/10 text-blue-700 border-blue-500/20 dark:text-blue-300" },
+  { time: "11:30", patient: "Olivia Clarke", treatment: "Root canal review", duration: "40 min", status: "Confirmed", color: "bg-blue-500/10 text-blue-700 border-blue-500/20 dark:text-blue-300" },
   { time: "14:00", patient: "Oliver Smith", treatment: "Hygiene appointment", duration: "30 min", status: "Pending", color: "bg-warning/10 text-warning border-warning/20" },
 ];
 
@@ -29,13 +29,13 @@ export default function WorkspaceDemoPage() {
   return (
     <StaffShell profile={profile}>
       <div className="space-y-7">
-        <section className="relative overflow-hidden rounded-[28px] bg-secondary p-8 text-white"><div className="absolute -right-8 -top-16 size-64 rounded-full bg-primary/20 blur-3xl" /><div className="relative flex flex-col justify-between gap-6 xl:flex-row xl:items-end"><div><span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/75"><CalendarDays className="size-3.5 text-accent" />Live workspace concept</span><h1 className="mt-4 font-heading text-[38px] font-extrabold tracking-[-0.035em]">Good morning, Amelia.</h1><p className="mt-3 max-w-xl text-sm leading-6 text-white/65">Your patient flow, clinical diary and outstanding work are visible in one calm command centre.</p></div><ButtonLink href="/scheduler" size="lg" className="h-11 gap-2 bg-accent text-accent-foreground"><Plus className="size-4" />New appointment</ButtonLink></div></section>
+        <section className="relative overflow-hidden rounded-[28px] bg-secondary p-8 text-white"><div className="absolute -right-8 -top-16 size-64 rounded-full bg-primary/20 blur-3xl" /><div className="relative flex flex-col justify-between gap-6 xl:flex-row xl:items-end"><div><span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-white/75"><CalendarDays className="size-3.5 text-accent" />Live workspace concept</span><h1 className="mt-4 font-heading text-[38px] font-extrabold tracking-[-0.035em]">Good morning, Charlotte.</h1><p className="mt-3 max-w-xl text-sm leading-6 text-white/65">Your patient flow, clinical diary and outstanding work are visible in one calm command centre.</p></div><ButtonLink href="/scheduler" size="lg" className="h-11 gap-2 bg-accent text-accent-foreground"><Plus className="size-4" />New appointment</ButtonLink></div></section>
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
             { label: "My appointments", value: "12", note: "4 completed · 1 checked in", icon: CalendarCheck2, tone: "bg-primary-soft text-primary" },
             { label: "Active patients", value: "1,248", note: "+34 this month", icon: Users, tone: "bg-blue-500/10 text-blue-700 dark:text-blue-300" },
-            { label: "Outstanding balance", value: "€82,450", note: "8 open invoices", icon: WalletCards, tone: "bg-warning/10 text-warning" },
+            { label: "Outstanding balance", value: "£8,245.00", note: "8 open invoices", icon: WalletCards, tone: "bg-warning/10 text-warning" },
             { label: "Care completed", value: "86%", note: "Today’s visit progress", icon: CheckCircle2, tone: "bg-success/10 text-success" },
           ].map((metric) => <article key={metric.label} className="rounded-2xl border border-border bg-surface p-5"><span className={`flex size-10 items-center justify-center rounded-xl ${metric.tone}`}><metric.icon className="size-[18px]" /></span><p className="mt-5 text-xs font-semibold text-muted-foreground">{metric.label}</p><p className="mt-1 font-heading text-[28px] font-extrabold tracking-[-0.035em]">{metric.value}</p><p className="mt-2 text-[11px] text-muted-foreground">{metric.note}</p></article>)}
         </section>

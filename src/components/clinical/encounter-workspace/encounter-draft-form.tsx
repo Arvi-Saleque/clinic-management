@@ -42,7 +42,7 @@ import {
 } from "@/lib/server/encounters";
 import { createInstantEncounterInvoiceAction } from "@/lib/server/invoices";
 import { createStaffAppointment, getAvailableSlots } from "@/lib/server/appointments";
-import { cn } from "@/lib/utils";
+import { cn, formatClinicDate, formatClinicTime, formatCurrency } from "@/lib/utils";
 import type { SlotResult } from "@/types/availability";
 import type {
   ClinicalEncounter,
@@ -530,7 +530,7 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
           startsAt,
           durationMinutes: followUpDuration,
           bookingSource: "staff",
-          notes: `[FEE:${feeAmount.toFixed(2)}] [DUR:${followUpDuration}] Follow-up for ${currentProcedureName} • Fee: €${feeAmount.toFixed(2)}`,
+          notes: `[FEE:${feeAmount.toFixed(2)}] [DUR:${followUpDuration}] Follow-up for ${currentProcedureName} • Fee: £${feeAmount.toFixed(2)}`,
           originatingEncounterId: encounter.id,
         });
 
@@ -550,12 +550,12 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
           service_price: feeAmount,
           practitioner_name: followUpScheduling.practitioner_name || "Doctor",
           branch_name: followUpScheduling.branch_name || "Main Clinic Branch",
-          notes: `[FEE:${feeAmount.toFixed(2)}] [DUR:${followUpDuration}] Follow-up for ${currentProcedureName} • Fee: €${feeAmount.toFixed(2)}`,
+          notes: `[FEE:${feeAmount.toFixed(2)}] [DUR:${followUpDuration}] Follow-up for ${currentProcedureName} • Fee: £${feeAmount.toFixed(2)}`,
         };
 
         setScheduledFollowUps((prev) => [...prev, newApt]);
         toast.success(
-          `Follow-up appointment scheduled for ${format(new Date(startsAt), "EEE, d MMM yyyy 'at' h:mm a")}!`
+          `Follow-up appointment scheduled for ${formatClinicDate(startsAt, { weekday: "short", day: "numeric", month: "short", year: "numeric" })} at ${formatClinicTime(startsAt)}!`
         );
         router.refresh();
       } catch (err: unknown) {
@@ -589,7 +589,7 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
               </span>
             ) : (
               <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
-                <Check className="size-3.5" /> All clinical notes saved &bull; Last: {format(new Date(lastSavedAt), "h:mm a")}
+                <Check className="size-3.5" /> All clinical notes saved &bull; Last: {format(new Date(lastSavedAt), "HH:mm")}
               </span>
             )}
           </div>
@@ -872,12 +872,12 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
                               <p className="font-bold text-foreground">
                                 {apt.service_name} &bull;{" "}
                                 <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-                                  {format(new Date(apt.starts_at), "EEE, d MMM yyyy 'at' h:mm a")}
+                                  {formatClinicDate(apt.starts_at, { weekday: "short", day: "numeric", month: "short", year: "numeric" })} at {formatClinicTime(apt.starts_at)}
                                 </span>
                               </p>
                               <p className="text-[11px] text-muted-foreground">
                                 {apt.service_duration} mins &bull; Dr. {apt.practitioner_name}{" "}
-                                &bull; <span className="font-bold text-foreground font-mono">€{(Number(apt.service_price) || 0).toFixed(2)}</span>
+                                &bull; <span className="font-bold text-foreground font-mono">{formatCurrency(Number(apt.service_price) || 0)}</span>
                               </p>
                             </div>
                           </div>
@@ -1084,14 +1084,14 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
                       </div>
                     </div>
 
-                    {/* Service Fee (€) */}
+                    {/* Service Fee (£) */}
                     <div className="sm:col-span-5 space-y-1.5">
                       <Label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                        Service Fee (€)
+                        Service Fee (£)
                       </Label>
                       <div className="relative">
                         <span className="absolute left-3 top-2.5 text-xs font-bold text-muted-foreground">
-                          €
+                          £
                         </span>
                         <Input
                           type="number"
@@ -1114,7 +1114,7 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
                     <div className="flex items-center justify-between">
                       <Label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                         <Clock className="size-3 text-primary" />
-                        Available {followUpDuration}m Slots on {format(selectedDateObj, "EEE, MMM d")}
+                        Available {followUpDuration}m Slots on {format(selectedDateObj, "EEE, d MMM")}
                       </Label>
                       <span className="text-[11px] text-muted-foreground font-mono">
                         {availableSlotsForDuration.length} slots available
@@ -1193,7 +1193,7 @@ export const EncounterDraftForm = forwardRef<EncounterDraftFormRef, EncounterDra
                       <div className="flex items-center gap-1.5 font-sans text-xs">
                         <span className="text-muted-foreground font-bold">Fee:</span>
                         <span className="font-heading font-black text-foreground text-sm">
-                          €{(parseFloat(followUpFee) || 0).toFixed(2)}
+                          {formatCurrency(parseFloat(followUpFee) || 0)}
                         </span>
                       </div>
                     </div>

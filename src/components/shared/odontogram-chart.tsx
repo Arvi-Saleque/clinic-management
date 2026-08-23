@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import {
   Check,
   Clock3,
@@ -28,7 +27,7 @@ import {
   saveEncounterOdontogramAction,
   upsertOdontogramEntryAction,
 } from "@/lib/server/odontogram";
-import { cn } from "@/lib/utils";
+import { cn, formatClinicDate, formatClinicTime, formatCurrency } from "@/lib/utils";
 
 const UPPER_ROW = ["18", "17", "16", "15", "14", "13", "12", "11", "21", "22", "23", "24", "25", "26", "27", "28"];
 const LOWER_ROW = ["48", "47", "46", "45", "44", "43", "42", "41", "31", "32", "33", "34", "35", "36", "37", "38"];
@@ -489,7 +488,7 @@ export function OdontogramChart({
                           Tooth {entry.tooth_number}
                         </span>
                         <span className="text-[10px] text-muted-foreground">
-                          {format(new Date(entry.recorded_at), "h:mm a")}
+                          {formatClinicTime(entry.recorded_at)}
                         </span>
                       </div>
 
@@ -534,7 +533,7 @@ export function OdontogramChart({
               {selectedEntry?.recorded_at && (
                 <p className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
                   <Clock3 className="size-3 text-muted-foreground/70" />
-                  Last updated {format(new Date(selectedEntry.recorded_at), "dd/MM/yyyy")}
+                  Last updated {formatClinicDate(selectedEntry.recorded_at, { day: "2-digit", month: "2-digit", year: "numeric" })}
                 </p>
               )}
             </div>
@@ -637,14 +636,14 @@ export function OdontogramChart({
                 </div>
               </div>
 
-              {/* Field 4: Service fee (EUR) */}
+              {/* Field 4: Service fee (GBP) */}
               <div className="space-y-1">
                 <Label className="text-[11px] font-semibold text-muted-foreground">
-                  Service fee (€)
+                  Service fee (£)
                 </Label>
                 <div className="relative">
                   <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                    €
+                    £
                   </span>
                   <Input
                     type="number"
@@ -751,7 +750,7 @@ export function OdontogramChart({
                 <div className="flex items-center justify-between rounded-xl bg-primary-soft/40 border border-primary/20 p-3">
                   <span className="text-xs font-semibold text-text-secondary">Service Fee:</span>
                   <span className="font-heading text-sm font-extrabold text-foreground">
-                    €{Number(selectedEntry.estimated_fee).toLocaleString()}
+                    {formatCurrency(selectedEntry.estimated_fee)}
                   </span>
                 </div>
               )}

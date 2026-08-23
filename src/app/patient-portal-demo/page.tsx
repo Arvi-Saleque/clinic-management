@@ -14,7 +14,7 @@ export default function PatientPortalDemoPage() {
 
   return (
     <PortalShell
-      profile={{ full_name: "Sophie Turner", email: "sophie@example.com" }}
+      profile={{ full_name: "Emily Carter", email: "emily.carter@example.com" }}
       patientReference="PT-81F4C2A9"
       registered
     >
@@ -29,9 +29,9 @@ export default function PatientPortalDemoPage() {
             ends_at: null,
             status: "confirmed",
             serviceName: "Gentle Cleaning & Composite Restoration",
-            price: 3200,
+            price: 125,
             duration: 45,
-            practitionerName: "Dr. Amelia Rahman",
+            practitionerName: "Dr Charlotte Hughes",
             notes: "Comfort kit requested",
           },
           {
@@ -40,9 +40,9 @@ export default function PatientPortalDemoPage() {
             ends_at: null,
             status: "confirmed",
             serviceName: "Enamel Polish & Follow-Up Evaluation",
-            price: 1800,
+            price: 80,
             duration: 30,
-            practitionerName: "Dr. Amelia Rahman",
+            practitionerName: "Dr Charlotte Hughes",
             notes: "Follow-up visit",
           },
         ]}

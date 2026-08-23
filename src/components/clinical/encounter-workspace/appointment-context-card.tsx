@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import {
   CalendarDays,
   CheckCircle2,
@@ -14,6 +13,7 @@ import type {
   ClinicalEncounter,
   EncounterWorkspaceAppointment,
 } from "@/types/clinical";
+import { formatClinicDate, formatClinicTime, formatCurrency } from "@/lib/utils";
 
 interface AppointmentContextCardProps {
   appointment: EncounterWorkspaceAppointment | null;
@@ -52,11 +52,8 @@ export function AppointmentContextCard({
     );
   }
 
-  const slotDate = format(new Date(appointment.starts_at), "MMM d, yyyy");
-  const slotTime = `${format(new Date(appointment.starts_at), "h:mm a")} – ${format(
-    new Date(appointment.ends_at),
-    "h:mm a",
-  )}`;
+  const slotDate = formatClinicDate(appointment.starts_at);
+  const slotTime = `${formatClinicTime(appointment.starts_at)} – ${formatClinicTime(appointment.ends_at)}`;
 
   const isCompleted = encounter?.status === "completed";
 
@@ -154,7 +151,7 @@ export function AppointmentContextCard({
                   Standard Fee
                 </p>
                 <p className="mt-0.5 text-sm font-black text-foreground tabular-nums">
-                  €{Number(appointment.service_price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {formatCurrency(appointment.service_price)}
                 </p>
               </div>
             )}
@@ -166,7 +163,7 @@ export function AppointmentContextCard({
           const cleanNote = appointment.notes
             .replace(/\[FEE:[\d.]+\]/gi, "")
             .replace(/\[DUR:\d+\]/gi, "")
-            .replace(/Fee:\s*€\s*[\d.]+/gi, "")
+            .replace(/Fee:\s*[£€]\s*[\d.]+/gi, "")
             .replace(/Duration:\s*\d+m/gi, "")
             .trim();
           return cleanNote ? (

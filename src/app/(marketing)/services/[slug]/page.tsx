@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, Clock, Tag } from "lucide-react";
 import { Card3D } from "@/components/marketing/luxury-card3d";
 import { getPublicServiceBySlug } from "@/lib/server/marketing";
+import { formatCurrency } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
@@ -101,7 +102,7 @@ export default async function ServiceDetailPage({
                   {service.price && (
                     <span className="flex items-center gap-1.5">
                       <Tag className="w-4 h-4" />
-                      From €{Number(service.price).toLocaleString()}
+                      From {formatCurrency(service.price)}
                     </span>
                   )}
                 </div>
@@ -109,7 +110,7 @@ export default async function ServiceDetailPage({
                 <div className="flex flex-wrap gap-4">
                   <Link href={`/book?serviceId=${service.id}`} className="btn-blue">
                     <CalendarDays className="w-4 h-4 mr-2 inline" />
-                    Book an Appointment
+                    Book This Service
                   </Link>
                   <Link href="/contact" className="btn-stroke border-white/20 hover:border-white text-white">
                     Ask the Clinic
@@ -160,7 +161,7 @@ export default async function ServiceDetailPage({
             <div className="text-center mt-12">
               <Link href={`/book?serviceId=${service.id}`} className="btn">
                 <CalendarDays className="w-4 h-4 mr-2 inline" />
-                Book an Appointment
+                Schedule Your Appointment
               </Link>
             </div>
           </div>

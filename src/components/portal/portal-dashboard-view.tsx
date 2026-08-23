@@ -27,7 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+import { cn, formatClinicDate, formatClinicTime } from "@/lib/utils";
 
 export interface AppointmentSummary {
   id: string;
@@ -324,9 +324,9 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-text-secondary">
                           <span className="flex items-center gap-1.5 font-semibold text-foreground">
                             <Clock3 className="size-4 text-primary" />
-                            {format(apptDate, "h:mm a")}
+                            {formatClinicTime(apptDate)}
                             {appointment.ends_at
-                              ? ` – ${format(new Date(appointment.ends_at), "h:mm a")}`
+                              ? ` – ${formatClinicTime(appointment.ends_at)}`
                               : ""}
                           </span>
                           <span>•</span>
@@ -469,7 +469,7 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
             </DialogTitle>
             <DialogDescription>
               {activeCalendarAppt
-                ? `${activeCalendarAppt.serviceName} on ${format(new Date(activeCalendarAppt.starts_at), "EEEE, MMM d, yyyy")}`
+                ? `${activeCalendarAppt.serviceName} on ${formatClinicDate(activeCalendarAppt.starts_at, { weekday: "long", day: "numeric", month: "short", year: "numeric" })}`
                 : "Choose your preferred calendar service."}
             </DialogDescription>
           </DialogHeader>
@@ -530,7 +530,7 @@ export function PortalDashboardView(props: PortalDashboardViewProps) {
             <div className="rounded-2xl border border-border bg-surface p-4 text-sm space-y-1.5">
               <p className="font-semibold text-foreground">Clinic Care — Main Branch</p>
               <p className="text-text-secondary text-xs">Suite 402, Level 4, Healthcare Plaza</p>
-              <p className="text-text-muted text-xs">Reception: +353 1 234 5678</p>
+              <p className="text-text-muted text-xs">Reception: +44 1632 960123</p>
             </div>
             <div className="flex justify-end gap-2">
               <Button

@@ -38,23 +38,23 @@ interface DemoAccount {
 
 const DEMO_CLINICIANS: DemoAccount[] = [
   {
-    name: "Dr. Nadia Islam",
+    name: "Dr Charlotte Hughes",
     role: "Dentist",
     specialty: "Cosmetic & Restorative",
-    email: "nadia.islam.demo@cliniccare.test",
+    email: "charlotte.hughes.demo@cliniccare.test",
     badge: "Cosmetic",
     category: "doctor",
   },
   {
-    name: "Dr. Rafi Ahmed",
+    name: "Dr Oliver Bennett",
     role: "Dentist",
     specialty: "Oral Surgery & Implants",
-    email: "rafi.ahmed.demo@cliniccare.test",
+    email: "oliver.bennett.demo@cliniccare.test",
     badge: "Implants",
     category: "doctor",
   },
   {
-    name: "Dr. Emily White",
+    name: "Dr Emily White",
     role: "Dentist",
     specialty: "Specialist Orthodontist",
     email: "emily.white.demo@cliniccare.test",
@@ -62,15 +62,15 @@ const DEMO_CLINICIANS: DemoAccount[] = [
     category: "doctor",
   },
   {
-    name: "Dr. Tariq Hasan",
+    name: "Dr George Carter",
     role: "Dentist",
     specialty: "Consultant Endodontist",
-    email: "tariq.hasan.demo@cliniccare.test",
+    email: "george.carter.demo@cliniccare.test",
     badge: "Endodontics",
     category: "doctor",
   },
   {
-    name: "Dr. Sarah Jenkins",
+    name: "Dr Sarah Jenkins",
     role: "Dentist",
     specialty: "Periodontist & Gum Health",
     email: "sarah.jenkins.demo@cliniccare.test",
@@ -78,7 +78,7 @@ const DEMO_CLINICIANS: DemoAccount[] = [
     category: "doctor",
   },
   {
-    name: "Dr. Marcus Vance",
+    name: "Dr Marcus Vance",
     role: "Dentist",
     specialty: "Prosthodontics & Crowns",
     email: "marcus.vance.demo@cliniccare.test",
@@ -86,18 +86,18 @@ const DEMO_CLINICIANS: DemoAccount[] = [
     category: "doctor",
   },
   {
-    name: "Dr. Maya Lin",
+    name: "Dr Alice Morgan",
     role: "Dentist",
     specialty: "Paediatric Dentist",
-    email: "maya.lin.demo@cliniccare.test",
+    email: "alice.morgan.demo@cliniccare.test",
     badge: "Paediatric",
     category: "doctor",
   },
   {
-    name: "Dr. Farhan Chowdhury",
+    name: "Dr Henry Collins",
     role: "Dentist",
     specialty: "General & Preventative",
-    email: "farhan.chowdhury.demo@cliniccare.test",
+    email: "henry.collins.demo@cliniccare.test",
     badge: "General",
     category: "doctor",
   },
@@ -105,18 +105,18 @@ const DEMO_CLINICIANS: DemoAccount[] = [
 
 const DEMO_STAFF: DemoAccount[] = [
   {
-    name: "Dr. Karim Mansoor",
+    name: "Dr William Foster",
     role: "Owner Admin",
     specialty: "Clinic Director & Practice Management",
-    email: "admin.demo@cliniccare.test",
+    email: "william.foster.demo@cliniccare.test",
     badge: "Admin",
     category: "staff",
   },
   {
-    name: "Nusrat Jahan",
+    name: "Eleanor Brooks",
     role: "Receptionist",
     specialty: "Front Desk & Patient Scheduling",
-    email: "reception.demo@cliniccare.test",
+    email: "eleanor.brooks.demo@cliniccare.test",
     badge: "Receptionist",
     category: "staff",
   },
@@ -124,26 +124,26 @@ const DEMO_STAFF: DemoAccount[] = [
 
 const DEMO_PATIENTS: DemoAccount[] = [
   {
-    name: "Zubair Ahmed",
+    name: "Daniel Harper",
     role: "Patient",
     specialty: "Full History (Veneers, Prescriptions, Odontogram)",
-    email: "zubair.patient.demo@cliniccare.test",
+    email: "daniel.harper.demo@cliniccare.test",
     badge: "Full History",
     category: "patient",
   },
   {
-    name: "Fatima Rahman",
+    name: "Lucy Walker",
     role: "Patient",
     specialty: "Active Care (Periodontal, Chart, Invoices)",
-    email: "fatima.patient.demo@cliniccare.test",
+    email: "lucy.walker.demo@cliniccare.test",
     badge: "Active Care",
     category: "patient",
   },
   {
-    name: "Aarav Patel",
+    name: "Thomas Reed",
     role: "Patient",
     specialty: "New Patient (Orthodontic Consult)",
-    email: "aarav.patient.demo@cliniccare.test",
+    email: "thomas.reed.demo@cliniccare.test",
     badge: "New Intake",
     category: "patient",
   },
@@ -256,7 +256,7 @@ export function LoginForm() {
                 <div className="min-w-0 flex-1 flex items-center gap-2.5">
                   <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-[#0B3B36] text-[#9CB080] font-black text-[10px] border border-[#9CB080]/20">
                     {account.name
-                      .replace("Dr. ", "")
+                      .replace(/^Dr\.?\s+/, "")
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
@@ -334,7 +334,7 @@ export function LoginForm() {
               name="email"
               type="email"
               autoComplete="email"
-              placeholder="e.g. nadia.islam.demo@cliniccare.test"
+              placeholder="e.g. charlotte.hughes.demo@cliniccare.test"
               required
               className="h-11 rounded-2xl pl-10 pr-4 text-xs bg-black/40 border-white/20 text-white placeholder:text-white/40 focus-visible:bg-black/60 focus-visible:ring-2 focus-visible:ring-[#9CB080]/40 shadow-2xs font-medium"
             />

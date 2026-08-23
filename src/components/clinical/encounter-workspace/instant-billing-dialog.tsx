@@ -339,11 +339,11 @@ export function InstantBillingDialog({
                     {/* Standard Fee */}
                     <div className="space-y-1">
                       <Label className="text-[11px] font-semibold text-foreground">
-                        Standard Fee (€)
+                        Standard Fee (£)
                       </Label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                          €
+                          £
                         </span>
                         <Input
                           type="number"
@@ -385,13 +385,13 @@ export function InstantBillingDialog({
                                 : "text-muted-foreground hover:text-foreground",
                             )}
                           >
-                            €
+                            £
                           </button>
                         </div>
                       </div>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                          {discountType === "fixed" ? "€" : "%"}
+                          {discountType === "fixed" ? "£" : "%"}
                         </span>
                         <Input
                           type="number"
@@ -417,8 +417,8 @@ export function InstantBillingDialog({
                       { label: "-5%", val: 5, type: "percentage" as const },
                       { label: "-10%", val: 10, type: "percentage" as const },
                       { label: "-20%", val: 20, type: "percentage" as const },
-                      { label: "-€10", val: 10, type: "fixed" as const },
-                      { label: "-€25", val: 25, type: "fixed" as const },
+                      { label: "-£10", val: 10, type: "fixed" as const },
+                      { label: "-£25", val: 25, type: "fixed" as const },
                     ].map((chip) => {
                       const isSelected = discountValue === chip.val && discountType === chip.type;
                       return (
@@ -624,7 +624,7 @@ export function InstantBillingDialog({
                     {status === "partially_paid" && (
                       <div className="flex items-center gap-1.5">
                         <span className="text-[10px] font-bold text-muted-foreground">
-                          Deposit Paid (€):
+                          Deposit Paid (£):
                         </span>
                         <Input
                           type="number"
@@ -713,10 +713,10 @@ export function InstantBillingDialog({
                 {status === "draft"
                   ? "Save as Draft"
                   : status === "paid"
-                    ? `Confirm & Settle (€${netTotal.toFixed(2)})`
+                    ? `Confirm & Settle (£${netTotal.toFixed(2)})`
                     : status === "issued"
-                      ? `Issue Outstanding (€${netTotal.toFixed(2)})`
-                      : `Confirm Deposit (€${partialPaidAmount.toFixed(2)})`}
+                      ? `Issue Outstanding (£${netTotal.toFixed(2)})`
+                      : `Confirm Deposit (£${partialPaidAmount.toFixed(2)})`}
               </Button>
             </DialogFooter>
           </div>

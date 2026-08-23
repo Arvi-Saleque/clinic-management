@@ -11,6 +11,11 @@ interface UnsplashImage {
   alt: string;
 }
 
+export interface LocalImage {
+  src: string;
+  alt: string;
+}
+
 function unsplashUrl(id: string, width: number) {
   return `https://images.unsplash.com/photo-${id}?q=80&w=${width}&auto=format&fit=crop`;
 }
@@ -95,7 +100,7 @@ export const SERVICE_CATEGORY_IMAGES: Record<string, UnsplashImage> = {
   Cosmetic: { id: "1489278353717-f64c6ee8a4d2", alt: "Bright, cosmetic-ready smile" },
   Restorative: { id: "1643660527072-47bd5735f721", alt: "Restorative dentistry instruments" },
   Orthodontics: { id: "1667133295315-820bb6481730", alt: "Orthodontic consultation" },
-  Children: { id: "1609840113564-ab4aba4956c4", alt: "Gentle pediatric dental care" },
+  Children: { id: "1609840113564-ab4aba4956c4", alt: "Gentle paediatric dental care" },
 };
 
 export const SERVICE_IMAGE_FALLBACK: UnsplashImage = {
@@ -103,9 +108,9 @@ export const SERVICE_IMAGE_FALLBACK: UnsplashImage = {
   alt: "Dental operatory chair and overhead light",
 };
 
-export const PRACTITIONER_PHOTO_FALLBACKS: UnsplashImage[] = [
-  { id: "1758691463333-c79215e8bc3b", alt: "Portrait of a dentist in a white coat" },
-  { id: "1659353888906-adb3e0041693", alt: "Portrait of a dentist in a white coat" },
+export const PRACTITIONER_PHOTO_FALLBACKS: LocalImage[] = [
+  { src: "/marketing/practitioners/dr-charlotte-hughes.webp", alt: "Fictional UK dentist in a modern surgery" },
+  { src: "/marketing/practitioners/dr-oliver-bennett.webp", alt: "Fictional UK dentist in a modern surgery" },
 ];
 
 export const PAGE_BANNERS = {
@@ -122,9 +127,9 @@ export const BOOKING_CTA_IMAGE: UnsplashImage = {
 };
 
 export const TESTIMONIAL_AVATARS: Record<string, UnsplashImage> = {
-  "Farzana K.": { id: "1611695434369-a8f5d76ceb7b", alt: "Portrait of Farzana K." },
-  "Imran H.": { id: "1651684215020-f7a5b6610f23", alt: "Portrait of Imran H." },
-  "Sabrina R.": { id: "1562337404-3044c84ac061", alt: "Portrait of Sabrina R." },
+  "Emma C.": { id: "1494790108377-be9c29b29330", alt: "Portrait of Emma C." },
+  "Daniel H.": { id: "1500648767791-00dcc994a43e", alt: "Portrait of Daniel H." },
+  "Lucy W.": { id: "1534528741775-53994a69daeb", alt: "Portrait of Lucy W." },
 };
 
 /** Deterministic pick from a pool, stable per id (no layout shift between renders). */

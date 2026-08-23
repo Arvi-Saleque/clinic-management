@@ -36,7 +36,7 @@ export const services: MockService[] = [
     category: "General",
     description: "Comprehensive oral health assessment with digital charting and personalised advice.",
     durationMinutes: 30,
-    priceFrom: 800,
+    priceFrom: 65,
   },
   {
     slug: "teeth-cleaning",
@@ -44,7 +44,7 @@ export const services: MockService[] = [
     category: "Hygiene",
     description: "Professional scaling and polishing to keep your smile healthy between visits.",
     durationMinutes: 45,
-    priceFrom: 1200,
+    priceFrom: 95,
   },
   {
     slug: "cosmetic-veneers",
@@ -52,7 +52,7 @@ export const services: MockService[] = [
     category: "Cosmetic",
     description: "Custom porcelain veneers designed around your face, in a natural-looking finish.",
     durationMinutes: 60,
-    priceFrom: 8000,
+    priceFrom: 950,
   },
   {
     slug: "root-canal",
@@ -60,7 +60,7 @@ export const services: MockService[] = [
     category: "Restorative",
     description: "Pain-managed root canal treatment to save and restore a damaged tooth.",
     durationMinutes: 90,
-    priceFrom: 4500,
+    priceFrom: 650,
   },
   {
     slug: "orthodontics",
@@ -68,55 +68,55 @@ export const services: MockService[] = [
     category: "Orthodontics",
     description: "Assessment and treatment planning for braces or clear aligners.",
     durationMinutes: 40,
-    priceFrom: 1500,
+    priceFrom: 85,
   },
   {
     slug: "pediatric-dentistry",
-    name: "Pediatric Dentistry",
+    name: "Paediatric Dentistry",
     category: "Children",
     description: "Gentle, friendly dental care designed specifically for younger patients.",
     durationMinutes: 30,
-    priceFrom: 700,
+    priceFrom: 55,
   },
 ];
 
 export const practitioners: MockPractitioner[] = [
   {
-    slug: "dr-nadia-islam",
-    name: "Dr. Nadia Islam",
-    title: "Lead Dentist, BDS",
+    slug: "dr-charlotte-hughes",
+    name: "Dr Charlotte Hughes",
+    title: "Principal Dentist, BDS",
     specialties: ["Cosmetic Dentistry", "Veneers", "Whitening"],
     bio: "Over 12 years creating confident smiles with a gentle, detail-driven approach.",
-    initials: "NI",
+    initials: "CH",
   },
   {
-    slug: "dr-rafi-ahmed",
-    name: "Dr. Rafi Ahmed",
-    title: "General & Restorative Dentist, BDS",
+    slug: "dr-oliver-bennett",
+    name: "Dr Oliver Bennett",
+    title: "General and Restorative Dentist, BDS",
     specialties: ["Root Canal", "Fillings", "General Care"],
     bio: "Focused on comfortable, modern restorative dentistry for the whole family.",
-    initials: "RA",
+    initials: "OB",
   },
 ];
 
 export const testimonials: MockTestimonial[] = [
   {
-    name: "Farzana K.",
+    name: "Emma C.",
     quote:
       "Booking online took two minutes and the reminder texts meant I never missed a visit. The clinic itself feels calm and genuinely modern.",
     service: "Teeth Cleaning",
   },
   {
-    name: "Imran H.",
+    name: "Daniel H.",
     quote:
       "My veneers consultation was so clearly explained — costs, timeline, everything upfront. No surprises, just a great result.",
     service: "Cosmetic Veneers",
   },
   {
-    name: "Sabrina R.",
+    name: "Lucy W.",
     quote:
       "My son actually looks forward to his check-ups now. The staff are wonderful with kids.",
-    service: "Pediatric Dentistry",
+    service: "Paediatric Dentistry",
   },
 ];
 

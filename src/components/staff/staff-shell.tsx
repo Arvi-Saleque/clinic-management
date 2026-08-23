@@ -155,7 +155,7 @@ function getSectionMeta(pathname: string, role: string): SectionMeta {
     return {
       eyebrow: "Financial Overview",
       title: "Billing & Invoices",
-      badge: "EUR (€) Statements",
+      badge: "GBP (£) Statements",
     };
   }
 
