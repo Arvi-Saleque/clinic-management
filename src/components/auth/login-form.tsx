@@ -112,14 +112,6 @@ const DEMO_STAFF: DemoAccount[] = [
     badge: "Admin",
     category: "staff",
   },
-  {
-    name: "Eleanor Brooks",
-    role: "Receptionist",
-    specialty: "Front Desk & Patient Scheduling",
-    email: "eleanor.brooks.demo@cliniccare.test",
-    badge: "Receptionist",
-    category: "staff",
-  },
 ];
 
 const DEMO_PATIENTS: DemoAccount[] = [
@@ -220,7 +212,7 @@ export function LoginForm() {
             )}
           >
             <ShieldCheck className="size-3 text-[#9CB080]" />
-            <span>Staff ({DEMO_STAFF.length})</span>
+            <span>Admin ({DEMO_STAFF.length})</span>
           </button>
           <button
             type="button"
