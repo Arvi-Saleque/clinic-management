@@ -46,7 +46,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cancelOwnAppointmentAction } from "@/lib/server/booking";
-import { cn } from "@/lib/utils";
+import { cn, formatClinicDate, formatClinicTime, formatCurrency } from "@/lib/utils";
 
 export interface PrescriptionItem {
   id: string;
@@ -221,7 +221,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
               <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs text-text-secondary font-medium">
                 <span className="flex items-center gap-1.5">
                   <Clock3 className="size-3.5 text-primary" />
-                  {format(date, "h:mm a")}
+                  {formatClinicTime(date)}
                   {props.duration ? ` · ${props.duration} mins` : ""}
                 </span>
                 <span className="text-border">|</span>
@@ -247,7 +247,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
             <div className="text-left sm:text-right shrink-0 rounded-2xl border border-border/60 bg-background-subtle/60 p-3 sm:px-4 sm:py-3">
               <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">Service fee</p>
               <p className="mt-0.5 font-heading text-xl font-extrabold text-foreground">
-                €{Number(props.price).toLocaleString()}
+                {formatCurrency(props.price)}
               </p>
             </div>
           </div>
@@ -282,7 +282,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
                             </DialogTitle>
                             <DialogDescription className="text-xs text-text-secondary mt-0.5">
                               Issued by <strong className="text-foreground">{props.prescription.practitionerName || props.practitionerName}</strong> on{" "}
-                              {format(new Date(props.prescription.issued_at), "MMMM d, yyyy · h:mm a")}
+                              {formatClinicDate(props.prescription.issued_at, { day: "numeric", month: "long", year: "numeric" })} · {formatClinicTime(props.prescription.issued_at)}
                             </DialogDescription>
                           </div>
                         </div>
@@ -347,7 +347,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
                                       Prescription #{rxIndex + 1}
                                     </span>
                                     <span className="text-[11px] text-text-muted">
-                                      · Issued {format(new Date(rx.issued_at), "MMM d, yyyy 'at' h:mm a")}
+                                      · Issued {formatClinicDate(rx.issued_at)} at {formatClinicTime(rx.issued_at)}
                                     </span>
                                   </div>
 
@@ -530,7 +530,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
                                     <p className="text-text-muted">
                                       Target Review Date:{" "}
                                       <strong className="text-foreground">
-                                        {format(new Date(`${props.prescription.encounter.follow_up_date}T00:00:00`), "MMMM d, yyyy")}
+                                        {format(new Date(`${props.prescription.encounter.follow_up_date}T00:00:00`), "d MMMM yyyy")}
                                       </strong>
                                     </p>
                                   )}
@@ -666,11 +666,11 @@ export function AppointmentCard(props: AppointmentCardProps) {
                           <div className="rounded-2xl border border-border/80 bg-background-subtle p-3.5 space-y-2 text-xs">
                             <div className="flex items-center justify-between font-bold text-foreground text-sm border-b border-border/60 pb-2">
                               <span>{props.serviceName}</span>
-                              <span className="text-primary font-semibold">€{Number(props.price).toLocaleString()}</span>
+                              <span className="text-primary font-semibold">{formatCurrency(props.price)}</span>
                             </div>
                             <div className="flex items-center gap-2 text-text-muted">
                               <CalendarClock className="size-3.5 text-primary shrink-0" />
-                              <span>{format(date, "EEEE, MMMM d, yyyy")} &middot; {format(date, "h:mm a")}</span>
+                              <span>{formatClinicDate(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })} &middot; {formatClinicTime(date)}</span>
                             </div>
                             <div className="flex items-center gap-2 text-text-muted">
                               <Stethoscope className="size-3.5 text-primary shrink-0" />
@@ -738,7 +738,7 @@ export function AppointmentCard(props: AppointmentCardProps) {
                               <XCircle className="size-4 shrink-0" /> Permanent Cancellation Notice
                             </div>
                             <p className="text-text-secondary text-[11px] leading-relaxed">
-                              Your reserved chair on <strong className="text-foreground">{format(date, "EEEE, MMMM d, yyyy")} at {format(date, "h:mm a")}</strong> for <strong className="text-foreground">{props.serviceName}</strong> with <strong className="text-foreground">{props.practitionerName}</strong> will be permanently released to other patients.
+                              Your reserved chair on <strong className="text-foreground">{formatClinicDate(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })} at {formatClinicTime(date)}</strong> for <strong className="text-foreground">{props.serviceName}</strong> with <strong className="text-foreground">{props.practitionerName}</strong> will be permanently released to other patients.
                             </p>
                           </div>
 

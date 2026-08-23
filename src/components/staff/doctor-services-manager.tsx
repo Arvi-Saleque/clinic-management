@@ -542,7 +542,7 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
                       <TableCell>
                         {isOffered ? (
                           <div className="flex items-center gap-1 text-xs font-black text-foreground font-mono">
-                            <span className="text-muted-foreground text-[11px]">€</span>
+                            <span className="text-muted-foreground text-[11px]">£</span>
                             <span>{Number(price).toFixed(2)}</span>
                           </div>
                         ) : (
@@ -631,7 +631,7 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
                 </div>
               </div>
               <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-                Set your procedure duration and fee in Euro (€). Patients booking with you will see these specific parameters.
+                Set your procedure duration and fee in pounds sterling (GBP). Patients booking with you will see these specific parameters.
               </DialogDescription>
             </DialogHeader>
 
@@ -679,11 +679,11 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
               {/* Fee / Price Field */}
               <div className="space-y-2">
                 <Label className="text-xs font-extrabold uppercase tracking-wider text-foreground">
-                  Your Fee / Price (€) *
+                  Your Fee / Price (£) *
                 </Label>
                 <div className="relative">
                   <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground font-mono">
-                    €
+                    £
                   </span>
                   <Input
                     type="number"

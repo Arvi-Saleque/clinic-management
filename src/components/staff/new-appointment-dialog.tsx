@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import { Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 
@@ -27,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { searchPatients } from "@/lib/server/directory";
 import { createStaffAppointment, getAvailableSlots } from "@/lib/server/appointments";
+import { formatClinicTime } from "@/lib/utils";
 import type { SlotResult } from "@/types/availability";
 
 interface Patient {
@@ -309,7 +309,7 @@ export function NewAppointmentDialog({
                       disabled={!selectedPatient || booking}
                       onClick={() => handleBook(slot)}
                     >
-                      {format(new Date(slot.slot_start), "h:mm a")}
+                      {formatClinicTime(slot.slot_start)}
                     </Button>
                   ))}
                 </div>

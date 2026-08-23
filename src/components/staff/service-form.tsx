@@ -27,7 +27,7 @@ import {
   ServiceIcon,
   getServiceDefaultIcon,
 } from "@/components/staff/service-icons";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 const DURATION_PRESETS = [15, 30, 45, 60, 90, 120];
 
@@ -292,11 +292,11 @@ export function ServiceForm({ mode, context }: ServiceFormProps) {
                 {/* Fee */}
                 <div className="space-y-2">
                   <Label htmlFor="service-fee" className="text-xs font-bold text-foreground">
-                    Fee / Price (€) *
+                    Fee / Price (£) *
                   </Label>
                   <div className="relative pt-6">
                     <span className="pointer-events-none absolute left-3.5 top-[38px] text-xs font-bold text-muted-foreground font-mono">
-                      €
+                      £
                     </span>
                     <Input
                       id="service-fee"
@@ -368,7 +368,7 @@ export function ServiceForm({ mode, context }: ServiceFormProps) {
                     {duration} mins
                   </span>
                   <span className="font-mono font-black text-foreground">
-                    €{parseFloat(fee || "0").toFixed(2)}
+                    {formatCurrency(parseFloat(fee || "0"))}
                   </span>
                 </div>
               </div>

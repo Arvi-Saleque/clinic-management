@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -27,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { EncounterWorkspaceContext } from "@/types/clinical";
+import { formatClinicDate, formatClinicTime } from "@/lib/utils";
 
 interface EncounterHeaderProps {
   context: EncounterWorkspaceContext;
@@ -58,15 +58,15 @@ export function EncounterHeader({
   };
 
   const startedFormatted = encounter.started_at
-    ? format(new Date(encounter.started_at), "MMM d, yyyy")
+    ? formatClinicDate(encounter.started_at)
     : appointment?.starts_at
-      ? format(new Date(appointment.starts_at), "MMM d, yyyy")
+      ? formatClinicDate(appointment.starts_at)
       : null;
 
   const appointmentTime = appointment?.starts_at
-    ? format(new Date(appointment.starts_at), "h:mm a")
+    ? formatClinicTime(appointment.starts_at)
     : encounter.started_at
-      ? format(new Date(encounter.started_at), "h:mm a")
+      ? formatClinicTime(encounter.started_at)
       : null;
 
   const serviceName = appointment?.service_name ?? "General Dental Consultation";

@@ -42,6 +42,7 @@ import type {
   ReceptionistDashboardAppointment,
   ReceptionistDashboardContext,
 } from "@/lib/server/dashboard";
+import { formatClinicTime } from "@/lib/utils";
 
 interface ReceptionistDashboardProps {
   context: ReceptionistDashboardContext;
@@ -162,7 +163,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
       } else if (diffMins <= 0 && diffMins >= -30) {
         nextRelativeTime = "Due now";
       } else {
-        nextRelativeTime = format(apptDate, "h:mm a");
+        nextRelativeTime = formatClinicTime(apptDate);
       }
     }
   }
@@ -273,7 +274,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                     {/* Time & Duration */}
                     <div className="text-left sm:text-right">
                       <div className="font-mono text-xl sm:text-2xl font-black text-foreground">
-                        {format(new Date(nextAppointment.starts_at), "h:mm a")}
+                        {formatClinicTime(nextAppointment.starts_at)}
                       </div>
                       <div className="text-xs text-muted-foreground font-semibold mt-0.5">
                         {nextAppointment.services?.duration_minutes || 30} min visit
@@ -462,7 +463,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                       className="hover:bg-muted/15 transition-colors h-[62px]"
                     >
                       <td className="px-5 font-mono font-bold text-foreground">
-                        {format(new Date(appt.starts_at), "h:mm a")}
+                        {formatClinicTime(appt.starts_at)}
                       </td>
                       <td>
                         {appt.patients ? (
@@ -593,7 +594,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                       className="hover:bg-muted/15 transition-colors h-[62px]"
                     >
                       <td className="px-5 font-mono font-bold text-foreground">
-                        {format(new Date(appt.starts_at), "h:mm a")}
+                        {formatClinicTime(appt.starts_at)}
                       </td>
                       <td>
                         {appt.patients ? (
@@ -760,7 +761,7 @@ export function ReceptionistDashboard({ context }: ReceptionistDashboardProps) {
                   return (
                     <tr key={appt.id} className="h-[52px] text-muted-foreground">
                       <td className="px-5 font-mono text-foreground font-medium">
-                        {format(new Date(appt.starts_at), "h:mm a")}
+                        {formatClinicTime(appt.starts_at)}
                       </td>
                       <td>
                         {appt.patients ? (

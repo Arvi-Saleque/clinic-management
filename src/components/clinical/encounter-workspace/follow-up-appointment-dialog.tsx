@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createStaffAppointment, getAvailableSlots } from "@/lib/server/appointments";
+import { formatClinicTime } from "@/lib/utils";
 import type { SlotResult } from "@/types/availability";
 import type { EncounterFollowUpSchedulingContext } from "@/types/clinical";
 
@@ -279,7 +280,7 @@ export function FollowUpAppointmentDialog({
               ) : slots.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-border/80 bg-muted/20 p-4 text-center">
                   <p className="text-xs text-muted-foreground">
-                    No available booking slots on {format(new Date(`${date}T00:00:00`), "MMM d, yyyy")}.
+                    No available booking slots on {format(new Date(`${date}T00:00:00`), "d MMM yyyy")}.
                   </p>
                   <p className="mt-1 text-[11px] text-muted-foreground/80">
                     Try selecting an adjacent date or different service duration.
@@ -301,7 +302,7 @@ export function FollowUpAppointmentDialog({
                         {isSlotBooking ? (
                           <Loader2 className="size-3.5 animate-spin" />
                         ) : (
-                          format(new Date(slot.slot_start), "h:mm a")
+                          formatClinicTime(slot.slot_start)
                         )}
                       </Button>
                     );

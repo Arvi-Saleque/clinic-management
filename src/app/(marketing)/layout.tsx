@@ -37,7 +37,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
     >
       <div className="marketing-luxury-theme flex min-h-screen flex-col bg-[#273338] text-[#f1f5f9]">
         <LuxuryHeader
-          phone={branch?.phone ?? "+44 (020) 7946 0000"}
+          phone={branch?.phone ?? "+44 1632 960123"}
           account={account}
           treatments={treatments}
         />

@@ -1209,8 +1209,6 @@ graph TD
 - `npm run build:local` -> **PASSED**; all 42 application routes generated successfully.
 - Browser interaction verification remains for the user's local environment with real clinic data.
 
----
-
 ## 47. Booking Modal Viewport Ownership, Navbar Handoff & Scroll Isolation
 
 ### A. Navbar Handoff
@@ -1238,24 +1236,23 @@ graph TD
 
 ---
 
-## 48. Global Booking Button Label Standardization ("Book an Appointment")
+## 48. UK Localisation Consistency, Demo Identity & Clinic-Time Hardening
 
-### A. Architectural & UI Changes
-1. **Universal Call-to-Action Text Alignment**:
-   - Standardized all booking button labels and navigation links across the entire application and marketing site to **"Book an Appointment"**, replacing fragmented variations ("Book Online", "Book a Consultation", "Book Consultation Online", "Book Appointment Online", "Book Now", "Book Visit", "Book This Service", etc.).
-2. **Updated Components & Routes**:
-   - **Navigation & Headers**: [`src/components/marketing/luxury-header.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/luxury-header.tsx), [`src/components/marketing/site-header.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/site-header.tsx), [`src/components/marketing/mobile-nav.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/mobile-nav.tsx), [`src/components/marketing/mobile-sticky-booking-bar.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/mobile-sticky-booking-bar.tsx).
-   - **Hero & Interactive Sections**: [`src/components/marketing/luxury-hero.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/luxury-hero.tsx), [`src/components/marketing/luxury-why-choose.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/luxury-why-choose.tsx), [`src/components/marketing/luxury-smile-simulator.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/luxury-smile-simulator.tsx), [`src/components/marketing/luxury-faq.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/luxury-faq.tsx), [`src/components/marketing/booking-cta-band.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/booking-cta-band.tsx), [`src/components/marketing/practitioners-section.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/practitioners-section.tsx).
-   - **Public Subpages**:
-     - About: [`src/app/(marketing)/about/page.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/about/page.tsx)
-     - Practitioners: [`src/app/(marketing)/practitioners/page.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/practitioners/page.tsx) & [`src/app/(marketing)/practitioners/[practitionerId]/page.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/practitioners/[practitionerId]/page.tsx)
-     - Services & Treatments: [`src/app/(marketing)/services/page.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/services/page.tsx) & [`src/app/(marketing)/services/[slug]/page.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/services/[slug]/page.tsx)
-     - Results & Gallery: [`src/app/(marketing)/results/page.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/results/page.tsx)
-     - Contact & Location: [`src/app/(marketing)/contact/page.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/contact/page.tsx)
-     - Locations & Blog: [`src/app/(marketing)/locations/page.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/locations/page.tsx) & [`src/app/(marketing)/blog/[slug]/page.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/blog/[slug]/page.tsx)
-     - Home & Booking Access: [`src/app/(marketing)/page.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/page.tsx) & [`src/app/(marketing)/book/page.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/app/(marketing)/book/page.tsx)
-   - **Footers**: [`src/components/marketing/luxury-footer.tsx`](file:///d:/work/Repositories/Health-Clinic-Management/website-code-premium/dental-clinic-workspace/src/components/marketing/luxury-footer.tsx).
+### A. Diagnosis
+The source mixed Bangladesh, Ireland and Euro-era demo content with partially UK-localised screens. Confirmed issues included `Asia/Dhaka` and `BDT` database defaults, Dhaka/+880 seed content, Euro symbols, browser-local appointment rendering, Irish reception details, non-UK placeholders, Asian demo practitioner/patient names and non-deterministic remote practitioner portraits.
 
-### B. Quality Verification
-- **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+### B. Implementation
+1. Standardised visible currency on GBP using the shared `formatCurrency` helper with `en-GB`, `GBP` and two decimal places.
+2. Added central `Europe/London` date/time helpers, UK 24-hour rendering and clinic-day UTC bounds so a user in another timezone cannot shift the dashboard's appointment day or slot time.
+3. Changed database defaults to `Europe/London` and `GBP`; added migration `0041_uk_localisation.sql` to update existing demo branch, deposit currency, known demo profiles, practitioner portraits, service prices and legacy Euro fee notes.
+4. Rebuilt `supabase/seed.sql` with a Manchester branch, UK-style hours, +44 demo phone, UK address, relational service categories and realistic GBP dental fees.
+5. Replaced visible Asian demo clinician/staff/patient/testimonial identities with fictional UK-facing names while preserving existing Supabase demo credentials through server-side email aliases.
+6. Added fictional project-local UK practitioner portraits and a UK dental-team image; practitioner cards/profile pages now use deterministic local fallbacks.
+7. Replaced Irish/non-UK phone and address placeholders, updated postcode wording and removed fabricated CQC/GDC, VAT and bank-account claims from printable demo invoices.
 
+### C. Verification
+- `npm run typecheck` -> **PASSED (0 errors)**
+- `npm run build:local` -> **PASSED**; all 42 routes generated successfully.
+- Codebase residual scan -> no visible Bangladesh geography, BDT/Taka, +880, Asia/Dhaka, Euro currency, Irish phone number or Asian demo display names remain. Legacy Euro parsing is intentionally retained so historical notes remain readable.
+- Repository-wide ESLint still reports pre-existing React effect/static-component and explicit-any errors outside this localisation change; no production-build failure was introduced.
+- Supabase migration `0041_uk_localisation.sql` requires manual application before existing hosted demo data reflects the new UK identities/details.

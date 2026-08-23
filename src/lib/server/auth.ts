@@ -40,6 +40,26 @@ function getAuthCallbackUrl(origin: string, next: string) {
   return callbackUrl.toString();
 }
 
+// Public demo aliases keep the UK-facing account list coherent while preserving
+// the existing Supabase demo users and their credentials.
+const DEMO_LOGIN_ALIASES: Record<string, string> = {
+  "charlotte.hughes.demo@cliniccare.test": "nadia.islam.demo@cliniccare.test",
+  "oliver.bennett.demo@cliniccare.test": "rafi.ahmed.demo@cliniccare.test",
+  "george.carter.demo@cliniccare.test": "tariq.hasan.demo@cliniccare.test",
+  "alice.morgan.demo@cliniccare.test": "maya.lin.demo@cliniccare.test",
+  "henry.collins.demo@cliniccare.test": "farhan.chowdhury.demo@cliniccare.test",
+  "william.foster.demo@cliniccare.test": "admin.demo@cliniccare.test",
+  "eleanor.brooks.demo@cliniccare.test": "reception.demo@cliniccare.test",
+  "daniel.harper.demo@cliniccare.test": "zubair.patient.demo@cliniccare.test",
+  "lucy.walker.demo@cliniccare.test": "fatima.patient.demo@cliniccare.test",
+  "thomas.reed.demo@cliniccare.test": "aarav.patient.demo@cliniccare.test",
+};
+
+function resolveDemoLoginEmail(email: string) {
+  const normalised = email.trim().toLowerCase();
+  return DEMO_LOGIN_ALIASES[normalised] ?? normalised;
+}
+
 export async function signInAction(
   _prev: AuthActionState,
   formData: FormData,
@@ -51,7 +71,10 @@ export async function signInAction(
   if (!parsed.success) return { error: firstIssueMessage(parsed.error) };
 
   const supabase = await createClient();
-  const { error, data } = await supabase.auth.signInWithPassword(parsed.data);
+  const { error, data } = await supabase.auth.signInWithPassword({
+    ...parsed.data,
+    email: resolveDemoLoginEmail(parsed.data.email),
+  });
   if (error) return { error: error.message };
 
   const { data: profile } = await supabase
@@ -151,7 +174,10 @@ export async function signInForBookingAction(
   if (!parsed.success) return { error: firstIssueMessage(parsed.error) };
 
   const supabase = await createClient();
-  const { error, data } = await supabase.auth.signInWithPassword(parsed.data);
+  const { error, data } = await supabase.auth.signInWithPassword({
+    ...parsed.data,
+    email: resolveDemoLoginEmail(parsed.data.email),
+  });
   if (error) return { error: error.message };
 
   const { data: profile } = await supabase
@@ -175,7 +201,7 @@ export async function signInForBookingAction(
     error: null,
     authenticated: true,
     registered: Boolean(patient),
-    email: data.user.email ?? parsed.data.email,
+    email: parsed.data.email,
     fullName: profile.full_name,
   };
 }

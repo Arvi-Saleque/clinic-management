@@ -1,10 +1,16 @@
 "use server";
 
-import { addDays, eachDayOfInterval, format, startOfDay, subDays } from "date-fns";
+import { addDays, eachDayOfInterval, format, subDays } from "date-fns";
 
 import { getProfile } from "@/lib/auth/session";
 import { requireStaff } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
+import {
+  formatClinicDate,
+  formatClinicDateKey,
+  getClinicDayBounds,
+  getClinicHour,
+} from "@/lib/utils";
 
 export interface ReceptionistDashboardAppointment {
   id: string;
@@ -71,8 +77,7 @@ export interface ReceptionistDashboardContext {
 export async function getDashboardStats() {
   const supabase = await createClient();
   const profile = await getProfile();
-  const todayStart = startOfDay(new Date());
-  const tomorrowStart = addDays(todayStart, 1);
+  const { start: todayStart, end: tomorrowStart } = getClinicDayBounds();
   const rangeStart = subDays(todayStart, 6);
   const rangeEnd = addDays(todayStart, 7);
 
@@ -188,7 +193,7 @@ export async function getDashboardStats() {
     date: format(day, "yyyy-MM-dd"),
     count: (rangeAppointments ?? []).filter(
       (a) =>
-        format(new Date(a.starts_at), "yyyy-MM-dd") === format(day, "yyyy-MM-dd") &&
+        formatClinicDateKey(a.starts_at) === formatClinicDateKey(day) &&
         a.status !== "cancelled",
     ).length,
   }));
@@ -229,11 +234,10 @@ export async function getReceptionistDashboardContext(
   const supabase = await createClient();
 
   const now = new Date();
-  const todayStart = startOfDay(now);
-  const tomorrowStart = addDays(todayStart, 1);
+  const { start: todayStart, end: tomorrowStart } = getClinicDayBounds(now);
 
   // Dynamic greeting based on current local hour
-  const currentHour = now.getHours();
+  const currentHour = getClinicHour(now);
   const greeting =
     currentHour < 12
       ? "Good morning"
@@ -333,7 +337,7 @@ export async function getReceptionistDashboardContext(
       role: profile.role,
       organization_id: profile.organization_id,
     },
-    todayDateFormatted: format(now, "EEEE, d MMMM yyyy"),
+    todayDateFormatted: formatClinicDate(now, { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
     greeting,
     practitioners,
     services,

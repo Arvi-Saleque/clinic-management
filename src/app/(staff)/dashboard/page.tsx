@@ -31,7 +31,7 @@ import {
   getDashboardStats,
   getReceptionistDashboardContext,
 } from "@/lib/server/dashboard";
-import { cn } from "@/lib/utils";
+import { cn, formatClinicDate, formatClinicTime } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Dashboard | Dental Workspace" };
 
@@ -123,7 +123,7 @@ export default async function StaffDashboardPage({
 
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground font-mono">
                   <CalendarDays className="size-3.5 text-primary/70" />
-                  <span>{format(new Date(nextAppointment.starts_at), "EEEE, d MMMM yyyy")}</span>
+                  <span>{formatClinicDate(nextAppointment.starts_at, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
                 </div>
               </div>
 
@@ -175,7 +175,7 @@ export default async function StaffDashboardPage({
                     <span>Time</span>
                   </div>
                   <p className="font-heading text-lg font-black text-foreground tracking-tight">
-                    {format(new Date(nextAppointment.starts_at), "h:mm a")}
+                    {formatClinicTime(nextAppointment.starts_at)}
                   </p>
                   <p className="text-[11px] font-bold text-primary truncate">
                     {nextRelativeTime}
@@ -455,7 +455,7 @@ export default async function StaffDashboardPage({
                   >
                     {/* Time */}
                     <span className="font-mono text-xs font-bold text-muted-foreground w-18 shrink-0">
-                      {format(new Date(appt.starts_at), "hh:mm a")}
+                      {formatClinicTime(appt.starts_at)}
                     </span>
 
                     {/* Small Avatar */}

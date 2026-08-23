@@ -54,7 +54,7 @@ create table booking_deposits (
   id uuid primary key default gen_random_uuid(),
   appointment_id uuid not null references appointments(id) on delete cascade,
   amount numeric(10, 2) not null default 0,
-  currency text not null default 'BDT',
+  currency text not null default 'GBP',
   status text not null default 'not_required' check (
     status in ('not_required', 'pending', 'paid', 'refunded', 'waived')
   ),

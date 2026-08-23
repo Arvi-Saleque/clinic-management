@@ -159,11 +159,11 @@ export function PaymentSuccessDialog({
               {data.isFullSettlement || data.balanceRemaining <= 0.01 ? (
                 <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-400/60 px-2.5 py-0.5 text-xs font-black">
                   <Check className="size-3 stroke-[3]" />
-                  Paid in Full (€0.00 Due)
+                  Paid in Full (£0.00 Due)
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-400/60 px-2.5 py-0.5 text-xs font-black font-mono">
-                  Remaining: €{data.balanceRemaining.toFixed(2)}
+                  Remaining: {formatCurrency(data.balanceRemaining)}
                 </span>
               )}
             </div>

@@ -30,9 +30,9 @@ export interface PrintInvoicePayload {
 }
 
 function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("en-IE", {
+  return new Intl.NumberFormat("en-GB", {
     style: "currency",
-    currency: "EUR",
+    currency: "GBP",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
@@ -127,22 +127,21 @@ function generateUKInvoiceHtml(data: PrintInvoicePayload): string {
   <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 18px; margin-bottom: 20px;">
     <div>
       <h1 style="font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; margin: 0; color: #0f172a;">
-        Elysian Dental Care &amp; Implant Clinic
+        Clinic Care Dental
       </h1>
       <p style="font-size: 11px; font-weight: 700; color: #0B3B36; margin: 2px 0 0 0;">
-        Private &amp; Specialist Dental Practice &bull; CQC Registered Provider
+        Private Dental Practice
       </p>
       <p style="font-size: 10px; color: #64748b; margin: 6px 0 0 0; line-height: 1.45;">
-        48 Harley Street, Marylebone, London W1G 9PJ, United Kingdom<br />
-        Tel: +44 (0) 20 7946 0912 &bull; Email: accounts@elysiandental.co.uk<br />
-        Web: www.elysiandental.co.uk &bull; CQC Provider Reg: 1-104928371
+        42 King Street, Manchester, M2 6BA, United Kingdom<br />
+        Tel: +44 1632 960123 &bull; Email: accounts@cliniccare.example
       </p>
     </div>
 
     <div style="text-align: right;">
       <div style="display: inline-block; border: 2px solid #0f172a; padding: 4px 12px; border-radius: 6px; margin-bottom: 6px;">
         <span style="font-size: 11px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; color: #0f172a;">
-          TAX INVOICE &bull; STATEMENT
+          INVOICE &bull; STATEMENT
         </span>
       </div>
       <div style="font-family: monospace; font-size: 14px; font-weight: 800; color: #0f172a;">${data.invoiceNumber}</div>
@@ -213,7 +212,7 @@ function generateUKInvoiceHtml(data: PrintInvoicePayload): string {
       }
       <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #64748b; font-size: 10px;">
         <span>VAT (Exempt - Healthcare):</span>
-        <span style="font-family: monospace;">€0.00</span>
+        <span style="font-family: monospace;">£0.00</span>
       </div>
       <div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px solid #cbd5e1; font-weight: 800; font-size: 13px; color: #0f172a;">
         <span>Total Amount Due:</span>
@@ -232,19 +231,18 @@ function generateUKInvoiceHtml(data: PrintInvoicePayload): string {
 
   ${paymentsSection}
 
-  <!-- UK Regulatory Terms & BACS Remittance Advice -->
+  <!-- Payment and patient-record information -->
   <div style="border-top: 2px solid #cbd5e1; padding-top: 14px; margin-top: 28px; font-size: 10px; color: #64748b; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; line-height: 1.45;">
     <div>
-      <p style="font-weight: 800; text-transform: uppercase; color: #334155; margin: 0 0 4px 0;">UK BACS Direct Bank Remittance:</p>
-      <p style="margin: 0;">Bank: <strong>Barclays Bank UK PLC</strong></p>
-      <p style="margin: 0;">Sort Code: <strong>20-04-15</strong> &bull; Account No: <strong>83920194</strong></p>
-      <p style="margin: 0;">Payment Ref: <strong>${data.invoiceNumber}</strong></p>
+      <p style="font-weight: 800; text-transform: uppercase; color: #334155; margin: 0 0 4px 0;">Payment information:</p>
+      <p style="margin: 0;">Use <strong>${data.invoiceNumber}</strong> as the payment reference.</p>
+      <p style="margin: 0;">Contact reception for the practice&apos;s secure payment instructions.</p>
     </div>
     <div>
-      <p style="font-weight: 800; text-transform: uppercase; color: #334155; margin: 0 0 4px 0;">Clinical Governance &amp; Compliance:</p>
+      <p style="font-weight: 800; text-transform: uppercase; color: #334155; margin: 0 0 4px 0;">Patient record:</p>
       <p style="margin: 0;">
-        Medical and dental treatments are exempt from UK Value Added Tax under HMRC Notice 701/57.<br />
-        All dental surgeons are registered with the General Dental Council (GDC).
+        This statement contains personal information about dental care and should be stored securely.<br />
+        Please contact the practice if any treatment, payment or patient detail is incorrect.
       </p>
     </div>
   </div>

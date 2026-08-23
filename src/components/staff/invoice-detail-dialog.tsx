@@ -37,7 +37,7 @@ import {
   recordDirectPaymentAction,
   updateDraftInvoiceAction,
 } from "@/lib/server/invoices";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatClinicDate, formatCurrency } from "@/lib/utils";
 import {
   PaymentSuccessDialog,
   PaymentSuccessData,
@@ -267,7 +267,7 @@ export function InvoiceDetailDialog({
         lineTotal: Number(i.line_total),
       })),
       payments: payments.map((p) => ({
-        date: format(new Date(p.paid_at), "dd MMMM yyyy"),
+        date: formatClinicDate(p.paid_at, { day: "2-digit", month: "long", year: "numeric" }),
         method: p.method,
         amount: Number(p.amount),
       })),
@@ -358,13 +358,13 @@ export function InvoiceDetailDialog({
   async function handleRecordInstallment() {
     if (!invoice) return;
     if (installmentAmount <= 0) {
-      toast.error("Please enter a valid payment amount greater than €0.", {
+      toast.error("Please enter a valid payment amount greater than £0.", {
         position: "top-center",
       });
       return;
     }
     if (installmentAmount > balance + 0.01) {
-      toast.error(`Payment cannot exceed the remaining balance of €${balance.toFixed(2)}.`, {
+      toast.error(`Payment cannot exceed the remaining balance of £${balance.toFixed(2)}.`, {
         position: "top-center",
       });
       return;
@@ -544,7 +544,7 @@ export function InvoiceDetailDialog({
                             </div>
                             <div className="relative w-24">
                               <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                                €
+                                £
                               </span>
                               <Input
                                 type="number"
@@ -605,12 +605,12 @@ export function InvoiceDetailDialog({
                                   : "text-muted-foreground",
                               )}
                             >
-                              €
+                              £
                             </button>
                           </div>
                           <div className="relative w-28">
                             <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                              {discountType === "fixed" ? "€" : "%"}
+                              {discountType === "fixed" ? "£" : "%"}
                             </span>
                             <Input
                               type="number"
@@ -628,7 +628,7 @@ export function InvoiceDetailDialog({
                             Net Payable
                           </span>
                           <span className="text-base font-black font-mono text-[#0B3B36] dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300/70 px-3 py-0.5 rounded-xl inline-block mt-0.5 shadow-2xs">
-                            €{draftNetTotal.toFixed(2)}
+                            {formatCurrency(draftNetTotal)}
                           </span>
                         </div>
                       </div>
@@ -642,7 +642,7 @@ export function InvoiceDetailDialog({
                           { label: "-5%", val: 5, type: "percentage" as const },
                           { label: "-10%", val: 10, type: "percentage" as const },
                           { label: "-20%", val: 20, type: "percentage" as const },
-                          { label: "-€10", val: 10, type: "fixed" as const },
+                          { label: "-£10", val: 10, type: "fixed" as const },
                         ].map((chip) => (
                           <button
                             key={chip.label}
@@ -779,14 +779,14 @@ export function InvoiceDetailDialog({
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <span className="size-6 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs">
-                              €
+                              £
                             </span>
                             <span className="text-xs font-black text-foreground">
                               Pay Installment / Settle Balance
                             </span>
                           </div>
                           <span className="rounded-lg bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-300/70 px-2 py-0.5 text-[10px] font-black font-mono">
-                            €{balance.toFixed(2)} Outstanding
+                            {formatCurrency(balance)} Outstanding
                           </span>
                         </div>
 
@@ -794,11 +794,11 @@ export function InvoiceDetailDialog({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                           <div className="space-y-1">
                             <Label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                              Amount Paying Now (€)
+                              Amount Paying Now (£)
                             </Label>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                                €
+                                £
                               </span>
                               <Input
                                 type="number"
@@ -828,7 +828,7 @@ export function InvoiceDetailDialog({
                                 onClick={() => setInstallmentAmount(balance)}
                                 className="rounded-lg px-2.5 py-1.5 text-[10px] font-black bg-[#0B3B36] text-white hover:bg-[#0B3B36]/90 transition-colors cursor-pointer shadow-2xs"
                               >
-                                Full (€{balance.toFixed(0)})
+                                Full ({formatCurrency(balance)})
                               </button>
                               {balance >= 50 && (
                                 <button
@@ -836,7 +836,7 @@ export function InvoiceDetailDialog({
                                   onClick={() => setInstallmentAmount(Math.round(balance / 2))}
                                   className="rounded-lg px-2.5 py-1.5 text-[10px] font-bold bg-card border border-border/80 hover:bg-muted/40 transition-colors cursor-pointer"
                                 >
-                                  50% (€{Math.round(balance / 2)})
+                                  50% (£{Math.round(balance / 2)})
                                 </button>
                               )}
                               {balance >= 100 && (
@@ -845,7 +845,7 @@ export function InvoiceDetailDialog({
                                   onClick={() => setInstallmentAmount(100)}
                                   className="rounded-lg px-2.5 py-1.5 text-[10px] font-bold bg-card border border-border/80 hover:bg-muted/40 transition-colors cursor-pointer"
                                 >
-                                  €100
+                                  £100
                                 </button>
                               )}
                             </div>
@@ -896,7 +896,7 @@ export function InvoiceDetailDialog({
                               <span>
                                 Remaining:{" "}
                                 <strong className="font-mono text-foreground">
-                                  €{Math.max(0, balance - installmentAmount).toFixed(2)}
+                                  {formatCurrency(Math.max(0, balance - installmentAmount))}
                                 </strong>
                               </span>
                             )}
@@ -913,7 +913,7 @@ export function InvoiceDetailDialog({
                             ) : (
                               <Check className="size-3.5 mr-1.5 stroke-[2.5]" />
                             )}
-                            Record €{installmentAmount.toFixed(2)} Payment
+                            Record {formatCurrency(installmentAmount)} Payment
                           </Button>
                         </div>
                       </div>
@@ -930,7 +930,7 @@ export function InvoiceDetailDialog({
                           <span className="text-[10px] font-bold text-muted-foreground">
                             Total Received:{" "}
                             <strong className="font-mono text-emerald-700 dark:text-emerald-400">
-                              €{totalPaid.toFixed(2)}
+                              {formatCurrency(totalPaid)}
                             </strong>
                           </span>
                         </div>
@@ -948,7 +948,7 @@ export function InvoiceDetailDialog({
                                 className="grid grid-cols-[140px_1fr_110px] gap-2 px-4 py-2.5 items-center text-xs"
                               >
                                 <span className="text-muted-foreground font-mono text-[11px]">
-                                  {format(new Date(p.paid_at), "dd MMM yyyy")}
+                                  {formatClinicDate(p.paid_at, { day: "2-digit", month: "short", year: "numeric" })}
                                 </span>
                                 <span className="font-semibold text-foreground">
                                   {formatPaymentMethodLabel(p.method)}
@@ -1003,10 +1003,10 @@ export function InvoiceDetailDialog({
                       {settlementStatus === "draft"
                         ? "Save Draft"
                         : settlementStatus === "paid"
-                          ? `Settle & Pay in Full (€${draftNetTotal.toFixed(2)})`
+                          ? `Settle & Pay in Full (£${draftNetTotal.toFixed(2)})`
                           : settlementStatus === "issued"
-                            ? `Issue to Outstanding (€${draftNetTotal.toFixed(2)})`
-                            : `Record Deposit & Issue (€${partialAmount.toFixed(2)})`}
+                            ? `Issue to Outstanding (£${draftNetTotal.toFixed(2)})`
+                            : `Record Deposit & Issue (£${partialAmount.toFixed(2)})`}
                     </Button>
                   )}
                 </div>

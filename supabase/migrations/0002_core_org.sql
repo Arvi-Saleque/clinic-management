@@ -17,7 +17,7 @@ create table branches (
   address text,
   phone text,
   email text,
-  timezone text not null default 'Asia/Dhaka',
+  timezone text not null default 'Europe/London',
   is_primary boolean not null default true,
   created_at timestamptz not null default now()
 );

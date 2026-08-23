@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { useTablePagination } from "@/lib/hooks/use-table-pagination";
-import { cn } from "@/lib/utils";
+import { cn, formatClinicDate, formatClinicTime } from "@/lib/utils";
 
 const STATUS_STYLE: Record<string, string> = {
   completed:
@@ -321,7 +321,7 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
                             <div className="space-y-1">
                               <div className="flex items-center gap-1.5">
                                 <span className="font-bold text-foreground">
-                                  {format(new Date(latest.starts_at), "dd MMM yyyy")}
+                                  {formatClinicDate(latest.starts_at)}
                                 </span>
                                 <Badge
                                   variant="outline"
@@ -378,7 +378,7 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
                               </span>
                               <div className="min-w-0">
                                 <p className="text-xs font-extrabold text-blue-950 dark:text-blue-200 truncate">
-                                  {format(new Date(followUp.starts_at), "EEE, d MMM · h:mm a")}
+                                  {formatClinicDate(followUp.starts_at, { weekday: "short", day: "numeric", month: "short" })} · {formatClinicTime(followUp.starts_at)}
                                 </p>
                                 <p className="text-[10px] text-blue-800/80 dark:text-blue-300/80 font-semibold truncate">
                                   {followUp.services?.name ?? "Scheduled Visit"}
@@ -465,7 +465,7 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
                         </span>
                         <p className="font-semibold text-foreground truncate mt-0.5">
                           {latest ? (
-                            <span>{format(new Date(latest.starts_at), "dd MMM yyyy")}</span>
+                            <span>{formatClinicDate(latest.starts_at)}</span>
                           ) : (
                             <span className="text-muted-foreground">No visit</span>
                           )}
@@ -479,7 +479,7 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
                         <CalendarDays className="size-4 text-blue-700 dark:text-blue-300 shrink-0" />
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-extrabold text-blue-950 dark:text-blue-200 truncate">
-                            {format(new Date(followUp.starts_at), "EEE, d MMM · h:mm a")}
+                            {formatClinicDate(followUp.starts_at, { weekday: "short", day: "numeric", month: "short" })} · {formatClinicTime(followUp.starts_at)}
                           </p>
                           <p className="text-[10px] text-blue-800/80 dark:text-blue-300 font-semibold truncate">
                             {followUp.services?.name ?? "Visit"}
@@ -568,7 +568,7 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
                           {latest ? (
                             <div>
                               <p className="text-xs font-bold text-foreground">
-                                {format(new Date(latest.starts_at), "dd MMM yyyy")} ·{" "}
+                                {formatClinicDate(latest.starts_at)} ·{" "}
                                 <span className="text-primary font-extrabold">
                                   {latest.services?.name ?? "Visit"}
                                 </span>
@@ -616,7 +616,7 @@ export function PatientTableView({ patients, isReceptionist }: PatientTableViewP
                               </span>
                               <div>
                                 <p className="text-xs font-bold text-foreground">
-                                  {format(new Date(followUp.starts_at), "dd MMM, HH:mm")}
+                                  {formatClinicDate(followUp.starts_at, { day: "2-digit", month: "short" })}, {formatClinicTime(followUp.starts_at)}
                                 </p>
                                 <p className="text-[11px] text-muted-foreground font-medium">
                                   {followUp.services?.name ?? "Follow-up visit"}

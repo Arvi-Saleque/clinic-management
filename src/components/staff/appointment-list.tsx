@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { format } from "date-fns";
 import { Clock, MoreVertical, Phone } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,7 +16,7 @@ import { ConsultationActionButton } from "@/components/clinical/consultation-act
 import { updateAppointmentStatus, type AppointmentStatus } from "@/lib/server/appointments";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { useTablePagination } from "@/lib/hooks/use-table-pagination";
-import { cn } from "@/lib/utils";
+import { cn, formatClinicTime } from "@/lib/utils";
 
 interface Appointment {
   id: string;
@@ -88,7 +87,7 @@ export function AppointmentList({ appointments }: { appointments: Appointment[] 
             <div className="flex items-center gap-4">
               <div className="flex w-20 shrink-0 items-center gap-1 text-xs font-semibold tabular-nums">
                 <Clock className="size-3.5 text-muted-foreground" />
-                {format(new Date(appt.starts_at), "h:mm a")}
+                {formatClinicTime(appt.starts_at)}
               </div>
               <div>
                 <p className="font-medium">

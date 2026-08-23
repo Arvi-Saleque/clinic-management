@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { getOwnOdontogram } from "@/lib/server/odontogram";
 import { getOwnPortalPatient } from "@/lib/server/patient-portal";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "My Dental Care" };
 
@@ -92,7 +92,7 @@ export default async function PortalOdontogramPage() {
               <div className="flex items-center justify-center text-primary mb-1">
                 <WalletCards className="size-4" />
               </div>
-              <p className="font-heading text-2xl font-extrabold text-foreground">€{estimatedTotal.toLocaleString()}</p>
+              <p className="font-heading text-2xl font-extrabold text-foreground">{formatCurrency(estimatedTotal)}</p>
               <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">Service Total</p>
             </div>
           </div>
@@ -201,7 +201,7 @@ export default async function PortalOdontogramPage() {
                   <div className="text-left sm:text-right pt-2 sm:pt-0 border-t border-border/40 sm:border-t-0">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted block">Service fee</span>
                     <span className="font-heading text-base font-bold text-foreground">
-                      {entry.estimated_fee ? `€${Number(entry.estimated_fee).toLocaleString()}` : "Included"}
+                      {entry.estimated_fee ? formatCurrency(entry.estimated_fee) : "Included"}
                     </span>
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export default async function PortalOdontogramPage() {
 
             <div className="pt-2">
               <p className="font-heading text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-                €{estimatedTotal.toLocaleString()}
+                {formatCurrency(estimatedTotal)}
               </p>
               <p className="mt-2 text-xs leading-relaxed text-text-muted">
                 Service fees recorded against planned items. Your issued clinic invoice is the final billing record upon completion of care.

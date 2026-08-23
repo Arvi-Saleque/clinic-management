@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Clock, ShieldCheck, Tag } from "lucide-react";
 import { listPublicServices } from "@/lib/server/marketing";
+import { formatCurrency } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Treatments & Services | Clinic Care Dental",
@@ -131,7 +132,7 @@ export default async function ServicesPage() {
                           {service.price && (
                             <span className="inline-flex items-center gap-1.5 rounded-xl bg-[#F4F6F3] px-3 py-1.5 text-xs font-bold text-[#2B5748] border border-[#2B5748]/10">
                               <Tag className="size-3.5 text-[#2B5748]" />
-                              From €{Number(service.price).toLocaleString()}
+                              From {formatCurrency(service.price)}
                             </span>
                           )}
                         </div>
@@ -152,7 +153,7 @@ export default async function ServicesPage() {
                           className="treatment-card-book-btn inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-5 py-2.5 text-xs font-bold uppercase tracking-wider !text-white text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
                           style={{ color: '#ffffff' }}
                         >
-                          <span>Book an Appointment</span>
+                          <span>Book Now</span>
                         </Link>
                       </div>
                     </article>
@@ -193,7 +194,7 @@ export default async function ServicesPage() {
                   style={{ color: '#ffffff' }}
                 >
                   <CalendarDays className="w-4 h-4" />
-                  <span>Book an Appointment</span>
+                  <span>Book Consultation Online</span>
                 </Link>
 
                 <Link

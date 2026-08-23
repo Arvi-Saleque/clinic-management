@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { getAvailableSlots, rescheduleStaffAppointment } from "@/lib/server/appointments";
 import type { SlotResult } from "@/types/availability";
-import { cn } from "@/lib/utils";
+import { cn, formatClinicDate, formatClinicTime } from "@/lib/utils";
 
 interface RescheduleAppointmentDialogProps {
   appointmentId: string;
@@ -109,7 +109,7 @@ export function RescheduleAppointmentDialog({
 
   const formattedCurrentTime = React.useMemo(() => {
     try {
-      return format(new Date(currentStartsAt), "EEEE, d MMM yyyy · HH:mm");
+      return `${formatClinicDate(currentStartsAt, { weekday: "long", day: "numeric", month: "short", year: "numeric" })} · ${formatClinicTime(currentStartsAt)}`;
     } catch {
       return currentStartsAt;
     }
@@ -192,7 +192,7 @@ export function RescheduleAppointmentDialog({
             ) : (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto p-0.5">
                 {slots.map((slot) => {
-                  const startTime = format(new Date(slot.slot_start), "h:mm a");
+                  const startTime = formatClinicTime(slot.slot_start);
                   const isSelected = selectedSlot?.slot_start === slot.slot_start;
 
                   return (

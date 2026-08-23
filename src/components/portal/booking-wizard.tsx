@@ -44,7 +44,7 @@ import {
 } from "@/lib/server/booking";
 import { clearPendingBooking, readPendingBooking, savePendingBooking } from "@/lib/pending-booking";
 import type { ServicePractitionerOption } from "@/types/services";
-import { cn } from "@/lib/utils";
+import { cn, formatClinicDate, formatClinicTime, formatCurrency } from "@/lib/utils";
 
 interface Service {
   id: string;
@@ -617,7 +617,7 @@ export function BookingWizard({
                         </span>
                         <span>&bull;</span>
                         <span className="font-heading font-bold text-foreground">
-                          €{s.price.toLocaleString()}
+                          {formatCurrency(s.price)}
                         </span>
                       </div>
 
@@ -655,7 +655,7 @@ export function BookingWizard({
 
                   <div className="flex items-center gap-3">
                     <span className="text-xs font-semibold text-text-muted">
-                      {service.duration_minutes} mins &middot; €{service.price.toLocaleString()}
+                      {service.duration_minutes} mins &middot; {formatCurrency(service.price)}
                     </span>
                     <Button variant="outline" size="sm" onClick={() => setStep("service")} className="rounded-xl text-xs">
                       Change
@@ -723,7 +723,7 @@ export function BookingWizard({
                           </span>
                           <span>&bull;</span>
                           <span className="font-heading font-bold text-foreground">
-                            €{p.effective_price.toLocaleString()}
+                            {formatCurrency(p.effective_price)}
                           </span>
                         </div>
 
@@ -752,7 +752,7 @@ export function BookingWizard({
                       {service.name} with <strong className="text-primary">{practitioner.doctor_name}</strong>
                     </p>
                     <p className="text-xs text-text-muted">
-                      {practitioner.title || "Dental Specialist"} &middot; {practitioner.effective_duration_minutes} min &middot; €{practitioner.effective_price.toLocaleString()}
+                      {practitioner.title || "Dental Specialist"} &middot; {practitioner.effective_duration_minutes} min &middot; {formatCurrency(practitioner.effective_price)}
                     </p>
                   </div>
                 </div>
@@ -784,7 +784,7 @@ export function BookingWizard({
                       {format(selectedDateObj, "MMMM yyyy")}
                     </h3>
                     <p className="text-xs text-text-muted mt-1">
-                      Select a date within the upcoming 30-day window ({format(today, "MMM d")} &ndash; {format(maxBookingDate, "MMM d, yyyy")})
+                      Select a date within the upcoming 30-day window ({format(today, "d MMM")} &ndash; {format(maxBookingDate, "d MMM yyyy")})
                     </p>
                   </div>
 
@@ -804,7 +804,7 @@ export function BookingWizard({
                     <PopoverContent align="end" className="p-0 rounded-3xl shadow-2xl border-border bg-surface">
                       <div className="p-3.5 border-b border-border bg-background-subtle text-center rounded-t-3xl">
                         <p className="text-xs font-bold text-foreground">30-Day Scheduling Window</p>
-                        <p className="text-[11px] text-text-muted">Pick any day between {format(today, "MMM d")} and {format(maxBookingDate, "MMM d")}</p>
+                        <p className="text-[11px] text-text-muted">Pick any day between {format(today, "d MMM")} and {format(maxBookingDate, "d MMM")}</p>
                       </div>
                       <div className="p-2.5">
                         <Calendar
@@ -915,7 +915,7 @@ export function BookingWizard({
                 {/* Selected Day Context Indicator */}
                 <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-background-subtle/80 px-4 py-3 text-xs">
                   <span className="font-bold text-foreground text-sm">
-                    {format(selectedDateObj, "EEEE, MMMM d, yyyy")}
+                    {format(selectedDateObj, "EEEE, d MMMM yyyy")}
                   </span>
                   <span className="text-primary font-semibold flex items-center gap-2">
                     <span className="size-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
@@ -953,12 +953,12 @@ export function BookingWizard({
                 {loadingSlots ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center text-sm text-text-muted gap-3">
                     <Loader2 className="size-7 animate-spin text-primary" />
-                    <p>Loading open times for {format(selectedDateObj, "EEEE, MMM d")}...</p>
+                    <p>Loading open times for {format(selectedDateObj, "EEEE, d MMM")}...</p>
                   </div>
                 ) : slots.length === 0 ? (
                   <div className="rounded-3xl border border-dashed border-border bg-background-subtle/50 p-8 text-center space-y-3">
                     <p className="text-sm font-bold text-foreground">
-                      No open slots for {practitioner.doctor_name} on {format(selectedDateObj, "EEEE, MMM d")}.
+                      No open slots for {practitioner.doctor_name} on {format(selectedDateObj, "EEEE, d MMM")}.
                     </p>
                     <p className="text-xs text-text-muted max-w-md mx-auto">
                       Please pick another day from the 7-day strip above, or check available times of other doctors below.
@@ -969,7 +969,7 @@ export function BookingWizard({
                       onClick={() => handleSelectDate(addDays(selectedDateObj, 1))}
                       className="rounded-xl border-primary/30 text-xs font-semibold text-primary hover:bg-primary-soft mt-2"
                     >
-                      Check Next Day ({format(addDays(selectedDateObj, 1), "MMM d")}) &rarr;
+                      Check Next Day ({format(addDays(selectedDateObj, 1), "d MMM")}) &rarr;
                     </Button>
                   </div>
                 ) : (
@@ -1000,7 +1000,7 @@ export function BookingWizard({
                                   : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]",
                               )}
                             />
-                            {format(new Date(slot.slot_start), "h:mm a")}
+                            {formatClinicTime(slot.slot_start)}
                           </span>
                         </button>
                       );
@@ -1018,7 +1018,7 @@ export function BookingWizard({
                     <Users className="size-4 text-primary" />
                     <div>
                       <h4 className="font-heading text-sm font-bold text-foreground">
-                        Other Doctors Available on {format(selectedDateObj, "MMM d")}
+                        Other Doctors Available on {format(selectedDateObj, "d MMM")}
                       </h4>
                       <p className="text-xs text-text-muted">
                         Need a different time? Click any slot below to proceed with that doctor.
@@ -1049,7 +1049,7 @@ export function BookingWizard({
                                 <div>
                                   <p className="font-bold text-sm text-foreground">{doc.doctor_name}</p>
                                   <p className="text-xs text-text-muted">
-                                    {doc.title || "Dental Specialist"} &middot; {doc.effective_duration_minutes} min &middot; €{doc.effective_price.toLocaleString()}
+                                    {doc.title || "Dental Specialist"} &middot; {doc.effective_duration_minutes} min &middot; {formatCurrency(doc.effective_price)}
                                   </p>
                                 </div>
                               </div>
@@ -1073,7 +1073,7 @@ export function BookingWizard({
                                   >
                                     <span className="flex items-center gap-1.5">
                                       <span className="size-1.5 rounded-full bg-emerald-500" />
-                                      {format(new Date(slot.slot_start), "h:mm a")}
+                                      {formatClinicTime(slot.slot_start)}
                                     </span>
                                   </button>
                                 ))}
@@ -1118,7 +1118,7 @@ export function BookingWizard({
                   <div className="rounded-2xl border border-border/70 bg-surface p-4 space-y-1 shadow-xs">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Appointment Date</span>
                     <p className="font-heading text-base font-bold text-foreground">
-                      {format(new Date(selectedSlot.slot_start), "EEEE, d MMMM yyyy")}
+                      {formatClinicDate(selectedSlot.slot_start, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
                     </p>
                     <p className="text-xs text-text-muted">Clinic Suite 402, Level 4</p>
                   </div>
@@ -1126,7 +1126,7 @@ export function BookingWizard({
                   <div className="rounded-2xl border border-border/70 bg-surface p-4 space-y-1 shadow-xs">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Time Window</span>
                     <p className="font-heading text-base font-bold text-primary">
-                      {format(new Date(selectedSlot.slot_start), "h:mm a")} &ndash; {format(new Date(selectedSlot.slot_end), "h:mm a")}
+                      {formatClinicTime(selectedSlot.slot_start)} &ndash; {formatClinicTime(selectedSlot.slot_end)}
                     </p>
                     <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Selected — checked live</p>
                   </div>
@@ -1135,7 +1135,7 @@ export function BookingWizard({
                 <div className="flex flex-wrap items-center justify-between border-t border-border/80 pt-5 text-sm gap-2">
                   <span className="font-semibold text-text-secondary">Service fee:</span>
                   <span className="font-heading text-2xl font-extrabold text-foreground">
-                    €{practitioner.effective_price.toLocaleString()}
+                    {formatCurrency(practitioner.effective_price)}
                   </span>
                 </div>
               </div>
@@ -1189,9 +1189,9 @@ export function BookingWizard({
               summary={{
                 service: service.name,
                 doctor: practitioner.doctor_name,
-                date: format(new Date(selectedSlot.slot_start), "EEEE, d MMMM yyyy"),
-                time: `${format(new Date(selectedSlot.slot_start), "h:mm a")} – ${format(new Date(selectedSlot.slot_end), "h:mm a")}`,
-                fee: `€${practitioner.effective_price.toLocaleString()}`,
+                date: formatClinicDate(selectedSlot.slot_start, { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
+                time: `${formatClinicTime(selectedSlot.slot_start)} – ${formatClinicTime(selectedSlot.slot_end)}`,
+                fee: formatCurrency(practitioner.effective_price),
               }}
               onAuthenticated={handleAuthenticated}
             />
@@ -1213,9 +1213,9 @@ export function BookingWizard({
               <BookingSelectionSummary
                 service={service.name}
                 doctor={practitioner.doctor_name}
-                date={format(new Date(selectedSlot.slot_start), "EEEE, d MMMM yyyy")}
-                time={`${format(new Date(selectedSlot.slot_start), "h:mm a")} – ${format(new Date(selectedSlot.slot_end), "h:mm a")}`}
-                fee={`€${practitioner.effective_price.toLocaleString()}`}
+                date={formatClinicDate(selectedSlot.slot_start, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                time={`${formatClinicTime(selectedSlot.slot_start)} – ${formatClinicTime(selectedSlot.slot_end)}`}
+                fee={formatCurrency(practitioner.effective_price)}
               />
             </div>
           )}
@@ -1234,8 +1234,8 @@ export function BookingWizard({
               <div className="mt-6 grid gap-3 rounded-3xl border border-border/80 bg-background-subtle p-4 text-left sm:grid-cols-2 sm:p-5">
                 <SuccessDetail label="Treatment" value={service.name} />
                 <SuccessDetail label="Doctor" value={practitioner.doctor_name} />
-                <SuccessDetail label="Date" value={format(new Date(selectedSlot.slot_start), "EEEE, d MMMM yyyy")} />
-                <SuccessDetail label="Time" value={`${format(new Date(selectedSlot.slot_start), "h:mm a")} – ${format(new Date(selectedSlot.slot_end), "h:mm a")}`} />
+                <SuccessDetail label="Date" value={formatClinicDate(selectedSlot.slot_start, { weekday: "long", day: "numeric", month: "long", year: "numeric" })} />
+                <SuccessDetail label="Time" value={`${formatClinicTime(selectedSlot.slot_start)} – ${formatClinicTime(selectedSlot.slot_end)}`} />
               </div>
 
               <div className="mt-6 flex flex-col-reverse justify-center gap-3 sm:flex-row">

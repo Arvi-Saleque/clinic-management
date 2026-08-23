@@ -29,7 +29,7 @@ Every table in `public` (Postgres, Supabase project `mxywvlekwgrzlewxgfcl`). All
 | organization_id | uuid | yes | FK → organizations | — |
 | name | text | yes | — | "Clinic Care — Main Branch" |
 | address, phone, email | text | no | — | — |
-| timezone | text | yes | default `'Asia/Dhaka'` | "Asia/Dhaka" |
+| timezone | text | yes | default `'Europe/London'` | "Europe/London" |
 | is_primary | boolean | yes | default `true` | — |
 | created_at | timestamptz | yes | — | — |
 
@@ -242,7 +242,7 @@ Every table in `public` (Postgres, Supabase project `mxywvlekwgrzlewxgfcl`). All
 | id | uuid | yes | PK |
 | appointment_id | uuid | yes | FK |
 | amount | numeric(10,2) | yes | default 0 |
-| currency | text | yes | default `'BDT'` |
+| currency | text | yes | default `'GBP'` |
 | status | text | yes | CHECK: `not_required` \| `pending` \| `paid` \| `refunded` \| `waived` |
 | payment_reference | text | no | — |
 

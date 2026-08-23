@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollReveal, StaggerGroup, StaggerItem, TiltCard } from "@/components/motion";
 import { CONTAINER } from "@/lib/layout";
 import { imageSrc, SERVICE_CATEGORY_IMAGES, SERVICE_IMAGE_FALLBACK } from "@/lib/marketing-images";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 export interface ServiceCardData {
   id: string;
@@ -78,7 +78,7 @@ export function ServicesGrid({ services }: { services: ServiceCardData[] }) {
                         <span className="text-text-secondary">
                           From{" "}
                           <span className="font-semibold text-foreground">
-                            €{Number(service.price).toLocaleString()}
+                            {formatCurrency(service.price)}
                           </span>{" "}
                           &middot; {service.duration_minutes} min
                         </span>

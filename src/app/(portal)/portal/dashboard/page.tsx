@@ -54,7 +54,7 @@ export default async function PortalDashboardPage({
     let customPrice = appointment.services?.price ? Number(appointment.services.price) : 0;
     let customDuration = appointment.services?.duration_minutes ?? 45;
     if (appointment.notes) {
-      const feeMatch = appointment.notes.match(/(?:\[FEE:([\d.]+)\]|Fee:\s*€\s*([\d.]+))/i);
+      const feeMatch = appointment.notes.match(/(?:\[FEE:([\d.]+)\]|Fee:\s*[£€]\s*([\d.]+))/i);
       if (feeMatch) {
         customPrice = parseFloat(feeMatch[1] || feeMatch[2]);
       }

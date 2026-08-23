@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { getAvailableSlots, type SlotResult } from "@/lib/server/appointments";
 import { savePendingBooking } from "@/lib/pending-booking";
-import { cn } from "@/lib/utils";
+import { cn, formatClinicTime } from "@/lib/utils";
 
 interface Service {
   id: string;
@@ -172,7 +172,7 @@ export function AvailabilityPanel({
                     isEmbedded ? "py-2.5 text-sm" : "py-2 text-xs",
                   )}
                 >
-                  {format(new Date(slot.slot_start), "h:mm a")}
+                  {formatClinicTime(slot.slot_start)}
                 </button>
               ))}
             </div>

@@ -6,6 +6,7 @@ import {
   User,
 } from "lucide-react";
 import type { PreviousEncounterSummary } from "@/types/clinical";
+import { formatClinicTime } from "@/lib/utils";
 
 interface PreviousEncountersProps {
   encounters: PreviousEncounterSummary[];
@@ -52,11 +53,11 @@ export function PreviousEncounters({ encounters }: PreviousEncountersProps) {
           {encounters.map((enc) => {
             const rawDate = enc.completed_at || enc.started_at;
             const dateObj = rawDate ? new Date(rawDate) : new Date();
-            const dateStr = format(dateObj, "MMM d, yyyy");
-            const timeStr = format(dateObj, "h:mm a");
+            const dateStr = format(dateObj, "d MMM yyyy");
+            const timeStr = formatClinicTime(dateObj);
 
             const followUpDateFormatted = enc.follow_up_date
-              ? format(new Date(`${enc.follow_up_date}T00:00:00`), "MMM d, yyyy")
+              ? format(new Date(`${enc.follow_up_date}T00:00:00`), "d MMM yyyy")
               : null;
 
             return (

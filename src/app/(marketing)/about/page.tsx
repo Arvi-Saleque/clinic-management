@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Activity, ArrowRight, CalendarDays, Layers, Scan, ShieldCheck, UserCheck } from "lucide-react";
+import { Activity, ArrowRight, CalendarDays, Layers, Scan, ShieldCheck } from "lucide-react";
 import { Card3D } from "@/components/marketing/luxury-card3d";
+import { pickFromPool, PRACTITIONER_PHOTO_FALLBACKS } from "@/lib/marketing-images";
 import { listPublicPractitioners } from "@/lib/server/marketing";
 
 export const metadata: Metadata = {
@@ -139,7 +140,7 @@ export default async function AboutPage() {
               <div className="story-media-col lg:col-span-5">
                 <Card3D className="story-image-card">
                   <img
-                    src="/marketing/demo_dental_team.png"
+                    src="/marketing/demo_dental_team_uk.webp"
                     alt="Clinic Care Clinical Team"
                     className="rounded-[28px] shadow-2xl w-full object-cover aspect-[4/3] lg:aspect-[5/4]"
                   />
@@ -223,6 +224,7 @@ export default async function AboutPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 w-full">
               {practitioners.map((doc) => {
                 const docName = (doc.profiles as { full_name?: string } | null)?.full_name || "Dental Practitioner";
+                const photoSrc = doc.photo_url || pickFromPool(PRACTITIONER_PHOTO_FALLBACKS, doc.id).src;
                 return (
                   <div
                     key={doc.id}
@@ -231,15 +233,11 @@ export default async function AboutPage() {
                     <div>
                       {/* Photo Container with zoom & floating badges */}
                       <div className="aspect-[4/3] rounded-[24px] overflow-hidden mb-5 bg-gradient-to-br from-[#1B2623]/05 to-[#2B5748]/10 relative flex items-center justify-center border border-[#273338]/06">
-                        {doc.photo_url ? (
-                          <img
-                            src={doc.photo_url}
-                            alt={docName}
-                            className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                          />
-                        ) : (
-                          <UserCheck className="w-14 h-14 text-[#2B5748]/40" />
-                        )}
+                        <img
+                          src={photoSrc}
+                          alt={docName}
+                          className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+                        />
 
                         {/* Subtle bottom gradient on photo */}
                         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
@@ -303,7 +301,7 @@ export default async function AboutPage() {
                         style={{ color: "#ffffff" }}
                       >
                         <CalendarDays className="w-3.5 h-3.5" />
-                        <span>Book an Appointment</span>
+                        <span>Book Visit</span>
                       </Link>
                     </div>
                   </div>
@@ -323,7 +321,7 @@ export default async function AboutPage() {
         <section className="about-cta-section relative py-24 bg-[#1B2623] text-white overflow-hidden">
           {/* Ambient Glow & Texture */}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(156,176,128,0.18),transparent_70%)]" />
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(10,18,16,0.85)_0%,rgba(10,18,16,0.95)_100%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(16,26,23,0.85)_0%,rgba(10,18,16,0.95)_100%)]" />
 
           <div className="container relative z-10 text-center">
             <div className="p-10 sm:p-14 md:p-16 rounded-[32px] bg-white/[0.06] border border-[#9CB080]/25 backdrop-blur-xl shadow-[0_30px_80px_-15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)] max-w-4xl mx-auto">
@@ -349,7 +347,7 @@ export default async function AboutPage() {
                   style={{ color: '#ffffff' }}
                 >
                   <CalendarDays className="w-4 h-4" />
-                  <span>Book an Appointment</span>
+                  <span>Book Consultation Online</span>
                 </Link>
 
                 <Link

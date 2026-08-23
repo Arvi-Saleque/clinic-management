@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { formatCurrency } from "@/lib/utils";
+import { formatClinicDate, formatCurrency } from "@/lib/utils";
 
 interface InvoiceDetailProps {
   invoice: {
@@ -118,7 +118,7 @@ export function InvoiceDetail({ invoice, items, payments, children }: InvoiceDet
             {payments.map((p) => (
               <div key={p.id} className="flex justify-between text-sm">
                 <span className="capitalize text-muted-foreground">
-                  {p.method === "other" ? "Other" : p.method.replace("_", " ")} &middot; {new Date(p.paid_at).toLocaleDateString()}
+                  {p.method === "other" ? "Other" : p.method.replace("_", " ")} &middot; {formatClinicDate(p.paid_at)}
                   {p.reference ? ` · ${p.reference}` : ""}
                 </span>
                 <span className="font-medium">{formatCurrency(p.amount)}</span>
