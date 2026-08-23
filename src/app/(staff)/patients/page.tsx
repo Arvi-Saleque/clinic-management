@@ -6,7 +6,6 @@ import {
   Users,
 } from "lucide-react";
 
-import { NewPatientDialog } from "@/components/staff/new-patient-dialog";
 import { PatientTableView, type PatientRecordItem } from "@/components/staff/patient-table-view";
 import { requireStaff } from "@/lib/auth/guards";
 import { listPatients } from "@/lib/server/directory";
@@ -98,11 +97,6 @@ export default async function StaffPatientsPage({
               ? "Search registered patients, review contact information, and open administrative profiles."
               : "One searchable history for visits, presenting symptoms, completed treatments, recall planning, prescriptions and odontograms."}
           </p>
-        </div>
-
-        {/* Top Right Action: Register New Patient */}
-        <div>
-          <NewPatientDialog />
         </div>
       </div>
 
