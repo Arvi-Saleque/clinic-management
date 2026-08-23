@@ -1341,6 +1341,36 @@ Migration `0041_uk_localisation.sql` was deployed and verified against the linke
   - `4573e36` — `fix: complete UK localisation deployment verification`
   - `581305e` — `docs: finalize Section 49 in result.md with complete Supabase deployment record`
   - `968f32e` — `docs: finalise UK localisation deployment status`
+  - `11cd02f` — `fix(auth): remove receptionist from login demo accounts and label tab as Admin`
+  - `060fe26` — `fix(staff): remove new appointment button and convert action to Check In on appointments page`
+  - `05f498e` — `fix(patients): remove register patient button from patient records page`
+  - `c71d034` — `fix(staff): scope check-in button strictly to admin while keeping doctor consultation CTAs intact`
+  - `20f2c69` — `fix(ui): compact consultation action button size and badges for cleaner alignment`
+  - `351a059` — `fix(billing): remove create invoice button from billing workspace`
+  - `58c497a` — `fix(appointments): remove new appointment button from doctor view on appointments page`
+  - `6ad7a6d` — `fix(services): render doctor name instead of raw UUID in practitioner selector on services page`
 - **Pull Request**: [PR #16: feat: UK localisation and public booking experience](https://github.com/Arvi-Saleque/clinic-management/pull/16) (Updated with verified deployment notes).
+
+---
+
+## 50. Initial Database Services Catalog (Duration, Cost & Specifications)
+
+The following is the full authoritative list of initial dental clinical services configured in the database (`public.services`), including their clinical category, scheduled appointment duration, baseline cost (in GBP £), and clinical scope:
+
+| # | Service Name | Category | Duration (Time) | Base Fee (GBP) | Slug / Database ID | Clinical Scope & Description |
+|---|--------------|----------|-----------------|----------------|--------------------|------------------------------|
+| **1** | **General Dental Check-up / New Patient Examination** | General Dentistry | **40 mins** | **£65.00** | `general-checkup` / `new-patient-examination` | Comprehensive oral health assessment, intraoral examination, soft-tissue screening, bitewing X-rays, and personalised treatment planning. |
+| **2** | **Teeth Cleaning & Polishing / Dental Hygiene** | Dental Hygiene | **45 mins** | **£95.00** | `teeth-cleaning` / `dental-hygiene` | Ultrasonic scaling, plaque and tartar removal, gentle air-polishing, periodontal pocket health review, and oral hygiene coaching. |
+| **3** | **Composite Tooth Filling** | Restorative Dentistry | **45 mins** | **£120.00** | `composite-tooth-filling` | Direct tooth-coloured aesthetic composite resin filling for cavity restoration, enamel bonding, and fracture repair. |
+| **4** | **Specialist Orthodontic Consultation** | Orthodontics | **45 mins** | **£85.00** | `orthodontics` | 3D intraoral diagnostic scan, bite alignment analysis, clear aligners (Invisalign) & ceramic fixed brace suitability review. |
+| **5** | **Paediatric Dental Visit** | Paediatric Dentistry | **30 mins** | **£55.00** | `pediatric-dentistry` | Child-focused gentle dental examination, preventative fluoride varnish application, cavity prevention, and early habit guidance. |
+| **6** | **Root Canal Therapy (Endodontics)** | Restorative Dentistry | **90 mins** | **£650.00** | `root-canal` / `root-canal-treatment` | Precision rotary endodontic therapy with electronic apex locator, thorough canal disinfection, and biocompatible obturation. |
+| **7** | **Cosmetic Porcelain Veneer** | Cosmetic Dentistry | **60 mins** | **£950.00** | `cosmetic-veneers` / `porcelain-veneer` | Custom-crafted high-translucency porcelain veneer per tooth, digital shade matching, enamel preparation, and smile line enhancement. |
+| **8** | **Dental Implants & Surgical Consultation** | Oral Surgery & Implants | **60 mins** | **£1,850.00** | `dental-implants` | Comprehensive surgical implant assessment, CBCT 3D bone density analysis, surgical stent planning, and single titanium implant placement. |
+
+### Notes on Service Customization:
+* **Doctor-Specific Overrides:** Each practitioner can customize their individual duration (e.g., 30, 45, 60 mins) and price in the *Services & Treatments* (`/clinical/services`) workspace without altering the clinic baseline catalog.
+* **Currency:** All financial records, invoice line items, and patient payment receipts are tracked and settled in British Pounds (`GBP £`).
+
 
 
