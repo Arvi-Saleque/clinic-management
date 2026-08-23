@@ -39,7 +39,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { NewAppointmentDialog } from "@/components/staff/new-appointment-dialog";
 import { RescheduleAppointmentDialog } from "@/components/staff/reschedule-appointment-dialog";
 import { cn, formatClinicTime } from "@/lib/utils";
 import { updateAppointmentStatus, type AppointmentStatus } from "@/lib/server/appointments";
@@ -268,7 +267,7 @@ export function AppointmentsWorkspace({
           )}
         </div>
 
-        {/* Right Side: Search + (Optional for Doctor: New Appointment Button) */}
+        {/* Right Side: Search */}
         <div className="flex items-center gap-2.5">
           <div className="relative min-w-[200px] sm:w-64">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -288,23 +287,6 @@ export function AppointmentsWorkspace({
               </button>
             )}
           </div>
-
-          {/* New Appointment Button: Shown ONLY for Doctor/Clinician, hidden for Admin */}
-          {isDoctor && services.length > 0 && (
-            <NewAppointmentDialog
-              practitionerId={
-                practitionerId === "all" || !practitionerId
-                  ? practitioners[0]?.id || ""
-                  : practitionerId
-              }
-              branchId={branchId}
-              date={date}
-              services={services}
-              practitioners={practitioners}
-              triggerVariant="default"
-              triggerClassName="h-9.5 gap-1.5 rounded-xl px-3 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-2xs shrink-0 cursor-pointer"
-            />
-          )}
         </div>
       </div>
 
