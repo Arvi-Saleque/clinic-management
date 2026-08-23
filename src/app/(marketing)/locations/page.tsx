@@ -131,7 +131,7 @@ export default async function LocationsPage() {
                   <div className="pt-4 border-t border-[#273338]/10">
                     <Link href="/book" className="btn-blue w-full text-center block">
                       <CalendarDays className="w-4 h-4 mr-2 inline" />
-                      Book Appointment Online
+                      Book an Appointment
                     </Link>
                   </div>
                 </div>

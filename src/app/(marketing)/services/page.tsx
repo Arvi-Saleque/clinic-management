@@ -152,7 +152,7 @@ export default async function ServicesPage() {
                           className="treatment-card-book-btn inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-5 py-2.5 text-xs font-bold uppercase tracking-wider !text-white text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
                           style={{ color: '#ffffff' }}
                         >
-                          <span>Book Now</span>
+                          <span>Book an Appointment</span>
                         </Link>
                       </div>
                     </article>
@@ -193,7 +193,7 @@ export default async function ServicesPage() {
                   style={{ color: '#ffffff' }}
                 >
                   <CalendarDays className="w-4 h-4" />
-                  <span>Book Consultation Online</span>
+                  <span>Book an Appointment</span>
                 </Link>
 
                 <Link

@@ -89,7 +89,7 @@ export default async function PractitionerDetailPage({
                 <div className="flex flex-wrap gap-4">
                   <Link href={`/book?practitionerId=${practitioner.id}`} className="btn-blue">
                     <CalendarDays className="w-4 h-4 mr-2 inline" />
-                    Book with {name.split(" ")[0]}
+                    Book an Appointment
                   </Link>
                   <Link href="/contact" className="btn-stroke border-white/20 hover:border-white text-white">
                     Contact Clinic

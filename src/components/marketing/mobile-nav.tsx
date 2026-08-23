@@ -112,7 +112,7 @@ export function MobileNav({
             <ButtonLink href={account ? account.href : "/login"} variant="outline">
               {account ? `My account (${account.label})` : "Patient Login"}
             </ButtonLink>
-            <ButtonLink href="/book">Book Appointment</ButtonLink>
+            <ButtonLink href="/book">Book an Appointment</ButtonLink>
           </div>
         </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>

@@ -125,9 +125,8 @@ export function LuxuryHeader({
 
               <Link href="/book" className="btn-blue">
                 <CalendarDays className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
-                Book Online
+                Book an Appointment
               </Link>
-
               {/* Mobile Hamburger Toggle */}
               <button
                 type="button"
@@ -206,7 +205,7 @@ export function LuxuryHeader({
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="btn-blue w-full text-center block"
               >
-                Book Appointment Online
+                Book an Appointment
               </Link>
             </div>
           </div>

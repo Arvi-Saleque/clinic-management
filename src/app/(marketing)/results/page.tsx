@@ -158,7 +158,7 @@ export default function ResultsPage() {
                       href="/book"
                       className="inline-flex items-center gap-1.5 rounded-full bg-[#2B5748]/08 hover:bg-[#2B5748] text-[#2B5748] hover:text-white px-4 py-2 text-xs font-bold uppercase tracking-wider border border-[#2B5748]/15 hover:border-transparent transition-all duration-300 hover:scale-105"
                     >
-                      <span>Consult on Treatment</span>
+                      <span>Book an Appointment</span>
                       <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
                     </Link>
                   </div>
@@ -202,7 +202,7 @@ export default function ResultsPage() {
                   style={{ color: '#ffffff' }}
                 >
                   <CalendarDays className="w-4 h-4" />
-                  <span>Book Consultation Online</span>
+                  <span>Book an Appointment</span>
                 </Link>
 
                 <Link

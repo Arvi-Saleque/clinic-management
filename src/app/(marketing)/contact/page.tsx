@@ -219,7 +219,7 @@ export default async function ContactPage() {
                       style={{ color: "#ffffff" }}
                     >
                       <CalendarDays className="w-4 h-4" />
-                      <span>Continue to Online Booking</span>
+                      <span>Book an Appointment</span>
                     </Link>
 
                     <a
@@ -354,7 +354,7 @@ export default async function ContactPage() {
                   style={{ color: "#ffffff" }}
                 >
                   <CalendarDays className="w-4 h-4" />
-                  <span>Book Consultation Online</span>
+                  <span>Book an Appointment</span>
                 </Link>
 
                 <a

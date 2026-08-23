@@ -39,7 +39,7 @@ export default function HomePage() {
                         <div className="btn-group">
                           <Link href="/book" className="btn">
                             <CalendarDays className="w-4 h-4 mr-2 inline" />
-                            Book Online
+                            Book an Appointment
                           </Link>
                           <Link href="/about" className="btn-stroke">
                             About Our Clinic

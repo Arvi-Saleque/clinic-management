@@ -204,7 +204,7 @@ export default async function BlogDetailPage({
               <div className="flex flex-wrap justify-center gap-4">
                 <Link href="/book" className="btn-blue">
                   <CalendarDays className="w-4 h-4 mr-2 inline" />
-                  Book Appointment Online
+                  Book an Appointment
                 </Link>
                 <Link href="/contact" className="btn-stroke text-[#273338] border-[#273338]/30">
                   Contact Clinic

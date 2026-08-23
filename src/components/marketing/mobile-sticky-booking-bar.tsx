@@ -18,7 +18,7 @@ export function MobileStickyBookingBar({ phone }: { phone: string | null }) {
         </ButtonLink>
       )}
       <ButtonLink href="/book" size="lg" className="h-12 flex-1 bg-accent text-accent-foreground hover:bg-accent/90">
-        Book Appointment
+        Book an Appointment
       </ButtonLink>
     </div>
   );

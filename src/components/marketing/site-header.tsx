@@ -124,7 +124,7 @@ export function SiteHeader({ treatments, account }: { treatments: TreatmentLink[
 
           <MagneticButton className="hidden sm:inline-block">
             <ButtonLink href="/book" className="bg-accent text-accent-foreground hover:bg-accent/90">
-              Book Appointment
+              Book an Appointment
             </ButtonLink>
           </MagneticButton>
 

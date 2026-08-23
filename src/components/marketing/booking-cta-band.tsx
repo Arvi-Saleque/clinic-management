@@ -29,7 +29,7 @@ export function BookingCtaBand({ phone }: { phone: string | null }) {
           </p>
           <div className="mt-2 flex flex-wrap items-center justify-center gap-4">
             <ButtonLink href="/book" size="lg" className="h-12 gap-2 bg-accent px-8 text-base text-accent-foreground hover:bg-accent/90">
-              Book Appointment
+              Book an Appointment
             </ButtonLink>
             {phone && (
               <ButtonLink

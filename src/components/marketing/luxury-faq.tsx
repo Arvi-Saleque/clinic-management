@@ -81,7 +81,7 @@ export function LuxuryFaq() {
         <div className="faq-cta-row">
           <Link href="/book" className="btn-blue">
             <CalendarDays className="w-4 h-4" aria-hidden="true" />
-            Book a Consultation
+            Book an Appointment
           </Link>
         </div>
       </div>

@@ -80,7 +80,7 @@ export function PractitionersSection({ practitioners }: { practitioners: Practit
                       )}
                       <div className="mt-5 flex gap-2">
                         <ButtonLink href="/book" size="sm" className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90">
-                          Book
+                          Book an Appointment
                         </ButtonLink>
                         <ButtonLink href={`/practitioners/${p.id}`} size="sm" variant="outline" className="flex-1">
                           View profile

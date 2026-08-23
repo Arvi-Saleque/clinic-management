@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CalendarCheck, CheckCircle2, ShieldCheck, Stethoscope } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Book Appointment | Clinic Care Dental",
+  title: "Book an Appointment | Clinic Care Dental",
   description: "Choose your treatment, doctor and appointment time before signing in to confirm.",
 };
 
@@ -29,7 +29,7 @@ export default function BookPage() {
           <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[#526764]">
             Explore services, doctors and live appointment times first. Your patient account is only required when you are ready to confirm.
           </p>
-          <Link href="/book?booking=1" className="btn-blue mt-8 inline-flex">Open appointment booking</Link>
+          <Link href="/book?booking=1" className="btn-blue mt-8 inline-flex">Book an Appointment</Link>
 
           <div className="mt-14 grid gap-4 text-left md:grid-cols-3">
             {journey.map((item) => (

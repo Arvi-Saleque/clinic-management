@@ -59,7 +59,7 @@ export function LuxuryWhyChoose() {
             <div className="btn-group">
               <Link href="/book" className="btn">
                 <CalendarDays className="w-4 h-4" aria-hidden="true" />
-                Book a consultation
+                Book an Appointment
               </Link>
             </div>
           </div>

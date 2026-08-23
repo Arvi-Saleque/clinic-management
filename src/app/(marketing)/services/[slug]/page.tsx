@@ -109,7 +109,7 @@ export default async function ServiceDetailPage({
                 <div className="flex flex-wrap gap-4">
                   <Link href={`/book?serviceId=${service.id}`} className="btn-blue">
                     <CalendarDays className="w-4 h-4 mr-2 inline" />
-                    Book This Service
+                    Book an Appointment
                   </Link>
                   <Link href="/contact" className="btn-stroke border-white/20 hover:border-white text-white">
                     Ask the Clinic
@@ -160,7 +160,7 @@ export default async function ServiceDetailPage({
             <div className="text-center mt-12">
               <Link href={`/book?serviceId=${service.id}`} className="btn">
                 <CalendarDays className="w-4 h-4 mr-2 inline" />
-                Schedule Your Appointment
+                Book an Appointment
               </Link>
             </div>
           </div>

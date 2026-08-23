@@ -303,7 +303,7 @@ export default async function AboutPage() {
                         style={{ color: "#ffffff" }}
                       >
                         <CalendarDays className="w-3.5 h-3.5" />
-                        <span>Book Visit</span>
+                        <span>Book an Appointment</span>
                       </Link>
                     </div>
                   </div>
@@ -323,7 +323,7 @@ export default async function AboutPage() {
         <section className="about-cta-section relative py-24 bg-[#1B2623] text-white overflow-hidden">
           {/* Ambient Glow & Texture */}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(156,176,128,0.18),transparent_70%)]" />
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(16,26,23,0.85)_0%,rgba(10,18,16,0.95)_100%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(10,18,16,0.85)_0%,rgba(10,18,16,0.95)_100%)]" />
 
           <div className="container relative z-10 text-center">
             <div className="p-10 sm:p-14 md:p-16 rounded-[32px] bg-white/[0.06] border border-[#9CB080]/25 backdrop-blur-xl shadow-[0_30px_80px_-15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)] max-w-4xl mx-auto">
@@ -349,7 +349,7 @@ export default async function AboutPage() {
                   style={{ color: '#ffffff' }}
                 >
                   <CalendarDays className="w-4 h-4" />
-                  <span>Book Consultation Online</span>
+                  <span>Book an Appointment</span>
                 </Link>
 
                 <Link

@@ -412,7 +412,7 @@ export function LuxurySmileSimulator() {
                 onMouseLeave={handleCtaMouseLeave}
               >
                 <CalendarDays className="w-4 h-4" aria-hidden="true" />
-                <span>Book a Smile Consultation</span>
+                <span>Book an Appointment</span>
               </Link>
               <p className="simulator-disclaimer">
                 Illustrative visualisation only. Your dentist will assess suitability and discuss realistic treatment outcomes during consultation.

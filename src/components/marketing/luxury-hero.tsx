@@ -216,7 +216,7 @@ export function LuxuryHero() {
           <div className="hero-cta-group">
             <Link href="/book" className="hero-btn-primary">
               <CalendarDays className="w-4 h-4 mr-2" aria-hidden="true" />
-              <span>Book a Consultation</span>
+              <span>Book an Appointment</span>
             </Link>
             <Link href="/services" className="hero-btn-secondary">
               <span>Explore Treatments</span>
