@@ -1281,11 +1281,16 @@ The source mixed Bangladesh, Ireland and Euro-era demo content with partially UK
 
 ### C. Git Branching & Pull Request
 - **Branch Created**: `feature/uk-localisation-and-public-booking`
-- **Commit Hash**: `2e51469` (`feat: localise clinic experience for the UK`)
+- **Commits**: `2e51469` (Initial UK localisation), `1577f85` (Docs update), `4573e36` (Verification fixes & button label consistency)
 - **Remote Push**: Tracked and pushed to `origin/feature/uk-localisation-and-public-booking`
-- **Pull Request**: Created on GitHub -> [PR #16: feat: UK localisation and public booking experience](https://github.com/Arvi-Saleque/clinic-management/pull/16)
+- **Pull Request**: Updated on GitHub -> [PR #16: feat: UK localisation and public booking experience](https://github.com/Arvi-Saleque/clinic-management/pull/16)
 
-### D. Pending Database Deployment
-- No remote Supabase operations (`supabase login`, `supabase link`, `supabase db push`, `supabase db reset`, or remote SQL execution) were performed.
-- Migration `supabase/migrations/0041_uk_localisation.sql` is committed in Git and will be executed against the hosted database once Supabase credentials are authenticated.
+### D. Hosted Supabase Deployment & Verification
+- **Migration**: `0041_uk_localisation.sql` successfully deployed and applied to the linked Supabase project.
+- **Database Verification**:
+  - Main Branch: Name updated to `Clinic Care — Manchester`, Address `42 King Street, Manchester, M2 6BA`, Phone `+44 1632 960123`, Timezone `Europe/London`.
+  - Currencies: Standardised to `GBP` across deposits, services, and appointment fee notes.
+  - Profiles & Practitioners: Updated with local UK assets (`/marketing/practitioners/dr-charlotte-hughes.webp`, `/marketing/practitioners/dr-oliver-bennett.webp`) and fictional UK clinician identities (Dr Charlotte Hughes, Dr Oliver Bennett, Dr Emily White, Dr George Carter, Dr Sarah Jenkins, Dr Marcus Vance, Dr Alice Morgan, Dr Henry Collins, Dr William Foster, Eleanor Brooks, Daniel Harper, Lucy Walker, Thomas Reed).
+  - Preserved Records: 100% of existing patient accounts, appointments, invoices, and clinical encounters remain intact. No destructive database reset or seed was executed.
+- **Repository Cleanliness**: Root ZIP archive deleted; no `.env`, build cache, or credentials committed.
 
