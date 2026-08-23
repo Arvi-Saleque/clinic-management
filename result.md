@@ -1255,7 +1255,7 @@ The source mixed Bangladesh, Ireland and Euro-era demo content with partially UK
 - `npm run build:local` -> **PASSED**; all 42 routes generated successfully.
 - Codebase residual scan -> no visible Bangladesh geography, BDT/Taka, +880, Asia/Dhaka, Euro currency, Irish phone number or Asian demo display names remain. Legacy Euro parsing is intentionally retained so historical notes remain readable.
 - Repository-wide ESLint still reports pre-existing React effect/static-component and explicit-any errors outside this localisation change; no production-build failure was introduced.
-- Supabase migration `0041_uk_localisation.sql` requires manual application before existing hosted demo data reflects the new UK identities/details.
+- Migration `0041_uk_localisation.sql` was successfully applied to the linked hosted Supabase project, synchronizing local and remote database states. Existing hosted demo data now reflects UK identities, GBP currency, Manchester clinic details, and `Europe/London` timezone without any destructive reset or seed.
 
 ---
 
