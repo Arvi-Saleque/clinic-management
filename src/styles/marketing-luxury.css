@@ -61,6 +61,14 @@
   --header-height: 120px;
 }
 
+/* Public booking owns the viewport while its modal is active. The dialog
+   remains independently scrollable through its own overflow container. */
+html.booking-modal-open,
+html.booking-modal-open body {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
 /* Base Styles Scoped to Marketing Theme */
 .marketing-luxury-theme {
   background-color: var(--dark-charcoal);

@@ -12,12 +12,13 @@ import { resetPasswordAction, type AuthActionState } from "@/lib/server/auth";
 
 const initialState: AuthActionState = { error: null };
 
-export function ResetPasswordForm() {
+export function ResetPasswordForm({ returnTo }: { returnTo?: string }) {
   const [state, formAction, pending] = useActionState(resetPasswordAction, initialState);
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form action={formAction} className="space-y-4.5">
+      {returnTo && <input type="hidden" name="returnTo" value={returnTo} />}
       <div className="space-y-1.5">
         <Label htmlFor="password" className="text-xs font-bold text-foreground">
           New password

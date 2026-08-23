@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { format, addDays, isBefore, startOfDay } from "date-fns";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
@@ -39,7 +38,6 @@ export function AvailabilityPanel({
   /** "embedded" drops the card chrome (border/shadow/background) for use inside a dialog that already provides a surface. */
   variant?: "floating" | "embedded";
 }) {
-  const router = useRouter();
   const [serviceId, setServiceId] = React.useState(services[0]?.id ?? "");
   const [practitionerId, setPractitionerId] = React.useState(practitioners[0]?.id ?? "");
   const [date, setDate] = React.useState(() => format(new Date(), "yyyy-MM-dd"));
@@ -65,7 +63,11 @@ export function AvailabilityPanel({
   function handleContinue() {
     if (!serviceId || !practitionerId) return;
     savePendingBooking({ serviceId, practitionerId, date, slotStart: selectedSlot });
-    router.push("/book");
+    window.dispatchEvent(
+      new CustomEvent("clinic:open-booking", {
+        detail: { serviceId, practitionerId },
+      }),
+    );
   }
 
   return (

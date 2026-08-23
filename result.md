@@ -945,6 +945,7 @@ graph TD
 
 ### B. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
 - **eslint**: `npx eslint` -> **PASSED (0 errors)**
 
 ---
@@ -1141,3 +1142,96 @@ graph TD
 
 ### B. Quality Verification
 - **typecheck**: `npm run typecheck` (`tsc --noEmit`) -> **PASSED (0 errors)**
+
+---
+
+## 45. Public Booking Wizard & Deferred Account Confirmation
+
+### A. Completed User Journey
+1. Every public-site link targeting `/book` is intercepted by one global booking provider and opens the existing booking wizard as a responsive overlay. No login redirect occurs at the beginning of the journey.
+2. Signed-out visitors can complete Service → Doctor → Date & Time → Review using the same live availability RPC as authenticated patients.
+3. Review no longer makes a false reservation claim. The UI says the time is selected and live-checked, while the database remains the source of truth.
+4. Review confirmation now routes signed-out visitors to a fifth Account step inside the same booking container. The appointment summary remains visible beside/above all account forms.
+5. Account step includes theme-consistent Sign In, Create Account, show/hide password, password confirmation, privacy consent, Forgot Password and email-verification states.
+6. New accounts that still need a patient record continue into the secure digital intake form inside the same booking surface. No dashboard redirect occurs before booking.
+7. Authentication and registration callbacks preserve the local booking draft and return to `/book?booking=1&resume=account`.
+8. The selected slot is authoritatively rechecked by `book_appointment` after authentication. Only a successful RPC transitions the same container to Appointment Confirmed.
+9. If the slot became unavailable during authentication, the wizard returns to Date & Time and asks the visitor to choose another slot.
+
+### B. Security & Data Integrity
+- Anonymous access remains read-only and is constrained by public catalogue RLS plus `get_available_slots`.
+- Appointment writes still require an authenticated patient, completed patient record and the existing authenticated `book_appointment` RPC.
+- Inline sign-in rejects non-patient accounts and clears the unintended session.
+- Auth callback redirects accept local absolute paths only, preventing open redirects.
+- Patient registration was made idempotent so a partially completed previous submission can safely resume without duplicate patient/history/submission rows.
+
+### C. Main Files
+- `src/components/marketing/public-booking-provider.tsx`
+- `src/components/portal/booking-wizard.tsx`
+- `src/components/portal/public-booking-account-step.tsx`
+- `src/components/portal/registration-form.tsx`
+- `src/app/(marketing)/book/page.tsx`
+- `src/app/auth/callback/route.ts`
+- `src/lib/server/auth.ts`
+- `src/lib/server/booking.ts`
+- `src/lib/server/directory.ts`
+- `src/lib/server/registration.ts`
+
+### D. Verification
+- `npm run typecheck` -> **PASSED (0 errors)**
+- Targeted ESLint for every changed TypeScript/TSX file -> **PASSED (0 errors, 0 warnings)**
+- Repository-wide lint still reports unrelated pre-existing errors in staff/clinical files; none originate from this booking implementation.
+
+---
+
+## 46. In-Place Public Booking Overlay & Compact Modal Refinement
+
+### A. Navigation Correction
+1. Public `/book` links are now intercepted during the native capture phase, before Next.js can start client-side navigation.
+2. The click is owned by the global booking provider, so the visitor remains on the current marketing page while the booking wizard opens above it.
+3. The live-availability panel's Continue action now opens the same global overlay through the shared booking event instead of calling `router.push("/book")`.
+4. Directly entering `/book` in the address bar remains a supported fallback and still opens the booking experience.
+
+### B. Modal Density Refinement
+- Reduced the desktop modal maximum width from `1180px` to `1040px`.
+- Limited desktop height to `90dvh` and kept scrolling inside the modal, preventing the page-sized appearance.
+- Removed the redundant outer booking title block in public-modal mode while preserving it for the patient portal.
+- Tightened public-modal padding, radius, stepper spacing and close-button placement without changing the booking/account workflow.
+
+### C. Main Files
+- `src/components/marketing/public-booking-provider.tsx`
+- `src/components/marketing/availability-panel.tsx`
+- `src/components/portal/booking-wizard.tsx`
+
+### D. Verification
+- `npm run typecheck` -> **PASSED (0 errors)**
+- Targeted ESLint for all three implementation files -> **PASSED (0 errors, 0 warnings)**
+- `npm run build:local` -> **PASSED**; all 42 application routes generated successfully.
+- Browser interaction verification remains for the user's local environment with real clinic data.
+
+---
+
+## 47. Booking Modal Viewport Ownership, Navbar Handoff & Scroll Isolation
+
+### A. Navbar Handoff
+1. The public booking provider now broadcasts its open/closed lifecycle through a shared marketing event.
+2. The existing luxury header listens to that lifecycle and applies its existing `header-hidden` animation immediately when booking opens.
+3. Closing the booking restores the header to its normal scroll-dependent behavior; an open mobile menu is also closed before the modal takes focus.
+
+### B. Scroll Isolation
+1. While booking is open, the document root receives `booking-modal-open`, locking background document scrolling and overscroll chaining.
+2. The booking dialog is marked with `data-lenis-prevent`, so homepage Lenis does not consume wheel/touch input intended for the modal.
+3. Homepage Lenis explicitly stops while the booking modal is active and restarts after close.
+4. The modal keeps its own `overflow-y-auto` container, so wheel, touch and keyboard scrolling remain inside the booking surface.
+
+### C. Main Files
+- `src/components/marketing/public-booking-provider.tsx`
+- `src/components/marketing/luxury-header.tsx`
+- `src/components/marketing/homepage-motion.tsx`
+- `src/styles/marketing-luxury.css`
+
+### D. Verification
+- `npm run typecheck` -> **PASSED (0 errors)**
+- Targeted ESLint for all changed TSX files -> **PASSED (0 errors, 0 warnings)**
+- `npm run build:local` -> **PASSED**; all 42 routes generated successfully.
+- Browser interaction verification remains for the user's local environment with real clinic data.

@@ -5,7 +5,12 @@ import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 
 export const metadata: Metadata = { title: "Choose a new password · Clinic Care" };
 
-export default function ResetPasswordPage() {
+export default async function ResetPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ returnTo?: string }>;
+}) {
+  const { returnTo } = await searchParams;
   return (
     <div className="mx-auto max-w-lg rounded-3xl border border-border/80 bg-card/95 backdrop-blur-xl p-6 sm:p-8 lg:p-9 shadow-xl space-y-6">
       <div className="space-y-1.5 border-b border-border/60 pb-4 text-center sm:text-left">
@@ -21,7 +26,7 @@ export default function ResetPasswordPage() {
         </p>
       </div>
 
-      <ResetPasswordForm />
+      <ResetPasswordForm returnTo={returnTo} />
     </div>
   );
 }

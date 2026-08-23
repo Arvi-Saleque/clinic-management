@@ -8,13 +8,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { registerPatientAction } from "@/lib/server/registration";
-import type { AuthActionState } from "@/lib/server/auth";
+import {
+  registerPatientAction,
+  registerPatientForBookingAction,
+  type RegistrationActionState,
+} from "@/lib/server/registration";
 
-const initialState: AuthActionState = { error: null };
+const initialState: RegistrationActionState = { error: null };
 
-export function RegistrationForm() {
-  const [state, formAction, pending] = useActionState(registerPatientAction, initialState);
+export function RegistrationForm({
+  mode = "page",
+  onSuccess,
+}: {
+  mode?: "page" | "booking";
+  onSuccess?: () => void;
+}) {
+  const action = mode === "booking" ? registerPatientForBookingAction : registerPatientAction;
+  const [state, formAction, pending] = useActionState(action, initialState);
+  const successHandled = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!state.registered || successHandled.current) return;
+    successHandled.current = true;
+    onSuccess?.();
+  }, [state.registered, onSuccess]);
 
   return (
     <form action={formAction} className="space-y-6">
@@ -83,7 +100,7 @@ export function RegistrationForm() {
 
       <Button type="submit" className="w-full" disabled={pending}>
         {pending && <Loader2 className="size-4 animate-spin" />}
-        Complete registration
+        {mode === "booking" ? "Save details & confirm appointment" : "Complete registration"}
       </Button>
     </form>
   );
