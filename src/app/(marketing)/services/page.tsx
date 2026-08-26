@@ -20,7 +20,7 @@ export default async function ServicesPage() {
   const services = await listPublicServices();
 
   return (
-    <div className="services-page">
+    <div className="treatments-page">
       <main>
         {/* Page Hero Banner */}
         <section className="page-hero-banner py-20 text-white">
@@ -62,7 +62,7 @@ export default async function ServicesPage() {
         </section>
 
         {/* Treatment Grid Section */}
-        <section className="treatments-grid-section py-24 bg-[#FBFBF9] text-[#273338]">
+        <section className="treatments-catalogue-section py-24 bg-[#FBFBF9] text-[#273338]">
           <div className="container">
             <div className="title-box text-center max-w-3xl mx-auto mb-14">
               <span className="subtitle-italic text-[#2B5748] font-semibold text-sm">Clinical Services</span>
@@ -82,7 +82,7 @@ export default async function ServicesPage() {
                   return (
                     <article
                       key={service.id}
-                      className="group flex flex-col justify-between overflow-hidden rounded-[28px] border border-[#273338]/10 bg-white shadow-[0_12px_36px_-6px_rgba(27,38,33,0.07),0_4px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_24px_50px_-10px_rgba(43,87,72,0.22)] hover:border-[#9CB080]/60 transition-all duration-500"
+                      className="treatment-card-luxury group flex flex-col justify-between overflow-hidden rounded-[28px] border border-[#273338]/10 bg-white shadow-[0_12px_36px_-6px_rgba(27,38,33,0.07),0_4px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_24px_50px_-10px_rgba(43,87,72,0.22)] hover:border-[#9CB080]/60 transition-all duration-500"
                     >
                       <div className="p-7">
                         {/* Service Category/Icon Pill */}
@@ -149,7 +149,7 @@ export default async function ServicesPage() {
         </section>
 
         {/* Services Bottom CTA Section */}
-        <section className="services-cta relative py-24 bg-[#1B2623] text-white overflow-hidden">
+        <section className="treatments-cta relative py-24 bg-[#1B2623] text-white overflow-hidden">
           {/* Ambient Glow & Texture */}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(156,176,128,0.18),transparent_70%)]" />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(16,26,23,0.85)_0%,rgba(10,18,16,0.95)_100%)]" />
