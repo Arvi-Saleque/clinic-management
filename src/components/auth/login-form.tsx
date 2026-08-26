@@ -151,6 +151,12 @@ export function LoginForm() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
+  React.useEffect(() => {
+    if (!state?.redirectTo) return;
+
+    window.location.replace(state.redirectTo);
+  }, [state?.redirectTo]);
+
   function fillEmail(email: string) {
     if (emailRef.current) {
       emailRef.current.value = email;
