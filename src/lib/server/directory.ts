@@ -137,6 +137,23 @@ export async function listPractitionersForService(serviceId: string): Promise<Se
     .sort((a, b) => a.doctor_name.localeCompare(b.doctor_name));
 }
 
+const HIDDEN_SERVICE_NAMES = [
+  "ab",
+  "dat uthano",
+  "demo_procedure",
+  "sd",
+  "services",
+  "আআআআ",
+];
+
+function isHiddenService(name?: string | null): boolean {
+  if (!name) return false;
+  const lower = name.toLowerCase().trim();
+  if (HIDDEN_SERVICE_NAMES.includes(lower)) return true;
+  if (lower.includes("dat uthano") || lower.includes("demo_procedure") || lower.includes("আআআআ")) return true;
+  return false;
+}
+
 export async function listServices() {
   const supabase = await createClient();
   const { data } = await supabase
@@ -144,7 +161,8 @@ export async function listServices() {
     .select("id, name, duration_minutes, price")
     .eq("is_active", true)
     .order("name");
-  return data ?? [];
+
+  return (data ?? []).filter((s) => !isHiddenService(s.name));
 }
 
 export async function searchPatients(query: string) {

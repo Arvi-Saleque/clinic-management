@@ -153,9 +153,20 @@ export async function getDoctorServicesContext(requestedPractitionerId?: string)
     (overridesData ?? []).map((row) => [row.service_id, row]),
   );
 
+  const HIDDEN_SERVICE_NAMES = ["ab", "dat uthano", "demo_procedure", "sd", "services", "আআআআ"];
+  const HIDDEN_SERVICE_SLUGS = ["demo-procedure-mt85mnzx", "sd-mt00szfs", "services-mt0e8713", "service-mt2u1ez2", "service-mt2tzlt8"];
+
   // 3. Merge centralized services with this practitioner's offerings
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mergedServices: DoctorServiceConfig[] = servicesData.map((svc: any) => {
+  const mergedServices: DoctorServiceConfig[] = servicesData
+    .filter((svc: any) => {
+      if (svc.slug && HIDDEN_SERVICE_SLUGS.includes(svc.slug)) return false;
+      const lower = (svc.name || "").toLowerCase().trim();
+      if (HIDDEN_SERVICE_NAMES.includes(lower)) return false;
+      if (lower.includes("dat uthano") || lower.includes("demo_procedure") || lower.includes("আআআআ")) return false;
+      return true;
+    })
+    .map((svc: any) => {
     const override = overridesMap.get(svc.id);
     const isOffered = !!override;
     const overrideDuration = override?.override_duration_minutes ?? null;

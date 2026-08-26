@@ -3486,7 +3486,8 @@ footer .bottom .links a:hover,
   pointer-events: none;
 }
 
-.before-img-wrapper {
+.before-img-wrapper,
+.after-img-wrapper {
   position: absolute;
   top: 0;
   left: 0;

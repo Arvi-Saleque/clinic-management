@@ -17,6 +17,33 @@ export interface PublicServiceItem {
   category?: string;
 }
 
+const HIDDEN_SERVICE_SLUGS = [
+  "demo-procedure-mt85mnzx",
+  "sd-mt00szfs",
+  "services-mt0e8713",
+  "service-mt2u1ez2",
+  "service-mt2tzlt8",
+];
+
+const HIDDEN_SERVICE_NAMES = [
+  "ab",
+  "dat uthano",
+  "demo_procedure",
+  "sd",
+  "services",
+  "আআআআ",
+];
+
+function isHiddenService(name?: string | null, slug?: string | null): boolean {
+  if (slug && HIDDEN_SERVICE_SLUGS.includes(slug)) return true;
+  if (name) {
+    const lower = name.toLowerCase().trim();
+    if (HIDDEN_SERVICE_NAMES.includes(lower)) return true;
+    if (lower.includes("dat uthano") || lower.includes("demo_procedure") || lower.includes("আআআআ")) return true;
+  }
+  return false;
+}
+
 export async function listPublicServices(): Promise<PublicServiceItem[]> {
   const supabase = await createClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,19 +55,23 @@ export async function listPublicServices(): Promise<PublicServiceItem[]> {
     .order("name");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data ?? []).map((s: any): PublicServiceItem => ({
-    id: s.id,
-    name: s.name,
-    slug: s.slug,
-    description: s.description,
-    duration_minutes: s.duration_minutes,
-    price: s.price,
-    category_id: s.category_id,
-    category: s.service_categories?.name || "General Dentistry",
-  }));
+  return (data ?? [])
+    .filter((s: any) => !isHiddenService(s.name, s.slug))
+    .map((s: any): PublicServiceItem => ({
+      id: s.id,
+      name: s.name,
+      slug: s.slug,
+      description: s.description,
+      duration_minutes: s.duration_minutes,
+      price: s.price,
+      category_id: s.category_id,
+      category: s.service_categories?.name || "General Dentistry",
+    }));
 }
 
 export async function getPublicServiceBySlug(slug: string): Promise<PublicServiceItem | null> {
+  if (isHiddenService(undefined, slug)) return null;
+
   const supabase = await createClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase as any)
@@ -54,6 +85,8 @@ export async function getPublicServiceBySlug(slug: string): Promise<PublicServic
   if (!data) return null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const s = data as any;
+  if (isHiddenService(s.name, s.slug)) return null;
+
   return {
     id: s.id,
     name: s.name,
