@@ -11,7 +11,7 @@ import {
   signUpSchema,
 } from "@/lib/validation/auth";
 
-export type AuthActionState = { error: string | null; message?: string };
+export type AuthActionState = { error: string | null; message?: string; redirectTo?: string };
 export type BookingAuthActionState = AuthActionState & {
   authenticated?: boolean;
   registered?: boolean;
@@ -83,7 +83,10 @@ export async function signInAction(
     .eq("id", data.user.id)
     .single();
 
-  redirect(profile?.role === "patient" ? "/portal/dashboard" : "/dashboard");
+  return {
+    error: null,
+    redirectTo: profile?.role === "patient" ? "/portal/dashboard" : "/dashboard",
+  };
 }
 
 export async function signUpAction(
@@ -118,8 +121,9 @@ export async function signUpAction(
 
 export async function signOutAction() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
-  redirect("/");
+  const { error } = await supabase.auth.signOut();
+
+  return { error: error?.message ?? null };
 }
 
 export async function forgotPasswordAction(
