@@ -101,7 +101,7 @@ export async function getDoctorServicesContext(requestedPractitionerId?: string)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const resWithIcon = await (supabase as any)
       .from("services")
-      .select("id, name, slug, description, duration_minutes, price, icon_key, show_on_website")
+      .select("id, name, slug, description, duration_minutes, price, icon_key, show_on_website, category_id, service_categories(name)")
       .eq("is_active", true)
       .order("name");
 
@@ -109,7 +109,7 @@ export async function getDoctorServicesContext(requestedPractitionerId?: string)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const resFallback = await (supabase as any)
         .from("services")
-        .select("id, name, slug, description, duration_minutes, price, show_on_website")
+        .select("id, name, slug, description, duration_minutes, price, show_on_website, category_id, service_categories(name)")
         .eq("is_active", true)
         .order("name");
       servicesData = resFallback.data;
@@ -122,7 +122,7 @@ export async function getDoctorServicesContext(requestedPractitionerId?: string)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const resFallback = await (supabase as any)
       .from("services")
-      .select("id, name, slug, description, duration_minutes, price, show_on_website")
+      .select("id, name, slug, description, duration_minutes, price, show_on_website, category_id, service_categories(name)")
       .eq("is_active", true)
       .order("name");
     servicesData = resFallback.data;
@@ -166,6 +166,8 @@ export async function getDoctorServicesContext(requestedPractitionerId?: string)
       service_id: svc.id,
       name: svc.name,
       slug: svc.slug,
+      category_id: svc.category_id ?? null,
+      category: svc.service_categories?.name || "General Dentistry",
       icon_key: iconKey,
       description: svc.description,
       clinic_duration_minutes: svc.duration_minutes,

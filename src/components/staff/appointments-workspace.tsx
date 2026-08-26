@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ConsultationActionButton } from "@/components/clinical/consultation-action-button";
 import { TablePagination } from "@/components/shared/table-pagination";
 import { useTablePagination } from "@/lib/hooks/use-table-pagination";
 import { PractitionerAppointmentSelector } from "@/components/staff/practitioner-appointment-selector";
@@ -125,6 +126,8 @@ export function AppointmentsWorkspace({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const isDoctor = userRole === "dentist";
 
   const [query, setQuery] = React.useState("");
   const [selectedStatusFilter, setSelectedStatusFilter] = React.useState<string | null>(null);
@@ -602,34 +605,47 @@ export function AppointmentsWorkspace({
 
                       {/* 6. Actions */}
                       <div className="flex items-center justify-start gap-2 lg:justify-end min-h-[36px]">
-                        {isConfirmed && (
-                          <Button
-                            type="button"
+                        {/* DOCTOR VIEW: Full clinical consultation action buttons */}
+                        {isDoctor ? (
+                          <ConsultationActionButton
+                            appointmentId={appointment.id}
+                            status={appointment.status}
                             size="sm"
-                            disabled={pendingId === appointment.id}
-                            onClick={() => handleStatusChange(appointment.id, "checked_in")}
-                            className="h-8.5 rounded-xl px-3 text-xs font-bold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-2xs gap-1.5 cursor-pointer"
-                          >
-                            <UserCheck className="size-3.5" />
-                            Check In
-                          </Button>
+                            className="h-7.5 rounded-lg px-2.5 text-[11px] font-semibold"
+                          />
+                        ) : (
+                          /* ADMIN VIEW: Check In button and status indicators */
+                          <>
+                            {isConfirmed && (
+                              <Button
+                                type="button"
+                                size="sm"
+                                disabled={pendingId === appointment.id}
+                                onClick={() => handleStatusChange(appointment.id, "checked_in")}
+                                className="h-7.5 rounded-lg px-2.5 text-[11px] font-semibold bg-[#0B3B36] hover:bg-[#0B3B36]/90 text-white shadow-2xs gap-1.5 cursor-pointer"
+                              >
+                                <UserCheck className="size-3.5" />
+                                Check In
+                              </Button>
+                            )}
+
+                            {isCheckedIn && (
+                              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 px-2.5 py-1 rounded-lg">
+                                <UserCheck className="size-3.5 text-purple-600 dark:text-purple-400" />
+                                Checked In
+                              </span>
+                            )}
+
+                            {isCompleted && (
+                              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded-lg">
+                                <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                                Completed
+                              </span>
+                            )}
+                          </>
                         )}
 
-                        {isCheckedIn && (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 px-3 py-1 rounded-xl">
-                            <UserCheck className="size-3.5 text-purple-600 dark:text-purple-400" />
-                            Checked In
-                          </span>
-                        )}
-
-                        {isCompleted && (
-                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-xl">
-                            <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400" />
-                            Completed
-                          </span>
-                        )}
-
-                        {/* More Menu Dropdown */}
+                        {/* More Menu Dropdown for all staff */}
                         {!isCancelled && (
                           <DropdownMenu>
                             <DropdownMenuTrigger

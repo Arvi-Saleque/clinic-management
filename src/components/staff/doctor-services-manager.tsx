@@ -315,7 +315,12 @@ export function DoctorServicesManager({ context }: { context: DoctorServicesCont
               }}
             >
               <SelectTrigger className="h-10 rounded-2xl border-border/80 bg-card text-xs font-bold px-3.5 shadow-2xs">
-                <SelectValue placeholder="Select Doctor" />
+                <SelectValue placeholder="Select Doctor">
+                  {(id: string) => {
+                    const p = context.allPractitioners?.find((doc) => doc.id === id);
+                    return p ? `${p.title ? `${p.title} ` : ""}${p.full_name}` : null;
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {context.allPractitioners.map((p) => (
