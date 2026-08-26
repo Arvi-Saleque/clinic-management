@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, CheckCircle2, Clock } from "lucide-react";
+import { CheckCircle2, Clock } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/marketing/luxury-before-after";
 
 export const metadata: Metadata = {
@@ -148,19 +148,11 @@ export default function ResultsPage() {
                     </div>
                   </div>
 
-                  {/* Footer Inquire Action */}
-                  <div className="mt-6 pt-4 border-t border-[#273338]/08 flex items-center justify-between gap-3">
+                  {/* Footer Note */}
+                  <div className="mt-6 pt-4 border-t border-[#273338]/08 flex items-center justify-between">
                     <span className="text-xs text-[#7A8681] italic">
                       Individual results may vary
                     </span>
-
-                    <Link
-                      href="/book"
-                      className="inline-flex items-center gap-1.5 rounded-full bg-[#2B5748]/08 hover:bg-[#2B5748] text-[#2B5748] hover:text-white px-4 py-2 text-xs font-bold uppercase tracking-wider border border-[#2B5748]/15 hover:border-transparent transition-all duration-300 hover:scale-105"
-                    >
-                      <span>Book an Appointment</span>
-                      <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
-                    </Link>
                   </div>
                 </div>
               ))}
@@ -197,17 +189,8 @@ export default function ResultsPage() {
 
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <Link
-                  href="/book"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider !text-white text-white shadow-[0_8px_24px_rgba(43,87,72,0.4)] hover:shadow-[0_12px_32px_rgba(43,87,72,0.6)] transition-all duration-300 hover:scale-105 border border-[#9CB080]/30"
-                  style={{ color: '#ffffff' }}
-                >
-                  <CalendarDays className="w-4 h-4" />
-                  <span>Book an Appointment</span>
-                </Link>
-
-                <Link
                   href="/contact"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 hover:bg-white/20 px-8 py-4 text-xs sm:text-sm font-semibold uppercase tracking-wider !text-white text-white border border-white/25 hover:border-white/50 backdrop-blur-md transition-all duration-300 hover:scale-105"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider !text-white text-white shadow-[0_8px_24px_rgba(43,87,72,0.4)] hover:shadow-[0_12px_32px_rgba(43,87,72,0.6)] transition-all duration-300 hover:scale-105 border border-[#9CB080]/30"
                   style={{ color: '#ffffff' }}
                 >
                   <span>Contact Our Clinic</span>
