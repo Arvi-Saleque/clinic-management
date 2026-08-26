@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, CheckCircle2, Clock } from "lucide-react";
+import { CalendarDays, CheckCircle2, Clock } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/marketing/luxury-before-after";
 
 export const metadata: Metadata = {
@@ -148,19 +148,11 @@ export default function ResultsPage() {
                     </div>
                   </div>
 
-                  {/* Footer Inquire Action */}
+                  {/* Footer Disclaimer */}
                   <div className="mt-6 pt-4 border-t border-[#273338]/08 flex items-center justify-between gap-3">
                     <span className="text-xs text-[#7A8681] italic">
                       Individual results may vary
                     </span>
-
-                    <Link
-                      href="/book"
-                      className="inline-flex items-center gap-1.5 rounded-full bg-[#2B5748]/08 hover:bg-[#2B5748] text-[#2B5748] hover:text-white px-4 py-2 text-xs font-bold uppercase tracking-wider border border-[#2B5748]/15 hover:border-transparent transition-all duration-300 hover:scale-105"
-                    >
-                      <span>Book an Appointment</span>
-                      <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
-                    </Link>
                   </div>
                 </div>
               ))}
