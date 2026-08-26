@@ -2,6 +2,7 @@ import "@/styles/marketing-luxury.css";
 import "@/styles/marketing-homepage-refinement.css";
 import "@/styles/marketing-homepage-motion.css";
 import "@/styles/marketing-public-pages-refinement.css";
+import "@/styles/marketing-homepage-responsive.css";
 import { LuxuryHeader } from "@/components/marketing/luxury-header";
 import { LuxuryFooter } from "@/components/marketing/luxury-footer";
 import { MobileStickyBookingBar } from "@/components/marketing/mobile-sticky-booking-bar";

@@ -464,6 +464,10 @@ export function BookingWizard({
   ];
   const progressStep = step === "registration" ? "account" : step;
   const currentStepIndex = step === "success" ? stepsList.length : stepsList.findIndex((s) => s.id === progressStep);
+  const displayedStepIndex = Math.min(Math.max(currentStepIndex, 0), stepsList.length - 1);
+  const displayedStepNumber = step === "success" ? stepsList.length : displayedStepIndex + 1;
+  const displayedStepLabel = step === "success" ? "Complete" : stepsList[displayedStepIndex]?.label ?? "Booking";
+  const progressPercent = step === "success" ? 100 : (displayedStepNumber / stepsList.length) * 100;
 
   return (
     <div
@@ -505,11 +509,26 @@ export function BookingWizard({
         {!reschedule && (
           <div
             className={cn(
-              "flex flex-wrap items-center justify-between gap-4 border-b border-border/70 bg-surface/90",
-              mode === "public" ? "py-3 pl-4 pr-14 sm:pl-6" : "px-6 py-4 sm:px-8",
+              "booking-stepper-shell flex flex-wrap items-center justify-between gap-4 border-b border-border/70 bg-surface/90",
+              mode === "public" ? "py-3 pl-4 pr-12 sm:pl-6 sm:pr-14" : "px-6 py-4 sm:px-8",
             )}
           >
-            <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto py-1">
+            <div className="booking-mobile-progress min-w-0 flex-1 pr-1 sm:hidden">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-text-muted">
+                  Step {displayedStepNumber} of {stepsList.length}
+                </span>
+                <span className="truncate text-xs font-bold text-primary">{displayedStepLabel}</span>
+              </div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-border/60">
+                <div
+                  className="h-full rounded-full bg-primary transition-[width] duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="hidden items-center gap-2 overflow-x-auto py-1 sm:flex sm:gap-4">
               {stepsList.map((item, idx) => {
                 const isCurrent = item.id === progressStep;
                 const isDone = idx < currentStepIndex;
@@ -549,7 +568,7 @@ export function BookingWizard({
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-1.5 rounded-xl text-xs text-text-secondary hover:text-foreground"
+                className="booking-previous-step w-full justify-start gap-1.5 rounded-xl text-xs text-text-secondary hover:text-foreground sm:w-auto"
                 onClick={() => {
                   if (step === "confirm") setStep("slot");
                   else if (step === "account" || step === "registration") setStep("confirm");
@@ -642,7 +661,7 @@ export function BookingWizard({
             <div className="space-y-6">
               {/* Selected Service Banner */}
               {service && (
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary-soft/40 p-4">
+                <div className="booking-context-card flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary-soft/40 p-4">
                   <div className="flex items-center gap-3">
                     <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold shadow-xs">
                       <Stethoscope className="size-5" />
@@ -742,7 +761,7 @@ export function BookingWizard({
           {step === "slot" && service && practitioner && (
             <div className="space-y-7">
               {/* Service & Doctor Context Summary Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary-soft/40 p-4">
+              <div className="booking-context-card flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary-soft/40 p-4">
                 <div className="flex items-center gap-3">
                   <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold shadow-xs">
                     <Stethoscope className="size-5" />
@@ -776,9 +795,9 @@ export function BookingWizard({
               {/* ==========================================================
                 7-DAY STRIP & 30-DAY CALENDAR PICKER CONTAINER
                 ========================================================== */}
-              <div className="rounded-3xl border border-border/80 bg-surface p-6 shadow-sm space-y-6">
+              <div className="booking-date-card rounded-3xl border border-border/80 bg-surface p-4 shadow-sm space-y-6 sm:p-6">
                 {/* Header with Month / Year & 30-Day Calendar Popover */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border/60 pb-5">
+                <div className="booking-date-header flex flex-col gap-4 border-b border-border/60 pb-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h3 className="font-heading text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
                       {format(selectedDateObj, "MMMM yyyy")}
@@ -794,7 +813,7 @@ export function BookingWizard({
                       render={
                         <Button
                           variant="outline"
-                          className="gap-2 rounded-2xl border-primary/30 bg-primary-soft/40 px-4 py-2.5 text-xs font-bold text-primary hover:bg-primary-soft shadow-xs"
+                          className="booking-date-trigger gap-2 rounded-2xl border-primary/30 bg-primary-soft/40 px-4 py-2.5 text-xs font-bold text-primary hover:bg-primary-soft shadow-xs"
                         />
                       }
                     >
@@ -824,7 +843,7 @@ export function BookingWizard({
                 </div>
 
                 {/* 7-Day Interactive Strip Navigation */}
-                <div className="relative flex items-center justify-between gap-2 sm:gap-4">
+                <div className="booking-date-strip relative flex items-center justify-between gap-2 sm:gap-4">
                   {/* Left Arrow Button */}
                   <Button
                     variant="outline"
@@ -832,13 +851,13 @@ export function BookingWizard({
                     disabled={stripOffset === 0}
                     onClick={handleStripPrevious}
                     aria-label="Previous 7 days"
-                    className="size-11 shrink-0 rounded-2xl border-border/80 bg-background-subtle hover:bg-primary-soft hover:border-primary transition-all disabled:opacity-25 shadow-xs"
+                    className="booking-date-nav-button size-9 shrink-0 rounded-xl border-border/80 bg-background-subtle shadow-xs transition-all hover:border-primary hover:bg-primary-soft disabled:opacity-25 sm:size-11 sm:rounded-2xl"
                   >
                     <ChevronLeft className="size-5 text-foreground" />
                   </Button>
 
                   {/* 7-Day Strip Cards Grid */}
-                  <div className="grid flex-1 grid-cols-7 gap-2 sm:gap-3">
+                  <div className="booking-date-grid grid min-w-0 flex-1 grid-cols-7 gap-1 sm:gap-3">
                     {visible7Days.map((dayItem) => {
                       const isSelected = isSameDay(dayItem, selectedDateObj);
                       const isCurrentDay = isToday(dayItem);
@@ -856,7 +875,7 @@ export function BookingWizard({
                           disabled={disabled}
                           onClick={() => handleSelectDate(dayItem)}
                           className={cn(
-                            "group relative flex flex-col items-center justify-center rounded-2xl py-4 px-1.5 transition-all duration-200",
+                            "booking-day-card group relative flex min-w-0 flex-col items-center justify-center rounded-xl px-0.5 py-2.5 transition-all duration-200 sm:rounded-2xl sm:px-1.5 sm:py-4",
                             isSelected
                               ? "bg-gradient-to-br from-primary to-primary-hover text-primary-foreground font-bold shadow-lg shadow-primary/30 scale-[1.05] ring-2 ring-primary ring-offset-2 ring-offset-background"
                               : "bg-background-subtle hover:bg-primary-soft/50 border border-border/70 text-foreground hover:border-primary/40 hover:scale-[1.02]",
@@ -866,7 +885,7 @@ export function BookingWizard({
                           {/* Short Weekday */}
                           <span
                             className={cn(
-                              "text-[11px] font-semibold tracking-wide",
+                              "booking-day-weekday text-[9px] font-semibold tracking-wide sm:text-[11px]",
                               isSelected ? "text-primary-foreground/90" : "text-text-muted",
                             )}
                           >
@@ -876,7 +895,7 @@ export function BookingWizard({
                           {/* Day Number */}
                           <span
                             className={cn(
-                              "font-heading text-xl sm:text-2xl font-extrabold leading-tight my-1",
+                              "booking-day-number my-1 font-heading text-base font-extrabold leading-tight sm:text-2xl",
                               isSelected ? "text-primary-foreground" : "text-foreground",
                             )}
                           >
@@ -886,7 +905,7 @@ export function BookingWizard({
                           {/* Bottom Status Indicator Bar */}
                           <div
                             className={cn(
-                              "mt-1 h-1 w-6 rounded-full transition-all",
+                              "booking-day-indicator mt-1 h-1 w-4 rounded-full transition-all sm:w-6",
                               isSelected
                                 ? "bg-white"
                                 : isCurrentDay
@@ -906,14 +925,14 @@ export function BookingWizard({
                     disabled={stripOffset >= 23}
                     onClick={handleStripNext}
                     aria-label="Next 7 days"
-                    className="size-11 shrink-0 rounded-2xl border-border/80 bg-background-subtle hover:bg-primary-soft hover:border-primary transition-all disabled:opacity-25 shadow-xs"
+                    className="booking-date-nav-button size-9 shrink-0 rounded-xl border-border/80 bg-background-subtle shadow-xs transition-all hover:border-primary hover:bg-primary-soft disabled:opacity-25 sm:size-11 sm:rounded-2xl"
                   >
                     <ChevronRight className="size-5 text-foreground" />
                   </Button>
                 </div>
 
                 {/* Selected Day Context Indicator */}
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-background-subtle/80 px-4 py-3 text-xs">
+                <div className="booking-selected-day flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-background-subtle/80 px-4 py-3 text-xs">
                   <span className="font-bold text-foreground text-sm">
                     {format(selectedDateObj, "EEEE, d MMMM yyyy")}
                   </span>
@@ -929,7 +948,7 @@ export function BookingWizard({
               {/* ==========================================================
                 TIME SLOTS GRID (AESTHETIC CAPSULE PILL BUTTONS)
                 ========================================================== */}
-              <div className="rounded-3xl border border-primary/25 bg-surface p-6 shadow-xs space-y-5">
+              <div className="booking-time-card rounded-3xl border border-primary/25 bg-surface p-4 shadow-xs space-y-5 sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-4">
                   <div className="flex items-center gap-3">
                     <div className="flex size-10 items-center justify-center rounded-xl bg-primary-soft text-primary font-bold shadow-xs">
