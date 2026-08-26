@@ -27,22 +27,28 @@ export function LuxuryHeader({
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+
+      if (isMobileMenuOpen || isBookingModalOpen) {
+        setHeaderClass(currentScrollY > 80 ? "header-sticky" : "");
+        lastScrollY = currentScrollY;
+        return;
+      }
+
       let nextClass = "";
       if (currentScrollY > 80) {
         nextClass = "header-sticky";
         if (currentScrollY > lastScrollY && currentScrollY > 200) {
           nextClass += " header-hidden";
         }
-      } else {
-        nextClass = "";
       }
       setHeaderClass(nextClass);
       lastScrollY = currentScrollY;
     };
 
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isBookingModalOpen, isMobileMenuOpen]);
 
   React.useEffect(() => {
     const handleBookingModalChange = (event: Event) => {
@@ -55,10 +61,47 @@ export function LuxuryHeader({
     return () => window.removeEventListener("clinic:booking-modal-change", handleBookingModalChange);
   }, []);
 
+  React.useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
+  React.useEffect(() => {
+    const desktopQuery = window.matchMedia("(min-width: 1025px)");
+    const closeOnDesktop = (event: MediaQueryListEvent) => {
+      if (event.matches) setIsMobileMenuOpen(false);
+    };
+    desktopQuery.addEventListener("change", closeOnDesktop);
+    return () => desktopQuery.removeEventListener("change", closeOnDesktop);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const html = document.documentElement;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = html.style.overflow;
+
+    html.classList.add("luxury-mobile-menu-open");
+    document.body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsMobileMenuOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      window.removeEventListener("keydown", closeOnEscape);
+      html.classList.remove("luxury-mobile-menu-open");
+      document.body.style.overflow = previousBodyOverflow;
+      html.style.overflow = previousHtmlOverflow;
+    };
+  }, [isMobileMenuOpen]);
+
   return (
     <>
       <header
-        className={`luxury-site-header ${pathname === "/" ? "homepage-header" : ""} ${headerClass} ${isBookingModalOpen ? "header-hidden" : ""}`}
+        className={`luxury-site-header ${pathname === "/" ? "homepage-header" : ""} ${headerClass} ${isMobileMenuOpen ? "mobile-menu-open" : ""} ${isBookingModalOpen ? "header-hidden" : ""}`}
       >
         <div className="header-full-width-container">
           <div className="header-row">
@@ -123,7 +166,7 @@ export function LuxuryHeader({
                 </Link>
               )}
 
-              <Link href="/book" className="btn-blue">
+              <Link href="/book" className="btn-blue header-book-cta">
                 <CalendarDays className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
                 Book an Appointment
               </Link>
@@ -134,6 +177,8 @@ export function LuxuryHeader({
                 className={`hamburger lg:hidden ${isMobileMenuOpen ? "active" : ""}`}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="Toggle navigation menu"
+                aria-expanded={isMobileMenuOpen}
+                aria-controls="luxury-mobile-navigation"
               >
                 <span style={isMobileMenuOpen ? { transform: "rotate(45deg) translate(5px, 5px)" } : {}} />
                 <span style={isMobileMenuOpen ? { opacity: 0 } : {}} />
@@ -146,7 +191,7 @@ export function LuxuryHeader({
 
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
-        <div className="luxury-mobile-menu lg:hidden">
+        <div id="luxury-mobile-navigation" className="luxury-mobile-menu lg:hidden">
           <div className="container py-6 space-y-4">
             <nav className="space-y-2">
               <Link

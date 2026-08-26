@@ -8,12 +8,12 @@ import { LuxuryWhyChoose } from "@/components/marketing/luxury-why-choose";
 import { LuxurySmileSimulator } from "@/components/marketing/luxury-smile-simulator";
 import { BeforeAfterSlider } from "@/components/marketing/luxury-before-after";
 import { LuxuryFaq } from "@/components/marketing/luxury-faq";
-import { HomepageMotion } from "@/components/marketing/homepage-motion";
+import { ResponsiveHomepageMotion } from "@/components/marketing/responsive-homepage-motion";
 
 export default function HomePage() {
   return (
     <div className="home luxury-homepage-root">
-      <HomepageMotion />
+      <ResponsiveHomepageMotion />
       {/* 1. Hero Slideshow */}
       <LuxuryHero />
 

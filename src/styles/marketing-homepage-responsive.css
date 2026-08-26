@@ -1,0 +1,886 @@
+/* ==========================================================================
+   CLINIC CARE DENTAL â€” HOMEPAGE RESPONSIVE HARDENING v2
+   Loaded last by the marketing layout.
+   Scope: public luxury header + homepage only. Desktop >= 1025px is preserved.
+   ========================================================================== */
+
+/* Header: keep flex children shrinkable before the mobile breakpoint. */
+.luxury-site-header .header-row,
+.luxury-site-header .others,
+.luxury-site-header .logo {
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .marketing-luxury-theme {
+    --responsive-header-height: 76px;
+  }
+
+  .luxury-site-header {
+    --responsive-header-height: 76px;
+  }
+
+  .luxury-site-header .header-full-width-container {
+    padding-left: clamp(16px, 3vw, 28px);
+    padding-right: clamp(16px, 3vw, 28px);
+  }
+
+  .luxury-site-header .header-row,
+  .luxury-site-header.header-sticky .header-row {
+    height: var(--responsive-header-height);
+    gap: 14px;
+  }
+
+  .luxury-site-header .logo {
+    width: auto !important;
+    max-width: none;
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+
+  .luxury-site-header .logo-text {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: clamp(16px, 2.35vw, 20px);
+  }
+
+  .luxury-site-header .others {
+    flex: 0 0 auto;
+    gap: 10px;
+  }
+
+  .luxury-site-header .hamburger {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 19px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .luxury-site-header.mobile-menu-open {
+    position: fixed;
+    transform: translateY(0) !important;
+    background: rgba(25, 36, 39, 0.98);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  }
+
+  .luxury-site-header.mobile-menu-open.header-sticky {
+    background: rgba(248, 248, 244, 0.98);
+  }
+
+  .luxury-mobile-menu {
+    top: var(--responsive-header-height, 76px) !important;
+    bottom: 0;
+    height: auto;
+    max-height: calc(100dvh - var(--responsive-header-height, 76px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: max(88px, calc(70px + env(safe-area-inset-bottom)));
+    background: #192427 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.34);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    z-index: 1005;
+  }
+
+  .luxury-mobile-menu > .container {
+    min-height: 100%;
+    padding-top: 18px !important;
+    padding-bottom: max(112px, calc(92px + env(safe-area-inset-bottom))) !important;
+  }
+
+  .luxury-mobile-menu nav a {
+    color: #f5f7f5 !important;
+    opacity: 1 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .luxury-mobile-menu nav a:hover,
+  .luxury-mobile-menu nav a:focus-visible {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.055);
+  }
+
+  .luxury-mobile-menu .btn-blue {
+    display: flex !important;
+    width: 100%;
+    min-height: 50px;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff !important;
+    background: #365d4f !important;
+    border-color: rgba(181, 200, 155, 0.28) !important;
+    opacity: 1 !important;
+  }
+
+  .luxury-homepage-root .hero-bottom-controller {
+    bottom: calc(90px + env(safe-area-inset-bottom)) !important;
+  }
+
+  html.luxury-mobile-menu-open,
+  html.luxury-mobile-menu-open body {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+  }
+
+  /* Mobile browsers handle absolute hero media more reliably than a fixed
+     full-screen wallpaper while the rest of the page scrolls. */
+  .luxury-homepage-root .luxury-hero-section .wallpaper {
+    position: absolute !important;
+    inset: 0;
+    height: 100% !important;
+  }
+
+  /* One coherent viewport model for the current LuxuryHero markup. */
+  .luxury-homepage-root .home-banner-v2.luxury-hero-section {
+    height: auto !important;
+    min-height: max(680px, 100svh) !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+
+  .luxury-homepage-root .hero-center-container {
+    min-height: max(680px, 100svh) !important;
+    padding: 118px clamp(44px, 7vw, 72px) 112px;
+  }
+
+  .luxury-homepage-root .hero-content-wrapper {
+    width: min(100%, 820px);
+  }
+
+  /* Current component-specific typography wins over legacy generic h1/h2/h3
+     !important rules in marketing-luxury.css. */
+  .luxury-homepage-root .hero-display-title {
+    font-size: clamp(46px, 7vw, 68px) !important;
+    line-height: 1.06 !important;
+  }
+
+  .luxury-homepage-root .hero-editorial-desc {
+    font-size: clamp(15.5px, 2vw, 18px) !important;
+  }
+
+  .luxury-homepage-root .journey-title {
+    font-size: clamp(38px, 5vw, 46px) !important;
+  }
+
+  .luxury-homepage-root .journey-subtitle {
+    font-size: 16px !important;
+  }
+
+  .luxury-homepage-root .journey-step-card .step-title {
+    font-size: 20px !important;
+  }
+
+  .luxury-homepage-root .journey-step-card .step-description {
+    font-size: 14px !important;
+  }
+
+  .luxury-homepage-root .steps-scroll-left h2,
+  .luxury-homepage-root .simulator-controls-col h2,
+  .luxury-homepage-root .home-before-after-section .h3,
+  .luxury-homepage-root .price-guide .h3,
+  .luxury-homepage-root .faq-heading-wrap h2 {
+    font-size: clamp(34px, 4.5vw, 42px) !important;
+  }
+
+  .luxury-homepage-root .stack-card .card-top h3 {
+    font-size: clamp(24px, 3vw, 29px) !important;
+  }
+
+  .luxury-homepage-root .stack-card-inner {
+    min-height: 0;
+  }
+
+  .luxury-homepage-root .simulator-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .luxury-homepage-root .home-before-after-section .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Header is intentionally minimal whenever the fixed mobile booking bar exists. */
+@media (max-width: 900px) {
+  .marketing-luxury-theme {
+    --responsive-header-height: 72px;
+  }
+
+  .luxury-site-header {
+    --responsive-header-height: 72px;
+  }
+
+  .luxury-site-header .btn-account-pill,
+  .luxury-site-header .header-book-cta {
+    display: none !important;
+  }
+
+  .luxury-site-header .others {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* Hero */
+  .luxury-homepage-root .home-banner-v2.luxury-hero-section {
+    min-height: max(700px, 100svh) !important;
+  }
+
+  .luxury-homepage-root .hero-center-container {
+    min-height: max(700px, 100svh) !important;
+    padding: 104px 18px 108px !important;
+  }
+
+  .luxury-homepage-root .hero-kicker-pill {
+    max-width: min(100%, 440px);
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 7px 8px;
+    padding: 7px 14px;
+    margin-bottom: 20px;
+  }
+
+  .luxury-homepage-root .hero-kicker-text,
+  .luxury-homepage-root .hero-kicker-badge {
+    font-size: 11px !important;
+    line-height: 1.35;
+  }
+
+  .luxury-homepage-root .hero-display-title {
+    font-size: clamp(40px, 11.8vw, 58px) !important;
+    line-height: 1.04 !important;
+    letter-spacing: -0.025em;
+    margin-bottom: 17px;
+    text-wrap: balance;
+  }
+
+  .luxury-homepage-root .hero-display-title .title-accent {
+    margin-left: 3px;
+  }
+
+  .luxury-homepage-root .hero-editorial-desc {
+    max-width: 560px;
+    margin-bottom: 24px;
+    font-size: 15px !important;
+    line-height: 1.58;
+  }
+
+  .luxury-homepage-root .hero-cta-group {
+    width: min(100%, 410px);
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+
+  .luxury-homepage-root .hero-btn-primary,
+  .luxury-homepage-root .hero-btn-secondary {
+    width: 100%;
+    min-height: 50px;
+    padding: 13px 18px;
+    font-size: 13.5px !important;
+  }
+
+  .luxury-homepage-root .hero-trust-chips {
+    width: min(100%, 520px);
+    gap: 8px;
+  }
+
+  .luxury-homepage-root .hero-trust-chip {
+    font-size: 11.5px !important;
+    line-height: 1.3;
+    padding: 5px 9px;
+  }
+
+  .luxury-homepage-root .hero-bottom-controller {
+    bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+    width: auto;
+    max-width: calc(100% - 28px);
+  }
+
+  .luxury-homepage-root .hero-controller-pill {
+    max-width: 100%;
+    gap: 11px;
+    padding: 8px 15px;
+  }
+
+  /* Floating white sections */
+  .luxury-homepage-root .page-section-white,
+  .luxury-homepage-root .page-section-white.first-card,
+  .luxury-homepage-root .page-section-white.second-card {
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+    border-radius: 24px;
+  }
+
+  /* Story */
+  .luxury-homepage-root .text-image .content {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+  }
+
+  .luxury-homepage-root .text-image .text-box {
+    padding: 0 !important;
+  }
+
+  .luxury-homepage-root .text-image .text-box h2 {
+    font-size: clamp(30px, 8.5vw, 36px) !important;
+    line-height: 1.13 !important;
+  }
+
+  .luxury-homepage-root .text-image .text-box p {
+    font-size: 15px !important;
+    line-height: 1.68;
+  }
+
+  .luxury-homepage-root .text-image .img-box {
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .luxury-homepage-root .text-image .img-box .img-item {
+    min-height: 0 !important;
+    max-height: none !important;
+    height: auto !important;
+    aspect-ratio: 4 / 3;
+  }
+
+  .luxury-homepage-root .text-image .img-box .img-item img {
+    width: 100%;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    object-fit: cover;
+  }
+
+  /* Journey */
+  .luxury-homepage-root .smile-journey-section {
+    padding: 72px 0 70px;
+  }
+
+  .luxury-homepage-root .journey-header {
+    margin-bottom: 36px;
+  }
+
+  .luxury-homepage-root .journey-title {
+    font-size: clamp(32px, 9vw, 39px) !important;
+    line-height: 1.12 !important;
+  }
+
+  .luxury-homepage-root .journey-title br {
+    display: none;
+  }
+
+  .luxury-homepage-root .journey-subtitle {
+    font-size: 15px !important;
+    line-height: 1.65;
+  }
+
+  .luxury-homepage-root .journey-grid-4 {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  .luxury-homepage-root .journey-step-card {
+    min-height: 0 !important;
+    padding: 26px 20px;
+  }
+
+  .luxury-homepage-root .journey-step-card .step-title {
+    font-size: 20px !important;
+  }
+
+  .luxury-homepage-root .journey-step-card .step-description {
+    font-size: 14px !important;
+    line-height: 1.6;
+  }
+
+  .luxury-homepage-root .journey-trust-bar {
+    padding: 18px;
+    align-items: stretch;
+  }
+
+  .luxury-homepage-root .journey-trust-bar .trust-item {
+    width: 100%;
+  }
+
+  .luxury-homepage-root .journey-book-cta {
+    width: 100%;
+  }
+
+  /* Treatments */
+  .luxury-homepage-root .four-columns-card .treatment-grid-list {
+    grid-template-columns: 1fr !important;
+    gap: 18px;
+  }
+
+  .luxury-homepage-root .treatment-card-item {
+    width: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: 4 / 4.55;
+  }
+
+  .luxury-homepage-root .treatment-card-item .card-overlay-content {
+    padding: 26px 20px;
+  }
+
+  .luxury-homepage-root .treatment-card-item .card-title {
+    font-size: 21px !important;
+    line-height: 1.2 !important;
+  }
+
+  .luxury-homepage-root .treatment-card-item .card-desc {
+    font-size: 13.5px !important;
+    line-height: 1.55;
+  }
+
+  /* Why choose */
+  .luxury-homepage-root .steps-scroll-layout,
+  .homepage-motion-enabled .luxury-homepage-root .steps-scroll-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 46px 16px !important;
+    gap: 30px !important;
+  }
+
+  .luxury-homepage-root .steps-scroll-left,
+  .homepage-motion-enabled .luxury-homepage-root .steps-scroll-left,
+  .luxury-homepage-root .steps-scroll-right,
+  .homepage-motion-enabled .luxury-homepage-root .steps-scroll-right {
+    position: static !important;
+    width: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .luxury-homepage-root .card-timeline,
+  .homepage-motion-enabled .luxury-homepage-root .card-timeline {
+    position: static !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 18px !important;
+    min-height: 0 !important;
+  }
+
+  .luxury-homepage-root .stack-card,
+  .homepage-motion-enabled .luxury-homepage-root .stack-card {
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .luxury-homepage-root .steps-scroll-left h2 {
+    font-size: clamp(31px, 8.5vw, 37px) !important;
+  }
+
+  .luxury-homepage-root .steps-scroll-left p {
+    font-size: 15px !important;
+    line-height: 1.68;
+  }
+
+  .luxury-homepage-root .stack-card-inner {
+    padding: 28px 21px !important;
+    min-height: 0 !important;
+  }
+
+  .luxury-homepage-root .stack-card .card-top h3 {
+    font-size: 23px !important;
+    line-height: 1.2 !important;
+  }
+
+  .luxury-homepage-root .stack-card .card-body p,
+  .luxury-homepage-root .stack-card .card-body .lead-text,
+  .luxury-homepage-root .details-list li {
+    font-size: 14px !important;
+    line-height: 1.6;
+  }
+
+  /* Smile simulator */
+  .luxury-homepage-root .smile-simulator-section {
+    padding: 72px 0;
+  }
+
+  .luxury-homepage-root .simulator-grid {
+    gap: 34px;
+  }
+
+  .luxury-homepage-root .simulator-screen {
+    height: clamp(300px, 74vw, 380px) !important;
+  }
+
+  .luxury-homepage-root .simulator-controls-col h2 {
+    font-size: clamp(31px, 8.5vw, 38px) !important;
+  }
+
+  .luxury-homepage-root .controls-intro {
+    font-size: 15px !important;
+  }
+
+  .luxury-homepage-root .pills-grid,
+  .luxury-homepage-root .shapes-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .luxury-homepage-root .hud-overlay {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 12px;
+    padding: 11px 12px;
+  }
+
+  .luxury-homepage-root .hud-item:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .luxury-homepage-root .hud-label {
+    font-size: 9.5px !important;
+  }
+
+  .luxury-homepage-root .hud-item strong {
+    font-size: 12px !important;
+  }
+
+  /* Before / After: fixes the later CSS rule that forced two columns on phone. */
+  .luxury-homepage-root .home-before-after-section .grid {
+    grid-template-columns: 1fr !important;
+    gap: 22px !important;
+  }
+
+  .luxury-homepage-root .before-after-card {
+    padding: 17px;
+    border-radius: 20px;
+  }
+
+  .luxury-homepage-root .before-after-container {
+    height: clamp(280px, 82vw, 380px) !important;
+  }
+
+  .luxury-homepage-root .before-after-header h4 {
+    font-size: 18px !important;
+  }
+
+  .luxury-homepage-root .home-section-copy {
+    font-size: 15px !important;
+  }
+
+  /* Marquee / price / FAQ */
+  .luxury-homepage-root .marquee-row h2 {
+    font-size: clamp(44px, 14vw, 58px) !important;
+    line-height: 1.05;
+  }
+
+  .luxury-homepage-root .price-guide .text-box {
+    padding: 32px 24px !important;
+  }
+
+  .luxury-homepage-root .price-guide .h3 {
+    font-size: clamp(31px, 8.5vw, 38px) !important;
+  }
+
+  .luxury-homepage-root .price-guide .text-box p {
+    font-size: 15px !important;
+    line-height: 1.68;
+  }
+
+  .luxury-homepage-root .price-guide .img-box,
+  .luxury-homepage-root .price-guide .img-box img {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+
+  .luxury-homepage-root .price-guide .img-box img {
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+
+  .luxury-homepage-root .faq-heading-wrap h2 {
+    font-size: clamp(31px, 8.5vw, 38px) !important;
+  }
+
+  .luxury-homepage-root .faq-intro {
+    font-size: 15px !important;
+  }
+
+  .luxury-homepage-root .faq-question {
+    min-height: 62px;
+    padding: 18px 18px;
+    gap: 14px;
+    font-size: 15px !important;
+  }
+
+  .luxury-homepage-root .faq-answer {
+    padding: 14px 18px 20px;
+    font-size: 14.5px !important;
+  }
+
+  /* Footer */
+  .luxury-site-footer {
+    padding-top: 68px;
+  }
+
+  .luxury-site-footer .footer-top-banner {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 26px 22px;
+  }
+
+  .luxury-site-footer .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 22px;
+  }
+}
+
+@media (max-width: 520px) {
+  .luxury-site-header .header-full-width-container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .luxury-site-header .header-row {
+    gap: 10px;
+  }
+
+  .luxury-site-header .logo-text {
+    font-size: clamp(14px, 4.1vw, 16px) !important;
+    letter-spacing: 0.045em;
+  }
+
+  .luxury-homepage-root .hero-center-container {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+
+  .luxury-homepage-root .hero-kicker-dot {
+    display: none;
+  }
+
+  .luxury-homepage-root .hero-display-title {
+    font-size: clamp(37px, 11.8vw, 49px) !important;
+  }
+
+  .luxury-homepage-root .hero-trust-chips {
+    gap: 6px;
+  }
+
+  .luxury-homepage-root .hero-trust-chip {
+    font-size: 10.8px !important;
+  }
+
+  .luxury-homepage-root #story .btn-group,
+  .luxury-homepage-root .four-columns-card .btn-row,
+  .luxury-homepage-root .steps-scroll-left .btn-group,
+  .luxury-homepage-root .price-guide .btn-group {
+    width: 100%;
+  }
+
+  .luxury-homepage-root #story .btn-group .btn,
+  .luxury-homepage-root #story .btn-group .btn-stroke,
+  .luxury-homepage-root .four-columns-card .btn-row .btn,
+  .luxury-homepage-root .steps-scroll-left .btn-group .btn,
+  .luxury-homepage-root .price-guide .btn-download {
+    width: 100%;
+  }
+
+  .luxury-homepage-root .treatment-card-item {
+    aspect-ratio: 4 / 4.75;
+  }
+
+  .luxury-homepage-root .simulator-screen {
+    height: clamp(280px, 78vw, 330px) !important;
+  }
+
+  /* Do not turn the HUD into a tall single-column overlay on small phones. */
+  .luxury-homepage-root .hud-overlay {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .luxury-homepage-root .hud-item:last-child {
+    grid-column: 1 / -1 !important;
+  }
+
+  .luxury-homepage-root .shades-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    overflow: visible !important;
+  }
+
+  .luxury-homepage-root .marquee-row h2 {
+    font-size: 42px !important;
+  }
+
+  .luxury-site-footer .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .luxury-site-footer .bottom,
+  .luxury-site-footer .bottom .links {
+    width: 100%;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 360px) {
+  .luxury-site-header .logo-text {
+    font-size: 13.5px !important;
+    letter-spacing: 0.03em;
+  }
+
+  .luxury-homepage-root .hero-display-title {
+    font-size: 36px !important;
+  }
+
+  .luxury-homepage-root .hero-editorial-desc {
+    font-size: 14.5px !important;
+  }
+
+  .luxury-homepage-root .hero-controller-pill {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .luxury-homepage-root .hero-pills-list {
+    gap: 6px;
+  }
+
+  .luxury-homepage-root .hero-selector-pill.active {
+    width: 34px;
+  }
+}
+
+
+/* ==========================================================================
+   PUBLIC BOOKING WIZARD â€” PHONE LAYOUT HARDENING
+   Semantic hooks are added by the v2 apply script. No booking logic changes.
+   ========================================================================== */
+@media (max-width: 639px) {
+  .booking-stepper-shell {
+    gap: 10px !important;
+  }
+
+  .booking-mobile-progress {
+    min-width: 0;
+  }
+
+  .booking-previous-step {
+    min-height: 36px;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+
+  .booking-date-card,
+  .booking-time-card {
+    padding: 16px !important;
+    border-radius: 22px !important;
+  }
+
+  .booking-date-header {
+    gap: 14px !important;
+    padding-bottom: 16px !important;
+  }
+
+  .booking-date-header h3 {
+    font-size: clamp(26px, 8vw, 31px) !important;
+    line-height: 1.08 !important;
+  }
+
+  .booking-date-trigger {
+    width: 100% !important;
+    min-height: 40px;
+    justify-content: center;
+  }
+
+  .booking-date-strip {
+    display: grid !important;
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    gap: 6px !important;
+    align-items: stretch !important;
+  }
+
+  .booking-date-nav-button {
+    width: 36px !important;
+    height: 42px !important;
+    min-width: 36px !important;
+    align-self: center;
+    border-radius: 13px !important;
+  }
+
+  .booking-date-grid {
+    min-width: 0 !important;
+    gap: 4px !important;
+  }
+
+  .booking-day-card {
+    min-width: 0 !important;
+    padding: 9px 0 !important;
+    border-radius: 12px !important;
+    transform: none !important;
+    box-shadow: none;
+  }
+
+  .booking-day-weekday {
+    font-size: 9px !important;
+    letter-spacing: 0 !important;
+  }
+
+  .booking-day-number {
+    margin-top: 2px !important;
+    margin-bottom: 2px !important;
+    font-size: 17px !important;
+    line-height: 1 !important;
+  }
+
+  .booking-day-indicator {
+    width: 16px !important;
+    height: 3px !important;
+    margin-top: 3px !important;
+  }
+
+  .booking-selected-day {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+    padding: 12px 13px !important;
+  }
+
+  .booking-selected-day > span:first-child {
+    font-size: 12px !important;
+    line-height: 1.35;
+  }
+
+  .booking-selected-day > span:last-child {
+    font-size: 11px !important;
+    line-height: 1.35;
+  }
+
+  .booking-context-card {
+    padding: 13px !important;
+    border-radius: 18px !important;
+  }
+
+  .booking-context-card > div:first-child {
+    min-width: 0;
+    align-items: flex-start;
+  }
+
+  .booking-context-card p {
+    overflow-wrap: anywhere;
+  }
+}
