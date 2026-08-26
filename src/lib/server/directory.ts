@@ -8,6 +8,8 @@ import type { ServicePractitionerOption } from "@/types/services";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+const HIDDEN_PRACTITIONER_NAMES = ["rafi ahmed", "nadia islam"];
+
 export async function listPractitioners() {
   const supabase = await createClient();
   const { data } = await supabase
@@ -15,7 +17,11 @@ export async function listPractitioners() {
     .select("id, title, branch_id, profiles:profile_id(full_name)")
     .eq("is_bookable", true)
     .order("id");
-  return data ?? [];
+
+  return (data ?? []).filter((p) => {
+    const fullName = (p.profiles as { full_name?: string } | null)?.full_name ?? "";
+    return !HIDDEN_PRACTITIONER_NAMES.some((n) => fullName.toLowerCase().includes(n));
+  });
 }
 
 export async function listPractitionersForService(serviceId: string): Promise<ServicePractitionerOption[]> {
@@ -87,6 +93,12 @@ export async function listPractitionersForService(serviceId: string): Promise<Se
       if (!practitioner) return false;
       // Enforce organization alignment
       if (practitioner.branches?.organization_id !== service.organization_id) return false;
+
+      const fullName = practitioner.profiles?.full_name ?? "";
+      if (HIDDEN_PRACTITIONER_NAMES.some((n) => fullName.toLowerCase().includes(n))) {
+        return false;
+      }
+
       return true;
     })
     .map((row) => {

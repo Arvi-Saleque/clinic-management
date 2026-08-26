@@ -7,6 +7,7 @@
 
 .about-page,
 .treatments-page,
+.services-page,
 .treatment-detail-page,
 .practitioners-page,
 .practitioner-detail-page,
@@ -36,6 +37,7 @@
 
 .about-page main,
 .treatments-page main,
+.services-page main,
 .treatment-detail-page main,
 .practitioners-page main,
 .practitioner-detail-page main,
@@ -51,6 +53,7 @@
 /* ---------- Shared inner-page hero language with Fixed Background Parallax (Dhaka Heights Style) ---------- */
 .about-page .page-hero-banner,
 .treatments-page .page-hero-banner,
+.services-page .page-hero-banner,
 .practitioners-page .page-hero-banner,
 .results-page .page-hero-banner,
 .blog-page .page-hero-banner,
@@ -75,6 +78,7 @@
 @media (max-width: 768px) {
   .about-page .page-hero-banner,
   .treatments-page .page-hero-banner,
+  .services-page .page-hero-banner,
   .practitioners-page .page-hero-banner,
   .results-page .page-hero-banner,
   .blog-page .page-hero-banner,
@@ -90,6 +94,7 @@
 
 .about-page .page-hero-banner::after,
 .treatments-page .page-hero-banner::after,
+.services-page .page-hero-banner::after,
 .practitioners-page .page-hero-banner::after,
 .results-page .page-hero-banner::after,
 .blog-page .page-hero-banner::after,
@@ -109,6 +114,7 @@
 
 .about-page .page-hero-banner,
 .treatments-page .page-hero-banner,
+.services-page .page-hero-banner,
 .practitioners-page .page-hero-banner,
 .results-page .page-hero-banner,
 .blog-page .page-hero-banner,
@@ -124,6 +130,7 @@
 
 .about-page .page-hero-banner > .container,
 .treatments-page .page-hero-banner > .container,
+.services-page .page-hero-banner > .container,
 .practitioners-page .page-hero-banner > .container,
 .results-page .page-hero-banner > .container,
 .blog-page .page-hero-banner > .container,
@@ -136,6 +143,7 @@
 
 .about-page .page-hero-banner > .container > .inline-flex,
 .treatments-page .page-hero-banner > .container > .inline-flex,
+.services-page .page-hero-banner > .container > .inline-flex,
 .practitioners-page .page-hero-banner > .container > .inline-flex,
 .results-page .page-hero-banner > .container > .inline-flex,
 .blog-page .page-hero-banner > .container > .inline-flex,
@@ -164,6 +172,7 @@
 
 .about-page .page-title,
 .treatments-page .page-title,
+.services-page .page-title,
 .practitioners-page .page-title,
 .results-page .page-title,
 .blog-page .page-title,
@@ -179,6 +188,7 @@
 
 .about-page .page-title i,
 .treatments-page .page-title i,
+.services-page .page-title i,
 .practitioners-page .page-title i,
 .results-page .page-title i,
 .blog-page .page-title i,
@@ -192,6 +202,7 @@
 
 .about-page .page-subtitle,
 .treatments-page .page-subtitle,
+.services-page .page-subtitle,
 .practitioners-page .page-subtitle,
 .results-page .page-subtitle,
 .blog-page .page-subtitle,
@@ -208,6 +219,7 @@
 .about-page .story-split-section,
 .about-page .team-section-wrapper,
 .treatments-page .treatments-catalogue-section,
+.services-page .treatments-catalogue-section,
 .treatment-detail-page .treatment-steps-section,
 .practitioners-page .practitioners-grid-section,
 .results-page .gallery-section,
@@ -224,6 +236,7 @@
 
 .about-page .subtitle-italic,
 .treatments-page .subtitle-italic,
+.services-page .subtitle-italic,
 .treatment-detail-page .subtitle-italic,
 .practitioners-page .subtitle-italic,
 .locations-page .subtitle-italic,
@@ -235,6 +248,7 @@
 
 .about-page .team-section-wrapper .title-box h2,
 .treatments-page .title-box h2,
+.services-page .title-box h2,
 .treatment-detail-page .title-box h2,
 .public-book-page h2 {
   color: var(--public-text) !important;
@@ -514,11 +528,13 @@
 }
 
 /* ---------- Treatments catalogue luxury cards ---------- */
-.treatments-page .treatments-catalogue-section .container {
+.treatments-page .treatments-catalogue-section .container,
+.services-page .treatments-catalogue-section .container {
   max-width: 1280px;
 }
 
-.treatments-page .treatment-card-luxury {
+.treatments-page .treatment-card-luxury,
+.services-page .treatment-card-luxury {
   border-radius: 28px !important;
   background: #ffffff !important;
   border: 1px solid rgba(39, 51, 56, 0.09) !important;
@@ -527,13 +543,15 @@
   overflow: hidden;
 }
 
-.treatments-page .treatment-card-luxury:hover {
+.treatments-page .treatment-card-luxury:hover,
+.services-page .treatment-card-luxury:hover {
   transform: translateY(-6px) !important;
   border-color: rgba(156, 176, 128, 0.55) !important;
   box-shadow: 0 24px 50px -10px rgba(43, 87, 72, 0.18), 0 12px 24px -5px rgba(27, 38, 33, 0.08) !important;
 }
 
-.treatments-page .treatment-card-luxury h3 {
+.treatments-page .treatment-card-luxury h3,
+.services-page .treatment-card-luxury h3 {
   color: #1F2421 !important;
   font-size: 22px !important;
   font-weight: 700 !important;
@@ -541,26 +559,34 @@
   line-height: 1.3;
 }
 
-.treatments-page .treatment-card-luxury:hover h3 {
+.treatments-page .treatment-card-luxury:hover h3,
+.services-page .treatment-card-luxury:hover h3 {
   color: #2B5748 !important;
 }
 
-.treatments-page .treatment-card-luxury p {
+.treatments-page .treatment-card-luxury p,
+.services-page .treatment-card-luxury p {
   color: #52605B !important;
   font-size: 13.5px !important;
   line-height: 1.65 !important;
 }
 
-.treatments-page .treatment-card-luxury .treatment-card-book-btn {
+.treatments-page .treatment-card-luxury .treatment-card-book-btn,
+.services-page .treatment-card-luxury .treatment-card-book-btn {
   background: linear-gradient(135deg, #2B5748 0%, #17352a 100%) !important;
   color: #ffffff !important;
   font-weight: 700 !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  letter-spacing: 0.04em !important;
   border: 1px solid rgba(156, 176, 128, 0.35) !important;
   box-shadow: 0 6px 18px rgba(23, 53, 42, 0.25) !important;
   text-decoration: none !important;
 }
 
-.treatments-page .treatment-card-luxury .treatment-card-book-btn:hover {
+.treatments-page .treatment-card-luxury .treatment-card-book-btn:hover,
+.services-page .treatment-card-luxury .treatment-card-book-btn:hover {
   background: linear-gradient(135deg, #376d5b 0%, #2B5748 100%) !important;
   box-shadow: 0 10px 24px rgba(23, 53, 42, 0.4) !important;
   transform: scale(1.04);
@@ -587,7 +613,8 @@
 }
 
 /* ---------- Treatments page CTA Section (Glassmorphism & High-Contrast Typography) ---------- */
-.treatments-page .treatments-cta {
+.treatments-page .treatments-cta,
+.services-page .treatments-cta {
   background: radial-gradient(circle at 50% 0%, rgba(156, 176, 128, 0.18), transparent 70%),
               linear-gradient(180deg, #182320 0%, #0F1715 100%) !important;
   padding-top: 100px !important;
@@ -596,7 +623,8 @@
   isolation: isolate;
 }
 
-.treatments-page .treatments-cta > .container > div {
+.treatments-page .treatments-cta > .container > div,
+.services-page .treatments-cta > .container > div {
   background: rgba(255, 255, 255, 0.055) !important;
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(24px) !important;
@@ -606,7 +634,9 @@
 }
 
 .treatments-page .treatments-cta h2,
-.treatments-page .treatments-cta h3 {
+.treatments-page .treatments-cta h3,
+.services-page .treatments-cta h2,
+.services-page .treatments-cta h3 {
   color: #ffffff !important;
   font-size: clamp(28px, 4vw, 44px) !important;
   font-weight: 300 !important;
@@ -1083,6 +1113,7 @@
 /* ---------- Shared focus / small details ---------- */
 .about-page a:focus-visible,
 .treatments-page a:focus-visible,
+.services-page a:focus-visible,
 .treatment-detail-page a:focus-visible,
 .practitioners-page a:focus-visible,
 .practitioner-detail-page a:focus-visible,
@@ -1101,6 +1132,7 @@
 @media (max-width: 1023px) {
   .about-page .page-hero-banner,
   .treatments-page .page-hero-banner,
+  .services-page .page-hero-banner,
   .practitioners-page .page-hero-banner,
   .results-page .page-hero-banner,
   .blog-page .page-hero-banner,
@@ -1129,6 +1161,7 @@
 @media (max-width: 767px) {
   .about-page .page-hero-banner,
   .treatments-page .page-hero-banner,
+  .services-page .page-hero-banner,
   .practitioners-page .page-hero-banner,
   .results-page .page-hero-banner,
   .blog-page .page-hero-banner,
@@ -1142,6 +1175,7 @@
 
   .about-page .page-title,
   .treatments-page .page-title,
+  .services-page .page-title,
   .practitioners-page .page-title,
   .results-page .page-title,
   .blog-page .page-title,
@@ -1153,6 +1187,7 @@
 
   .about-page .page-title br,
   .treatments-page .page-title br,
+  .services-page .page-title br,
   .practitioners-page .page-title br,
   .results-page .page-title br,
   .blog-page .page-title br,
@@ -1164,6 +1199,7 @@
 
   .about-page .page-subtitle,
   .treatments-page .page-subtitle,
+  .services-page .page-subtitle,
   .practitioners-page .page-subtitle,
   .results-page .page-subtitle,
   .blog-page .page-subtitle,
@@ -1174,6 +1210,7 @@
   }
 
   .treatments-page .treatments-cta .flex.flex-wrap,
+  .services-page .treatments-cta .flex.flex-wrap,
   .practitioners-page .practitioners-cta .flex.flex-wrap,
   .results-page .results-cta .flex.flex-wrap,
   .treatment-detail-page .treatment-hero .flex.flex-wrap,
@@ -1184,6 +1221,7 @@
   }
 
   .treatments-page .treatments-cta a,
+  .services-page .treatments-cta a,
   .practitioners-page .practitioners-cta a,
   .results-page .results-cta a,
   .treatment-detail-page .treatment-hero .btn-blue,

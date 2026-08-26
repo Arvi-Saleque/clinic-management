@@ -286,7 +286,7 @@ export default async function AboutPage() {
                     <div className="pt-5 mt-6 border-t border-[#273338]/08 flex items-center justify-between gap-3">
                       <Link
                         href={`/practitioners/${doc.id}`}
-                        className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-[#2B5748] hover:text-[#9CB080] transition-colors group/link"
+                        className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-[#2B5748] hover:text-[#9CB080] transition-colors group/link whitespace-nowrap shrink-0"
                       >
                         <span>View Profile</span>
                         <ArrowRight className="w-3.5 h-3.5 ml-1 transform group-hover/link:translate-x-1 transition-transform" />
@@ -294,7 +294,7 @@ export default async function AboutPage() {
 
                       <Link
                         href={`/book?practitionerId=${doc.id}`}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-4 py-2 text-xs font-bold uppercase tracking-wider !text-white text-white shadow-[0_4px_14px_rgba(43,87,72,0.35)] hover:shadow-[0_6px_20px_rgba(43,87,72,0.5)] transition-all duration-300 hover:scale-105"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-4 py-2 text-xs font-bold uppercase tracking-wider whitespace-nowrap shrink-0 !text-white text-white shadow-[0_4px_14px_rgba(43,87,72,0.35)] hover:shadow-[0_6px_20px_rgba(43,87,72,0.5)] transition-all duration-300 hover:scale-105"
                         style={{ color: "#ffffff" }}
                       >
                         <CalendarDays className="w-3.5 h-3.5" />

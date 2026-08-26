@@ -66,6 +66,14 @@ export async function getPublicServiceBySlug(slug: string): Promise<PublicServic
   };
 }
 
+const HIDDEN_PRACTITIONER_NAMES = ["rafi ahmed", "nadia islam"];
+
+function isHiddenPractitioner(fullName?: string | null): boolean {
+  if (!fullName) return false;
+  const lower = fullName.toLowerCase();
+  return HIDDEN_PRACTITIONER_NAMES.some((hidden) => lower.includes(hidden));
+}
+
 export async function listPublicPractitioners() {
   const supabase = await createClient();
   const { data } = await supabase
@@ -73,7 +81,11 @@ export async function listPublicPractitioners() {
     .select("id, title, bio, specialties, photo_url, profiles:profile_id(full_name)")
     .eq("is_bookable", true)
     .order("id");
-  return data ?? [];
+
+  return (data ?? []).filter((p) => {
+    const fullName = (p.profiles as { full_name?: string } | null)?.full_name;
+    return !isHiddenPractitioner(fullName);
+  });
 }
 
 export async function getPublicPractitionerById(id: string) {
@@ -84,6 +96,10 @@ export async function getPublicPractitionerById(id: string) {
     .eq("id", id)
     .eq("is_bookable", true)
     .maybeSingle();
+
+  if (!data) return null;
+  const fullName = (data.profiles as { full_name?: string } | null)?.full_name;
+  if (isHiddenPractitioner(fullName)) return null;
   return data;
 }
 
