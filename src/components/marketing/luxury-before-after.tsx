@@ -17,7 +17,7 @@ export function BeforeAfterSlider({
   beforeImage,
   afterImage,
   beforeLabel = "Before",
-  afterLabel = "After Smile Makeover",
+  afterLabel = "After",
   title = "Smile Transformation",
   subtitle = "Porcelain Veneers & Alignment",
   className = "",
@@ -74,16 +74,21 @@ export function BeforeAfterSlider({
         onTouchStart={handleTouchStart}
         onClick={(e) => handleMove(e.clientX)}
       >
-        {/* After Image (Background) */}
-        <img
-          src={afterImage}
-          alt={afterLabel}
-          className="slider-img after-img"
-          draggable="false"
-        />
-        <span className="badge-label badge-after">{afterLabel}</span>
+        {/* After Image & Badge (Clipped from sliderPosition% to 100%) */}
+        <div
+          className="after-img-wrapper"
+          style={{ clipPath: `polygon(${sliderPosition}% 0, 100% 0, 100% 100%, ${sliderPosition}% 100%)` }}
+        >
+          <img
+            src={afterImage}
+            alt={afterLabel}
+            className="slider-img after-img"
+            draggable="false"
+          />
+          <span className="badge-label badge-after">{afterLabel}</span>
+        </div>
 
-        {/* Before Image (Foreground with clip path) */}
+        {/* Before Image & Badge (Foreground with clip path 0 to sliderPosition%) */}
         <div
           className="before-img-wrapper"
           style={{ clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)` }}
