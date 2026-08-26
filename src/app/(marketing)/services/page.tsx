@@ -123,18 +123,18 @@ export default async function ServicesPage() {
                       </div>
 
                       {/* Footer Actions */}
-                      <div className="border-t border-[#273338]/8 bg-[#FAFBF9]/80 px-6 py-4.5 flex items-center justify-between gap-3">
+                      <div className="border-t border-[#273338]/8 bg-[#FAFBF9]/80 px-5 py-4 flex items-center justify-between gap-2.5">
                         <Link
                           href={`/services/${service.slug}`}
-                          className="group/btn inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#2B5748] hover:text-[#18362B] transition-all"
+                          className="group/btn inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-[#2B5748] hover:text-[#18362B] transition-all whitespace-nowrap shrink-0"
                         >
                           <span>Treatment Details</span>
-                          <ArrowRight className="size-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
+                          <ArrowRight className="size-3 transition-transform duration-200 group-hover/btn:translate-x-1" />
                         </Link>
 
                         <Link
                           href={`/book?serviceId=${service.id}`}
-                          className="treatment-card-book-btn inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-5 py-2.5 text-xs font-bold uppercase tracking-wider !text-white text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                          className="treatment-card-book-btn inline-flex items-center justify-center gap-1 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-3.5 py-2 text-[11px] font-bold uppercase tracking-wide whitespace-nowrap shrink-0 !text-white text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
                           style={{ color: '#ffffff' }}
                         >
                           <span>Book an Appointment</span>

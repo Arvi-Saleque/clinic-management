@@ -576,6 +576,10 @@
   background: linear-gradient(135deg, #2B5748 0%, #17352a 100%) !important;
   color: #ffffff !important;
   font-weight: 700 !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  letter-spacing: 0.04em !important;
   border: 1px solid rgba(156, 176, 128, 0.35) !important;
   box-shadow: 0 6px 18px rgba(23, 53, 42, 0.25) !important;
   text-decoration: none !important;
