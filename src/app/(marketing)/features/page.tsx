@@ -178,26 +178,26 @@ export default function FeaturesPage() {
             </p>
           </div>
 
-          <div className="rounded-[32px] overflow-hidden border border-[#273338]/12 bg-white shadow-[0_24px_70px_-15px_rgba(27,38,33,0.09)]">
+          <div className="rounded-2xl sm:rounded-[32px] overflow-hidden border border-[#273338]/12 bg-white shadow-[0_24px_70px_-15px_rgba(27,38,33,0.09)]">
             <div className="grid grid-cols-1 md:grid-cols-2 border-b border-[#273338]/10 bg-[#162520] text-white">
-              <div className="px-6 sm:px-8 py-5 flex items-center justify-between border-b md:border-b-0 md:border-r border-white/10 bg-red-950/20">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+              <div className="px-4 sm:px-8 py-4 sm:py-5 flex items-center justify-between border-b md:border-b-0 md:border-r border-white/10 bg-red-950/20">
+                <div className="flex items-center gap-2 sm:gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-400 shrink-0" />
                   <span className="text-xs sm:text-sm font-bold tracking-wider uppercase text-red-200">
                     Traditional / Manual Clinic
                   </span>
                 </div>
-                <span className="text-[11px] text-white/50 uppercase tracking-widest font-semibold">Legacy</span>
+                <span className="text-[10px] sm:text-[11px] text-white/50 uppercase tracking-widest font-semibold shrink-0">Legacy</span>
               </div>
 
-              <div className="px-6 sm:px-8 py-5 flex items-center justify-between bg-[#2B5748]/30">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#9CB080] animate-pulse" />
+              <div className="px-4 sm:px-8 py-4 sm:py-5 flex items-center justify-between bg-[#2B5748]/30">
+                <div className="flex items-center gap-2 sm:gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#9CB080] animate-pulse shrink-0" />
                   <span className="text-xs sm:text-sm font-bold tracking-wider uppercase text-[#D7E8C5]">
                     With Clinic Care System
                   </span>
                 </div>
-                <span className="text-[11px] text-[#9CB080] uppercase tracking-widest font-semibold">Automated</span>
+                <span className="text-[10px] sm:text-[11px] text-[#9CB080] uppercase tracking-widest font-semibold shrink-0">Automated</span>
               </div>
             </div>
 
@@ -208,7 +208,7 @@ export default function FeaturesPage() {
                   className={`grid grid-cols-1 md:grid-cols-2 transition-colors hover:bg-[#F4F8F6]/60 ${i % 2 === 0 ? "bg-white" : "bg-[#FAFBF9]"
                     }`}
                 >
-                  <div className="px-6 sm:px-8 py-4 flex items-center gap-3.5 border-b md:border-b-0 md:border-r border-[#273338]/06 text-[#55645E]">
+                  <div className="px-4 sm:px-8 py-3.5 sm:py-4 flex items-center gap-3 border-b md:border-b-0 md:border-r border-[#273338]/06 text-[#55645E]">
                     <span className="w-5 h-5 rounded-full bg-red-50 text-red-500 border border-red-200/60 flex items-center justify-center text-xs font-bold shrink-0">
                       ✕
                     </span>
@@ -217,7 +217,7 @@ export default function FeaturesPage() {
                     </span>
                   </div>
 
-                  <div className="px-6 sm:px-8 py-4 flex items-center gap-3.5 bg-gradient-to-r from-transparent to-[#2B5748]/[0.02]">
+                  <div className="px-4 sm:px-8 py-3.5 sm:py-4 flex items-center gap-3 bg-gradient-to-r from-transparent to-[#2B5748]/[0.02]">
                     <span className="w-5 h-5 rounded-full bg-[#2B5748]/10 text-[#2B5748] border border-[#2B5748]/20 flex items-center justify-center text-xs font-bold shrink-0">
                       ✓
                     </span>
@@ -236,27 +236,27 @@ export default function FeaturesPage() {
       <FeaturesSlideDeck />
 
       {/* CTA Section */}
-      <section className="relative py-28 bg-[#1B2623] text-white overflow-hidden">
+      <section className="relative py-16 sm:py-24 md:py-28 bg-[#1B2623] text-white overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(156,176,128,0.18),transparent_70%)]" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(16,26,23,0.85)_0%,rgba(10,18,16,0.95)_100%)]" />
 
         <div className="container relative z-10 text-center max-w-4xl mx-auto px-4">
-          <div className="p-10 sm:p-14 md:p-16 rounded-[32px] bg-white/[0.06] border border-[#9CB080]/25 backdrop-blur-xl shadow-[0_30px_80px_-15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]">
-            <div className="inline-flex items-center gap-2 bg-[#14201C]/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-[#9CB080]/30 text-xs text-[#B5C89B] font-semibold uppercase tracking-widest mb-6 shadow-sm">
+          <div className="p-6 sm:p-12 md:p-16 rounded-2xl sm:rounded-[32px] bg-white/[0.06] border border-[#9CB080]/25 backdrop-blur-xl shadow-[0_30px_80px_-15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]">
+            <div className="inline-flex items-center gap-2 bg-[#14201C]/80 backdrop-blur-md px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full border border-[#9CB080]/30 text-[11px] sm:text-xs text-[#B5C89B] font-semibold uppercase tracking-widest mb-4 sm:mb-6 shadow-sm">
               <ShieldCheck className="w-3.5 h-3.5 text-[#B5C89B]" />
               <span>Built for Modern Dental Clinics</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-white leading-tight tracking-tight mb-4 drop-shadow-md">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-light text-white leading-tight tracking-tight mb-3 sm:mb-4 drop-shadow-md">
               Ready to Transform <br className="hidden sm:inline" />
               <i className="font-serif text-[#B5C89B]">Your Clinic Experience?</i>
             </h2>
 
-            <p className="text-base sm:text-lg text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-sm font-normal">
+            <p className="text-sm sm:text-base md:text-lg text-white/90 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-sm font-normal">
               Every feature shown on this page is ready to deploy for your clinic — customised with your branding, your doctors, and your services.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3.5 sm:gap-4 max-w-md sm:max-w-none mx-auto">
               <Link
                 href="/book"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-[0_8px_24px_rgba(43,87,72,0.4)] hover:shadow-[0_12px_32px_rgba(43,87,72,0.6)] transition-all duration-300 hover:scale-105 border border-[#9CB080]/30"

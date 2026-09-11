@@ -517,65 +517,95 @@ export function FeaturesSlideDeck() {
       if (!deckWrapperRef.current) return;
 
       ctx = gsap.context(() => {
-        const panels = gsap.utils.toArray<HTMLElement>(
-          ".gsap-feature-section",
-          deckWrapperRef.current
-        );
+        const mm = gsap.matchMedia();
 
-        if (!panels.length) return;
+        // Desktop & Tablet Viewports (>= 768px): Pinned scrubbing presentation slide deck
+        mm.add("(min-width: 768px)", () => {
+          const panels = gsap.utils.toArray<HTMLElement>(
+            ".gsap-feature-section",
+            deckWrapperRef.current
+          );
 
-        // Apply vanishing & rising step scroll effect for all panels except the last
-        const animPanels = [...panels];
-        animPanels.pop(); // Last panel continues naturally into the next section
+          if (!panels.length) return;
 
-        animPanels.forEach((panel) => {
-          const innerPanel = panel.querySelector<HTMLElement>(".section-inner");
-          if (!innerPanel) return;
+          const animPanels = [...panels];
+          animPanels.pop(); // Last panel continues naturally into the next section
 
-          const panelHeight = innerPanel.offsetHeight;
-          const windowHeight = window.innerHeight;
-          const difference = panelHeight - windowHeight;
+          animPanels.forEach((panel) => {
+            const innerPanel = panel.querySelector<HTMLElement>(".section-inner");
+            if (!innerPanel) return;
 
-          const fakeScrollRatio =
-            difference > 0 ? difference / (difference + windowHeight) : 0;
+            const panelHeight = innerPanel.offsetHeight;
+            const windowHeight = window.innerHeight;
+            const difference = panelHeight - windowHeight;
 
-          if (fakeScrollRatio) {
-            panel.style.marginBottom = `${panelHeight * fakeScrollRatio}px`;
-          }
+            const fakeScrollRatio =
+              difference > 0 ? difference / (difference + windowHeight) : 0;
 
-          const tl = gsap.timeline({
-            scrollTrigger: {
-              trigger: panel,
-              start: "bottom bottom",
-              end: () =>
-                fakeScrollRatio
-                  ? `+=${innerPanel.offsetHeight}`
-                  : "bottom top",
-              pinSpacing: false,
-              pin: true,
-              scrub: 0.8,
-            },
-          });
+            if (fakeScrollRatio) {
+              panel.style.marginBottom = `${panelHeight * fakeScrollRatio}px`;
+            }
 
-          if (fakeScrollRatio) {
-            tl.to(innerPanel, {
-              yPercent: -100,
-              y: window.innerHeight,
-              duration: 1 / (1 - fakeScrollRatio) - 1,
-              ease: "none",
+            const tl = gsap.timeline({
+              scrollTrigger: {
+                trigger: panel,
+                start: "bottom bottom",
+                end: () =>
+                  fakeScrollRatio
+                    ? `+=${innerPanel.offsetHeight}`
+                    : "bottom top",
+                pinSpacing: false,
+                pin: true,
+                scrub: 0.8,
+              },
             });
-          }
 
-          // Vanishing effect: Scales down & fades out while next card scrolls up
-          tl.fromTo(
-            panel,
-            { scale: 1, opacity: 1 },
-            { scale: 0.76, opacity: 0.35, duration: 0.85, ease: "power1.inOut" }
-          ).to(panel, {
-            opacity: 0,
-            scale: 0.68,
-            duration: 0.15,
-            ease: "power1.in",
+            if (fakeScrollRatio) {
+              tl.to(innerPanel, {
+                yPercent: -100,
+                y: window.innerHeight,
+                duration: 1 / (1 - fakeScrollRatio) - 1,
+                ease: "none",
+              });
+            }
+
+            // Vanishing effect: Scales down & fades out while next card scrolls up
+            tl.fromTo(
+              panel,
+              { scale: 1, opacity: 1 },
+              { scale: 0.76, opacity: 0.35, duration: 0.85, ease: "power1.inOut" }
+            ).to(panel, {
+              opacity: 0,
+              scale: 0.68,
+              duration: 0.15,
+              ease: "power1.in",
+            });
+          });
+        });
+
+        // Mobile Viewports (< 768px): Fluid scroll flow with zero pin collisions
+        mm.add("(max-width: 767px)", () => {
+          const panels = gsap.utils.toArray<HTMLElement>(
+            ".gsap-feature-section",
+            deckWrapperRef.current
+          );
+
+          panels.forEach((panel) => {
+            gsap.fromTo(
+              panel,
+              { opacity: 0.9, y: 15 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.4,
+                ease: "power1.out",
+                scrollTrigger: {
+                  trigger: panel,
+                  start: "top 90%",
+                  toggleActions: "play none none reverse",
+                },
+              }
+            );
           });
         });
 
@@ -593,7 +623,7 @@ export function FeaturesSlideDeck() {
   return (
     <div
       ref={deckWrapperRef}
-      className="slides-wrapper relative w-full bg-gradient-to-b from-[#F7FAF8] via-[#EFF5F1] to-[#FBFBF9] py-12 md:py-16 text-[#273338]"
+      className="slides-wrapper relative w-full bg-gradient-to-b from-[#F7FAF8] via-[#EFF5F1] to-[#FBFBF9] py-8 sm:py-12 md:py-16 text-[#273338]"
     >
       {/* Ambient background soft luxury lighting */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(43,87,72,0.08),_transparent_70%)]" />
@@ -605,7 +635,7 @@ export function FeaturesSlideDeck() {
         {/* ─── SLIDE 01: INTRODUCTORY SYSTEM OVERVIEW SLIDE ─── */}
         <section
           id="slide-intro"
-          className="gsap-feature-section w-full min-h-[calc(100vh-100px)] mb-16 sm:mb-24 flex justify-center items-center relative box-border"
+          className="gsap-feature-section w-full min-h-0 md:min-h-[calc(100vh-100px)] mb-10 sm:mb-20 md:mb-24 flex justify-center items-center relative box-border"
           style={{ willChange: "transform, opacity" }}
         >
           <div className="section-content w-full">
@@ -617,36 +647,36 @@ export function FeaturesSlideDeck() {
               }}
             >
               {/* Slide 1 Header */}
-              <div className="relative border-b p-8 sm:p-10 md:p-12 text-center bg-[#F2F8F5] border-[#2B5748]/20">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-[#182320] max-w-4xl mx-auto leading-tight">
+              <div className="relative border-b p-6 sm:p-10 md:p-12 text-center bg-[#F2F8F5] border-[#2B5748]/20">
+                <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-[#182320] max-w-4xl mx-auto leading-tight">
                   Explore All System <i className="font-serif font-normal italic text-[#2B5748]">Features & Capabilities</i>
                 </h2>
-                <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base md:text-lg font-normal leading-relaxed text-[#55645E]">
+                <p className="mt-3 sm:mt-4 max-w-2xl mx-auto text-xs sm:text-base md:text-lg font-normal leading-relaxed text-[#55645E]">
                   Scroll down to discover the core modules and integrated tools built for modern dental clinics. Each capability card pins and transitions smoothly as you scroll.
                 </p>
               </div>
 
               {/* 6 Core Pillars Snapshot Matrix — Names and Icons Only */}
-              <div className="p-6 sm:p-8 md:p-10 bg-white">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+              <div className="p-4 sm:p-8 md:p-10 bg-white">
+                <div className="grid grid-cols-1 min-[440px]:grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
                   {CATEGORIES.map((cat) => {
                     const CIcon = cat.icon;
                     return (
                       <div
                         key={cat.id}
-                        className="rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-3.5"
+                        className="rounded-xl sm:rounded-2xl border p-3.5 sm:p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-3 sm:gap-3.5"
                         style={{
                           backgroundColor: cat.lightBg,
                           borderColor: `${cat.primaryColor}22`,
                         }}
                       >
                         <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center bg-white shadow-xs shrink-0"
+                          className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-white shadow-xs shrink-0"
                           style={{ color: cat.primaryColor }}
                         >
-                          <CIcon className="w-5 h-5" />
+                          <CIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
-                        <h3 className="text-sm sm:text-base font-bold text-[#182320]">
+                        <h3 className="text-xs sm:text-sm md:text-base font-bold text-[#182320] leading-snug">
                           {cat.label}
                         </h3>
                       </div>
@@ -655,9 +685,9 @@ export function FeaturesSlideDeck() {
                 </div>
 
                 {/* Scroll Prompt */}
-                <div className="mt-8 pt-6 border-t border-[#273338]/08 flex items-center justify-center gap-2 text-xs font-semibold text-[#2B5748] uppercase tracking-wider">
+                <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-[#273338]/08 flex items-center justify-center gap-2 text-[11px] sm:text-xs font-semibold text-[#2B5748] uppercase tracking-wider text-center">
                   <span>Scroll to explore Section 01 · Daily Operations</span>
-                  <ArrowDown className="w-4 h-4 animate-bounce" />
+                  <ArrowDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-bounce shrink-0" />
                 </div>
               </div>
             </div>
@@ -672,7 +702,7 @@ export function FeaturesSlideDeck() {
             <section
               key={cat.id}
               id={`slide-${cat.id}`}
-              className="gsap-feature-section w-full min-h-[calc(100vh-100px)] mb-16 sm:mb-24 flex justify-center items-center relative box-border"
+              className="gsap-feature-section w-full min-h-0 md:min-h-[calc(100vh-100px)] mb-10 sm:mb-20 md:mb-24 flex justify-center items-center relative box-border"
               style={{
                 willChange: "transform, opacity",
               }}
@@ -680,7 +710,7 @@ export function FeaturesSlideDeck() {
               <div className="section-content w-full">
                 {/* Master Presentation Slide Card */}
                 <div
-                  className="section-inner w-full rounded-[32px] sm:rounded-[40px] border bg-white shadow-[0_24px_70px_-15px_rgba(27,38,33,0.14)] overflow-hidden transition-colors"
+                  className="section-inner w-full rounded-2xl sm:rounded-[32px] md:rounded-[40px] border bg-white shadow-[0_24px_70px_-15px_rgba(27,38,33,0.14)] overflow-hidden transition-colors"
                   style={{
                     borderColor: `${cat.primaryColor}35`,
                     boxShadow: `0 24px 70px -15px ${cat.glowColor}, 0 10px 30px -10px rgba(0,0,0,0.06)`,
@@ -688,14 +718,14 @@ export function FeaturesSlideDeck() {
                 >
                   {/* Slide Top Banner — CENTERED HEADLINE & VALUE PROPOSITION */}
                   <div
-                    className="relative border-b p-6 sm:p-8 md:p-10 text-center transition-colors"
+                    className="relative border-b p-5 sm:p-8 md:p-10 text-center transition-colors"
                     style={{
                       backgroundColor: cat.lightBg,
                       borderColor: `${cat.primaryColor}20`,
                     }}
                   >
                     {/* Centered Large Bold Headline */}
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-[#182320] max-w-4xl mx-auto leading-tight">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-[#182320] max-w-4xl mx-auto leading-tight">
                       {cat.headline.split(cat.highlightWord)[0]}
                       <i
                         className="font-serif font-normal italic drop-shadow-xs"
@@ -706,15 +736,15 @@ export function FeaturesSlideDeck() {
                     </h2>
 
                     {/* Centered Clean Subtitle */}
-                    <p className="mt-3 max-w-2xl mx-auto text-sm sm:text-base font-normal leading-relaxed text-[#55645E]">
+                    <p className="mt-2.5 sm:mt-3 max-w-2xl mx-auto text-xs sm:text-sm md:text-base font-normal leading-relaxed text-[#55645E]">
                       {cat.subtitle}
                     </p>
                   </div>
 
                   {/* Feature Cards Grid within this Slide — Focused, Lucrative, Modern */}
-                  <div className="relative p-6 sm:p-8 md:p-10 bg-white">
+                  <div className="relative p-4 sm:p-7 md:p-10 bg-white">
                     <div
-                      className={`grid gap-6 sm:gap-7 ${features.length === 5
+                      className={`grid gap-4 sm:gap-6 md:gap-7 ${features.length === 5
                         ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                         : "grid-cols-1 md:grid-cols-2"
                         }`}
@@ -726,7 +756,7 @@ export function FeaturesSlideDeck() {
                         return (
                           <div
                             key={feature.title}
-                            className={`group relative flex flex-col justify-between rounded-2xl sm:rounded-3xl border p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-12px_rgba(27,38,33,0.12)] ${isSpan ? "md:col-span-2 lg:col-span-1" : ""
+                            className={`group relative flex flex-col justify-between rounded-xl sm:rounded-2xl md:rounded-3xl border p-4 sm:p-6 md:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-12px_rgba(27,38,33,0.12)] ${isSpan ? "md:col-span-2 lg:col-span-1" : ""
                               }`}
                             style={{
                               backgroundColor:
@@ -737,9 +767,9 @@ export function FeaturesSlideDeck() {
                           >
                             <div>
                               {/* Top Bar with Icon & Prominent Focused Title */}
-                              <div className="flex items-start gap-4 mb-4">
+                              <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
                                 <div
-                                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border shadow-xs transition-transform duration-300 group-hover:scale-110"
+                                  className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl border shadow-xs transition-transform duration-300 group-hover:scale-110"
                                   style={{
                                     backgroundColor: "#ffffff",
                                     borderColor: `${cat.primaryColor}30`,
@@ -747,16 +777,16 @@ export function FeaturesSlideDeck() {
                                   }}
                                 >
                                   <FIcon
-                                    className="h-6 w-6"
+                                    className="h-5 w-5 sm:h-6 sm:w-6"
                                     style={{ color: cat.primaryColor }}
                                   />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <h3 className="text-lg sm:text-xl font-bold tracking-tight text-[#141F1C] leading-snug">
+                                  <h3 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-[#141F1C] leading-snug">
                                     {feature.title}
                                   </h3>
                                   <p
-                                    className="mt-1 text-xs sm:text-[13px] font-medium leading-relaxed"
+                                    className="mt-0.5 sm:mt-1 text-xs sm:text-[13px] font-medium leading-relaxed"
                                     style={{ color: cat.primaryColor }}
                                   >
                                     {feature.tagline}
@@ -765,15 +795,15 @@ export function FeaturesSlideDeck() {
                               </div>
 
                               {/* Focused Key Feature Highlights */}
-                              <div className="mt-3 pt-4 border-t border-[#273338]/08">
-                                <ul className="space-y-2.5">
+                              <div className="mt-3 pt-3 sm:pt-4 border-t border-[#273338]/08">
+                                <ul className="space-y-2 sm:space-y-2.5">
                                   {feature.highlights.map((h, hi) => (
                                     <li
                                       key={hi}
-                                      className="flex items-start gap-2.5 text-xs sm:text-[13px] text-[#273338]"
+                                      className="flex items-start gap-2 sm:gap-2.5 text-xs sm:text-[13px] text-[#273338]"
                                     >
                                       <span
-                                        className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+                                        className="mt-0.5 flex h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 items-center justify-center rounded-full text-[9px] sm:text-[10px] font-bold"
                                         style={{
                                           backgroundColor: cat.badgeBg,
                                           color: cat.primaryColor,
@@ -803,31 +833,31 @@ export function FeaturesSlideDeck() {
         {/* ─── SLIDE 08: CUSTOM SOLUTIONS & BESPOKE CLINIC REQUIREMENTS ─── */}
         <section
           id="slide-customization"
-          className="gsap-feature-section w-full min-h-[calc(100vh-100px)] mb-16 sm:mb-24 flex justify-center items-center relative box-border"
+          className="gsap-feature-section w-full min-h-0 md:min-h-[calc(100vh-100px)] mb-10 sm:mb-20 md:mb-24 flex justify-center items-center relative box-border"
           style={{ willChange: "transform, opacity" }}
         >
           <div className="section-content w-full">
             <div
-              className="section-inner w-full rounded-[32px] sm:rounded-[40px] border bg-white shadow-[0_24px_70px_-15px_rgba(43,87,72,0.16)] overflow-hidden transition-colors"
+              className="section-inner w-full rounded-2xl sm:rounded-[32px] md:rounded-[40px] border bg-white shadow-[0_24px_70px_-15px_rgba(43,87,72,0.16)] overflow-hidden transition-colors"
               style={{
                 borderColor: "#2B574830",
                 boxShadow: "0 24px 70px -15px rgba(43,87,72,0.18), 0 10px 30px -10px rgba(0,0,0,0.06)",
               }}
             >
               {/* Clean 2-Line Customization Card */}
-              <div className="p-10 sm:p-14 md:p-20 text-center bg-gradient-to-b from-[#F2F8F5] to-white flex flex-col items-center justify-center">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#2B5748]/10 border border-[#2B5748]/20 text-[#2B5748] text-xs font-semibold tracking-wide uppercase mb-6">
-                  <Sliders className="w-3.5 h-3.5" />
+              <div className="p-6 sm:p-14 md:p-20 text-center bg-gradient-to-b from-[#F2F8F5] to-white flex flex-col items-center justify-center">
+                <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 rounded-full bg-[#2B5748]/10 border border-[#2B5748]/20 text-[#2B5748] text-[11px] sm:text-xs font-semibold tracking-wide uppercase mb-4 sm:mb-6">
+                  <Sliders className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                   <span>Custom Solutions</span>
                 </div>
 
                 {/* Line 1: Master Heading */}
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-[#182320] max-w-4xl mx-auto leading-tight mb-5">
+                <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-[#182320] max-w-4xl mx-auto leading-tight mb-3.5 sm:mb-5">
                   We will customize everything based on <i className="font-serif font-normal italic text-[#2B5748]">your clinic&apos;s needs.</i>
                 </h2>
 
                 {/* Line 2: Simple Subtitle */}
-                <p className="text-base sm:text-lg md:text-xl font-normal leading-relaxed text-[#55645E] max-w-2xl mx-auto">
+                <p className="text-xs sm:text-base md:text-lg lg:text-xl font-normal leading-relaxed text-[#55645E] max-w-2xl mx-auto">
                   Every clinic is unique. Tell us your workflow requirements, and we will tailor existing tools or build brand-new features specifically for you.
                 </p>
               </div>
