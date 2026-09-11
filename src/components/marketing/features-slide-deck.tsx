@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   CalendarDays,
   ShieldCheck,
@@ -26,6 +26,7 @@ import {
   CalendarIcon,
   MessageCircle,
   TrendingUp,
+  Sparkles,
 } from "lucide-react";
 
 export const CATEGORIES = [
@@ -487,7 +488,6 @@ export const SLIDE_FEATURES = [
 
 export function FeaturesSlideDeck() {
   const deckWrapperRef = useRef<HTMLDivElement | null>(null);
-  const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
 
   // Group features by category
   const grouped: Record<string, typeof SLIDE_FEATURES> = {};
@@ -519,17 +519,6 @@ export function FeaturesSlideDeck() {
         );
 
         if (!panels.length) return;
-
-        // Add index tracker ScrollTriggers for navigation pills
-        panels.forEach((panel, i) => {
-          ScrollTrigger.create({
-            trigger: panel,
-            start: "top center",
-            end: "bottom center",
-            onEnter: () => setActiveCategoryIndex(i),
-            onEnterBack: () => setActiveCategoryIndex(i),
-          });
-        });
 
         // Apply vanishing & rising step scroll effect for all panels except the last
         const animPanels = [...panels];
@@ -597,64 +586,27 @@ export function FeaturesSlideDeck() {
     };
   }, []);
 
-  const scrollToPanel = (index: number) => {
-    if (!deckWrapperRef.current) return;
-    const panels =
-      deckWrapperRef.current.querySelectorAll<HTMLElement>(".gsap-feature-section");
-    const target = panels[index];
-    if (target) {
-      const navOffset = 90;
-      const elementPosition =
-        target.getBoundingClientRect().top + window.pageYOffset;
-      window.scrollTo({
-        top: elementPosition - navOffset,
-        behavior: "smooth",
-      });
-    }
-  };
-
   return (
     <div
       ref={deckWrapperRef}
-      className="slides-wrapper relative w-full bg-gradient-to-b from-[#F7FAF8] via-[#EFF5F1] to-[#FBFBF9] py-8 md:py-12 text-[#273338]"
+      className="slides-wrapper relative w-full bg-gradient-to-b from-[#F7FAF8] via-[#EFF5F1] to-[#FBFBF9] py-12 md:py-16 text-[#273338]"
     >
       {/* Ambient background soft luxury lighting */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(43,87,72,0.08),_transparent_70%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_60%,_rgba(156,176,128,0.10),_transparent_60%)]" />
 
-      {/* Floating / Sticky Presentation Navigation Dock */}
-      <div className="sticky top-20 z-50 mb-10 sm:mb-14 flex justify-center px-4">
-        <div className="flex max-w-full items-center gap-1 sm:gap-1.5 overflow-x-auto rounded-full border border-[#273338]/10 bg-white/95 p-1.5 shadow-[0_16px_45px_-10px_rgba(27,38,33,0.14)] backdrop-blur-2xl no-scrollbar">
-          {CATEGORIES.map((cat, idx) => {
-            const isActive = activeCategoryIndex === idx;
-            const CatIcon = cat.icon;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => scrollToPanel(idx)}
-                className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 sm:px-4 py-1.5 text-xs font-semibold transition-all duration-300 shrink-0 ${
-                  isActive
-                    ? "text-white shadow-md scale-105"
-                    : "text-[#55645E] hover:bg-[#273338]/05 hover:text-[#182320]"
-                }`}
-                style={
-                  isActive
-                    ? {
-                        backgroundColor: cat.primaryColor,
-                        boxShadow: `0 6px 18px -4px ${cat.primaryColor}60`,
-                      }
-                    : {}
-                }
-              >
-                <CatIcon
-                  className="h-3.5 w-3.5"
-                  style={{ color: isActive ? "#ffffff" : cat.primaryColor }}
-                />
-                <span>{cat.label}</span>
-              </button>
-            );
-          })}
+      {/* Feature Showcase Main Introductory Header */}
+      <div className="container max-w-5xl mx-auto px-4 text-center mb-16 md:mb-20 pt-4">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#2B5748]/10 border border-[#2B5748]/20 text-[#2B5748] text-xs font-semibold tracking-wide uppercase mb-4 shadow-sm">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Interactive Feature Breakdown</span>
         </div>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-[#182320] tracking-tight mb-4 leading-tight">
+          Explore All System <i className="font-serif text-[#2B5748]">Features & Capabilities</i>
+        </h2>
+        <p className="text-[#55645E] text-base sm:text-lg md:text-xl max-w-2xl mx-auto font-normal leading-relaxed">
+          Scroll down to discover the core modules and integrated tools built for modern dental clinics.
+        </p>
       </div>
 
       {/* The 6 GSAP Pinned Sections */}
@@ -717,10 +669,11 @@ export function FeaturesSlideDeck() {
                       {features.map((feature, fIdx) => {
                         const FIcon = feature.icon;
                         const isSpan = features.length === 5 && fIdx === 0;
+                        const cardNum = `0${fIdx + 1}`;
 
                         return (
                           <div
-                            key={feature.number}
+                            key={feature.title}
                             className={`group relative flex flex-col justify-between rounded-2xl sm:rounded-3xl border p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
                               isSpan ? "md:col-span-2 lg:col-span-1" : ""
                             }`}
@@ -731,16 +684,16 @@ export function FeaturesSlideDeck() {
                               boxShadow: `0 4px 20px -6px rgba(0,0,0,0.04)`,
                             }}
                           >
-                            {/* Watermark Number in background */}
+                            {/* Watermark Number per Section (01, 02, 03, 04...) */}
                             <div
-                              className="pointer-events-none absolute right-5 top-5 select-none text-3xl sm:text-4xl font-black opacity-[0.07]"
+                              className="pointer-events-none absolute right-5 top-5 select-none text-3xl sm:text-4xl font-black opacity-[0.09]"
                               style={{ color: cat.primaryColor }}
                             >
-                              {feature.number}
+                              {cardNum}
                             </div>
 
                             <div>
-                              {/* Top Bar with Icon & Title */}
+                              {/* Top Bar with Sequential Number Badge, Icon & Title */}
                               <div className="mb-3 flex items-center gap-3.5">
                                 <div
                                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border shadow-xs transition-transform duration-300 group-hover:scale-105"
@@ -756,6 +709,17 @@ export function FeaturesSlideDeck() {
                                   />
                                 </div>
                                 <div className="flex-1 min-w-0 pr-6">
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <span
+                                      className="text-[10px] font-bold px-1.5 py-0.5 rounded-md"
+                                      style={{
+                                        backgroundColor: cat.badgeBg,
+                                        color: cat.badgeText,
+                                      }}
+                                    >
+                                      {cardNum}
+                                    </span>
+                                  </div>
                                   <h4 className="text-base sm:text-lg font-bold leading-snug text-[#182320]">
                                     {feature.title}
                                   </h4>
