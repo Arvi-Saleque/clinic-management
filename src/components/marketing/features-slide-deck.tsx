@@ -17,39 +17,21 @@ import {
   UserCircle,
   CalendarCheck,
   Globe,
-  Sparkles,
   Camera,
-  BookOpen,
-  GraduationCap,
   UserCheck,
-  List,
   Building2,
   Moon,
   Smartphone,
   Printer,
   CalendarIcon,
   MessageCircle,
-  CheckCircle2,
-  ArrowRight,
-  Star,
-  Zap,
   TrendingUp,
-  Heart,
-  ChevronDown,
-  ChevronUp,
-  Layers,
-  Activity,
-  Award,
-  Wallet,
-  Cpu,
 } from "lucide-react";
 
 export const CATEGORIES = [
   {
     id: "operations",
     label: "Daily Operations",
-    badge: "Operations Engine",
-    themeName: "Emerald",
     primaryColor: "#2B5748",
     secondaryColor: "#1B3D32",
     accentColor: "#4E8270",
@@ -59,7 +41,6 @@ export const CATEGORIES = [
     borderTint: "#2B574830",
     glowColor: "rgba(43,87,72,0.18)",
     icon: LayoutDashboard,
-    deckIcon: Activity,
     headline: "Your clinic runs itself.",
     highlightWord: "itself.",
     subtitle:
@@ -68,8 +49,6 @@ export const CATEGORIES = [
   {
     id: "clinical",
     label: "Clinical Tools",
-    badge: "Digital Chairside",
-    themeName: "Sapphire",
     primaryColor: "#1A4B75",
     secondaryColor: "#0F2E4A",
     accentColor: "#2563EB",
@@ -79,7 +58,6 @@ export const CATEGORIES = [
     borderTint: "#1A4B7530",
     glowColor: "rgba(26,75,117,0.18)",
     icon: Stethoscope,
-    deckIcon: FileText,
     headline: "Dentists document everything digitally.",
     highlightWord: "everything digitally.",
     subtitle:
@@ -88,8 +66,6 @@ export const CATEGORIES = [
   {
     id: "patient",
     label: "Patient Experience",
-    badge: "Patient Portal",
-    themeName: "Orchid",
     primaryColor: "#7E22CE",
     secondaryColor: "#581C87",
     accentColor: "#9333EA",
@@ -98,8 +74,7 @@ export const CATEGORIES = [
     badgeText: "#581C87",
     borderTint: "#7E22CE30",
     glowColor: "rgba(126,34,206,0.18)",
-    icon: Heart,
-    deckIcon: Heart,
+    icon: UserCircle,
     headline: "Patients feel looked after.",
     highlightWord: "looked after.",
     subtitle:
@@ -108,8 +83,6 @@ export const CATEGORIES = [
   {
     id: "marketing",
     label: "Marketing & Growth",
-    badge: "Growth Engine",
-    themeName: "Amber",
     primaryColor: "#C2410C",
     secondaryColor: "#7C2D12",
     accentColor: "#EA580C",
@@ -118,8 +91,7 @@ export const CATEGORIES = [
     badgeText: "#7C2D12",
     borderTint: "#C2410C30",
     glowColor: "rgba(194,65,12,0.18)",
-    icon: TrendingUp,
-    deckIcon: Award,
+    icon: Globe,
     headline: "Your website becomes your best salesperson.",
     highlightWord: "best salesperson.",
     subtitle:
@@ -128,8 +100,6 @@ export const CATEGORIES = [
   {
     id: "finance",
     label: "Finance & Billing",
-    badge: "Revenue Shield",
-    themeName: "Teal",
     primaryColor: "#0F766E",
     secondaryColor: "#134E4A",
     accentColor: "#0D9488",
@@ -139,7 +109,6 @@ export const CATEGORIES = [
     borderTint: "#0F766E30",
     glowColor: "rgba(15,118,110,0.18)",
     icon: CreditCard,
-    deckIcon: Wallet,
     headline: "No invoice is ever lost again.",
     highlightWord: "ever lost again.",
     subtitle:
@@ -148,8 +117,6 @@ export const CATEGORIES = [
   {
     id: "technology",
     label: "Technology & Access",
-    badge: "Cloud Security",
-    themeName: "Indigo",
     primaryColor: "#4338CA",
     secondaryColor: "#312E81",
     accentColor: "#4F46E5",
@@ -158,8 +125,7 @@ export const CATEGORIES = [
     badgeText: "#312E81",
     borderTint: "#4338CA30",
     glowColor: "rgba(67,56,202,0.18)",
-    icon: Zap,
-    deckIcon: Cpu,
+    icon: Smartphone,
     headline: "Works everywhere, for everyone.",
     highlightWord: "for everyone.",
     subtitle:
@@ -174,68 +140,52 @@ export const SLIDE_FEATURES = [
     category: "operations",
     icon: LayoutDashboard,
     title: "Live Receptionist Dashboard",
-    tagline: "Your entire clinic at a glance — always up to date.",
-    tag: "Real-time Sync",
-    description:
-      "The moment staff arrive, they see every patient due today, who has checked in, and how many visits are complete — all automatically, all in real time. No more searching through paper lists.",
+    tagline: "Real-time front-desk queue & instant check-in.",
     highlights: [
-      '"Next Patient" card with live countdown timer',
-      "Real-time waiting queue and one-click check-in",
-      "Today's appointment summary in three numbers",
-      "Quick-action buttons for booking and patient registration",
+      "Live patient countdown & waiting queue",
+      "One-click check-in & instant arrival alerts",
+      "Daily appointment summary in three metrics",
     ],
-    benefit: "Staff always know who is next without asking anyone.",
+    benefit: "Staff always know who is next without asking.",
   },
   {
     number: "02",
     category: "operations",
     icon: CalendarCheck,
     title: "Online Patient Booking Wizard",
-    tagline: "Patients book appointments themselves — 24 hours a day.",
-    tag: "24/7 Automation",
-    description:
-      "A simple, beautiful 4-step booking form on your website. Patients choose their treatment, pick an available doctor, select an open time slot, and confirm — no phone call needed.",
+    tagline: "24/7 self-service booking embedded directly on your website.",
     highlights: [
-      "4-step guided booking: Service → Doctor → Time → Details",
-      "Shows only real available time slots — zero double booking",
-      "Works on any mobile phone, tablet, or computer",
-      "Patients receive instant confirmation with their reference number",
+      "4-step guided booking: Service → Doctor → Time",
+      "Real-time slot engine — zero double bookings",
+      "Instant SMS & email appointment confirmations",
     ],
-    benefit: "Fewer interruptions for staff. More appointments filled automatically.",
+    benefit: "Fewer receptionist calls; fills empty chair slots 24/7.",
   },
   {
     number: "10",
     category: "operations",
     icon: ClipboardList,
     title: "Appointments Management",
-    tagline: "Every appointment, every status — one organised workspace.",
-    tag: "Full Control",
-    description:
-      "A powerful filtering and search workspace that gives staff full control over all appointments. Jump to any date, filter by doctor, and update appointment statuses with one click.",
+    tagline: "Filter, search, and manage every appointment in one hub.",
     highlights: [
-      "Filter by date, doctor, or appointment status",
-      "Search by patient name, phone, or appointment ID",
-      "Colour-coded status badges for instant identification",
-      "One-click check-in, reschedule, and cancellation",
+      "Filter by doctor, date, or appointment status",
+      "One-click status updates, reschedule, and cancel",
+      "Instant search by patient name or phone",
     ],
-    benefit: "No more lost appointments or scheduling confusion.",
+    benefit: "Zero lost bookings or scheduling confusion.",
   },
   {
     number: "09",
     category: "operations",
     icon: Clock,
     title: "Doctor Diary & Availability Planner",
-    tagline: "Doctors set their schedule once. The system handles the rest.",
-    tag: "Zero Conflict",
-    description:
-      "Each dentist defines their working hours for each day of the week. The system automatically calculates which time slots are free and offers only those to patients when booking.",
+    tagline: "Dentists configure routine hours once; the system handles the rest.",
     highlights: [
-      "Visual monthly calendar showing booked appointment counts",
-      "Set weekly routine hours for each doctor",
-      "Override specific dates for holidays or special hours",
-      "Zero overbooking — guaranteed by the system",
+      "Visual monthly calendar with booked slot counts",
+      "Custom routine hours & holiday date overrides",
+      "Smart conflict prevention engine",
     ],
-    benefit: "Scheduling conflicts become impossible.",
+    benefit: "Overlapping appointments become mathematically impossible.",
   },
 
   // CLINICAL (5)
@@ -244,85 +194,65 @@ export const SLIDE_FEATURES = [
     category: "clinical",
     icon: Stethoscope,
     title: "Digital Consultation Workspace",
-    tagline: "The dentist's clinical record — on screen, not on paper.",
-    tag: "Chairside Command",
-    description:
-      "During each patient visit, the dentist documents the complaint, diagnosis, treatment performed, and aftercare notes directly on screen. All previous visits appear in a sidebar for instant context.",
+    tagline: "Chairside clinical documentation on screen — not on paper.",
     highlights: [
-      "Chief complaint, diagnosis, and treatment notes",
-      "Instant access to the patient's full medical history and allergy alerts",
-      "Previous visits shown in a sidebar for reference",
-      '"Save Draft" — never lose work mid-consultation',
+      "Chief complaint, diagnosis, and treatment logging",
+      "Instant medical history & allergy alert badges",
+      "One-click auto-save draft functionality",
     ],
-    benefit: "No paper files. Every visit is digitally recorded and permanently accessible.",
+    benefit: "100% paperless consultations with permanent digital records.",
   },
   {
     number: "06",
     category: "clinical",
     icon: FileText,
     title: "Complete Patient Health Records",
-    tagline: "Every patient's full story — identity, history, and allergies — instantly.",
-    tag: "Permanent History",
-    description:
-      "Each patient has a permanent digital profile storing their contact details, medical history, known allergies, chronic conditions, and current medications. Staff see critical alerts the moment they open a record.",
+    tagline: "Permanent digital health profiles with critical medical alerts.",
     highlights: [
-      "Allergy alerts shown with colour-coded warning badges",
-      "Known conditions and current medications always visible",
-      "Full appointment history and billing status at a glance",
-      "Searchable patient directory with smart filter tabs",
+      "Color-coded drug allergy & condition warnings",
+      "Full appointment history & billing overview",
+      "Fast searchable clinic-wide patient directory",
     ],
-    benefit: "Staff are always informed — preventing clinical mistakes before they happen.",
+    benefit: "Prevents clinical mistakes before they happen.",
   },
   {
     number: "07",
     category: "clinical",
     icon: Smile,
     title: "Digital Tooth Chart (Odontogram)",
-    tagline: "Every tooth charted digitally — replaces paper charts entirely.",
-    tag: "32-Tooth Visual Map",
-    description:
-      "An interactive visual map of all 32 teeth, used by dentists to chart the clinical condition of each tooth. Replaces paper tooth charts entirely and links directly to the patient record.",
+    tagline: "Interactive 32-tooth visual chart — replaces paper charts.",
     highlights: [
-      "Interactive diagram of all 32 teeth",
-      "Accessible by both dentists and patients in their portal",
-      "Linked to the patient's permanent clinical history",
-      "Dentists can view any registered patient's chart",
+      "Interactive 32-tooth anatomical diagram",
+      "Document restorative & periodontal conditions",
+      "Synced directly to patient portal & record",
     ],
-    benefit: "No more paper tooth charts — conditions are recorded digitally, instantly.",
+    benefit: "Modern digital charting visible to dentist and patient.",
   },
   {
     number: "08",
     category: "clinical",
     icon: Pill,
     title: "Digital Prescriptions",
-    tagline: "Prescriptions issued, saved, and searchable — no handwriting required.",
-    tag: "Searchable Rx",
-    description:
-      "Dentists issue prescriptions directly from within the consultation. Each prescription lists all medications, dosage, frequency, and special instructions. Patients see their prescription history in their portal.",
+    tagline: "Issue clear digital prescriptions straight from consultation.",
     highlights: [
-      "Multiple medications on a single prescription",
-      "Dosage, frequency, duration, and special instructions recorded",
-      "Searchable clinic-wide prescription catalog for staff",
-      "Patients view their own prescriptions in their secure portal",
+      "Searchable clinic medication catalog",
+      "Pre-filled dosing, duration, and instructions",
+      "Direct sync to patient's secure portal",
     ],
-    benefit: "Eliminates illegible handwriting and lost prescription records forever.",
+    benefit: "Eliminates illegible handwriting and lost slips forever.",
   },
   {
     number: "13",
     category: "clinical",
     icon: CalendarDays,
     title: "Follow-Up Scheduling in Consultation",
-    tagline: "Book the next visit before the patient even stands up.",
-    tag: "Instant Recall",
-    description:
-      "Dentists can book the patient's next appointment right from the consultation screen. The date, time, and reason are saved immediately into the clinic calendar without going to reception.",
+    tagline: "Schedule the next recall visit before the patient stands up.",
     highlights: [
-      "Book the next visit in under 30 seconds",
-      "Doctor, treatment, and follow-up notes pre-filled",
-      "Appears immediately on the receptionist's schedule",
-      "Patient sees it in their portal instantly",
+      "Schedule next visit in under 30 seconds",
+      "Pre-fills doctor, service, and clinical notes",
+      "Appears instantly on front-desk schedule",
     ],
-    benefit: "Higher patient retention — follow-ups are never forgotten.",
+    benefit: "Maximizes patient retention and treatment continuity.",
   },
 
   // PATIENT (4)
@@ -331,68 +261,52 @@ export const SLIDE_FEATURES = [
     category: "patient",
     icon: UserCircle,
     title: "Patient Self-Service Portal",
-    tagline: "A private online account for every patient — available 24/7.",
-    tag: "Self-Service",
-    description:
-      "Patients log in securely with their mobile number to see their upcoming and past appointments, view their tooth chart, download prescriptions, check invoice receipts, and update their details.",
+    tagline: "A private online portal for every patient — accessible 24/7.",
     highlights: [
-      "Passwordless login with mobile number verification",
-      "View all upcoming and past appointments with doctor details",
-      "Access personal tooth chart and prescription history",
-      "View itemised invoices and payment statuses",
+      "Passwordless login via mobile verification",
+      "View appointments, tooth chart & prescriptions",
+      "Instant invoice receipts and payment history",
     ],
-    benefit: "Patients love having everything on their phone. Front-desk calls drop significantly.",
+    benefit: "Dramatically cuts front-desk phone calls.",
   },
   {
     number: "14",
     category: "patient",
     icon: CalendarIcon,
     title: "1-Click Add-to-Calendar (.ics Export)",
-    tagline: "Appointments go straight into the patient's phone calendar.",
-    tag: "Calendar Sync",
-    description:
-      "From their confirmation email, SMS, or patient portal, patients click one button to save their appointment to Apple Calendar, Google Calendar, or Outlook with all clinic details.",
+    tagline: "Appointments save straight into the patient's phone calendar.",
     highlights: [
-      "Works with Apple Calendar, Google Calendar, and Outlook",
-      "Includes clinic address, doctor name, and appointment time",
-      "Available from the booking confirmation screen and portal",
-      "Standard .ics format compatible with every smartphone",
+      "Syncs with Apple, Google, and Outlook calendars",
+      "Includes clinic address, doctor & time details",
+      "Universal .ics file support for all devices",
     ],
-    benefit: "Reduces no-shows — the appointment is in their phone calendar automatically.",
+    benefit: "Drastically reduces patient no-shows.",
   },
   {
     number: "15",
     category: "patient",
     icon: Clock,
     title: "Live Queue & Wait Time Indicator",
-    tagline: "Patients always know where they stand in the queue.",
-    tag: "Live Tracker",
-    description:
-      "The patient portal displays the patient's queue position in real time. Patients can see how many people are ahead of them and their estimated wait time, reducing anxiety in the waiting room.",
+    tagline: "Patients see live queue position & estimated wait times.",
     highlights: [
-      "Real-time queue number displayed on the patient's screen",
-      "Estimated wait time updated automatically",
-      "Reduces patient frustration during busy clinic hours",
-      "Front-desk staff do not have to answer \"how much longer?\"",
+      "Real-time queue number on patient screen",
+      "Dynamic estimated wait time calculation",
+      "Transparent waiting experience",
     ],
-    benefit: "A calmer waiting room and happier patients.",
+    benefit: "Calmer waiting room and happier patients.",
   },
   {
     number: "16",
     category: "patient",
     icon: ShieldCheck,
-    title: "Patient Safety & Allergy Warnings",
-    tagline: "Critical alerts that prevent clinical mistakes before they happen.",
-    tag: "Clinical Safety",
-    description:
-      "Every time a patient's record is opened — in the waiting queue, during booking, or in consultation — bright, prominent warnings highlight known drug allergies and chronic health conditions.",
+    title: "Patient Safety & Allergy Alerts",
+    tagline: "Prominent clinical alerts at every stage of patient care.",
     highlights: [
-      "Allergy warnings shown prominently in red across all screens",
-      "Chronic condition badges (e.g. Diabetes, Hypertension, Cardiac)",
-      "Alerts are impossible to miss before prescribing medications",
-      "Patients can declare allergies during online registration",
+      "High-visibility allergy warnings across all views",
+      "Chronic condition badges (Diabetes, Cardiac, etc.)",
+      "Instant alert during prescription creation",
     ],
-    benefit: "Clinical safety is built in at every single step.",
+    benefit: "Guarantees patient safety at every touchpoint.",
   },
 
   // MARKETING (5)
@@ -401,85 +315,65 @@ export const SLIDE_FEATURES = [
     category: "marketing",
     icon: Globe,
     title: "Complete Public Website Included",
-    tagline: "A world-class website that attracts and converts new patients.",
-    tag: "11 Luxury Pages",
-    description:
-      "The platform comes with a beautifully designed, mobile-first marketing website: Homepage, About Us, Services, Dentists Directory, Smile Gallery, FAQ, and Contact pages — fully integrated with your booking engine.",
+    tagline: "11 luxury designed pages built for high-end conversion.",
     highlights: [
-      "11 fully designed pages built in",
-      "Modern luxury aesthetic tailored for high-end dental clinics",
-      "Fast-loading and fully optimised for search engines (SEO)",
-      "Direct \"Book Now\" buttons on every page leading to the booking wizard",
+      "Homepage, About, Services, Dentists & FAQ",
+      "Direct online booking integration on every page",
+      "Optimized for fast mobile loading and SEO",
     ],
-    benefit: "No need to pay a web agency. You get an enterprise-grade website out of the box.",
+    benefit: "No agency fees — complete turnkey dental website.",
   },
   {
     number: "12",
     category: "marketing",
     icon: Camera,
     title: "Interactive Smile Simulator AI",
-    tagline: "Patients see their dream smile before they ever sit in the chair.",
-    tag: "AI Smile Simulation",
-    description:
-      "An interactive tool on your website where visitors upload a photo of their smile and preview the results of Teeth Whitening, Veneers, or Aligners. Captures patient interest and leads directly to a booking.",
+    tagline: "Visitors preview their dream smile before booking.",
     highlights: [
-      "Interactive photo upload and instant preview",
-      "Simulates Whitening, Veneers, Aligners, and Crowns",
-      "Direct \"Book This Treatment\" button from the result screen",
-      "Drives high-value cosmetic dentistry enquiries",
+      "Instant preview for Whitening, Veneers & Aligners",
+      "Interactive photo upload tool on your site",
+      "Direct \"Book This Treatment\" conversion button",
     ],
-    benefit: "Attracts high-value cosmetic patients who are already excited to start.",
+    benefit: "Captures high-value cosmetic dentistry cases.",
   },
   {
     number: "19",
     category: "marketing",
     icon: UserCheck,
     title: "Practitioner Public Profiles",
-    tagline: "Every dentist has a beautiful public profile — trust before the first appointment.",
-    tag: "Doctor Branding",
-    description:
-      "Each dentist gets a professionally designed public profile page showing their photo, specialities, biography, and the treatments they offer — with a direct booking button pre-selecting them.",
+    tagline: "Dedicated profiles showcasing doctor credentials & services.",
     highlights: [
-      "Professional photo, credentials, and biography",
-      "List of offered treatments with prices and durations",
-      'Direct "Book with Dr. [Name]" button for patients',
-      "Builds personal trust before the first visit",
+      "Professional biography, photo & specialities",
+      "Itemized treatment catalog with pricing",
+      "Direct \"Book with Dr.\" instant CTA",
     ],
-    benefit: "Patients who choose their dentist by name show up and stay loyal.",
+    benefit: "Builds trust and patient loyalty before visit.",
   },
   {
     number: "20",
     category: "marketing",
     icon: Stethoscope,
     title: "Treatment Services Showcase",
-    tagline: "Every treatment gets its own dedicated page — each one a mini landing page.",
-    tag: "SEO Landing Pages",
-    description:
-      "Each dental treatment offered by the clinic has its own individual service page with a full description, what to expect, pricing, FAQs, and a direct booking button for that specific service.",
+    tagline: "Individual landing pages for every dental procedure.",
     highlights: [
-      "Individual pages for every treatment category",
-      "What to expect, duration, and pricing on each page",
-      "Treatment-specific FAQs to reassure hesitant patients",
-      'Direct "Book This Treatment" CTA on every page',
+      "What to expect, duration, and pricing details",
+      "Service-specific FAQs to reassure patients",
+      "Dedicated booking button per treatment",
     ],
-    benefit: "Service pages rank in Google. Patients arrive already informed.",
+    benefit: "Ranks on Google and educates patients in advance.",
   },
   {
     number: "21",
     category: "marketing",
     icon: Building2,
     title: "Multi-Location / Branch Support",
-    tagline: "One system. Multiple clinics. Zero complexity.",
-    tag: "Multi-Branch Ready",
-    description:
-      "If your clinic grows to a second or third location, the entire system is already built to handle it. Practitioners, appointments, and availability are all branch-aware from day one.",
+    tagline: "Manage multiple clinic branches in a single system.",
     highlights: [
-      "Each practitioner linked to a specific branch",
-      "Appointments, availability, and pricing per branch",
-      "Booking wizard filters practitioners by location",
-      "No separate system needed for each branch",
+      "Link doctors, schedules & pricing per branch",
+      "Location filter on public booking wizard",
+      "Unified reporting across all locations",
     ],
-    benefit: "Expand to new locations without changing your software.",
+    benefit: "Scale to new branches without buying new software.",
   },
 
   // FINANCE (4)
@@ -487,69 +381,53 @@ export const SLIDE_FEATURES = [
     number: "04",
     category: "finance",
     icon: CreditCard,
-    title: "Smart Billing & Invoice Management",
-    tagline: "Professional invoicing — from zero to paid in under a minute.",
-    tag: "Instant Invoicing",
-    description:
-      "Invoices are generated automatically at the end of each consultation. Staff can add or adjust items, apply discounts, record payments in multiple ways, and track every outstanding balance from one workspace.",
+    title: "Smart Billing & Invoicing",
+    tagline: "Auto-generated invoices with multi-method payment support.",
     highlights: [
-      "Auto-generated invoices on consultation completion",
-      "Partial payment and instalment recording",
-      "Invoice statuses: Draft, Outstanding, Partially Paid, Paid, Void",
-      "Payment methods: Cash, Card, Bank Transfer, and Other",
+      "Auto-generated on consultation completion",
+      "Supports Cash, Card, Bank Transfer & Split",
+      "Record partial payments and installments",
     ],
-    benefit: "No billing errors. No lost revenue. Full financial transparency.",
+    benefit: "Zero billing errors and 100% financial transparency.",
   },
   {
     number: "24",
     category: "finance",
     icon: Printer,
     title: "Printable Invoice Receipts",
-    tagline: "Professional receipts printed straight from the browser — no extra software.",
-    tag: "Print & PDF",
-    description:
-      "Any invoice can be printed directly from the browser as a formatted receipt. It includes the clinic name, patient details, itemised treatments, subtotal, discount, total, and payment status.",
+    tagline: "Professional branded receipts printed directly from browser.",
     highlights: [
-      "Clean, branded layout formatted for standard A4 and receipt printers",
-      "Includes clinic logo, address, and tax registration number",
-      "Itemised breakdown of all treatments and discounts applied",
-      "One-click \"Print Receipt\" button on every invoice",
+      "Formatted for standard A4 and receipt printers",
+      "Includes clinic logo, tax number & itemization",
+      "One-click PDF download & print",
     ],
-    benefit: "Patients receive a professional receipt immediately. No accounting delays.",
+    benefit: "Instant professional receipts for insurance claims.",
   },
   {
     number: "25",
     category: "finance",
     icon: TrendingUp,
     title: "Outstanding Balance Tracking",
-    tagline: "Never let an unpaid bill slip through the cracks.",
-    tag: "Cash Flow Protection",
-    description:
-      "The billing workspace instantly highlights all invoices with an unpaid or partially paid balance. Staff can see total outstanding amounts across the clinic and filter by overdue days.",
+    tagline: "Track overdue balances and protect clinic cash flow.",
     highlights: [
-      "Filter invoices by \"Outstanding\" and \"Partially Paid\" with one click",
-      "Total unpaid balance displayed prominently at the top of the billing screen",
-      "Quick-record payment button to log incoming payments instantly",
-      "Patient profile shows their total outstanding balance",
+      "Filter by \"Outstanding\" & \"Partially Paid\"",
+      "Total clinic unpaid balance dashboard summary",
+      "Quick payment recording in seconds",
     ],
-    benefit: "Significantly improves clinic cash flow and reduces bad debt.",
+    benefit: "Significantly reduces bad debt and overdue invoices.",
   },
   {
     number: "26",
     category: "finance",
     icon: CreditCard,
     title: "Payment Method Splitting",
-    tagline: "Accept split payments — part cash, part card — with ease.",
-    tag: "Split Tender",
-    description:
-      "Patients often want to pay a portion in cash and the remainder by card or bank transfer. The system supports multi-method payments against a single invoice with full record-keeping.",
+    tagline: "Accept split payments (e.g. cash + card) against one bill.",
     highlights: [
-      "Record multiple payments against a single invoice",
-      "Supports Cash, Credit/Debit Card, Bank Transfer, and Other",
-      "Shows remaining balance after each payment is logged",
-      "Full audit trail of who received each payment and when",
+      "Record multiple payment types per invoice",
+      "Automatic remaining balance calculation",
+      "Full audit trail of all transactions",
     ],
-    benefit: "Flexible for patients, 100% accurate for your accounts.",
+    benefit: "Convenient for patients; accurate for bookkeeping.",
   },
 
   // TECHNOLOGY (4)
@@ -558,68 +436,52 @@ export const SLIDE_FEATURES = [
     category: "technology",
     icon: Lock,
     title: "Role-Based Access Control",
-    tagline: "Everyone sees only what they need to see. Data stays safe.",
-    tag: "3-Tier RBAC",
-    description:
-      "The system has three built-in role tiers — Administrator, Doctor, and Receptionist. Each role has strictly defined permissions to protect confidential patient data and financial records.",
+    tagline: "Three security tiers: Admin, Doctor, and Receptionist.",
     highlights: [
-      "Administrator: Full access to settings, staff, billing, and reports",
-      "Doctor: Clinical workspace, tooth charts, prescriptions, and their own calendar",
-      "Receptionist: Booking, check-in, patient registration, and payments",
-      "Protected routes prevent unauthorised access automatically",
+      "Strict permissions for sensitive financial data",
+      "Doctor access to clinical charts & diary only",
+      "Receptionist access to booking & check-in",
     ],
-    benefit: "Complies with medical data protection standards. Prevents staff errors.",
+    benefit: "Protects patient confidentiality and prevents errors.",
   },
   {
     number: "18",
     category: "technology",
     icon: Smartphone,
     title: "Mobile-First Responsive Design",
-    tagline: "Runs on iPads at the front desk, iPhones on the go, and desktop PCs.",
-    tag: "Any Device",
-    description:
-      "Every single screen — from the receptionist dashboard to the patient booking wizard — is built to work seamlessly on phones, tablets, and desktop computers without installing any app.",
+    tagline: "Flawless on iPads at reception, phones on the go, and PCs.",
     highlights: [
-      "Touch-friendly controls designed for iPad use at reception",
-      "Full mobile experience for patients booking from their phones",
-      "Dentists can check their schedule from home on their phone",
-      "No app download required — opens in any modern web browser",
+      "Touch-optimized for front-desk tablets",
+      "Mobile web booking for smartphone patients",
+      "No app download required — opens in browser",
     ],
-    benefit: "No expensive hardware needed. Use whatever devices you already own.",
+    benefit: "Use the iPads and computers you already own.",
   },
   {
     number: "22",
     category: "technology",
     icon: Moon,
     title: "Dark & Light Mode Support",
-    tagline: "Comfortable for doctors during long shifts. Beautiful in any lighting.",
-    tag: "Adaptive UI",
-    description:
-      "The entire staff dashboard supports both Dark Mode and Light Mode with a single toggle. Dark Mode reduces eye strain for clinicians working long hours at computer screens.",
+    tagline: "Eye-friendly dark mode for long clinical doctor shifts.",
     highlights: [
-      "One-click theme toggle in the navigation bar",
-      "Dark Mode with high-contrast, eye-friendly clinical colours",
-      "Preference is saved automatically per user",
-      "Crisp, readable text in both modes",
+      "One-click theme switch in navigation",
+      "High-contrast clinical color palette",
+      "Remembers preference per staff member",
     ],
-    benefit: "Staff work more comfortably, with less fatigue during busy clinic days.",
+    benefit: "Reduces clinician eye fatigue during busy days.",
   },
   {
     number: "23",
     category: "technology",
     icon: MessageCircle,
     title: "Direct WhatsApp & FAQ Integration",
-    tagline: "Connect with patients on the app they use every single day.",
-    tag: "Instant Patient Help",
-    description:
-      "A floating WhatsApp button on the public website lets patients message the clinic instantly with one tap. Combined with an extensive FAQ accordion, common questions are answered automatically.",
+    tagline: "Instant patient messaging & automated FAQ answers.",
     highlights: [
-      "Floating WhatsApp chat button on all public pages",
-      "Click-to-call phone link for mobile users",
-      "Expandable FAQ accordion with common patient questions",
-      "Reduces inbound phone calls significantly",
+      "Floating WhatsApp chat button on all pages",
+      "Expandable FAQ accordion for common queries",
+      "Click-to-call mobile phone integration",
     ],
-    benefit: "Fewer phone enquiries. Patients arrive informed and confident.",
+    benefit: "Reduces repetitive inbound receptionist calls.",
   },
 ];
 
@@ -634,7 +496,7 @@ export function FeaturesSlideDeck() {
     grouped[f.category].push(f);
   }
 
-  // Initialize GSAP ScrollTrigger based on user's exact tutorial specification
+  // Initialize GSAP ScrollTrigger
   useEffect(() => {
     let ctx: any;
 
@@ -681,7 +543,6 @@ export function FeaturesSlideDeck() {
           const windowHeight = window.innerHeight;
           const difference = panelHeight - windowHeight;
 
-          // Fake scroll ratio if panel content is taller than window
           const fakeScrollRatio =
             difference > 0 ? difference / (difference + windowHeight) : 0;
 
@@ -716,7 +577,7 @@ export function FeaturesSlideDeck() {
           tl.fromTo(
             panel,
             { scale: 1, opacity: 1 },
-            { scale: 0.75, opacity: 0.4, duration: 0.85, ease: "power1.inOut" }
+            { scale: 0.76, opacity: 0.35, duration: 0.85, ease: "power1.inOut" }
           ).to(panel, {
             opacity: 0,
             scale: 0.68,
@@ -755,35 +616,15 @@ export function FeaturesSlideDeck() {
   return (
     <div
       ref={deckWrapperRef}
-      className="slides-wrapper relative w-full bg-gradient-to-b from-[#F7FAF8] via-[#EFF5F1] to-[#FBFBF9] py-10 md:py-16 text-[#273338]"
+      className="slides-wrapper relative w-full bg-gradient-to-b from-[#F7FAF8] via-[#EFF5F1] to-[#FBFBF9] py-8 md:py-12 text-[#273338]"
     >
       {/* Ambient background soft luxury lighting */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(43,87,72,0.08),_transparent_70%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_60%,_rgba(156,176,128,0.10),_transparent_60%)]" />
 
-      {/* Section Title & Intro */}
-      <div className="container relative z-10 mx-auto max-w-5xl px-4 text-center mb-8 sm:mb-12">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#2B5748]/10 text-[#2B5748] text-xs font-bold uppercase tracking-wider mb-4 border border-[#2B5748]/20 shadow-xs">
-          <Layers className="w-3.5 h-3.5 text-[#2B5748]" />
-          <span>Interactive Feature Showcase</span>
-        </div>
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-[#182320] tracking-tight leading-tight">
-          Explore Every Capability, <br />
-          <i className="font-serif text-[#2B5748] font-normal">Slide by Slide.</i>
-        </h2>
-        <p className="text-[#55645E] text-sm sm:text-base max-w-2xl mx-auto mt-4 leading-relaxed">
-          Scroll down to experience the smooth GSAP presentation flow. Each section card pins and vanishes gently as the next capability takes its step.
-        </p>
-      </div>
-
-      {/* Floating / Sticky Presentation Navigation Dock (Bright Luxury Glassmorphic Pill) */}
-      <div className="sticky top-20 z-50 mb-12 flex justify-center px-4">
-        <div className="flex max-w-full items-center gap-1.5 sm:gap-2 overflow-x-auto rounded-full border border-[#273338]/10 bg-white/95 p-1.5 shadow-[0_16px_45px_-10px_rgba(27,38,33,0.14)] backdrop-blur-2xl no-scrollbar">
-          <div className="flex items-center gap-1.5 px-3 text-[11px] font-bold uppercase tracking-wider text-[#2B5748] shrink-0">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span className="hidden md:inline">Deck:</span>
-          </div>
-
+      {/* Floating / Sticky Presentation Navigation Dock */}
+      <div className="sticky top-20 z-50 mb-10 sm:mb-14 flex justify-center px-4">
+        <div className="flex max-w-full items-center gap-1 sm:gap-1.5 overflow-x-auto rounded-full border border-[#273338]/10 bg-white/95 p-1.5 shadow-[0_16px_45px_-10px_rgba(27,38,33,0.14)] backdrop-blur-2xl no-scrollbar">
           {CATEGORIES.map((cat, idx) => {
             const isActive = activeCategoryIndex === idx;
             const CatIcon = cat.icon;
@@ -809,9 +650,7 @@ export function FeaturesSlideDeck() {
                   className="h-3.5 w-3.5"
                   style={{ color: isActive ? "#ffffff" : cat.primaryColor }}
                 />
-                <span>
-                  0{idx + 1}. {cat.label}
-                </span>
+                <span>{cat.label}</span>
               </button>
             );
           })}
@@ -820,16 +659,14 @@ export function FeaturesSlideDeck() {
 
       {/* The 6 GSAP Pinned Sections */}
       <div className="slides-container container relative mx-auto max-w-6xl px-3 sm:px-6">
-        {CATEGORIES.map((cat, idx) => {
+        {CATEGORIES.map((cat) => {
           const features = grouped[cat.id] || [];
-          const CatIcon = cat.icon;
-          const isLast = idx === CATEGORIES.length - 1;
 
           return (
             <section
               key={cat.id}
               id={`slide-${cat.id}`}
-              className="gsap-feature-section w-full min-h-[calc(100vh-100px)] mb-12 sm:mb-20 flex justify-center items-center relative box-border"
+              className="gsap-feature-section w-full min-h-[calc(100vh-100px)] mb-16 sm:mb-24 flex justify-center items-center relative box-border"
               style={{
                 willChange: "transform, opacity",
               }}
@@ -843,87 +680,35 @@ export function FeaturesSlideDeck() {
                     boxShadow: `0 24px 70px -15px ${cat.glowColor}, 0 10px 30px -10px rgba(0,0,0,0.06)`,
                   }}
                 >
-                  {/* Slide Top Banner */}
+                  {/* Slide Top Banner — CENTERED HEADLINE & VALUE PROPOSITION */}
                   <div
-                    className="relative border-b p-6 sm:p-8 md:p-10 transition-colors"
+                    className="relative border-b p-6 sm:p-8 md:p-10 text-center transition-colors"
                     style={{
                       backgroundColor: cat.lightBg,
                       borderColor: `${cat.primaryColor}20`,
                     }}
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                      {/* Left Category Indicator */}
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="flex h-12 w-12 items-center justify-center rounded-2xl border shadow-xs"
-                          style={{
-                            backgroundColor: "#ffffff",
-                            borderColor: `${cat.primaryColor}35`,
-                            color: cat.primaryColor,
-                          }}
-                        >
-                          <CatIcon className="h-6 w-6" style={{ color: cat.primaryColor }} />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span
-                              className="text-[11px] font-bold uppercase tracking-widest"
-                              style={{ color: cat.primaryColor }}
-                            >
-                              Slide 0{idx + 1} of 0{CATEGORIES.length}
-                            </span>
-                            <span className="text-[#273338]/30">•</span>
-                            <span
-                              className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider shadow-xs"
-                              style={{
-                                backgroundColor: cat.badgeBg,
-                                color: cat.badgeText,
-                                border: `1px solid ${cat.primaryColor}30`,
-                              }}
-                            >
-                              {cat.badge}
-                            </span>
-                          </div>
-                          <h3 className="mt-1 text-xs font-semibold uppercase tracking-wider text-[#55645E]">
-                            {cat.label}
-                          </h3>
-                        </div>
-                      </div>
-
-                      {/* Right Feature Count Badge */}
-                      <div
-                        className="flex items-center gap-2 rounded-full border bg-white px-4 py-1.5 text-xs font-bold shadow-xs"
-                        style={{
-                          borderColor: `${cat.primaryColor}30`,
-                          color: cat.primaryColor,
-                        }}
+                    {/* Centered Large Bold Headline */}
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-[#182320] max-w-4xl mx-auto leading-tight">
+                      {cat.headline.split(cat.highlightWord)[0]}
+                      <i
+                        className="font-serif font-normal italic drop-shadow-xs"
+                        style={{ color: cat.primaryColor }}
                       >
-                        <Sparkles className="h-3.5 w-3.5" style={{ color: cat.primaryColor }} />
-                        <span>{features.length} Core Modules</span>
-                      </div>
-                    </div>
+                        {cat.highlightWord}
+                      </i>
+                    </h2>
 
-                    {/* Headline and Subtitle */}
-                    <div className="mt-6 md:mt-8">
-                      <h2 className="text-2xl font-light tracking-tight text-[#182320] sm:text-3xl md:text-4xl lg:text-5xl">
-                        {cat.headline.split(cat.highlightWord)[0]}
-                        <i
-                          className="font-serif font-normal"
-                          style={{ color: cat.primaryColor }}
-                        >
-                          {cat.highlightWord}
-                        </i>
-                      </h2>
-                      <p className="mt-3 max-w-3xl text-sm font-normal leading-relaxed text-[#55645E] sm:text-base">
-                        {cat.subtitle}
-                      </p>
-                    </div>
+                    {/* Centered Clean Subtitle */}
+                    <p className="mt-3 max-w-2xl mx-auto text-sm sm:text-base font-normal leading-relaxed text-[#55645E]">
+                      {cat.subtitle}
+                    </p>
                   </div>
 
-                  {/* Feature Cards Grid within this Slide */}
-                  <div className="relative p-6 sm:p-8 md:p-10 bg-white">
+                  {/* Feature Cards Grid within this Slide — Focused, Lucrative, High-Impact */}
+                  <div className="relative p-5 sm:p-7 md:p-9 bg-white">
                     <div
-                      className={`grid gap-6 ${
+                      className={`grid gap-5 sm:gap-6 ${
                         features.length === 5
                           ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                           : "grid-cols-1 md:grid-cols-2"
@@ -936,29 +721,29 @@ export function FeaturesSlideDeck() {
                         return (
                           <div
                             key={feature.number}
-                            className={`group relative flex flex-col justify-between rounded-3xl border p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+                            className={`group relative flex flex-col justify-between rounded-2xl sm:rounded-3xl border p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
                               isSpan ? "md:col-span-2 lg:col-span-1" : ""
                             }`}
                             style={{
                               backgroundColor:
                                 fIdx % 2 === 0 ? "#FFFFFF" : cat.lightBg,
-                              borderColor: `${cat.primaryColor}20`,
-                              boxShadow: `0 8px 30px -10px rgba(0,0,0,0.05)`,
+                              borderColor: `${cat.primaryColor}25`,
+                              boxShadow: `0 4px 20px -6px rgba(0,0,0,0.04)`,
                             }}
                           >
                             {/* Watermark Number in background */}
                             <div
-                              className="pointer-events-none absolute right-6 top-6 select-none text-4xl font-black opacity-[0.08]"
+                              className="pointer-events-none absolute right-5 top-5 select-none text-3xl sm:text-4xl font-black opacity-[0.07]"
                               style={{ color: cat.primaryColor }}
                             >
                               {feature.number}
                             </div>
 
                             <div>
-                              {/* Top Bar with Icon, Tag & Title */}
-                              <div className="mb-4 flex items-start gap-4">
+                              {/* Top Bar with Icon & Title */}
+                              <div className="mb-3 flex items-center gap-3.5">
                                 <div
-                                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border shadow-xs transition-transform duration-300 group-hover:scale-110"
+                                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border shadow-xs transition-transform duration-300 group-hover:scale-105"
                                   style={{
                                     backgroundColor: "#ffffff",
                                     borderColor: `${cat.primaryColor}30`,
@@ -966,48 +751,34 @@ export function FeaturesSlideDeck() {
                                   }}
                                 >
                                   <FIcon
-                                    className="h-6 w-6"
+                                    className="h-5 w-5"
                                     style={{ color: cat.primaryColor }}
                                   />
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span
-                                      className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
-                                      style={{
-                                        backgroundColor: cat.badgeBg,
-                                        color: cat.badgeText,
-                                      }}
-                                    >
-                                      {feature.tag || `Feature ${feature.number}`}
-                                    </span>
-                                  </div>
-                                  <h4 className="text-base font-bold leading-snug text-[#182320] sm:text-lg">
+                                <div className="flex-1 min-w-0 pr-6">
+                                  <h4 className="text-base sm:text-lg font-bold leading-snug text-[#182320]">
                                     {feature.title}
                                   </h4>
-                                  <p
-                                    className="mt-0.5 text-xs font-medium italic"
-                                    style={{ color: cat.primaryColor }}
-                                  >
-                                    {feature.tagline}
-                                  </p>
                                 </div>
                               </div>
 
-                              {/* Description */}
-                              <p className="mb-5 text-xs font-normal leading-relaxed text-[#55645E] sm:text-sm">
-                                {feature.description}
+                              {/* Focused Tagline */}
+                              <p
+                                className="mb-3.5 text-xs font-medium italic leading-relaxed"
+                                style={{ color: cat.primaryColor }}
+                              >
+                                {feature.tagline}
                               </p>
 
-                              {/* Highlights Checklist */}
-                              <ul className="mb-6 space-y-2.5">
+                              {/* Focused 3 Key Feature Highlights */}
+                              <ul className="mb-4 space-y-2">
                                 {feature.highlights.map((h, hi) => (
                                   <li
                                     key={hi}
-                                    className="flex items-start gap-2.5 text-xs text-[#273338]"
+                                    className="flex items-start gap-2 text-xs text-[#273338]"
                                   >
                                     <span
-                                      className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+                                      className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold"
                                       style={{
                                         backgroundColor: cat.badgeBg,
                                         color: cat.primaryColor,
@@ -1015,7 +786,7 @@ export function FeaturesSlideDeck() {
                                     >
                                       ✓
                                     </span>
-                                    <span className="leading-snug font-medium text-[#3A4843]">
+                                    <span className="leading-tight font-medium text-[#3A4843]">
                                       {h}
                                     </span>
                                   </li>
@@ -1025,7 +796,7 @@ export function FeaturesSlideDeck() {
 
                             {/* Benefit Badge Footer */}
                             <div
-                              className="mt-auto rounded-xl border p-3 text-xs leading-relaxed transition-colors group-hover:shadow-xs"
+                              className="mt-auto rounded-xl border p-2.5 sm:p-3 text-xs leading-relaxed transition-colors group-hover:shadow-xs"
                               style={{
                                 backgroundColor: "#ffffff",
                                 borderColor: `${cat.primaryColor}25`,
@@ -1033,47 +804,20 @@ export function FeaturesSlideDeck() {
                               }}
                             >
                               <span
-                                className="font-bold uppercase tracking-wider text-[10px]"
+                                className="font-bold uppercase tracking-wider text-[9px]"
                                 style={{ color: cat.primaryColor }}
                               >
                                 Key Outcome ·{" "}
                               </span>
-                              <span className="font-medium">{feature.benefit}</span>
+                              <span className="font-medium text-[#273338]">
+                                {feature.benefit}
+                              </span>
                             </div>
                           </div>
                         );
                       })}
                     </div>
                   </div>
-
-                  {/* Slide Bottom Bar with Next Hint */}
-                  {!isLast && (
-                    <div
-                      className="border-t px-6 py-3.5 sm:px-8 flex items-center justify-between text-xs transition-colors"
-                      style={{
-                        backgroundColor: cat.lightBg,
-                        borderColor: `${cat.primaryColor}15`,
-                        color: "#55645E",
-                      }}
-                    >
-                      <span className="text-[11px] font-medium tracking-wide">
-                        Scroll down for next slide:{" "}
-                        <strong
-                          style={{ color: CATEGORIES[idx + 1].primaryColor }}
-                        >
-                          0{idx + 2}. {CATEGORIES[idx + 1].label}
-                        </strong>
-                      </span>
-                      <button
-                        onClick={() => scrollToPanel(idx + 1)}
-                        className="inline-flex items-center gap-1 text-xs font-bold transition-transform hover:scale-105"
-                        style={{ color: cat.primaryColor }}
-                      >
-                        <span>Next Slide</span>
-                        <ChevronDown className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  )}
                 </div>
               </div>
             </section>
