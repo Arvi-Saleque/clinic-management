@@ -715,8 +715,8 @@ export function FeaturesSlideDeck() {
                   <div className="relative p-6 sm:p-8 md:p-10 bg-white">
                     <div
                       className={`grid gap-6 sm:gap-7 ${features.length === 5
-                          ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                          : "grid-cols-1 md:grid-cols-2"
+                        ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                        : "grid-cols-1 md:grid-cols-2"
                         }`}
                     >
                       {features.map((feature, fIdx) => {
@@ -814,17 +814,21 @@ export function FeaturesSlideDeck() {
                 boxShadow: "0 24px 70px -15px rgba(43,87,72,0.18), 0 10px 30px -10px rgba(0,0,0,0.06)",
               }}
             >
-              {/* Comprehensive Luxury Custom Solutions Panel */}
-              <div className="p-12 sm:p-16 md:p-24 text-center bg-gradient-to-b from-[#F2F8F5] via-white to-[#F2F8F5] flex flex-col items-center justify-center">
-                {/* Master Heading */}
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-[#182320] max-w-4xl mx-auto leading-tight mb-6">
-                  Ready to Transform <br className="hidden sm:inline" />
-                  <i className="font-serif font-normal italic text-[#2B5748]">Your Clinic Experience?</i>
+              {/* Clean 2-Line Customization Card */}
+              <div className="p-10 sm:p-14 md:p-20 text-center bg-gradient-to-b from-[#F2F8F5] to-white flex flex-col items-center justify-center">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#2B5748]/10 border border-[#2B5748]/20 text-[#2B5748] text-xs font-semibold tracking-wide uppercase mb-6">
+                  <Sliders className="w-3.5 h-3.5" />
+                  <span>Custom Solutions</span>
+                </div>
+
+                {/* Line 1: Master Heading */}
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-[#182320] max-w-4xl mx-auto leading-tight mb-5">
+                  We will customize everything based on <i className="font-serif font-normal italic text-[#2B5748]">your clinic&apos;s needs.</i>
                 </h2>
 
-                {/* Comprehensive Subtitle */}
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-normal leading-relaxed text-[#55645E] max-w-3xl mx-auto">
-                  Every feature shown on this page is ready to deploy for your clinic — fully customised with your branding, your practitioners, and your unique clinical workflows. Tell us your requirements, and we will tailor existing tools or build brand-new capabilities specifically for you.
+                {/* Line 2: Simple Subtitle */}
+                <p className="text-base sm:text-lg md:text-xl font-normal leading-relaxed text-[#55645E] max-w-2xl mx-auto">
+                  Every clinic is unique. Tell us your workflow requirements, and we will tailor existing tools or build brand-new features specifically for you.
                 </p>
               </div>
             </div>
