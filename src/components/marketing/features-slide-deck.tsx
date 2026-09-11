@@ -36,6 +36,7 @@ import {
   TrendingUp,
   Heart,
   ChevronDown,
+  ChevronUp,
   Layers,
   Activity,
   Award,
@@ -55,8 +56,8 @@ export const CATEGORIES = [
     lightBg: "#F2F8F5",
     badgeBg: "#E3F0EA",
     badgeText: "#1B3D32",
-    borderTint: "#2B574825",
-    glowColor: "rgba(43,87,72,0.15)",
+    borderTint: "#2B574830",
+    glowColor: "rgba(43,87,72,0.18)",
     icon: LayoutDashboard,
     deckIcon: Activity,
     headline: "Your clinic runs itself.",
@@ -75,8 +76,8 @@ export const CATEGORIES = [
     lightBg: "#F0F6FC",
     badgeBg: "#E0EFFE",
     badgeText: "#0F2E4A",
-    borderTint: "#1A4B7525",
-    glowColor: "rgba(26,75,117,0.15)",
+    borderTint: "#1A4B7530",
+    glowColor: "rgba(26,75,117,0.18)",
     icon: Stethoscope,
     deckIcon: FileText,
     headline: "Dentists document everything digitally.",
@@ -95,8 +96,8 @@ export const CATEGORIES = [
     lightBg: "#FAF5FF",
     badgeBg: "#F3E8FF",
     badgeText: "#581C87",
-    borderTint: "#7E22CE25",
-    glowColor: "rgba(126,34,206,0.15)",
+    borderTint: "#7E22CE30",
+    glowColor: "rgba(126,34,206,0.18)",
     icon: Heart,
     deckIcon: Heart,
     headline: "Patients feel looked after.",
@@ -115,8 +116,8 @@ export const CATEGORIES = [
     lightBg: "#FFF7ED",
     badgeBg: "#FFEDD5",
     badgeText: "#7C2D12",
-    borderTint: "#C2410C25",
-    glowColor: "rgba(194,65,12,0.15)",
+    borderTint: "#C2410C30",
+    glowColor: "rgba(194,65,12,0.18)",
     icon: TrendingUp,
     deckIcon: Award,
     headline: "Your website becomes your best salesperson.",
@@ -135,8 +136,8 @@ export const CATEGORIES = [
     lightBg: "#F0FDFA",
     badgeBg: "#CCFBF1",
     badgeText: "#134E4A",
-    borderTint: "#0F766E25",
-    glowColor: "rgba(15,118,110,0.15)",
+    borderTint: "#0F766E30",
+    glowColor: "rgba(15,118,110,0.18)",
     icon: CreditCard,
     deckIcon: Wallet,
     headline: "No invoice is ever lost again.",
@@ -155,8 +156,8 @@ export const CATEGORIES = [
     lightBg: "#EEF2FF",
     badgeBg: "#E0E7FF",
     badgeText: "#312E81",
-    borderTint: "#4338CA25",
-    glowColor: "rgba(67,56,202,0.15)",
+    borderTint: "#4338CA30",
+    glowColor: "rgba(67,56,202,0.18)",
     icon: Zap,
     deckIcon: Cpu,
     headline: "Works everywhere, for everyone.",
@@ -623,8 +624,8 @@ export const SLIDE_FEATURES = [
 ];
 
 export function FeaturesSlideDeck() {
-  const [activeSlide, setActiveSlide] = useState(0);
-  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const deckWrapperRef = useRef<HTMLDivElement | null>(null);
+  const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
 
   // Group features by category
   const grouped: Record<string, typeof SLIDE_FEATURES> = {};
@@ -633,46 +634,135 @@ export function FeaturesSlideDeck() {
     grouped[f.category].push(f);
   }
 
+  // Initialize GSAP ScrollTrigger based on user's exact tutorial specification
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const viewportHeight = window.innerHeight;
-      const triggerPoint = scrollY + viewportHeight * 0.35;
+    let ctx: any;
 
-      slideRefs.current.forEach((el, index) => {
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const elementTop = rect.top + scrollY;
-        const elementBottom = elementTop + rect.height;
+    const initGSAP = async () => {
+      const gsapModule = await import("gsap");
+      const scrollTriggerModule = await import("gsap/ScrollTrigger");
 
-        if (triggerPoint >= elementTop && triggerPoint < elementBottom) {
-          setActiveSlide(index);
-        }
-      });
+      const gsap = gsapModule.gsap || gsapModule.default;
+      const ScrollTrigger =
+        scrollTriggerModule.ScrollTrigger || scrollTriggerModule.default;
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      if (!deckWrapperRef.current) return;
+
+      ctx = gsap.context(() => {
+        const panels = gsap.utils.toArray<HTMLElement>(
+          ".gsap-feature-section",
+          deckWrapperRef.current
+        );
+
+        if (!panels.length) return;
+
+        // Add index tracker ScrollTriggers for navigation pills
+        panels.forEach((panel, i) => {
+          ScrollTrigger.create({
+            trigger: panel,
+            start: "top center",
+            end: "bottom center",
+            onEnter: () => setActiveCategoryIndex(i),
+            onEnterBack: () => setActiveCategoryIndex(i),
+          });
+        });
+
+        // Apply vanishing & rising step scroll effect for all panels except the last
+        const animPanels = [...panels];
+        animPanels.pop(); // Last panel continues naturally into the next section
+
+        animPanels.forEach((panel) => {
+          const innerPanel = panel.querySelector<HTMLElement>(".section-inner");
+          if (!innerPanel) return;
+
+          const panelHeight = innerPanel.offsetHeight;
+          const windowHeight = window.innerHeight;
+          const difference = panelHeight - windowHeight;
+
+          // Fake scroll ratio if panel content is taller than window
+          const fakeScrollRatio =
+            difference > 0 ? difference / (difference + windowHeight) : 0;
+
+          if (fakeScrollRatio) {
+            panel.style.marginBottom = `${panelHeight * fakeScrollRatio}px`;
+          }
+
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: panel,
+              start: "bottom bottom",
+              end: () =>
+                fakeScrollRatio
+                  ? `+=${innerPanel.offsetHeight}`
+                  : "bottom top",
+              pinSpacing: false,
+              pin: true,
+              scrub: 0.8,
+            },
+          });
+
+          if (fakeScrollRatio) {
+            tl.to(innerPanel, {
+              yPercent: -100,
+              y: window.innerHeight,
+              duration: 1 / (1 - fakeScrollRatio) - 1,
+              ease: "none",
+            });
+          }
+
+          // Vanishing effect: Scales down & fades out while next card scrolls up
+          tl.fromTo(
+            panel,
+            { scale: 1, opacity: 1 },
+            { scale: 0.75, opacity: 0.4, duration: 0.85, ease: "power1.inOut" }
+          ).to(panel, {
+            opacity: 0,
+            scale: 0.68,
+            duration: 0.15,
+            ease: "power1.in",
+          });
+        });
+
+        ScrollTrigger.refresh();
+      }, deckWrapperRef);
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    initGSAP();
+
+    return () => {
+      if (ctx) ctx.revert();
+    };
   }, []);
 
-  const scrollToSlide = (index: number) => {
-    const el = slideRefs.current[index];
-    if (el) {
-      const yOffset = -90;
-      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: "smooth" });
+  const scrollToPanel = (index: number) => {
+    if (!deckWrapperRef.current) return;
+    const panels =
+      deckWrapperRef.current.querySelectorAll<HTMLElement>(".gsap-feature-section");
+    const target = panels[index];
+    if (target) {
+      const navOffset = 90;
+      const elementPosition =
+        target.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({
+        top: elementPosition - navOffset,
+        behavior: "smooth",
+      });
     }
   };
 
   return (
-    <section className="relative w-full bg-gradient-to-b from-[#F7FAF8] via-[#EFF5F1] to-[#FBFBF9] py-16 md:py-24 overflow-visible text-[#273338]">
+    <div
+      ref={deckWrapperRef}
+      className="slides-wrapper relative w-full bg-gradient-to-b from-[#F7FAF8] via-[#EFF5F1] to-[#FBFBF9] py-10 md:py-16 text-[#273338]"
+    >
       {/* Ambient background soft luxury lighting */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(43,87,72,0.08),_transparent_70%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_60%,_rgba(156,176,128,0.10),_transparent_60%)]" />
 
       {/* Section Title & Intro */}
-      <div className="container relative z-10 mx-auto max-w-5xl px-4 text-center mb-12">
+      <div className="container relative z-10 mx-auto max-w-5xl px-4 text-center mb-8 sm:mb-12">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#2B5748]/10 text-[#2B5748] text-xs font-bold uppercase tracking-wider mb-4 border border-[#2B5748]/20 shadow-xs">
           <Layers className="w-3.5 h-3.5 text-[#2B5748]" />
           <span>Interactive Feature Showcase</span>
@@ -682,25 +772,25 @@ export function FeaturesSlideDeck() {
           <i className="font-serif text-[#2B5748] font-normal">Slide by Slide.</i>
         </h2>
         <p className="text-[#55645E] text-sm sm:text-base max-w-2xl mx-auto mt-4 leading-relaxed">
-          Scroll down to seamlessly transition through each specialized operational pillar. Each slide reveals full chairside, operational, and financial tools with rich interactive details.
+          Scroll down to experience the smooth GSAP presentation flow. Each section card pins and vanishes gently as the next capability takes its step.
         </p>
       </div>
 
-      {/* Sticky Presentation Navigation Dock (Bright Luxury Glassmorphic Pill) */}
-      <div className="sticky top-20 z-50 mb-16 flex justify-center px-4">
-        <div className="flex max-w-full items-center gap-1.5 sm:gap-2 overflow-x-auto rounded-full border border-[#273338]/10 bg-white/90 p-1.5 shadow-[0_16px_45px_-10px_rgba(27,38,33,0.12)] backdrop-blur-2xl no-scrollbar">
+      {/* Floating / Sticky Presentation Navigation Dock (Bright Luxury Glassmorphic Pill) */}
+      <div className="sticky top-20 z-50 mb-12 flex justify-center px-4">
+        <div className="flex max-w-full items-center gap-1.5 sm:gap-2 overflow-x-auto rounded-full border border-[#273338]/10 bg-white/95 p-1.5 shadow-[0_16px_45px_-10px_rgba(27,38,33,0.14)] backdrop-blur-2xl no-scrollbar">
           <div className="flex items-center gap-1.5 px-3 text-[11px] font-bold uppercase tracking-wider text-[#2B5748] shrink-0">
             <Sparkles className="h-3.5 w-3.5" />
             <span className="hidden md:inline">Deck:</span>
           </div>
 
           {CATEGORIES.map((cat, idx) => {
-            const isActive = activeSlide === idx;
+            const isActive = activeCategoryIndex === idx;
             const CatIcon = cat.icon;
             return (
               <button
                 key={cat.id}
-                onClick={() => scrollToSlide(idx)}
+                onClick={() => scrollToPanel(idx)}
                 className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 sm:px-4 py-1.5 text-xs font-semibold transition-all duration-300 shrink-0 ${
                   isActive
                     ? "text-white shadow-md scale-105"
@@ -710,7 +800,7 @@ export function FeaturesSlideDeck() {
                   isActive
                     ? {
                         backgroundColor: cat.primaryColor,
-                        boxShadow: `0 6px 20px -4px ${cat.primaryColor}50`,
+                        boxShadow: `0 6px 18px -4px ${cat.primaryColor}60`,
                       }
                     : {}
                 }
@@ -728,49 +818,32 @@ export function FeaturesSlideDeck() {
         </div>
       </div>
 
-      {/* Stacked Presentation Slides Container */}
-      <div className="container relative mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="space-y-28 md:space-y-40">
-          {CATEGORIES.map((cat, idx) => {
-            const features = grouped[cat.id] || [];
-            const CatIcon = cat.icon;
-            const isLast = idx === CATEGORIES.length - 1;
+      {/* The 6 GSAP Pinned Sections */}
+      <div className="slides-container container relative mx-auto max-w-6xl px-3 sm:px-6">
+        {CATEGORIES.map((cat, idx) => {
+          const features = grouped[cat.id] || [];
+          const CatIcon = cat.icon;
+          const isLast = idx === CATEGORIES.length - 1;
 
-            return (
-              <div
-                key={cat.id}
-                id={`slide-${cat.id}`}
-                ref={(el) => {
-                  slideRefs.current[idx] = el;
-                }}
-                className="group/slide sticky z-20 transition-all duration-500"
-                style={{
-                  top: `${90 + idx * 6}px`,
-                }}
-              >
-                {/* Master Presentation Slide Canvas (Bright, Crisp, Luxurious) */}
+          return (
+            <section
+              key={cat.id}
+              id={`slide-${cat.id}`}
+              className="gsap-feature-section w-full min-h-[calc(100vh-100px)] mb-12 sm:mb-20 flex justify-center items-center relative box-border"
+              style={{
+                willChange: "transform, opacity",
+              }}
+            >
+              <div className="section-content w-full">
+                {/* Master Presentation Slide Card */}
                 <div
-                  className="relative overflow-hidden rounded-[32px] sm:rounded-[40px] border bg-white shadow-[0_20px_60px_-15px_rgba(27,38,33,0.12)] transition-all duration-500 hover:shadow-[0_30px_80px_-15px_rgba(27,38,33,0.18)]"
+                  className="section-inner w-full rounded-[32px] sm:rounded-[40px] border bg-white shadow-[0_24px_70px_-15px_rgba(27,38,33,0.14)] overflow-hidden transition-colors"
                   style={{
-                    borderColor: `${cat.primaryColor}30`,
+                    borderColor: `${cat.primaryColor}35`,
                     boxShadow: `0 24px 70px -15px ${cat.glowColor}, 0 10px 30px -10px rgba(0,0,0,0.06)`,
                   }}
                 >
-                  {/* Subtle ambient light gradient at the top matching category color */}
-                  <div
-                    className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full opacity-20 blur-3xl"
-                    style={{
-                      background: `radial-gradient(circle, ${cat.primaryColor} 0%, transparent 70%)`,
-                    }}
-                  />
-                  <div
-                    className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full opacity-15 blur-3xl"
-                    style={{
-                      background: `radial-gradient(circle, ${cat.accentColor} 0%, transparent 70%)`,
-                    }}
-                  />
-
-                  {/* Slide Top Banner / Header (Bright luxury styling with category theme) */}
+                  {/* Slide Top Banner */}
                   <div
                     className="relative border-b p-6 sm:p-8 md:p-10 transition-colors"
                     style={{
@@ -847,7 +920,7 @@ export function FeaturesSlideDeck() {
                     </div>
                   </div>
 
-                  {/* Feature Cards Grid within this Slide — Customized Layout per Theme */}
+                  {/* Feature Cards Grid within this Slide */}
                   <div className="relative p-6 sm:p-8 md:p-10 bg-white">
                     <div
                       className={`grid gap-6 ${
@@ -867,7 +940,8 @@ export function FeaturesSlideDeck() {
                               isSpan ? "md:col-span-2 lg:col-span-1" : ""
                             }`}
                             style={{
-                              backgroundColor: fIdx % 2 === 0 ? "#FFFFFF" : cat.lightBg,
+                              backgroundColor:
+                                fIdx % 2 === 0 ? "#FFFFFF" : cat.lightBg,
                               borderColor: `${cat.primaryColor}20`,
                               boxShadow: `0 8px 30px -10px rgba(0,0,0,0.05)`,
                             }}
@@ -891,7 +965,10 @@ export function FeaturesSlideDeck() {
                                     color: cat.primaryColor,
                                   }}
                                 >
-                                  <FIcon className="h-6 w-6" style={{ color: cat.primaryColor }} />
+                                  <FIcon
+                                    className="h-6 w-6"
+                                    style={{ color: cat.primaryColor }}
+                                  />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 mb-1">
@@ -981,12 +1058,14 @@ export function FeaturesSlideDeck() {
                     >
                       <span className="text-[11px] font-medium tracking-wide">
                         Scroll down for next slide:{" "}
-                        <strong style={{ color: CATEGORIES[idx + 1].primaryColor }}>
+                        <strong
+                          style={{ color: CATEGORIES[idx + 1].primaryColor }}
+                        >
                           0{idx + 2}. {CATEGORIES[idx + 1].label}
                         </strong>
                       </span>
                       <button
-                        onClick={() => scrollToSlide(idx + 1)}
+                        onClick={() => scrollToPanel(idx + 1)}
                         className="inline-flex items-center gap-1 text-xs font-bold transition-transform hover:scale-105"
                         style={{ color: cat.primaryColor }}
                       >
@@ -997,10 +1076,10 @@ export function FeaturesSlideDeck() {
                   )}
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </section>
+          );
+        })}
       </div>
-    </section>
+    </div>
   );
 }
