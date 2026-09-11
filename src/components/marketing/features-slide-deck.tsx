@@ -618,10 +618,6 @@ export function FeaturesSlideDeck() {
             >
               {/* Slide 1 Header */}
               <div className="relative border-b p-8 sm:p-10 md:p-12 text-center bg-[#F2F8F5] border-[#2B5748]/20">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#2B5748]/10 border border-[#2B5748]/20 text-[#2B5748] text-xs font-semibold tracking-wide uppercase mb-4">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Interactive System Walkthrough</span>
-                </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-[#182320] max-w-4xl mx-auto leading-tight">
                   Explore All System <i className="font-serif font-normal italic text-[#2B5748]">Features & Capabilities</i>
                 </h2>
@@ -833,26 +829,9 @@ export function FeaturesSlideDeck() {
                 </h2>
 
                 {/* Line 2: Simple Subtitle */}
-                <p className="text-base sm:text-lg md:text-xl font-normal leading-relaxed text-[#55645E] max-w-2xl mx-auto mb-10">
+                <p className="text-base sm:text-lg md:text-xl font-normal leading-relaxed text-[#55645E] max-w-2xl mx-auto">
                   Every clinic is unique. Tell us your workflow requirements, and we will tailor existing tools or build brand-new features specifically for you.
                 </p>
-
-                {/* Action Buttons */}
-                <div className="flex flex-wrap items-center justify-center gap-4">
-                  <Link
-                    href="/book"
-                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#2B5748] hover:bg-[#386D5B] text-white font-semibold text-sm shadow-[0_10px_28px_rgba(43,87,72,0.4)] hover:scale-105 transition-all duration-300 border border-white/20"
-                  >
-                    <span>Discuss Your Requirements</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                  <Link
-                    href="/contact"
-                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white hover:bg-[#F2F8F5] text-[#273338] font-semibold text-sm border border-[#273338]/15 shadow-sm transition-all duration-300 hover:scale-105"
-                  >
-                    <span>Contact Us</span>
-                  </Link>
-                </div>
               </div>
             </div>
           </div>

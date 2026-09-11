@@ -183,8 +183,8 @@ const STATS = [
 export default function FeaturesPage() {
   return (
     <div className="features-page bg-white">
-      {/* Luxury Hero Banner — Fits in 1 Viewport Height */}
-      <section className="relative overflow-hidden bg-[#0A1612] text-white pt-16 pb-8 md:pt-20 md:pb-10 min-h-[calc(100vh-76px)] flex flex-col justify-center border-b border-white/10">
+      {/* Luxury Hero Banner — Full 100vh Viewport Height */}
+      <section className="relative overflow-hidden bg-[#0A1612] text-white min-h-screen w-full flex flex-col justify-center border-b border-white/10 pt-20 pb-8 sm:pt-24 sm:pb-12">
         {/* Ambient atmospheric lighting */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,_rgba(156,176,128,0.22),_transparent_65%)]" />
         <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[radial-gradient(ellipse_at_center,_rgba(43,87,72,0.35),_transparent_70%)] blur-3xl" />
@@ -213,7 +213,7 @@ export default function FeaturesPage() {
 
           {/* Master Headline */}
           <h1
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-light tracking-tight leading-[1.12] !text-white max-w-4xl mx-auto"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-light tracking-tight leading-[1.12] !text-white max-w-4xl mx-auto"
             style={{ color: "#FFFFFF" }}
           >
             Everything Your Clinic Needs, <br className="hidden sm:inline" />
@@ -284,101 +284,78 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      {/* Before / After Comparison */}
+      {/* Before / After Transformation Matrix */}
       <section className="py-24 bg-[#FBFBF9] text-[#273338]">
         <div className="container max-w-5xl mx-auto px-4">
           <div className="title-box text-center max-w-3xl mx-auto mb-14">
-            <span className="subtitle-italic text-[#2B5748] font-semibold text-sm">The Transformation</span>
-            <h2 className="h3 text-3xl sm:text-4xl md:text-5xl font-light text-[#182320] mt-2 mb-4 tracking-tight">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#2B5748]/10 border border-[#2B5748]/20 text-[#2B5748] text-xs font-semibold tracking-wide uppercase mb-3">
+              <span>Practice Transformation Matrix</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-[#182320] tracking-tight mb-3">
               From Traditional Clinic to <i className="font-serif text-[#2B5748]">Digital Practice</i>
             </h2>
-            <p className="text-[#4E5B55] text-sm sm:text-base max-w-2xl mx-auto">
-              See exactly what changes when your clinic runs on this system — and what you leave behind.
+            <p className="text-[#55645E] text-sm sm:text-base max-w-2xl mx-auto font-normal">
+              See how routine operations transform from manual paper bottlenecks to automated digital precision.
             </p>
           </div>
 
-          <div className="rounded-[32px] overflow-hidden border border-[#273338]/10 shadow-[0_20px_50px_-10px_rgba(27,38,33,0.10)]">
-            <div className="grid grid-cols-2 bg-[#273338] text-white text-sm font-bold uppercase tracking-widest">
-              <div className="px-6 py-4 border-r border-white/10">Before — Traditional Clinic</div>
-              <div className="px-6 py-4 text-[#9CB080]">After — With This System</div>
-            </div>
-            {COMPARISON.map((row, i) => (
-              <div
-                key={i}
-                className={`grid grid-cols-2 border-b border-[#273338]/06 last:border-0 ${i % 2 === 0 ? "bg-white" : "bg-[#F8F9F8]"}`}
-              >
-                <div className="px-6 py-4 flex items-start gap-3 border-r border-[#273338]/06">
-                  <span className="mt-0.5 w-5 h-5 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-xs font-bold shrink-0">✕</span>
-                  <span className="text-sm text-[#4E5B55]">{row.before}</span>
+          <div className="rounded-[32px] overflow-hidden border border-[#273338]/12 bg-white shadow-[0_24px_70px_-15px_rgba(27,38,33,0.09)]">
+            <div className="grid grid-cols-1 md:grid-cols-2 border-b border-[#273338]/10 bg-[#162520] text-white">
+              <div className="px-6 sm:px-8 py-5 flex items-center justify-between border-b md:border-b-0 md:border-r border-white/10 bg-red-950/20">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                  <span className="text-xs sm:text-sm font-bold tracking-wider uppercase text-red-200">
+                    Traditional / Manual Clinic
+                  </span>
                 </div>
-                <div className="px-6 py-4 flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-[#2B5748] shrink-0 mt-0.5" />
-                  <span className="text-sm font-medium text-[#182320]">{row.after}</span>
-                </div>
+                <span className="text-[11px] text-white/50 uppercase tracking-widest font-semibold">Legacy</span>
               </div>
-            ))}
+
+              <div className="px-6 sm:px-8 py-5 flex items-center justify-between bg-[#2B5748]/30">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#9CB080] animate-pulse" />
+                  <span className="text-xs sm:text-sm font-bold tracking-wider uppercase text-[#D7E8C5]">
+                    With Clinic Care System
+                  </span>
+                </div>
+                <span className="text-[11px] text-[#9CB080] uppercase tracking-widest font-semibold">Automated</span>
+              </div>
+            </div>
+
+            <div className="divide-y divide-[#273338]/06">
+              {COMPARISON.map((row, i) => (
+                <div
+                  key={i}
+                  className={`grid grid-cols-1 md:grid-cols-2 transition-colors hover:bg-[#F4F8F6]/60 ${
+                    i % 2 === 0 ? "bg-white" : "bg-[#FAFBF9]"
+                  }`}
+                >
+                  <div className="px-6 sm:px-8 py-4 flex items-center gap-3.5 border-b md:border-b-0 md:border-r border-[#273338]/06 text-[#55645E]">
+                    <span className="w-5 h-5 rounded-full bg-red-50 text-red-500 border border-red-200/60 flex items-center justify-center text-xs font-bold shrink-0">
+                      ✕
+                    </span>
+                    <span className="text-xs sm:text-sm font-normal leading-relaxed text-[#4E5B55]">
+                      {row.before}
+                    </span>
+                  </div>
+
+                  <div className="px-6 sm:px-8 py-4 flex items-center gap-3.5 bg-gradient-to-r from-transparent to-[#2B5748]/[0.02]">
+                    <span className="w-5 h-5 rounded-full bg-[#2B5748]/10 text-[#2B5748] border border-[#2B5748]/20 flex items-center justify-center text-xs font-bold shrink-0">
+                      ✓
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-[#14231E] leading-relaxed">
+                      {row.after}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Feature Sections Presentation Slide Deck */}
       <FeaturesSlideDeck />
-
-      {/* Summary Table */}
-      <section className="py-24 bg-white text-[#273338]">
-        <div className="container max-w-4xl mx-auto px-4">
-          <div className="title-box text-center mb-14">
-            <span className="subtitle-italic text-[#2B5748] font-semibold text-sm">What&apos;s Included</span>
-            <h2 className="h3 text-3xl sm:text-4xl md:text-5xl font-light text-[#182320] mt-2 mb-4 tracking-tight">
-              The Complete Feature <i className="font-serif text-[#2B5748]">Summary</i>
-            </h2>
-          </div>
-
-          <div className="rounded-[28px] overflow-hidden border border-[#273338]/10 shadow-[0_16px_44px_-8px_rgba(27,38,33,0.08)]">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-[#273338] text-white text-xs uppercase tracking-widest">
-                  <th className="px-6 py-4 text-left font-semibold">Category</th>
-                  <th className="px-6 py-4 text-center font-semibold">Features Included</th>
-                </tr>
-              </thead>
-              <tbody>
-                {FEATURE_CATEGORIES.map((cat, i) => {
-                  const CIcon = cat.icon;
-                  const count = cat.id === "clinical" || cat.id === "marketing" ? 5 : 4;
-                  return (
-                    <tr key={cat.id} className={`border-b border-[#273338]/06 last:border-0 ${i % 2 === 0 ? "bg-white" : "bg-[#FAFAF9]"}`}>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="w-8 h-8 rounded-xl flex items-center justify-center"
-                            style={{ backgroundColor: cat.lightColor }}
-                          >
-                            <CIcon className="w-4 h-4" style={{ color: cat.color }} />
-                          </div>
-                          <span className="font-semibold text-[#182320]">{cat.label}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span
-                          className="inline-block px-3 py-1 rounded-full text-xs font-bold"
-                          style={{ backgroundColor: cat.lightColor, color: cat.color }}
-                        >
-                          {count} Features
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-                <tr className="bg-[#273338] text-white">
-                  <td className="px-6 py-4 font-bold text-sm">Total</td>
-                  <td className="px-6 py-4 text-center font-black text-[#9CB080] text-sm">26 Core Features</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
 
       {/* CTA Section */}
       <section className="relative py-28 bg-[#1B2623] text-white overflow-hidden">
