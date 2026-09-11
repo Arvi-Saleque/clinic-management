@@ -1,16 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import {
-  CalendarDays,
-  ShieldCheck,
-  CreditCard,
-  LayoutDashboard,
-  Stethoscope,
-  ArrowRight,
-  Zap,
-  TrendingUp,
-  Heart,
-} from "lucide-react";
 import { FeaturesSlideDeck } from "@/components/marketing/features-slide-deck";
 
 export const metadata: Metadata = {
@@ -18,99 +6,6 @@ export const metadata: Metadata = {
   description:
     "Discover all 26+ powerful features of our dental clinic management system — from real-time dashboards and online booking to patient portals and smart billing.",
 };
-
-const FEATURE_CATEGORIES = [
-  {
-    id: "operations",
-    label: "Daily Operations",
-    badge: "Operations Engine",
-    color: "#2B5748",
-    lightColor: "#EAF2EE",
-    icon: LayoutDashboard,
-    headline: (
-      <>
-        Your clinic runs <i className="font-serif text-[#9CB080] font-normal">itself.</i>
-      </>
-    ),
-    subtitle:
-      "Automate front-desk queues, daily appointment workflows, and doctor availability in one single workspace.",
-  },
-  {
-    id: "clinical",
-    label: "Clinical Tools",
-    badge: "Digital Chairside",
-    color: "#1E3A5F",
-    lightColor: "#E8EEF6",
-    icon: Stethoscope,
-    headline: (
-      <>
-        Dentists document <i className="font-serif text-[#9CB080] font-normal">everything digitally.</i>
-      </>
-    ),
-    subtitle:
-      "Full chairside consultation workspaces, digital odontograms, allergy warnings, and paperless prescriptions.",
-  },
-  {
-    id: "patient",
-    label: "Patient Experience",
-    badge: "Patient Portal",
-    color: "#7B3F8C",
-    lightColor: "#F3EAF7",
-    icon: Heart,
-    headline: (
-      <>
-        Patients feel <i className="font-serif text-[#9CB080] font-normal">looked after.</i>
-      </>
-    ),
-    subtitle:
-      "Dedicated self-service portal, 1-click calendar sync, transparent wait times, and permanent medical safety.",
-  },
-  {
-    id: "marketing",
-    label: "Marketing & Growth",
-    badge: "Growth Engine",
-    color: "#B05A1A",
-    lightColor: "#FAF0E8",
-    icon: TrendingUp,
-    headline: (
-      <>
-        Your website becomes your <i className="font-serif text-[#9CB080] font-normal">best salesperson.</i>
-      </>
-    ),
-    subtitle:
-      "High-converting marketing architecture with AI smile simulator, doctor portfolios, and branch locators.",
-  },
-  {
-    id: "finance",
-    label: "Finance & Billing",
-    badge: "Revenue Shield",
-    color: "#1B5E8C",
-    lightColor: "#E6F0F8",
-    icon: CreditCard,
-    headline: (
-      <>
-        No invoice is <i className="font-serif text-[#9CB080] font-normal">ever lost again.</i>
-      </>
-    ),
-    subtitle:
-      "Auto-generated treatment invoices, payment method splitting, outstanding balance tracking, and browser receipts.",
-  },
-  {
-    id: "technology",
-    label: "Technology & Access",
-    badge: "Cloud Security",
-    color: "#5A3E8C",
-    lightColor: "#EEE8F8",
-    icon: Zap,
-    headline: (
-      <>
-        Works everywhere, <i className="font-serif text-[#9CB080] font-normal">for everyone.</i>
-      </>
-    ),
-    subtitle:
-      "Role-based access control, responsive mobile-first UI, dark/light theme switching, and instant WhatsApp support.",
-  },
-];
 
 const COMPARISON = [
   { before: "Paper appointment book", after: "Live digital dashboard with real-time queues" },
@@ -234,50 +129,6 @@ export default function FeaturesPage() {
 
       {/* Feature Sections Presentation Slide Deck */}
       <FeaturesSlideDeck />
-
-      {/* CTA Section */}
-      <section className="relative py-16 sm:py-24 md:py-28 bg-[#1B2623] text-white overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(156,176,128,0.18),transparent_70%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(16,26,23,0.85)_0%,rgba(10,18,16,0.95)_100%)]" />
-
-        <div className="container relative z-10 text-center max-w-4xl mx-auto px-4">
-          <div className="p-6 sm:p-12 md:p-16 rounded-2xl sm:rounded-[32px] bg-white/[0.06] border border-[#9CB080]/25 backdrop-blur-xl shadow-[0_30px_80px_-15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]">
-            <div className="inline-flex items-center gap-2 bg-[#14201C]/80 backdrop-blur-md px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full border border-[#9CB080]/30 text-[11px] sm:text-xs text-[#B5C89B] font-semibold uppercase tracking-widest mb-4 sm:mb-6 shadow-sm">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#B5C89B]" />
-              <span>Built for Modern Dental Clinics</span>
-            </div>
-
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-light text-white leading-tight tracking-tight mb-3 sm:mb-4 drop-shadow-md">
-              Ready to Transform <br className="hidden sm:inline" />
-              <i className="font-serif text-[#B5C89B]">Your Clinic Experience?</i>
-            </h2>
-
-            <p className="text-sm sm:text-base md:text-lg text-white/90 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-sm font-normal">
-              Every feature shown on this page is ready to deploy for your clinic — customised with your branding, your doctors, and your services.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3.5 sm:gap-4 max-w-md sm:max-w-none mx-auto">
-              <Link
-                href="/book"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2B5748] to-[#18362B] hover:from-[#376d5b] hover:to-[#2B5748] px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-[0_8px_24px_rgba(43,87,72,0.4)] hover:shadow-[0_12px_32px_rgba(43,87,72,0.6)] transition-all duration-300 hover:scale-105 border border-[#9CB080]/30"
-                style={{ color: "#ffffff" }}
-              >
-                <CalendarDays className="w-4 h-4" />
-                <span>Book a Demo Appointment</span>
-              </Link>
-
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 hover:bg-white/20 px-8 py-4 text-xs sm:text-sm font-semibold uppercase tracking-wider text-white border border-white/25 hover:border-white/50 backdrop-blur-md transition-all duration-300 hover:scale-105"
-                style={{ color: "#ffffff" }}
-              >
-                <ArrowRight className="w-4 h-4 text-[#B5C89B]" />
-                <span>Get in Touch</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
