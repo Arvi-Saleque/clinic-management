@@ -182,6 +182,7 @@ const STATS = [
 
 export default function FeaturesPage() {
   return (
+    <div className="features-page bg-white">
       {/* Luxury Hero Banner — Fits in 1 Viewport Height */}
       <section className="relative overflow-hidden bg-[#0A1612] text-white pt-16 pb-8 md:pt-20 md:pb-10 min-h-[calc(100vh-76px)] flex flex-col justify-center border-b border-white/10">
         {/* Ambient atmospheric lighting */}
