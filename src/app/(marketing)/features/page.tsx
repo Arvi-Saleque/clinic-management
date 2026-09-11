@@ -150,20 +150,49 @@ const COMPARISON = [
 ];
 
 const STATS = [
-  { value: "26+", label: "Powerful Features", icon: Star },
-  { value: "3", label: "Staff Role Levels", icon: Users },
-  { value: "11", label: "Website Pages Included", icon: Globe },
-  { value: "24/7", label: "Patient Self-Service", icon: Clock },
+  {
+    value: "26+",
+    label: "Core Modules",
+    desc: "Operations, clinical, marketing & finance",
+    badge: "Enterprise",
+    icon: Star,
+  },
+  {
+    value: "100%",
+    label: "Digital Paperless",
+    desc: "Digital charts, odontograms & prescriptions",
+    badge: "Chairside",
+    icon: Sparkles,
+  },
+  {
+    value: "3 Tiers",
+    label: "Role-Based Access",
+    desc: "Admin, Doctor & Receptionist security",
+    badge: "Security",
+    icon: ShieldCheck,
+  },
+  {
+    value: "24/7",
+    label: "Patient Self-Service",
+    desc: "Online booking wizard & patient portal",
+    badge: "Cloud Hub",
+    icon: Clock,
+  },
 ];
 
 export default function FeaturesPage() {
   return (
-    <div className="features-page">
-      {/* Hero Banner */}
-      <section className="page-hero-banner py-24 text-white">
-        <div className="container text-center max-w-5xl mx-auto px-4">
-          <nav aria-label="Breadcrumb" className="mb-6 flex justify-center">
-            <ol className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-white/70 uppercase">
+      {/* Luxury Hero Banner — Fits in 1 Viewport Height */}
+      <section className="relative overflow-hidden bg-[#0A1612] text-white pt-16 pb-8 md:pt-20 md:pb-10 min-h-[calc(100vh-76px)] flex flex-col justify-center border-b border-white/10">
+        {/* Ambient atmospheric lighting */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,_rgba(156,176,128,0.22),_transparent_65%)]" />
+        <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[radial-gradient(ellipse_at_center,_rgba(43,87,72,0.35),_transparent_70%)] blur-3xl" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+
+        <div className="container relative z-10 max-w-6xl mx-auto px-4 text-center my-auto">
+          {/* Breadcrumb navigation */}
+          <nav aria-label="Breadcrumb" className="mb-3 flex justify-center">
+            <ol className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-widest text-white/60 uppercase">
               <li>
                 <Link href="/" className="hover:text-white transition-colors duration-200">
                   Home
@@ -174,39 +203,79 @@ export default function FeaturesPage() {
             </ol>
           </nav>
 
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/15 text-xs text-[#9CB080] font-medium mb-6 shadow-sm">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Complete Platform Overview — 26 Features</span>
+          {/* Premium Eyebrow Badge */}
+          <div className="inline-flex items-center gap-2 bg-white/[0.08] hover:bg-white/[0.12] transition-colors border border-white/15 backdrop-blur-xl px-3.5 py-1 rounded-full text-[11px] text-[#9CB080] font-semibold tracking-wide uppercase mb-4 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#9CB080] animate-pulse" />
+            <ShieldCheck className="w-3.5 h-3.5 text-[#9CB080]" />
+            <span>Complete Practice Operating Platform · 26 Capabilities</span>
           </div>
 
-          <h1 className="page-title text-4xl sm:text-5xl md:text-6xl font-light tracking-tight leading-tight drop-shadow-md">
-            Everything Your Clinic Needs, <br />
-            <i className="font-serif text-[#9CB080]">Built Into One System.</i>
+          {/* Master Headline */}
+          <h1
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-light tracking-tight leading-[1.12] !text-white max-w-4xl mx-auto"
+            style={{ color: "#FFFFFF" }}
+          >
+            Everything Your Clinic Needs, <br className="hidden sm:inline" />
+            <span
+              className="font-serif italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#9CB080] via-[#E2EDD6] to-[#9CB080]"
+              style={{
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Built Into One Flawless System.
+            </span>
           </h1>
 
-          <p className="page-subtitle text-base sm:text-lg text-white/85 mt-6 max-w-3xl mx-auto leading-relaxed drop-shadow-sm">
-            From the moment a patient visits your website to the moment they walk out of the clinic, every step is managed, recorded, and simplified — so your team can focus on care, not paperwork.
+          {/* Subtitle */}
+          <p className="text-sm sm:text-base md:text-lg !text-white/80 mt-3 max-w-2xl mx-auto leading-relaxed font-light">
+            From 24/7 patient booking and waiting room queues to digital chairside charting, paperless prescriptions, and automated billing.
           </p>
 
-          <div className="mt-10 flex justify-center">
-            <div className="h-0.5 w-16 bg-[#9CB080]/80 rounded-full" />
+          {/* Action CTAs */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="#slide-operations"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#2B5748] hover:bg-[#386D5B] !text-white font-semibold text-xs sm:text-sm shadow-[0_8px_20px_rgba(43,87,72,0.4)] hover:scale-105 transition-all duration-300 border border-white/20"
+            >
+              <span>Explore All 26 Features</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <Link
+              href="/book"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/[0.08] hover:bg-white/[0.14] !text-white font-semibold text-xs sm:text-sm border border-white/20 backdrop-blur-md transition-all duration-300 hover:scale-105"
+            >
+              <CalendarDays className="w-3.5 h-3.5 text-[#9CB080]" />
+              <span>Book a Demo</span>
+            </Link>
           </div>
-        </div>
-      </section>
 
-      {/* Stats Strip */}
-      <section className="py-14 bg-[#1B2623] text-white border-y border-white/10">
-        <div className="container">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+          {/* Integrated Frosted Glass Stats Matrix */}
+          <div className="mt-8 md:mt-10 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-5xl mx-auto">
             {STATS.map((s) => {
               const Icon = s.icon;
               return (
-                <div key={s.label} className="text-center">
-                  <div className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-[#9CB080]/15 border border-[#9CB080]/25 mb-3">
-                    <Icon className="w-5 h-5 text-[#9CB080]" />
+                <div
+                  key={s.label}
+                  className="group relative rounded-xl sm:rounded-2xl border border-white/10 bg-white/[0.04] p-3.5 sm:p-4 backdrop-blur-xl shadow-[0_8px_24px_rgba(0,0,0,0.2)] hover:border-[#9CB080]/40 hover:bg-white/[0.08] transition-all duration-300 text-left"
+                >
+                  <div className="flex items-center justify-between mb-2 sm:mb-3">
+                    <div className="w-8 h-8 rounded-xl bg-[#9CB080]/15 border border-[#9CB080]/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <Icon className="w-4 h-4 text-[#9CB080]" />
+                    </div>
+                    <span className="text-[9px] font-bold text-[#9CB080] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[#9CB080]/15 border border-[#9CB080]/20">
+                      {s.badge}
+                    </span>
                   </div>
-                  <div className="text-3xl font-bold text-white">{s.value}</div>
-                  <div className="text-xs text-white/60 mt-1 font-medium uppercase tracking-wider">{s.label}</div>
+                  <div className="text-2xl sm:text-3xl font-bold tracking-tight !text-white mb-0.5" style={{ color: "#FFFFFF" }}>
+                    {s.value}
+                  </div>
+                  <div className="text-xs font-bold !text-white/95" style={{ color: "rgba(255,255,255,0.95)" }}>
+                    {s.label}
+                  </div>
+                  <div className="text-[10px] !text-white/60 mt-0.5 leading-snug hidden sm:block" style={{ color: "rgba(255,255,255,0.65)" }}>
+                    {s.desc}
+                  </div>
                 </div>
               );
             })}
