@@ -98,6 +98,9 @@ export function LuxuryFooter({
                 <Link href="/results">Smile Results &amp; Gallery</Link>
               </li>
               <li>
+                <Link href="/features" className="font-semibold text-[#9CB080]">✦ System Features</Link>
+              </li>
+              <li>
                 <Link href="/contact">Contact &amp; Clinic Hours</Link>
               </li>
             </ul>
@@ -160,6 +163,7 @@ export function LuxuryFooter({
             <Link href="/terms">Terms of Service</Link>
             <Link href="/cookies">Cookie Preferences</Link>
             <Link href="/contact">Patient Care Charter</Link>
+            <Link href="/features" className="font-semibold text-[#9CB080]">System Features</Link>
           </div>
         </div>
       </div>
