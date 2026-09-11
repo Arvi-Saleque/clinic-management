@@ -26,7 +26,6 @@ import {
   CalendarIcon,
   MessageCircle,
   TrendingUp,
-  Sparkles,
 } from "lucide-react";
 
 export const CATEGORIES = [
@@ -597,10 +596,6 @@ export function FeaturesSlideDeck() {
 
       {/* Feature Showcase Main Introductory Header */}
       <div className="container max-w-5xl mx-auto px-4 text-center mb-16 md:mb-20 pt-4">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#2B5748]/10 border border-[#2B5748]/20 text-[#2B5748] text-xs font-semibold tracking-wide uppercase mb-4 shadow-sm">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Interactive Feature Breakdown</span>
-        </div>
         <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-[#182320] tracking-tight mb-4 leading-tight">
           Explore All System <i className="font-serif text-[#2B5748]">Features & Capabilities</i>
         </h2>
@@ -657,10 +652,10 @@ export function FeaturesSlideDeck() {
                     </p>
                   </div>
 
-                  {/* Feature Cards Grid within this Slide — Focused, Lucrative, High-Impact */}
-                  <div className="relative p-5 sm:p-7 md:p-9 bg-white">
+                  {/* Feature Cards Grid within this Slide — Focused, Lucrative, Modern */}
+                  <div className="relative p-6 sm:p-8 md:p-10 bg-white">
                     <div
-                      className={`grid gap-5 sm:gap-6 ${
+                      className={`grid gap-6 sm:gap-7 ${
                         features.length === 5
                           ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                           : "grid-cols-1 md:grid-cols-2"
@@ -669,34 +664,25 @@ export function FeaturesSlideDeck() {
                       {features.map((feature, fIdx) => {
                         const FIcon = feature.icon;
                         const isSpan = features.length === 5 && fIdx === 0;
-                        const cardNum = `0${fIdx + 1}`;
 
                         return (
                           <div
                             key={feature.title}
-                            className={`group relative flex flex-col justify-between rounded-2xl sm:rounded-3xl border p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+                            className={`group relative flex flex-col justify-between rounded-2xl sm:rounded-3xl border p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-12px_rgba(27,38,33,0.12)] ${
                               isSpan ? "md:col-span-2 lg:col-span-1" : ""
                             }`}
                             style={{
                               backgroundColor:
                                 fIdx % 2 === 0 ? "#FFFFFF" : cat.lightBg,
-                              borderColor: `${cat.primaryColor}25`,
+                              borderColor: `${cat.primaryColor}24`,
                               boxShadow: `0 4px 20px -6px rgba(0,0,0,0.04)`,
                             }}
                           >
-                            {/* Watermark Number per Section (01, 02, 03, 04...) */}
-                            <div
-                              className="pointer-events-none absolute right-5 top-5 select-none text-3xl sm:text-4xl font-black opacity-[0.09]"
-                              style={{ color: cat.primaryColor }}
-                            >
-                              {cardNum}
-                            </div>
-
                             <div>
-                              {/* Top Bar with Sequential Number Badge, Icon & Title */}
-                              <div className="mb-3 flex items-center gap-3.5">
+                              {/* Top Bar with Icon & Prominent Focused Title */}
+                              <div className="flex items-start gap-4 mb-4">
                                 <div
-                                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border shadow-xs transition-transform duration-300 group-hover:scale-105"
+                                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border shadow-xs transition-transform duration-300 group-hover:scale-110"
                                   style={{
                                     backgroundColor: "#ffffff",
                                     borderColor: `${cat.primaryColor}30`,
@@ -704,78 +690,47 @@ export function FeaturesSlideDeck() {
                                   }}
                                 >
                                   <FIcon
-                                    className="h-5 w-5"
+                                    className="h-6 w-6"
                                     style={{ color: cat.primaryColor }}
                                   />
                                 </div>
-                                <div className="flex-1 min-w-0 pr-6">
-                                  <div className="flex items-center gap-1.5 mb-1">
-                                    <span
-                                      className="text-[10px] font-bold px-1.5 py-0.5 rounded-md"
-                                      style={{
-                                        backgroundColor: cat.badgeBg,
-                                        color: cat.badgeText,
-                                      }}
-                                    >
-                                      {cardNum}
-                                    </span>
-                                  </div>
-                                  <h4 className="text-base sm:text-lg font-bold leading-snug text-[#182320]">
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-lg sm:text-xl font-bold tracking-tight text-[#141F1C] leading-snug">
                                     {feature.title}
-                                  </h4>
+                                  </h3>
+                                  <p
+                                    className="mt-1 text-xs sm:text-[13px] font-medium leading-relaxed"
+                                    style={{ color: cat.primaryColor }}
+                                  >
+                                    {feature.tagline}
+                                  </p>
                                 </div>
                               </div>
 
-                              {/* Focused Tagline */}
-                              <p
-                                className="mb-3.5 text-xs font-medium italic leading-relaxed"
-                                style={{ color: cat.primaryColor }}
-                              >
-                                {feature.tagline}
-                              </p>
-
-                              {/* Focused 3 Key Feature Highlights */}
-                              <ul className="mb-4 space-y-2">
-                                {feature.highlights.map((h, hi) => (
-                                  <li
-                                    key={hi}
-                                    className="flex items-start gap-2 text-xs text-[#273338]"
-                                  >
-                                    <span
-                                      className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold"
-                                      style={{
-                                        backgroundColor: cat.badgeBg,
-                                        color: cat.primaryColor,
-                                      }}
+                              {/* Focused Key Feature Highlights */}
+                              <div className="mt-3 pt-4 border-t border-[#273338]/08">
+                                <ul className="space-y-2.5">
+                                  {feature.highlights.map((h, hi) => (
+                                    <li
+                                      key={hi}
+                                      className="flex items-start gap-2.5 text-xs sm:text-[13px] text-[#273338]"
                                     >
-                                      ✓
-                                    </span>
-                                    <span className="leading-tight font-medium text-[#3A4843]">
-                                      {h}
-                                    </span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-
-                            {/* Benefit Badge Footer */}
-                            <div
-                              className="mt-auto rounded-xl border p-2.5 sm:p-3 text-xs leading-relaxed transition-colors group-hover:shadow-xs"
-                              style={{
-                                backgroundColor: "#ffffff",
-                                borderColor: `${cat.primaryColor}25`,
-                                color: cat.secondaryColor,
-                              }}
-                            >
-                              <span
-                                className="font-bold uppercase tracking-wider text-[9px]"
-                                style={{ color: cat.primaryColor }}
-                              >
-                                Key Outcome ·{" "}
-                              </span>
-                              <span className="font-medium text-[#273338]">
-                                {feature.benefit}
-                              </span>
+                                      <span
+                                        className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+                                        style={{
+                                          backgroundColor: cat.badgeBg,
+                                          color: cat.primaryColor,
+                                        }}
+                                      >
+                                        ✓
+                                      </span>
+                                      <span className="leading-snug font-normal text-[#3A4843]">
+                                        {h}
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
                             </div>
                           </div>
                         );
