@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import Link from "next/link";
 import {
   CalendarDays,
   ShieldCheck,
@@ -26,6 +27,10 @@ import {
   CalendarIcon,
   MessageCircle,
   TrendingUp,
+  Sparkles,
+  Sliders,
+  ArrowDown,
+  ArrowRight,
 } from "lucide-react";
 
 export const CATEGORIES = [
@@ -594,18 +599,76 @@ export function FeaturesSlideDeck() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(43,87,72,0.08),_transparent_70%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_60%,_rgba(156,176,128,0.10),_transparent_60%)]" />
 
-      {/* Feature Showcase Main Introductory Header */}
-      <div className="container max-w-5xl mx-auto px-4 text-center mb-16 md:mb-20 pt-4">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-[#182320] tracking-tight mb-4 leading-tight">
-          Explore All System <i className="font-serif text-[#2B5748]">Features & Capabilities</i>
-        </h2>
-        <p className="text-[#55645E] text-base sm:text-lg md:text-xl max-w-2xl mx-auto font-normal leading-relaxed">
-          Scroll down to discover the core modules and integrated tools built for modern dental clinics.
-        </p>
-      </div>
-
-      {/* The 6 GSAP Pinned Sections */}
+      {/* The Presentation Pinned Slides Container */}
       <div className="slides-container container relative mx-auto max-w-6xl px-3 sm:px-6">
+
+        {/* ─── SLIDE 01: INTRODUCTORY SYSTEM OVERVIEW SLIDE ─── */}
+        <section
+          id="slide-intro"
+          className="gsap-feature-section w-full min-h-[calc(100vh-100px)] mb-16 sm:mb-24 flex justify-center items-center relative box-border"
+          style={{ willChange: "transform, opacity" }}
+        >
+          <div className="section-content w-full">
+            <div
+              className="section-inner w-full rounded-[32px] sm:rounded-[40px] border bg-white shadow-[0_24px_70px_-15px_rgba(43,87,72,0.16)] overflow-hidden transition-colors"
+              style={{
+                borderColor: "#2B574830",
+                boxShadow: "0 24px 70px -15px rgba(43,87,72,0.18), 0 10px 30px -10px rgba(0,0,0,0.06)",
+              }}
+            >
+              {/* Slide 1 Header */}
+              <div className="relative border-b p-8 sm:p-10 md:p-12 text-center bg-[#F2F8F5] border-[#2B5748]/20">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#2B5748]/10 border border-[#2B5748]/20 text-[#2B5748] text-xs font-semibold tracking-wide uppercase mb-4">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Interactive System Walkthrough</span>
+                </div>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-[#182320] max-w-4xl mx-auto leading-tight">
+                  Explore All System <i className="font-serif font-normal italic text-[#2B5748]">Features & Capabilities</i>
+                </h2>
+                <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base md:text-lg font-normal leading-relaxed text-[#55645E]">
+                  Scroll down to discover the core modules and integrated tools built for modern dental clinics. Each capability card pins and transitions smoothly as you scroll.
+                </p>
+              </div>
+
+              {/* 6 Core Pillars Snapshot Matrix — Names and Icons Only */}
+              <div className="p-6 sm:p-8 md:p-10 bg-white">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                  {CATEGORIES.map((cat) => {
+                    const CIcon = cat.icon;
+                    return (
+                      <div
+                        key={cat.id}
+                        className="rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-3.5"
+                        style={{
+                          backgroundColor: cat.lightBg,
+                          borderColor: `${cat.primaryColor}22`,
+                        }}
+                      >
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center bg-white shadow-xs shrink-0"
+                          style={{ color: cat.primaryColor }}
+                        >
+                          <CIcon className="w-5 h-5" />
+                        </div>
+                        <h3 className="text-sm sm:text-base font-bold text-[#182320]">
+                          {cat.label}
+                        </h3>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Scroll Prompt */}
+                <div className="mt-8 pt-6 border-t border-[#273338]/08 flex items-center justify-center gap-2 text-xs font-semibold text-[#2B5748] uppercase tracking-wider">
+                  <span>Scroll to explore Section 01 · Daily Operations</span>
+                  <ArrowDown className="w-4 h-4 animate-bounce" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── SLIDES 02 TO 07: THE 6 CORE CAPABILITY MODULES ─── */}
         {CATEGORIES.map((cat) => {
           const features = grouped[cat.id] || [];
 
@@ -742,6 +805,59 @@ export function FeaturesSlideDeck() {
             </section>
           );
         })}
+
+        {/* ─── SLIDE 08: CUSTOM SOLUTIONS & BESPOKE CLINIC REQUIREMENTS ─── */}
+        <section
+          id="slide-customization"
+          className="gsap-feature-section w-full min-h-[calc(100vh-100px)] mb-16 sm:mb-24 flex justify-center items-center relative box-border"
+          style={{ willChange: "transform, opacity" }}
+        >
+          <div className="section-content w-full">
+            <div
+              className="section-inner w-full rounded-[32px] sm:rounded-[40px] border bg-white shadow-[0_24px_70px_-15px_rgba(43,87,72,0.16)] overflow-hidden transition-colors"
+              style={{
+                borderColor: "#2B574830",
+                boxShadow: "0 24px 70px -15px rgba(43,87,72,0.18), 0 10px 30px -10px rgba(0,0,0,0.06)",
+              }}
+            >
+              {/* Clean 2-Line Customization Card */}
+              <div className="p-10 sm:p-14 md:p-20 text-center bg-gradient-to-b from-[#F2F8F5] to-white flex flex-col items-center justify-center">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#2B5748]/10 border border-[#2B5748]/20 text-[#2B5748] text-xs font-semibold tracking-wide uppercase mb-6">
+                  <Sliders className="w-3.5 h-3.5" />
+                  <span>Custom Solutions</span>
+                </div>
+
+                {/* Line 1: Master Heading */}
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-[#182320] max-w-4xl mx-auto leading-tight mb-5">
+                  We will customize everything based on <i className="font-serif font-normal italic text-[#2B5748]">your clinic&apos;s needs.</i>
+                </h2>
+
+                {/* Line 2: Simple Subtitle */}
+                <p className="text-base sm:text-lg md:text-xl font-normal leading-relaxed text-[#55645E] max-w-2xl mx-auto mb-10">
+                  Every clinic is unique. Tell us your workflow requirements, and we will tailor existing tools or build brand-new features specifically for you.
+                </p>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  <Link
+                    href="/book"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#2B5748] hover:bg-[#386D5B] text-white font-semibold text-sm shadow-[0_10px_28px_rgba(43,87,72,0.4)] hover:scale-105 transition-all duration-300 border border-white/20"
+                  >
+                    <span>Discuss Your Requirements</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white hover:bg-[#F2F8F5] text-[#273338] font-semibold text-sm border border-[#273338]/15 shadow-sm transition-all duration-300 hover:scale-105"
+                  >
+                    <span>Contact Us</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
   );

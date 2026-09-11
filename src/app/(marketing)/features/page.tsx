@@ -236,7 +236,7 @@ export default function FeaturesPage() {
           {/* Action CTAs */}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <Link
-              href="#slide-operations"
+              href="#slide-intro"
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#2B5748] hover:bg-[#386D5B] !text-white font-semibold text-xs sm:text-sm shadow-[0_8px_20px_rgba(43,87,72,0.4)] hover:scale-105 transition-all duration-300 border border-white/20"
             >
               <span>Explore All 26 Features</span>
